@@ -1,5 +1,5 @@
-# Library API
-Currrently featuring... more coming soon™ 🚀
+<h1 align="center"><img align="center" src="../.resources/cheatoid-library.png" width="200" height="150" alt="Library API"></h1>
+<p align="center">Currrently featuring... more coming soon™ 🚀</p>
 
 ## ConVar
 Exposed as `ConVar`; used for creating console variables (Source-engine style).
