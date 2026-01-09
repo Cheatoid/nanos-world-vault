@@ -11,6 +11,7 @@
 # 🧭 Roadmap
 - [ ] Admin mod
 - [ ] Prop protection mod
+- [ ] Lua/Script debugger
 
 # ❤️ Support
 If you like this project, consider giving it a ⭐ or sharing it with others.
