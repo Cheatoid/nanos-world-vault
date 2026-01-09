@@ -135,10 +135,14 @@ end
 --- @return any:
 local function StringToValue(str, targetType)
 	if targetType == "boolean" then
-		--if str == "true" then return true end
-		--if str == "false" then return false end
+		-- Allow literal "true" / "false" strings
+		--local str_lower = string.lower(str)
+		--if str_lower == "true" then return true end
+		--if str_lower == "false" then return false end
+		-- Handle numeric strings (e.g. "1", "0")
 		local num = tonumber(str)
-		return num and num > 0
+		-- If num is nil (invalid input), default to false instead of returning nil
+		return (num and num > 0) or false
 	end
 	if targetType == "int" then
 		local num = tonumber(str) or 0

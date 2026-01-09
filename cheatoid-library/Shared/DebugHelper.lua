@@ -223,7 +223,8 @@ end
 --- • varargs<br>
 --- • locals (with kind)<br>
 --- • upvalues<br>
---- • debug info<br>
+--- • debug info
+---
 --- @param level number|nil: Defaults to 2.
 --- @return table
 function DebugHelper.dump_frame(level)
