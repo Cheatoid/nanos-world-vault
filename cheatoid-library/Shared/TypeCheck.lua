@@ -44,15 +44,15 @@ end
 --- @param expected_type string|table: The expected Lua type (e.g., "string") or a list of types (e.g., {"string", "number"} or "string|number").
 --- @param arg_index number|nil: The argument positional index (1, 2, 3...).
 --- @param optional boolean|nil: If true, the argument is optional (nil is accepted).
---- @param func_level number|nil Stack level of the function whose args we describe (defaults to 2).
---- @param error_level number|nil: Stack level for error reporting (defaults to 3).
+--- @param func_level number|nil: Stack level of the function whose args we describe (defaults to 1).
+--- @param error_level number|nil: Stack level for error reporting (defaults to 2).
 function TypeCheck(val, expected_type, arg_index, optional, func_level, error_level)
-	-- Set default stack level.
-	func_level = func_level or 2
+	-- Set default stack level for inspecting arguments.
+	func_level = (func_level or 1) + 1
 
-	-- We add 1 to the base level (usually 3) to account for this helper function,
+	-- We add 1 to the base level (usually 2) to account for this helper function,
 	-- ensuring the error points to the calling library function, not this helper.
-	error_level = (error_level or 3) + 1
+	error_level = (error_level or 2) + 1
 
 	-- If optional is true and value is nil, pass immediately
 	if optional and val == nil then
@@ -99,12 +99,12 @@ function TypeCheck(val, expected_type, arg_index, optional, func_level, error_le
 		return error(string.format(
 				"bad argument #%d%s to '%s' (expected %s%s, got %s)",
 				arg_index or "?",
-				arg_index and " (" .. (GetParameterName(func_level, arg_index) or "?") .. ")" or "",
+				arg_index and " (" .. (GetParameterName(func_level + 1, arg_index) or "?") .. ")" or "",
 				funcName,
 				prefix,
 				type_str,
 				actual_type),
-			stack_level
+			error_level
 		)
 	end
 end
@@ -117,14 +117,14 @@ end
 --- @param arg_index number: The 1-based positional index of the argument to validate.
 --- @param expected_type string|table: The expected Lua type, or a list/union of types.
 --- @param optional boolean|nil: If true, `nil` is accepted as a valid value. Defaults to false.
---- @param func_level number|nul: The stack level of the function whose parameters should be inspected. Defaults to 3.
---- @param error_level number|nil: Stack level used for error attribution. Defaults to 3, and is internally incremented by 1 so that errors point to the calling function, not this helper.
+--- @param func_level number|nul: The stack level of the function whose parameters should be inspected. Defaults to 2.
+--- @param error_level number|nil: Stack level used for error attribution. Defaults to 2, and is internally incremented by 1 so that errors point to the calling function, not this helper.
 function TypeCheckArg(arg_index, expected_type, optional, func_level, error_level)
-	-- Default: the function that called TypeCheckArg is at level 3
+	-- The caller function is at level 2
 	func_level = func_level or 2
 
 	-- Default stack level for error reporting
-	error_level = (error_level or 3) + 1
+	error_level = error_level or 2
 
 	-- Get info about the caller (your function)
 	local info = debug_getinfo(func_level, "u")
@@ -138,11 +138,11 @@ function TypeCheckArg(arg_index, expected_type, optional, func_level, error_leve
 
 		local funcInfo = debug_getinfo(func_level, "n")
 		local funcName = funcInfo and funcInfo.name or "?"
-
 		return error(string.format(
-			"bad argument #%d to '%s' (no such parameter)",
-			arg_index,
-			funcName
+			"bad argument #%d to '%s' (no such parameter index %d)",
+			1,
+			funcName,
+			arg_index
 		), error_level)
 	end
 
@@ -154,18 +154,18 @@ function TypeCheckArg(arg_index, expected_type, optional, func_level, error_leve
 end
 
 --local function test()
---	local function example(a, b, c, d)
---		TypeCheck(a, "number", 1)
---		TypeCheckArg(1, "number")
---		TypeCheck(b, "string", 2)
---		TypeCheckArg(2, "string")
---		TypeCheck(c, "boolean", 3)
---		TypeCheckArg(3, "boolean")
---		TypeCheck(d, "table", 4)
---		TypeCheckArg(4, "table")
---		print(a, b, c, d)
+--	local function example(a, b, c)
+--		TypeCheck(a, "number|boolean", 1)
+--		TypeCheckArg(1, "number|boolean")
+--		TypeCheck(b, "string|nil", 2)
+--		TypeCheckArg(2, "string|nil")
+--		TypeCheck(c, "table", 3)
+--		TypeCheckArg(3, "table")
+--		print(a, b, c)
 --	end
---	example(12.34, "foo", true, { "bar" })
+--	example(12.34, "foo", { "bar" })
+--	example(false, nil, { "bar" })
+--	example()
 --end
 --test()
 
