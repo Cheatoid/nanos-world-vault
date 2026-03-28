@@ -1,0 +1,58 @@
+#!/bin/sh
+
+VERSION_FILE=".version"
+
+# Read stdin from Git (contains refs being pushed)
+# Format: <local ref> <local sha1> <remote ref> <remote sha1>
+while read local_ref local_sha remote_ref remote_sha
+do
+	# Only act if the ref being pushed is a tag
+	case "$local_ref" in
+		refs/tags/*)
+			TAG_NAME=$(echo "$local_ref" | sed 's#refs/tags/##')
+
+			# Read current version
+			if [ -f "$VERSION_FILE" ]; then
+				CURRENT_VERSION=$(grep "version" "$VERSION_FILE" | sed 's/[^0-9]*//g')
+			else
+				CURRENT_VERSION=0
+			fi
+
+			NEXT_VERSION=$((CURRENT_VERSION + 1))
+
+			# Previous commit hash (HEAD)
+			PREV_HASH=$(git rev-parse HEAD)
+
+			# Remote URL
+			REMOTE_URL=$(git config --get remote.origin.url)
+
+			# Normalize URL formats
+			NORMALIZED=$(echo "$REMOTE_URL" \
+				| sed -e 's#git@#https://#' \
+					  -e 's#ssh://git@#https://#' \
+					  -e 's#git://#https://#' \
+					  -e 's#:#/#')
+
+			OWNER=$(echo "$NORMALIZED" | awk -F'/' '{print $(NF-1)}')
+			REPO=$(echo "$NORMALIZED" | awk -F'/' '{print $NF}' | sed 's/.git$//')
+
+			# Write Lua table
+			cat > "$VERSION_FILE" <<EOF
+return {
+	version = $NEXT_VERSION,
+	prev_hash = "$PREV_HASH",
+	owner = "$OWNER",
+	repo = "$REPO",
+	tag = "$TAG_NAME",
+}
+EOF
+
+			# Commit the version bump
+			git add "$VERSION_FILE"
+			git commit -m "Version bump to $NEXT_VERSION (tag: $TAG_NAME)" --no-verify
+
+			;;
+	esac
+done
+
+exit 0

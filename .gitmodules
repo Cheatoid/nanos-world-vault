@@ -1,0 +1,3 @@
+[submodule "cheatoid-library/Shared/scripts"]
+	path = cheatoid-library/Shared/scripts
+	url = https://github.com/Cheatoid/Lua.Scripts
