@@ -1,11 +1,11 @@
 # vault configurations
 [meta]
     # friendly name
-    title =                 "library"
+    title =                 "Library   (v0.0.4)"
     # contributors
     author =                "Cheatoid"
     # version
-    version =               "0.0.3"
+    version =               "0.0.4"
 
 # script configurations
 [script]
@@ -19,13 +19,13 @@
     compatibility_version = "1.99"
     # packages requirements
     packages_requirements = [
-                            
+
     ]
     # asset packs requirements
     assets_requirements = [
-                            
+
     ]
     # compatible game modes
     compatible_game_modes = [
-                            
+
     ]
