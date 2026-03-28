@@ -1,0 +1,7 @@
+return {
+	version = 1,
+	prev_hash = "2109f1521ba797c39d5dba0300d0f28aa0109b32",
+	owner = "Cheatoid",
+	repo = "nanos-world-vault",
+	tag = "v0.0.4",
+}
