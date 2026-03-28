@@ -1,20 +1,20 @@
 {
-  "Lua.workspace.checkThirdParty": false,
-  "Lua.workspace.ignoreSubmodules": false,
-  "Lua.workspace.library": [
-    "${workspaceFolder}/.nanos-world"
-  ],
-  "Lua.diagnostics.globals": [
-    /*
-    "Package",
-    "Server",
-    "Client",
-    "Events",
-    "Timer",
-    "Vector",
-    "Rotator",
-    "NanosUtils",
-    */
-  ],
-  "Lua.runtime.version": "Lua 5.4"
+	"Lua.workspace.checkThirdParty": false,
+	"Lua.workspace.ignoreSubmodules": false,
+	"Lua.workspace.library": [
+		"${workspaceFolder}/.nanos-world"
+	],
+	"Lua.diagnostics.globals": [],
+	"Lua.runtime.version": "Lua 5.4",
+	"Lua.format.enable": true,
+	"Lua.format.defaultConfig": {
+		"indent_style": "tab",
+		"indent_size": "2"
+	},
+	"[lua]": {
+		"editor.defaultFormatter": "JohnnyMorganz.stylua"
+	},
+	"Lua.hint.setType": true,
+	"Lua.hint.enable": true,
+	"editor.inlayHints.enabled": "on"
 }

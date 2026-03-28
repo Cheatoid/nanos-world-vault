@@ -1,18 +1,19 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
--- Localize frequently used globals for performance
-local debug_getinfo, debug_getlocal, string_gmatch = debug.getinfo, debug.getlocal, string.gmatch
+-- Localize global functions for better performance.
+local next, type, debug_getinfo, debug_getlocal, string_format, string_gmatch =
+		next, type, debug.getinfo, debug.getlocal, string.format, string.gmatch
 
 --- Gets a list of parameter names for the function at the given stack level.
---- @param level number: The stack level (1 = current function, 2 = function calling this, etc.)
---- @return table|nil: A list of strings representing the parameter names, or nil if out of bounds.
+--- @param level integer The stack frame level (1 = current function, 2 = function calling this, etc.)
+--- @return table|nil array A list of strings representing the parameter names, or nil if out of bounds.
 local function GetParameterNames(level)
 	-- Get info about the function at this level.
 	-- "u" includes: 'nparams' (number of parameters) and 'isvararg'
 	local info = debug_getinfo(level, "u")
 	if not info then
-		return -- Invalid level
+		return -- Invalid level, or not found
 	end
 
 	local params = {}
@@ -28,9 +29,9 @@ local function GetParameterNames(level)
 end
 
 --- Helper to get a specific parameter name by index.
---- @param level number: The stack level.
---- @param index number: The argument index (1-based).
---- @return string|nil: The name of the parameter, or nil if out of bounds.
+--- @param level integer The stack frame level (1 = current function, 2 = function calling this, etc.)
+--- @param index integer The argument index (1-based).
+--- @return string|nil string|nil The name of the parameter, or nil if out of bounds.
 local function GetParameterName(level, index)
 	local info = debug_getinfo(level, "u")
 	if info and 1 <= index and index <= info.nparams then
@@ -40,13 +41,13 @@ local function GetParameterName(level, index)
 end
 
 --- Helper for strict type checking.
---- @param val any: The value to check.
---- @param expected_type string|table: The expected Lua type (e.g., "string") or a list of types (e.g., {"string", "number"} or "string|number").
---- @param arg_index number|nil: The argument positional index (1, 2, 3...).
---- @param optional boolean|nil: If true, the argument is optional (nil is accepted).
---- @param func_level number|nil: Stack level of the function whose args we describe (defaults to 1).
---- @param error_level number|nil: Stack level for error reporting (defaults to 2).
-function TypeCheck(val, expected_type, arg_index, optional, func_level, error_level)
+--- @param val any The value to check.
+--- @param expected_type string|table The expected Lua type (e.g., "string") or a list of types (e.g., {"string", "number"} or "string|number").
+--- @param arg_index integer|nil The argument positional index (1, 2, 3...).
+--- @param optional boolean|nil If true, the argument is optional (nil is accepted).
+--- @param func_level integer|nil Stack level of the function whose args we describe (defaults to 1).
+--- @param error_level integer|nil Stack level for error reporting (defaults to 2).
+local function TypeCheck(val, expected_type, arg_index, optional, func_level, error_level)
 	-- Set default stack level for inspecting arguments.
 	func_level = (func_level or 1) + 1
 
@@ -70,18 +71,18 @@ function TypeCheck(val, expected_type, arg_index, optional, func_level, error_le
 		end
 	end
 
-	-- Perform Type Check
+	-- Perform type checking
 	local actual_type = type(val)
 	local is_valid = false
 
 	for _, t in next, allowed_types do
-		if actual_type == t or t == "any" or (t == "nil" and val == nil) then
+		if actual_type == t or t == "any" or (t == "nil" and val == nil) or (t == "integer" and actual_type == "number") then
 			is_valid = true
 			break
 		end
 	end
 
-	-- Handle Error
+	-- Handle error
 	if not is_valid then
 		local type_str = ""
 		local count = #allowed_types
@@ -96,14 +97,16 @@ function TypeCheck(val, expected_type, arg_index, optional, func_level, error_le
 		local funcInfo = debug_getinfo(func_level, "n")
 		local funcName = (funcInfo and funcInfo.name) or "?"
 		local prefix = optional and "optional " or ""
-		return error(string.format(
+		return error(
+			string_format(
 				"bad argument #%d%s to '%s' (expected %s%s, got %s)",
 				arg_index or "?",
 				arg_index and " (" .. (GetParameterName(func_level + 1, arg_index) or "?") .. ")" or "",
 				funcName,
 				prefix,
 				type_str,
-				actual_type),
+				actual_type
+			),
 			error_level
 		)
 	end
@@ -114,12 +117,12 @@ end
 --- • Fetches the argument value using `debug.getlocal`<br>
 --- • Ensures the argument index is within the function's declared parameters<br>
 --- • Forwards all type-checking rules to `TypeCheck`<br>
---- @param arg_index number: The 1-based positional index of the argument to validate.
---- @param expected_type string|table: The expected Lua type, or a list/union of types.
---- @param optional boolean|nil: If true, `nil` is accepted as a valid value. Defaults to false.
---- @param func_level number|nul: The stack level of the function whose parameters should be inspected. Defaults to 2.
---- @param error_level number|nil: Stack level used for error attribution. Defaults to 2, and is internally incremented by 1 so that errors point to the calling function, not this helper.
-function TypeCheckArg(arg_index, expected_type, optional, func_level, error_level)
+--- @param arg_index integer The 1-based positional index of the argument to validate.
+--- @param expected_type string|table The expected Lua type, or a list/union of types.
+--- @param optional boolean|nil If true, `nil` is accepted as a valid value. Defaults to false.
+--- @param func_level integer|nil The stack level of the function whose parameters should be inspected. Defaults to 2.
+--- @param error_level integer|nil Stack level used for error attribution. Defaults to 2, and is internally incremented by 1 so that errors point to the calling function, not this helper.
+local function TypeCheckArg(arg_index, expected_type, optional, func_level, error_level)
 	-- The caller function is at level 2
 	func_level = func_level or 2
 
@@ -138,12 +141,15 @@ function TypeCheckArg(arg_index, expected_type, optional, func_level, error_leve
 
 		local funcInfo = debug_getinfo(func_level, "n")
 		local funcName = funcInfo and funcInfo.name or "?"
-		return error(string.format(
-			"bad argument #%d to '%s' (no such parameter index %d)",
-			1,
-			funcName,
-			arg_index
-		), error_level)
+		return error(
+			string_format(
+				"bad argument #%d to '%s' (no such parameter index %d)",
+				1,
+				funcName,
+				arg_index
+			),
+			error_level
+		)
 	end
 
 	-- Fetch the argument value (discard the name)
@@ -169,7 +175,10 @@ end
 --end
 --test()
 
+-- Export the API to be accessed by other packages
+_G.TypeCheck = TypeCheck
 Package.Export("TypeCheck", TypeCheck)
+_G.TypeCheckArg = TypeCheckArg
 Package.Export("TypeCheckArg", TypeCheckArg)
 return {
 	TypeCheck = TypeCheck,

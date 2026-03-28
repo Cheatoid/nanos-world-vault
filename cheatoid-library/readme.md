@@ -1,11 +1,16 @@
-<h1 align="center"><img align="center" src="../.resources/cheatoid-library.png" width="200" height="150" alt="Library API"></h1>
+<h1 align="center"><img align="center" src="../.resources/cheatoid-library.jpg" width="400" height="250" alt="Library API"></h1>
 <p align="center">Currrently featuring... more coming soon™ 🚀</p>
 
 ## ConVar
-Exposed as `ConVar`; used for creating console variables (Source-engine style).
-By default, it creates `cvarlist` conmmand to dump created convars, adds `sv_cheats` (placeholder convar), and also adds `sv_password` used for changing server's password.
-How to change convars? Simply type the convar name followed by a value into a console, for example to change server's password to `test123`, you would enter `sv_password test123` into console.
-You can register your own convars, for example:
+Exposed as (global) `ConVar`; used for creating console variables (Source-engine style).  
+By default, it creates `cvarlist` conmmand to dump created convars, adds `sv_cheats` (placeholder convar), and also adds `sv_password` used for changing server's password.  
+
+> How to change convars?  
+
+- Simply type the convar name followed by a value into a console, for example to change server's password to `test123`, you would enter `sv_password test123` into console.  
+
+> How to register convars?  
+
 ```lua
 local sv_allowcslua = ConVar.Register(
 	"sv_allowcslua", -- name

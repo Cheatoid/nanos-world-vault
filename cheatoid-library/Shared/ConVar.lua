@@ -3,6 +3,31 @@
 
 --if _G.ConVar then return _G.ConVar end
 
+-- Localize global functions for performance
+local next = next
+local pcall = pcall
+local type = type
+local tonumber = tonumber
+local tostring = tostring
+local setmetatable = setmetatable
+local math_modf = math.modf
+local string_find = string.find
+local string_format = string.format
+local string_lower = string.lower
+local string_sub = string.sub
+local string_upper = string.upper
+local table_concat = table.concat
+--local Console_Log, Console_Warn = Console.Log, Console.Warn
+local Console_RegisterCommand = Console.RegisterCommand
+local Client_GetValue, Client_SetValue = Client and Client.GetValue, Client and Client.SetValue
+local Server_SetValue = Server and Server.SetValue
+local Events_SubscribeRemote, Events_CallRemote = Events.SubscribeRemote, Events.CallRemote
+local Events_BroadcastRemote = Events.BroadcastRemote
+
+-- TypeCheck is loaded from TypeCheck.lua via Index.lua
+---@diagnostic disable-next-line: undefined-global
+local TypeCheck = _G.TypeCheck
+
 --- @class ConVar
 --- Console Variable (CVar) library.
 local ConVar = {}
@@ -15,53 +40,119 @@ local REPLICATE_EVENT = "ConVar::Replicate"
 local REQUEST_EVENT = "ConVar::RequestSet"
 local USERINFO_EVENT = "ConVar::UserInfoUpdate"
 
---- Structure: [name] = ConVar
-local ConVars = {}
+--- Ensures a key exists in a table, setting it to a default value if it doesn't.
+--- @param tbl table The table to check.
+--- @param key any The key to check.
+--- @param def any The default value to set if the key doesn't exist.
+--- @return any any The value of the key (either the existing value or the default value).
+local function table_Ensure(tbl, key, def) -- TODO: Move this to Lua libs
+	if tbl[key] == nil then
+		tbl[key] = def
+		return def
+	end
+	return tbl[key]
+end
+
+--- Ensures a key exists in a table, lazily creating it with a factory function if it doesn't.
+--- The factory function is only called when the key is missing, and its return value is stored.
+--- @param tbl table The table to check and modify.
+--- @param key any The key to check for existence.
+--- @param def function A factory function that creates the default value. Called with additional arguments.
+--- @param ... any Additional arguments passed to the factory function.
+--- @return any any The existing value of the key, or the newly created value from the factory function.
+local function table_EnsureLazy(tbl, key, def, ...) -- TODO: Move this to Lua libs
+	if tbl[key] == nil then
+		def = def(...)
+		tbl[key] = def
+		return def
+	end
+	return tbl[key]
+end
+
+--- Creates a case-insensitive wrapper for any table or creates a new case-insensitive table.
+--- Allows reading/writing string keys regardless of case.
+--- @param tbl table|nil The table to wrap. If nil, creates a new empty table.
+--- @return table table Case-insensitive wrapper for the target table.
+local function table_MakeCaseInsensitive(tbl) -- TODO: Move this to Lua libs
+	-- Create new table if none provided
+	if not tbl then
+		tbl = {}
+	end
+
+	local wrapper = {}
+
+	--- Metamethods for case-insensitive access
+	wrapper.__index = function(t, key)
+		if type(key) ~= "string" then return rawget(t, key) end
+		local v = rawget(t, string_upper(key))
+		if v ~= nil then return v end
+		return rawget(tbl, string_upper(key))
+	end
+
+	wrapper.__newindex = function(t, key, value)
+		if type(key) ~= "string" then
+			rawset(t, key, value)
+			return
+		end
+		local upper_key = string_upper(key)
+		rawset(t, upper_key, value)
+		tbl[upper_key] = value
+	end
+
+	-- Set up the metatable
+	return setmetatable(wrapper, wrapper)
+end
+
+--- Registry of all registered ConVars (case-insensitive keyed).
+--- Structure: [string: name] = ConVar: object
+--- @type table<string, ConVar>
+local ConVars = table_MakeCaseInsensitive()
+
 --- Registry for per-player userinfo (client -> server convars).
---- Structure: [Player] = { ["cvar_name"] = value_string }
+--- Structure: [Player] = { [string: cvar_name] = string: cvar_value }
 local PlayerUserInfos = setmetatable({}, { __mode = "k" }) -- TODO: Perhaps store directly on Player objects to persist state (support hotreload)
 
 -- ==========================================
 -- Bitwise Helpers
--- TODO: Move to a separate script
+-- TODO: Move these to Lua lib
 -- ==========================================
 
 --- Checks if the value contains all of the specified flags.
---- @param val number: The current bitmask.
---- @param flag number: The flag or bitmask to check.
---- @return boolean: True if all bits in flag are set in val.
+--- @param val integer The current bitmask.
+--- @param flags integer The flag or bitmask to check.
+--- @return boolean boolean True if all bits in flag are set in val.
 local function HasFlags(val, flags)
 	return (val & flags) == flags
 end
 
 --- Checks if the value contains any of the specified flags.
---- @param val number: The current bitmask.
---- @param flags number: A mask of flags to check against.
---- @return boolean: True if any bit in flags is set in val.
+--- @param val integer The current bitmask.
+--- @param flags integer A mask of flags to check against.
+--- @return boolean boolean True if any bit in flags is set in val.
 local function HasAnyFlag(val, flags)
 	return (val & flags) ~= 0
 end
 
 --- Adds (sets) the specified flags to the value.
---- @param val number: The current bitmask.
---- @param flag number: The flag or bitmask to add.
---- @return number: The new bitmask with flags added.
+--- @param val integer The current bitmask.
+--- @param flag integer The flag or bitmask to add.
+--- @return integer integer The new bitmask with flags added.
 local function AddFlag(val, flag)
 	return val | flag
 end
 
 --- Removes (clears) the specified flags from the value.
---- @param val number: The current bitmask.
---- @param flag number: The flag or bitmask to remove.
---- @return number: The new bitmask with flags removed.
+--- @param val integer The current bitmask.
+--- @param flag integer The flag or bitmask to remove.
+--- @return integer integer The new bitmask with flags removed.
 local function RemoveFlag(val, flag)
 	return val & (~flag)
 end
 
 --- Creates a factory function for generating sequential bit flags.
 --- Each call to the returned function returns the next power of 2 (1, 2, 4, 8...).
---- @return function: A function that returns a new flag number.
-local function MakeBitEnum()
+--- @return function function A function that returns a new flag integer.
+local function MakeBitEnum() -- TODO: Move to Lua lib
 	local bit_index = 0
 	return function()
 		local flag = 1 << bit_index
@@ -74,42 +165,80 @@ end
 -- Flags Definition
 -- ==========================================
 
---- bitwise flags for ConVar behavior.
+--- Bitwise flags for ConVar behavior
+local FLAG
 do
 	local FCVAR = MakeBitEnum()
-	ConVar.FLAG = {
-		NONE = 0,
-		ARCHIVE = FCVAR(),          -- Save to config (Server side) - TODO
-		REPLICATED = FCVAR(),       -- Server sends this to clients
+	-- @formatter:off
+	FLAG = {
+		NONE               = 0,
+		ARCHIVE            = FCVAR(), -- Save to config (Server side) - TODO
+		REPLICATED         = FCVAR(), -- Server sends this to clients
 		CLIENT_CAN_EXECUTE = FCVAR(), -- Clients can change this (e.g., graphical settings)
-		CHEAT = FCVAR(),            -- Only usable if sv_cheats is 1
-		HIDDEN = FCVAR(),           -- Don't show in generic find commands
-		NEVER_AS_STRING = FCVAR(),  -- Prevent displaying the value - TODO
-		USERINFO = FCVAR(),         -- Client sends this to server automatically (client-side only)
+		CHEAT              = FCVAR(), -- Only usable if sv_cheats is 1
+		HIDDEN             = FCVAR(), -- Don't show in generic find commands
+		NEVER_AS_STRING    = FCVAR(), -- Prevent displaying the value
+		USERINFO           = FCVAR(), -- Client sends this to server automatically (client-side only)
 	}
+	-- @formatter:on
 end
 
 --- Helper to convert flag integer to a readable string.
---- @param flags number:
---- @return string:
-local function FlagsToString(flags)
+--- @param flags number
+--- @return string string
+local function FlagsToString(flags) -- TODO: Move to Lua lib
 	if flags == 0 then return "NONE" end
 	local parts = {}
-	for k, v in next, ConVar.FLAG do
+	for k, v in next, FLAG do
 		if (flags & v) ~= 0 then
 			parts[#parts + 1] = k
 		end
 	end
-	return #parts > 0 and table.concat(parts, ", ") or "NONE"
+	return #parts > 0 and table_concat(parts, ", ") or "NONE"
+end
+
+--- Validates that a value is a proper bitflag (non-negative integer or valid flag enum value).
+--- @param val any The value to validate.
+--- @param flag_enum table The flag enum table to validate against (result from MakeBitEnum()).
+--- @param param_name string The name of the parameter being validated (for error messages).
+--- @param param_pos integer The parameter position (for error messages).
+--- @return integer integer The validated flag value.
+local function ValidateBitFlag(val, flag_enum, param_name, param_pos) -- TODO: Move to Lua lib
+	-- Allow nil, default to 0
+	if val == nil then return 0 end
+
+	if type(val) ~= "number" then
+		TypeCheck(val, "integer", param_pos)
+	end
+
+	if val < 0 or val ~= (math_modf(val)) then
+		error(string_format("%s must be a non-negative integer, got %s", param_name, tostring(val)), 3)
+	end
+
+	-- Validate that the value doesn't contain bits outside the defined flags
+	if val > 0 and flag_enum then
+		-- Create a bitmask of all valid flags
+		local valid_mask = 0
+		for _, flag_val in next, flag_enum do
+			valid_mask = valid_mask | flag_val
+		end
+
+		-- Check if value contains any invalid bits
+		if (val & ~valid_mask) ~= 0 then
+			error(string_format("%s contains invalid flag bits: %s", param_name, tostring(val)), 3)
+		end
+	end
+
+	return val
 end
 
 --- Helper to detect type using modf for integer detection.
---- @param val any:
---- @return string:
+--- @param val any
+--- @return string string
 local function GetValueType(val)
 	local t = type(val)
 	if t == "number" then
-		local _, frac_part = math.modf(val)
+		local _, frac_part = math_modf(val)
 		return frac_part == 0 and "int" or "float"
 	end
 	if t == "boolean" then
@@ -122,17 +251,17 @@ local function GetValueType(val)
 end
 
 --- Helper to cast value to string (for networking/console).
---- @param val any:
---- @return string:
+--- @param val any
+--- @return string string
 local function ValueToString(val)
 	if type(val) == "boolean" then return val and "1" or "0" end
 	return tostring(val)
 end
 
 --- Helper to parse string to target type.
---- @param str string:
---- @param targetType string:
---- @return any:
+--- @param str string
+--- @param targetType string
+--- @return any any
 local function StringToValue(str, targetType)
 	if targetType == "boolean" then
 		-- Allow literal "true" / "false" strings
@@ -146,7 +275,7 @@ local function StringToValue(str, targetType)
 	end
 	if targetType == "int" then
 		local num = tonumber(str) or 0
-		return (math.modf(num))
+		return (math_modf(num))
 	end
 	if targetType == "float" then
 		return tonumber(str) or 0.0
@@ -160,7 +289,7 @@ end
 
 --- Allows converting the ConVar object directly to a string representation of its value.
 --- Usage: print(my_cvar)
---- @return string:
+--- @return string string
 function ConVar:__tostring()
 	return self:GetString()
 end
@@ -170,24 +299,24 @@ end
 -- ==========================================
 
 --- Creates a new ConVar or retrieves an existing one.
---- @param name string: The name of the console variable.
---- @param default boolean|number|string|nil: The default value.
---- @param help string|nil: Description of the ConVar.
---- @param flags number|nil: Bitwise flags (ConVar.FLAG).
---- @param min_val number|nil: Minimum value (numeric only).
---- @param max_val number|nil: Maximum value (numeric only).
---- @param params table|nil: The list of supported parameters to display in the console (strings only).
---- @return ConVar: The console variable object.
-function ConVar.Register(name, default, help, flags, min_val, max_val, params)
+--- @param name string The name of the console variable.
+--- @param default boolean|number|integer|string|nil The default value.
+--- @param help string|nil Description of the ConVar.
+--- @param flags integer|nil Bitwise flags (ConVar.FLAG).
+--- @param min_val number|integer|nil Minimum value (numeric only).
+--- @param max_val number|integer|nil Maximum value (numeric only).
+--- @param params table|nil The list of supported parameters to display in the console (strings only).
+--- @return ConVar ConVar The console variable object.
+local function ConVar_Register(name, default, help, flags, min_val, max_val, params)
 	TypeCheck(name, "string", 1)
 	TypeCheck(default, "boolean|number|string|nil", 2)
 	TypeCheck(help, "string|nil", 3)
-	TypeCheck(flags, "number|nil", 4)
+	--TypeCheck(flags, "integer|nil", 4)
+	flags = ValidateBitFlag(flags, FLAG, "flags", 4)
 	TypeCheck(min_val, "number|nil", 5)
 	TypeCheck(max_val, "number|nil", 6)
 	TypeCheck(params, "table|nil", 7)
 
-	flags = flags or ConVar.FLAG.NONE
 	if default == nil then default = "" end
 	local val_type = GetValueType(default)
 	if val_type == "boolean" then
@@ -195,14 +324,14 @@ function ConVar.Register(name, default, help, flags, min_val, max_val, params)
 	end
 
 	-- Singleton check
-	name = string.lower(name)
-	if ConVars[name] then
-		Console.Log("[ConVar] Warning: '%s' already registered. Returning existing instance.", name)
-		return ConVars[name]
+	local cvar = ConVars[name]
+	if cvar then
+		Console.Warn("[ConVar] Warning: '%s' already registered. Returning existing instance.", name)
+		return cvar
 	end
 
 	local self = setmetatable({}, ConVar)
-	self.Name = name
+	self.Name = string_lower(name) -- ConVar name in lowercase
 	self.Type = val_type
 	self.Default = default
 	self.Flags = flags
@@ -215,22 +344,22 @@ function ConVar.Register(name, default, help, flags, min_val, max_val, params)
 	local initial_val = default
 
 	-- Server-side persistence logic
-	if Server and (flags & ConVar.FLAG.ARCHIVE) ~= 0 then
+	if Server and (flags & FLAG.ARCHIVE) ~= 0 then
 		local saved = Server.GetValue(name)
 		if saved ~= nil then
 			initial_val = StringToValue(saved, val_type)
 		end
 	end
 
-	-- Client-side initialization from Engine
+	-- Client-side initialization from engine
 	if Client then
-		if (flags & ConVar.FLAG.REPLICATED) ~= 0 then
-			local synced_val = Client.GetValue(name)
+		if (flags & FLAG.REPLICATED) ~= 0 then
+			local synced_val = Client_GetValue(name)
 			if synced_val ~= nil then
 				initial_val = StringToValue(synced_val, val_type)
 			end
-		elseif (flags & ConVar.FLAG.USERINFO) ~= 0 then
-			local local_val = Client.GetValue(name)
+		elseif (flags & FLAG.USERINFO) ~= 0 then
+			local local_val = Client_GetValue(name)
 			if local_val ~= nil then
 				initial_val = StringToValue(local_val, val_type)
 			end
@@ -245,8 +374,8 @@ function ConVar.Register(name, default, help, flags, min_val, max_val, params)
 
 	self.Value = initial_val
 
-	-- Register Console Command
-	Console.RegisterCommand(name, function(...)
+	-- Register console command (lowercase)
+	Console_RegisterCommand(self.Name, function(...)
 		self:OnConsoleCommand({ ... })
 	end, self.Help, params)
 
@@ -254,12 +383,17 @@ function ConVar.Register(name, default, help, flags, min_val, max_val, params)
 
 	-- Server: Initial replication or persistence
 	if Server then
-		if (flags & ConVar.FLAG.REPLICATED) ~= 0 or (flags & ConVar.FLAG.ARCHIVE) ~= 0 then
-			Server.SetValue(self.Name, ValueToString(self.Value), true)
+		if (flags & FLAG.REPLICATED) ~= 0 or (flags & FLAG.ARCHIVE) ~= 0 then
+			Server_SetValue(self.Name, ValueToString(self.Value), true)
 		end
 	end
 
 	return self
+end
+ConVar.Register = ConVar_Register
+
+function ConVar:__call(...)
+	return ConVar_Register(...)
 end
 
 -- ==========================================
@@ -267,13 +401,18 @@ end
 -- ==========================================
 
 --- Internal handler for console input.
---- @param args table:
+--- @param args table
 function ConVar:OnConsoleCommand(args)
 	if not args or #args == 0 then
 		-- Use FlagsToString for human readable output
-		Console.Log(string.format("%s%s [Flags: %s]", self.Name,
-			(self.Flags & ConVar.FLAG.NEVER_AS_STRING) ~= 0 and "" or string.format(" = %q", ValueToString(self.Value)),
-			FlagsToString(self.Flags)))
+		Console.Log(
+			string_format(
+				"%s%s [Flags: %s]",
+				self.Name,
+				(self.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or string_format(" = %q", ValueToString(self.Value)),
+				FlagsToString(self.Flags)
+			)
+		)
 		if self.Help and #self.Help > 0 then Console.Log(" - " .. self.Help) end
 		return
 	end
@@ -284,17 +423,17 @@ function ConVar:OnConsoleCommand(args)
 	if Server then
 		self:SetValue(new_val, "Server Console")
 	elseif Client then
-		if (self.Flags & ConVar.FLAG.CLIENT_CAN_EXECUTE) ~= 0 or (self.Flags & ConVar.FLAG.USERINFO) ~= 0 then
+		if (self.Flags & FLAG.CLIENT_CAN_EXECUTE) ~= 0 or (self.Flags & FLAG.USERINFO) ~= 0 then
 			self:SetValue(new_val, "Client Console")
 		else
-			Events.CallRemote(REQUEST_EVENT, self.Name, ValueToString(new_val))
+			Events_CallRemote(REQUEST_EVENT, self.Name, ValueToString(new_val))
 		end
 	end
 end
 
 --- Sets the value of the ConVar.
---- @param value any:
---- @param source string|nil: Optional identifier of who changed the value.
+--- @param value any
+--- @param source string|nil Optional identifier of who changed the value.
 function ConVar:SetValue(value, source)
 	local typed_val
 	if self.Type == "boolean" then
@@ -305,7 +444,7 @@ function ConVar:SetValue(value, source)
 		end
 	elseif self.Type == "int" then
 		local num = tonumber(value) or 0
-		typed_val = math.modf(num)
+		typed_val = (math_modf(num))
 	elseif self.Type == "float" then
 		typed_val = tonumber(value) or 0.0
 	else
@@ -328,92 +467,92 @@ function ConVar:SetValue(value, source)
 		callbacks[#callbacks + 1] = cb
 	end
 
-	local value = (self.Flags & ConVar.FLAG.NEVER_AS_STRING) ~= 0 and "" or self.Value
+	local value = (self.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or self.Value
 
 	for _, cb in next, callbacks do
 		if self.Callbacks[cb] then
 			local ok, err = pcall(cb, self.Name, value, source)
 			if not ok then
-				Console.Log(string.format("[ConVar] Error in callback for '%s': %s", self.Name, tostring(err)))
+				Console.Warn(string_format("[ConVar] Error in callback for '%s': %s", self.Name, tostring(err)))
 			end
 		end
 	end
 
 	if Server then
 		-- Engine Sync & Persistence
-		if (self.Flags & ConVar.FLAG.REPLICATED) ~= 0 or (self.Flags & ConVar.FLAG.ARCHIVE) ~= 0 then
-			Server.SetValue(self.Name, ValueToString(value), true)
+		if (self.Flags & FLAG.REPLICATED) ~= 0 or (self.Flags & FLAG.ARCHIVE) ~= 0 then
+			Server_SetValue(self.Name, ValueToString(value), true)
 		end
 
 		-- Lua Callback Sync (for clients)
-		if (self.Flags & ConVar.FLAG.REPLICATED) ~= 0 then
-			Events.BroadcastRemote(REPLICATE_EVENT, self.Name, ValueToString(value))
+		if (self.Flags & FLAG.REPLICATED) ~= 0 then
+			Events_BroadcastRemote(REPLICATE_EVENT, self.Name, ValueToString(value))
 		end
 	elseif Client then
 		-- USERINFO Logic: Send to server
-		if (self.Flags & ConVar.FLAG.USERINFO) ~= 0 then
-			Events.CallRemote(USERINFO_EVENT, self.Name, ValueToString(value))
-			Client.SetValue(self.Name, ValueToString(value))
+		if (self.Flags & FLAG.USERINFO) ~= 0 then
+			Events_CallRemote(USERINFO_EVENT, self.Name, ValueToString(value))
+			Client_SetValue(self.Name, ValueToString(value))
 		end
 	end
 end
 
 --- Explicitly sets a Float value.
---- @param value number:
+--- @param value number
 function ConVar:SetFloat(value)
 	TypeCheck(value, "number", 1)
 	self:SetValue(value)
 end
 
 --- Explicitly sets an Int value.
---- @param value number:
+--- @param value integer
 function ConVar:SetInt(value)
-	TypeCheck(value, "number", 1)
-	self:SetValue((math.modf(value)))
+	TypeCheck(value, "integer", 1)
+	self:SetValue((math_modf(value)))
 end
 
 --- Explicitly sets a Bool value.
---- @param value boolean:
+--- @param value boolean
 function ConVar:SetBool(value)
 	TypeCheck(value, "boolean", 1)
 	self:SetValue(value)
 end
 
 --- Explicitly sets a String value.
---- @param value string:
+--- @param value string
 function ConVar:SetString(value)
 	TypeCheck(value, "string", 1)
 	self:SetValue(value)
 end
 
 --- Gets the raw value.
---- @return any:
+--- @return any any
 function ConVar:GetValue()
 	return self.Value
 end
 
 --- Gets the value as a String.
---- @return string:
+--- @return string string
 function ConVar:GetString()
-	return (self.Flags & ConVar.FLAG.NEVER_AS_STRING) ~= 0 and "" or ValueToString(self.Value)
+	return (self.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or ValueToString(self.Value)
 end
 
 --- Gets the value as an Integer (truncated towards zero).
---- @return integer:
+--- @return integer integer
 function ConVar:GetInt()
 	local num = tonumber(self.Value)
 	if not num then return 0 end
-	return (math.modf(num))
+	return (math_modf(num))
 end
 
 --- Gets the value as a Float.
---- @return number:
+--- @return number number
 function ConVar:GetFloat()
 	return tonumber(self.Value) or 0.0
 end
 
 --- Gets the value as a Boolean.
---- @return boolean:
+--- @return boolean boolean
 function ConVar:GetBool()
 	local value = self.Value
 	if type(value) == "boolean" then return value end
@@ -430,14 +569,14 @@ function ConVar:Reset()
 end
 
 --- Adds a callback function to be executed when the ConVar changes.
---- @param func function: Signature: callback(name, new_value, source)
+--- @param func function Signature callback(name, new_value, source)
 function ConVar:AddChangeCallback(func)
 	TypeCheck(func, "function", 1)
 	self.Callbacks[func] = true
 end
 
 --- Removes a previously added callback.
---- @param func function:
+--- @param func function
 function ConVar:RemoveChangeCallback(func)
 	TypeCheck(func, "function", 1)
 	self.Callbacks[func] = nil
@@ -448,43 +587,44 @@ end
 -- ==========================================
 
 --- Retrieves a ConVar by name.
---- @param name string:
---- @return ConVar|nil:
-function ConVar.Get(name)
+--- @param name string The name of the console variable.
+--- @return ConVar|nil ConVar The console variable object, or nil if not found.
+local function ConVar_Get(name)
 	TypeCheck(name, "string", 1)
-	return ConVars[string.lower(name)]
+	return ConVars[name]
 end
+ConVar.Get = ConVar_Get
 
 --- Gets an existing ConVar or creates a new one if it doesn't exist.
---- @param name string: The name of the console variable.
---- @param default boolean|number|string|nil: The default value.
---- @param help string|nil: Description of the ConVar.
---- @param flags number|nil: Bitwise flags (ConVar.FLAG).
---- @param min_val number|nil: Minimum value (numeric only).
---- @param max_val number|nil: Maximum value (numeric only).
---- @param params table|nil: The list of supported parameters to display in the console (strings only).
---- @return ConVar: The console variable object.
-function ConVar.GetOrCreate(name, default, help, flags, min_val, max_val, params)
+--- @param name string The name of the console variable.
+--- @param default boolean|number|integer|string|nil The default value.
+--- @param help string|nil Description of the ConVar.
+--- @param flags integer|nil Bitwise flags (ConVar.FLAG).
+--- @param min_val number|integer|nil Minimum value (numeric only).
+--- @param max_val number|integer|nil Maximum value (numeric only).
+--- @param params table|nil The list of supported parameters to display in the console (strings only).
+--- @return ConVar ConVar The console variable object.
+local function ConVar_GetOrCreate(name, default, help, flags, min_val, max_val, params)
 	TypeCheck(name, "string", 1)
-	local cvar = ConVars[string.lower(name)]
+	local cvar = ConVars[name]
 	if cvar then return cvar end
-	return ConVar.Register(name, default, help, flags, min_val, max_val, params)
+	return ConVar_Register(name, default, help, flags, min_val, max_val, params)
 end
+ConVar.GetOrCreate = ConVar_GetOrCreate
 
 if Server then
 	--- Retrieves a USERINFO value for a specific player on the server.
 	--- This is used for client-side ConVars that replicate their state to the server.
-	--- @param player Player: The player object.
-	--- @param name string: The ConVar name.
-	--- @return any: The value (converted to type if registered) or string. Returns nil if not found.
-	function ConVar.GetPlayerInfo(player, name)
+	--- @param player Player The player object.
+	--- @param name string The ConVar name.
+	--- @return any any The value (converted to type if registered) or string. Returns nil if not found.
+	local function ConVar_GetPlayerInfo(player, name)
 		TypeCheck(player, "userdata", 1)
 		TypeCheck(name, "string", 2)
 
 		local info = PlayerUserInfos[player]
 		if not info then return end
 
-		name = string.lower(name)
 		local str_val = info[name]
 		if not str_val then return end
 
@@ -495,92 +635,123 @@ if Server then
 
 		return str_val
 	end
+	ConVar.GetPlayerInfo = ConVar_GetPlayerInfo
 
 	function Player:GetPlayerInfo(cvar_name)
-		return ConVar.GetPlayerInfo(self, cvar_name)
+		return ConVar_GetPlayerInfo(self, cvar_name)
 	end
 end
 
 --- Returns an iterator over all registered ConVars.
 --- @return function, table
-function ConVar.GetIterator()
+local function ConVar_GetIterator()
 	return next, ConVars
 end
+ConVar.GetIterator = ConVar_GetIterator
 
 -- ==========================================
 -- Networking Setup & Utility Commands
 -- ==========================================
 
-Console.RegisterCommand("cvarlist", function(args)
+--- Helper function to format and log a single ConVar entry.
+--- Returns true if the ConVar should be displayed, false otherwise.
+--- @param name string The ConVar name.
+--- @param cvar ConVar The ConVar object.
+--- @param filter string|nil Optional filter pattern string.
+--- @return boolean boolean True if the ConVar was displayed.
+local function LogConVarEntry(name, cvar, filter)
+	-- Check filter
+	if filter and not string_find(name, filter, nil, false) then
+		return false
+	end
+
+	-- Check hidden flag
+	if (cvar.Flags & FLAG.HIDDEN) ~= 0 and not filter then
+		return false
+	end
+
+	local val_str = cvar:GetString()
+	local help_str = cvar.Help or ""
+	local minmax_str = ""
+	local flag_str = " [Flags: " .. FlagsToString(cvar.Flags) .. "]"
+
+	if cvar.Min or cvar.Max then
+		minmax_str = string_format(" [Min: %s, Max: %s]", cvar.Min or "N/A", cvar.Max or "N/A")
+	end
+
+	Console.Log(
+		string_format(
+			"%s%s%s%s - %s",
+			string_lower(name),
+			(cvar.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or string_format(" = %q", val_str),
+			minmax_str,
+			flag_str,
+			help_str
+		)
+	)
+	return true
+end
+
+Console_RegisterCommand("cvarlist", function(args)
 	local filter
 	if args and args[1] then
-		filter = string.lower(args[1])
+		filter = string_upper(args[1])
 	end
-	local count = 0
 
 	Console.Log("-------------- ConVar List --------------")
 
-	for name, cvar in next, ConVars do
-		-- Check filter
-		if filter and not string.find(string.lower(name), filter) then
-			goto continue
+	local count = 0
+	for name, cvar in ConVar_GetIterator() do
+		if getmetatable(cvar) == ConVar then
+			if LogConVarEntry(cvar.Name, cvar, filter) then
+				print("[WTF]", name, cvar)
+				count = count + 1
+			end
 		end
-
-		if (cvar.Flags & ConVar.FLAG.HIDDEN) ~= 0 and not filter then
-			goto continue
-		end
-
-		local val_str = cvar:GetString()
-		local help_str = cvar.Help or ""
-		local minmax_str = ""
-		local flag_str = " [Flags: " .. FlagsToString(cvar.Flags) .. "]"
-
-		if cvar.Min or cvar.Max then
-			minmax_str = string.format(" [Min: %s, Max: %s]", cvar.Min or "N/A", cvar.Max or "N/A")
-		end
-
-		Console.Log(string.format("%s%s%s%s - %s", name,
-			(cvar.Flags & ConVar.FLAG.NEVER_AS_STRING) ~= 0 and "" or string.format(" = %q", val_str), minmax_str, flag_str,
-			help_str))
-		count = count + 1
-
-		::continue::
 	end
 
-	Console.Log(string.format("------------------------------ (%d found)", count))
+	Console.Log(string_format("------------------------------ (%d found)", count))
 end)
 
 if Server then
-	local sv_cheats = ConVar.Register(
+	local sv_cheats = ConVar_Register(
 		"sv_cheats",
 		Server.GetCustomSettings().cheats or false,
 		"Enable cheats on the server",
-		ConVar.FLAG.REPLICATED,
+		FLAG.REPLICATED,
 		0, 1
 	)
 	sv_cheats:AddChangeCallback(function(name, new_value, source)
 		Console.Log("%s has been %s by %s", name, new_value and "enabled" or "disabled", source)
 	end)
-	local sv_password = ConVar.Register(
+
+	local sv_password = ConVar_Register(
 		"sv_password",
 		Server.GetCustomSettings().password or "",
 		"Enable password-protection",
-		ConVar.FLAG.NEVER_AS_STRING
+		FLAG.NEVER_AS_STRING
 	)
+	local Server_SetPassword = Server.SetPassword
 	sv_password:AddChangeCallback(function(name, new_value, source)
-		Server.SetPassword(sv_password.Value, true)
+		-- NOTE #1: new_value is empty string due to cvar flag NEVER_AS_STRING
+		-- NOTE #2: Must use GetValue() instead of GetString() to bypass cvar flag NEVER_AS_STRING
+		Server_SetPassword(sv_password:GetValue(), true)
 	end)
 
-	Events.SubscribeRemote(REQUEST_EVENT, function(player, name, value_str)
-		name = string.lower(name)
+	Events_SubscribeRemote(REQUEST_EVENT, function(player, name, value_str)
 		local cvar = ConVars[name]
 		if not cvar then return end
 
-		if (cvar.Flags & ConVar.FLAG.CHEAT) ~= 0 then
-			--local sv_cheats = ConVars["sv_cheats"]
+		if (cvar.Flags & FLAG.CHEAT) ~= 0 then
+			--local sv_cheats = ConVars["SV_CHEATS"]
 			if not sv_cheats:GetBool() then
-				Console.Log("[ConVar] %s tried to set cheat cvar '%s' without sv_cheats 1.",
-					player and ("Player " .. player:GetName()) or "Unknown", name)
+				Console.Warn(
+					string_format(
+						"[ConVar] %s tried to set cheat cvar '%s' without sv_cheats 1.",
+						player and ("Player " .. player:GetName()) or "Unknown",
+						name
+					)
+				)
 				return
 			end
 		end
@@ -588,25 +759,21 @@ if Server then
 		cvar:SetValue(StringToValue(value_str, cvar.Type), "Client " .. player:GetID())
 	end)
 
-	Events.SubscribeRemote(USERINFO_EVENT, function(player, name, value_str)
-		name = string.lower(name)
+	Events_SubscribeRemote(USERINFO_EVENT, function(player, name, value_str)
+		print("DEBUG:" .. USERINFO_EVENT, player, name, value_str)
 		local cvar = ConVars[name]
 		if cvar then
-			if (cvar.Flags & ConVar.FLAG.USERINFO) == 0 then return end
+			if (cvar.Flags & FLAG.USERINFO) == 0 then return end
 			value_str = ValueToString(StringToValue(value_str, cvar.Type))
 		end
-		if not PlayerUserInfos[player] then
-			PlayerUserInfos[player] = {}
-		end
-		PlayerUserInfos[player][name] = value_str
+		table_EnsureLazy(PlayerUserInfos, player, table_MakeCaseInsensitive)[name] = value_str
 	end)
 
 	Player.Subscribe("Destroy", function(player)
 		PlayerUserInfos[player] = nil
 	end)
 elseif Client then
-	Events.SubscribeRemote(REPLICATE_EVENT, function(name, value_str)
-		name = string.lower(name)
+	Events_SubscribeRemote(REPLICATE_EVENT, function(name, value_str)
 		local cvar = ConVars[name]
 		if cvar then
 			cvar:SetValue(StringToValue(value_str, cvar.Type), "Server")
@@ -614,7 +781,7 @@ elseif Client then
 	end)
 end
 
--- Exports the table to be accessed by other Packages
+-- Export the API to be accessed by other packages
 _G.ConVar = ConVar
 Package.Export("ConVar", ConVar)
 return ConVar

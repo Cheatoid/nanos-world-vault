@@ -38,7 +38,7 @@ local function collect_files(path, out, recursive)
 	end
 end
 
-function RequireFolder(folder, load_priority, recursive)
+local function RequireFolder(folder, load_priority, recursive)
 	folder = normalize_path(folder)
 
 	-- Gather all files
@@ -61,7 +61,7 @@ function RequireFolder(folder, load_priority, recursive)
 		-- Array entries => priority load order
 		for key, entry in next, load_priority do
 			if type(key) == "number" then
-				entry = normalize_path(entry)
+				local entry = normalize_path(entry) -- intentionally shadowing to avoid reassigning loop variable
 				priority_order[#priority_order + 1] = entry
 				priority_lookup[entry] = true
 			end
@@ -70,8 +70,7 @@ function RequireFolder(folder, load_priority, recursive)
 		-- Keyed entries => skip or override
 		for key, value in next, load_priority do
 			if type(key) == "string" then
-				key = normalize_path(key)
-				priority_lookup[key] = value ~= false
+				priority_lookup[normalize_path(key)] = value ~= false
 			end
 		end
 	end
@@ -94,5 +93,7 @@ function RequireFolder(folder, load_priority, recursive)
 	end
 end
 
+-- Export the API to be accessed by other packages
+_G.RequireFolder = RequireFolder
 Package.Export("RequireFolder", RequireFolder)
 return RequireFolder
