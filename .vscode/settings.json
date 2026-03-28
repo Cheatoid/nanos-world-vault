@@ -1,0 +1,20 @@
+{
+  "Lua.workspace.checkThirdParty": false,
+  "Lua.workspace.ignoreSubmodules": false,
+  "Lua.workspace.library": [
+    "${workspaceFolder}/.nanos-world"
+  ],
+  "Lua.diagnostics.globals": [
+    /*
+    "Package",
+    "Server",
+    "Client",
+    "Events",
+    "Timer",
+    "Vector",
+    "Rotator",
+    "NanosUtils",
+    */
+  ],
+  "Lua.runtime.version": "Lua 5.4"
+}
