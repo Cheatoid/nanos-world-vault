@@ -13,37 +13,51 @@ local next, debug_getinfo, debug_getlocal, debug_getupvalue, string_gsub, string
 		next, debug.getinfo, debug.getlocal, debug.getupvalue, string.gsub, string.match
 
 local VARARG_TEMP = "(*vararg)"
+local LOCAL_PARAM, LOCAL_VARARG, LOCAL_LOCAL = "param", "vararg", "local"
 local GETINFO_ALL = "nSltufrL"
 
 local DebugHelper = {}
 
+--- Get the current stack depth by counting all available stack frames.
+--- @return integer depth The total number of stack frames in the call stack.
+local function get_stack_depth()
+	local i = 0
+	while debug_getinfo(i) do
+		i = i + 1
+	end
+	return i
+end
+DebugHelper.get_stack_depth = get_stack_depth
+
 --- Get the function object at a given stack level.
---- @param level function|integer The function -or- stack frame level, to inspect.
+--- @param func_level function|integer The function -or- stack frame level, to inspect.
 --- @return function|nil
-function DebugHelper.get_function(level)
-	local info = debug_getinfo(level, "f")
+local function get_function(func_level)
+	local info = debug_getinfo(func_level, "f")
 	if info then
 		return info.func
 	end
 end
+DebugHelper.get_function = get_function
 
 --- Get the prefix of the source path up to the first slash.
---- @param level function|integer The function -or- stack frame level, to inspect.
+--- @param func_level function|integer The function -or- stack frame level, to inspect.
 --- @return string|nil prefix The extracted prefix, or nil if unavailable.
-function DebugHelper.get_source_prefix(level)
-	local info = debug_getinfo(level, "S")
+local function get_source_prefix(func_level)
+	local info = debug_getinfo(func_level, "S")
 	if not info then
 		return
 	end
 	return (string_match(string_gsub(info.source, "^[@=]", ""), "^([^/]+)"))
 end
+DebugHelper.get_source_prefix = get_source_prefix
 
 --- Get all locals at a given stack level, with classification.<br>
 --- Each entry:<br>
 --- { name  = string, value = any, kind  = "param" | "vararg" | "local" }
 --- @param level integer The stack frame level to inspect.
 --- @return table|nil array Array of local entries.
-function DebugHelper.get_locals(level)
+local function get_locals(level)
 	local info = debug_getinfo(level, "u")
 	if not info then
 		return
@@ -62,11 +76,11 @@ function DebugHelper.get_locals(level)
 
 		local kind
 		if i <= param_count then
-			kind = "param"
-		elseif is_vararg and name == "(*vararg)" then
-			kind = "vararg"
+			kind = LOCAL_PARAM
+		elseif is_vararg and name == VARARG_TEMP then
+			kind = LOCAL_VARARG
 		else
-			kind = "local"
+			kind = LOCAL_LOCAL
 		end
 
 		locals[i] = {
@@ -80,14 +94,15 @@ function DebugHelper.get_locals(level)
 
 	return locals
 end
+DebugHelper.get_locals = get_locals
 
 --- Get locals grouped by kind:<br>
---- {params  = { ... }, varargs = { ... }, locals  = { ... } }<br>
+--- { params  = { ... }, varargs = { ... }, locals  = { ... } }<br>
 --- Each entry has the same shape as in get_locals().
 --- @param level integer The stack frame level to inspect.
 --- @return table|nil table
-function DebugHelper.get_locals_by_kind(level)
-	local all = DebugHelper.get_locals(level)
+local function get_locals_by_kind(level)
+	local all = get_locals(level)
 	if not all then
 		return
 	end
@@ -104,9 +119,9 @@ function DebugHelper.get_locals_by_kind(level)
 
 	for _, entry in next, all do
 		local kind = entry.kind
-		if kind == "param" then
+		if kind == LOCAL_PARAM then
 			params[#params + 1] = entry
-		elseif kind == "vararg" then
+		elseif kind == LOCAL_VARARG then
 			varargs[#varargs + 1] = entry
 		else
 			locals[#locals + 1] = entry
@@ -115,11 +130,12 @@ function DebugHelper.get_locals_by_kind(level)
 
 	return out
 end
+DebugHelper.get_locals_by_kind = get_locals_by_kind
 
 --- Get only declared parameters at a given level.
 --- @param level integer The stack frame level to inspect.
 --- @return table|nil array Array of { name, value }
-function DebugHelper.get_parameters(level)
+local function get_parameters(level)
 	local info = debug_getinfo(level, "u")
 	if not info then
 		return
@@ -133,11 +149,12 @@ function DebugHelper.get_parameters(level)
 
 	return params
 end
+DebugHelper.get_parameters = get_parameters
 
 --- Check if the function at a given level is vararg.
 --- @param level function|integer The function -or- stack frame level, to inspect.
 --- @return boolean boolean Whether the function is variadic.
-function DebugHelper.is_vararg(level)
+local function is_vararg(level)
 	local info = debug_getinfo(level, "u")
 	if info then
 		return info.isvararg
@@ -145,13 +162,14 @@ function DebugHelper.is_vararg(level)
 
 	return false
 end
+DebugHelper.is_vararg = is_vararg
 
 --- Extract ONLY true varargs from a given stack level.<br>
---- Lua 5.4 marks varargs with the name "(*vararg)".
+--- Lua marks varargs with the name "(*vararg)".
 --- @param level integer Stack frame level.
 --- @return table|nil array Array of vararg values.
 --- @return integer|nil integer Total amount of vararg values.
-function DebugHelper.get_varargs(level)
+local function get_varargs(level)
 	local info = debug_getinfo(level, "u")
 	if not info or not info.isvararg then
 		return
@@ -180,38 +198,42 @@ function DebugHelper.get_varargs(level)
 
 	return varargs, i
 end
+DebugHelper.get_varargs = get_varargs
 
 --- Count varargs at a given level.
 --- @param level integer Stack frame level.
 --- @return integer integer Amount of varargs.
-function DebugHelper.count_varargs(level)
-	return #DebugHelper.get_varargs(level)
+local function count_varargs(level)
+	return #get_varargs(level)
 end
+DebugHelper.count_varargs = count_varargs
 
 --- Get the name of a parameter by index.
 --- @param level integer Stack frame level.
 --- @param index integer The argument index (1-based).
 --- @return string|nil name Parameter name, or nil if not found.
-function DebugHelper.get_param_name(level, index)
+local function get_param_name(level, index)
 	local name = debug_getlocal(level, index)
 	return name
 end
+DebugHelper.get_param_name = get_param_name
 
 --- Get the value of a parameter by index.
 --- @param level integer Stack frame level.
 --- @param index integer The argument index (1-based).
 --- @return any any Parameter value.
-function DebugHelper.get_param_value(level, index)
+local function get_param_value(level, index)
 	local _, value = debug_getlocal(level, index)
 	return value
 end
+DebugHelper.get_param_value = get_param_value
 
 --- Get upvalues of the function at a given level.<br>
 --- Returns array of: { name = string, value = any }
 --- @param level integer Stack frame level.
 --- @return table|nil array
-function DebugHelper.get_upvalues(level)
-	local func = DebugHelper.get_function(level)
+local function get_upvalues(level)
+	local func = get_function(level)
 	if not func then
 		return
 	end
@@ -230,10 +252,11 @@ function DebugHelper.get_upvalues(level)
 
 	return ups
 end
+DebugHelper.get_upvalues = get_upvalues
 
 --- Get a structured stack trace (table, not string).
 --- @return table array Array of debug.getinfo tables.
-function DebugHelper.get_stack()
+local function get_stack()
 	local frames = {}
 	local level = 1
 
@@ -248,16 +271,18 @@ function DebugHelper.get_stack()
 
 	return frames
 end
+DebugHelper.get_stack = get_stack
 
 --- Get the name of the caller function.
 --- @param level integer|nil Defaults to 2.
 --- @return string|nil
-function DebugHelper.get_caller_name(level)
+local function get_caller_name(level)
 	local info = debug_getinfo(level or 2, "n")
 	if info then
 		return info.name
 	end
 end
+DebugHelper.get_caller_name = get_caller_name
 
 --- Dump a full frame snapshot:<br>
 --- • parameters<br>
@@ -266,20 +291,19 @@ end
 --- • upvalues<br>
 --- • debug info
 ---
---- @param level integer|nil Defaults to 2.
+--- @param level integer The stack frame level to inspect (default: 2).
 --- @return table
-function DebugHelper.dump_frame(level)
+local function dump_frame(level)
 	level = level or 2
 	return {
-		parameters = DebugHelper.get_parameters(level),
-		varargs = DebugHelper.get_varargs(level),
-		locals = DebugHelper.get_locals(level),
-		upvalues = DebugHelper.get_upvalues(level),
+		parameters = get_parameters(level),
+		varargs = get_varargs(level),
+		locals = get_locals(level),
+		upvalues = get_upvalues(level),
 		info = debug_getinfo(level, GETINFO_ALL),
 	}
 end
+DebugHelper.dump_frame = dump_frame
 
 -- Export the API to be accessed by other packages
-_G.DebugHelper = DebugHelper
-Package.Export("DebugHelper", DebugHelper)
 return DebugHelper

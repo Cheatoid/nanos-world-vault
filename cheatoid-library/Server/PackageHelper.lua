@@ -168,6 +168,4 @@ Console.RegisterCommand("load", LoadPack, "load a specific package or all")
 Console.RegisterCommand("unload", UnloadPack, "unload a specific package or all")
 
 -- Export the API to be accessed by other packages
-_G.PackageHelper = self
-Package.Export("PackageHelper", self)
 return self

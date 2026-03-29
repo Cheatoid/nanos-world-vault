@@ -14,7 +14,6 @@ local math_modf = math.modf
 local string_find = string.find
 local string_format = string.format
 local string_lower = string.lower
-local string_sub = string.sub
 local string_upper = string.upper
 local table_concat = table.concat
 --local Console_Log, Console_Warn = Console.Log, Console.Warn
@@ -682,7 +681,7 @@ local function LogConVarEntry(name, cvar, filter)
 	Console.Log(
 		string_format(
 			"%s%s%s%s - %s",
-			string_lower(name),
+			cvar.Name,
 			(cvar.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or string_format(" = %q", val_str),
 			minmax_str,
 			flag_str,
@@ -704,7 +703,6 @@ Console_RegisterCommand("cvarlist", function(args)
 	for name, cvar in ConVar_GetIterator() do
 		if getmetatable(cvar) == ConVar then
 			if LogConVarEntry(cvar.Name, cvar, filter) then
-				print("[WTF]", name, cvar)
 				count = count + 1
 			end
 		end
@@ -782,6 +780,4 @@ elseif Client then
 end
 
 -- Export the API to be accessed by other packages
-_G.ConVar = ConVar
-Package.Export("ConVar", ConVar)
 return ConVar

@@ -94,6 +94,4 @@ local function RequireFolder(folder, load_priority, recursive)
 end
 
 -- Export the API to be accessed by other packages
-_G.RequireFolder = RequireFolder
-Package.Export("RequireFolder", RequireFolder)
 return RequireFolder

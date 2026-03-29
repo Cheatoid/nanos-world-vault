@@ -8,7 +8,7 @@ local next, type, debug_getinfo, debug_getlocal, string_format, string_gmatch =
 --- Gets a list of parameter names for the function at the given stack level.
 --- @param level integer The stack frame level (1 = current function, 2 = function calling this, etc.)
 --- @return table|nil array A list of strings representing the parameter names, or nil if out of bounds.
-local function GetParameterNames(level)
+local function GetParameterNames(level) -- TODO: Move to DebugHelper
 	-- Get info about the function at this level.
 	-- "u" includes: 'nparams' (number of parameters) and 'isvararg'
 	local info = debug_getinfo(level, "u")
@@ -32,7 +32,7 @@ end
 --- @param level integer The stack frame level (1 = current function, 2 = function calling this, etc.)
 --- @param index integer The argument index (1-based).
 --- @return string|nil string|nil The name of the parameter, or nil if out of bounds.
-local function GetParameterName(level, index)
+local function GetParameterName(level, index) -- TODO: Move to DebugHelper
 	local info = debug_getinfo(level, "u")
 	if info and 1 <= index and index <= info.nparams then
 		-- debug.getlocal returns the name as the first return value
@@ -57,7 +57,7 @@ local function TypeCheck(val, expected_type, arg_index, optional, func_level, er
 
 	-- If optional is true and value is nil, pass immediately
 	if optional and val == nil then
-		return
+		return val
 	end
 
 	-- Normalize expected_type into a list of allowed types
@@ -110,6 +110,8 @@ local function TypeCheck(val, expected_type, arg_index, optional, func_level, er
 			error_level
 		)
 	end
+
+	return val
 end
 
 --- Performs strict type checking on a function argument by automatically retrieving its value from the caller's stack frame.<br>
@@ -176,10 +178,6 @@ end
 --test()
 
 -- Export the API to be accessed by other packages
-_G.TypeCheck = TypeCheck
-Package.Export("TypeCheck", TypeCheck)
-_G.TypeCheckArg = TypeCheckArg
-Package.Export("TypeCheckArg", TypeCheckArg)
 return {
 	TypeCheck = TypeCheck,
 	TypeCheckArg = TypeCheckArg,

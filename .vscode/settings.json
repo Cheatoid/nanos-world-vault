@@ -4,7 +4,13 @@
 	"Lua.workspace.library": [
 		"${workspaceFolder}/.nanos-world"
 	],
-	"Lua.diagnostics.globals": [],
+	"Lua.diagnostics.globals": [
+		"ConVar",
+		"DebugHelper",
+		"PackageHelper",
+		"RequireFolder",
+		"TypeCheck"
+	],
 	"Lua.runtime.version": "Lua 5.4",
 	"Lua.format.enable": true,
 	"Lua.format.defaultConfig": {
