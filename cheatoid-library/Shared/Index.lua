@@ -8,25 +8,29 @@
 --	print("[package file]", f)
 --end
 
--- Localized global functions for better performance
-local assert, next, type, debug = assert, next, type, debug
-
--- Patch require
-require("@cheatoid/patch/require.lua")
+-- Patch require like a good boi
+if "INTERNAL - Package Lua Implementation" == debug.getinfo(require, "S").source then
+	require = require("@cheatoid/patch/require.lua")
+end
 
 -- Import dependencies
-local curry = require("@cheatoid/standalone/curry")
-local table = require("@cheatoid/standard/table")
-local deep_copy = table.deep_copy
-local shallow_copy = table.shallow_copy
-local table_pack = table.pack
-local table_unpack = table.unpack
+local gaimers = require("@cheatoid/loader/gaimers")
+
+-- Localized global functions for better performance
+gaimers.r = require
+local g = gaimers.g
+local a = gaimers.a
+local i = gaimers.i
+local m = gaimers.m
+local e = gaimers.e
+local r = gaimers.r
+local s = gaimers.s
 
 ----------------------------------------------------------------------
--- Initialize modules/packages
+-- TODO: Auto initialize modules/packages
 ----------------------------------------------------------------------
-m "DebugHelper"
-m "TypeCheck"
+m "@cheatoid/standalone/debug_helper"
+m "@cheatoid/standalone/type_check"
 r "RequireFolder"
 r "ConVar"
 g "oop" "@cheatoid/oop/oop"

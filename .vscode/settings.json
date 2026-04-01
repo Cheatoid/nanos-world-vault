@@ -5,13 +5,7 @@
 		"${workspaceFolder}/.nanos-world",
 		"${workspaceFolder}/cheatoid-library/Shared"
 	],
-	"Lua.diagnostics.globals": [
-		"ConVar",
-		"DebugHelper",
-		"PackageHelper",
-		"RequireFolder",
-		"TypeCheck"
-	],
+	"Lua.diagnostics.globals": [],
 	"Lua.runtime.version": "Lua 5.4",
 	"Lua.format.enable": true,
 	"Lua.format.defaultConfig": {
@@ -19,9 +13,9 @@
 		"indent_size": "2"
 	},
 	"[lua]": {
-		"editor.defaultFormatter": "JohnnyMorganz.stylua"
+		"editor.defaultFormatter": "sumneko.lua"
 	},
 	"Lua.hint.setType": true,
 	"Lua.hint.enable": true,
-	"editor.inlayHints.enabled": "on"
+	"editor.inlayHints.enabled": "offUnlessPressed"
 }

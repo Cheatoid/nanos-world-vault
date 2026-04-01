@@ -1,7 +1,7 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
--- Import TypeCheck
+-- Import type_check
 local tc = require("@cheatoid/standalone/type_check")
 local check_string = tc.check_string
 

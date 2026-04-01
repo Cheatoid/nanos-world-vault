@@ -3,6 +3,8 @@
 
 --if _G.ConVar then return _G.ConVar end
 
+-- TODO: Use Patcher to patch Console.RegisterCommand (lowercase)
+
 -- Localize global functions for performance
 local next = next
 local pcall = pcall
@@ -24,9 +26,12 @@ local Events_SubscribeRemote, Events_CallRemote = Events.SubscribeRemote, Events
 local Events_BroadcastRemote = Events.BroadcastRemote
 
 -- Import dependencies
-local TypeCheck = require("@cheatoid/standalone/type_check")
-local bitflags = require("@cheatoid/standalone/5.3/bitflags")
-local MakeBitEnum = bitflags.make_enum
+local tc = require("@cheatoid/standalone/type_check")
+local check_type, opt_type = tc.check, tc.opt
+local check_boolean, check_integer, check_string, check_number, check_function, check_userdata =
+		tc.check_boolean, tc.check_integer, tc.check_string, tc.check_number, tc.check_function, tc.check_userdata
+local opt_table = tc.opt_table
+local make_bit_enum = require("@cheatoid/standalone/5.3/bitflags").make_enum
 
 local table = require("@cheatoid/standard/table")
 local table_ensure_lazy = table.ensure_lazy
@@ -60,7 +65,7 @@ local PlayerUserInfos = setmetatable({}, { __mode = "k" }) -- TODO: Perhaps stor
 --- Bitwise flags for ConVar behavior
 local FLAG
 do
-	local FCVAR = MakeBitEnum()
+	local FCVAR = make_bit_enum()
 	-- @formatter:off
 	FLAG = {
 		NONE               = 0,
@@ -100,11 +105,11 @@ local function ValidateBitFlag(val, flag_enum, param_name, param_pos) -- TODO: M
 	if val == nil then return 0 end
 
 	if type(val) ~= "number" then
-		TypeCheck(val, "integer", param_pos)
+		check_integer(param_pos)
 	end
 
 	if val < 0 or val ~= (math_modf(val)) then
-		error(string_format("%s must be a non-negative integer, got %s", param_name, tostring(val)), 3)
+		return error(string_format("%s must be a non-negative integer, got %s", param_name, tostring(val)), 3)
 	end
 
 	-- Validate that the value doesn't contain bits outside the defined flags
@@ -117,7 +122,7 @@ local function ValidateBitFlag(val, flag_enum, param_name, param_pos) -- TODO: M
 
 		-- Check if value contains any invalid bits
 		if (val & ~valid_mask) ~= 0 then
-			error(string_format("%s contains invalid flag bits: %s", param_name, tostring(val)), 3)
+			return error(string_format("%s contains invalid flag bits: %s", param_name, tostring(val)), 3)
 		end
 	end
 
@@ -200,14 +205,14 @@ end
 --- @param params table|nil The list of supported parameters to display in the console (strings only).
 --- @return ConVar ConVar The console variable object.
 local function ConVar_Register(name, default, help, flags, min_val, max_val, params)
-	TypeCheck(name, "string", 1)
-	TypeCheck(default, "boolean|number|string|nil", 2)
-	TypeCheck(help, "string|nil", 3)
-	--TypeCheck(flags, "integer|nil", 4)
+	check_string(1)
+	opt_type(default, "boolean|number|string", 2)
+	opt_string(3)
+	--opt_integer(4)
 	flags = ValidateBitFlag(flags, FLAG, "flags", 4)
-	TypeCheck(min_val, "number|nil", 5)
-	TypeCheck(max_val, "number|nil", 6)
-	TypeCheck(params, "table|nil", 7)
+	opt_number(5)
+	opt_number(6)
+	opt_table(7)
 
 	if default == nil then default = "" end
 	local val_type = GetValueType(default)
@@ -392,28 +397,28 @@ end
 --- Explicitly sets a Float value.
 --- @param value number
 function ConVar:SetFloat(value)
-	TypeCheck(value, "number", 1)
+	check_number(2)
 	self:SetValue(value)
 end
 
 --- Explicitly sets an Int value.
 --- @param value integer
 function ConVar:SetInt(value)
-	TypeCheck(value, "integer", 1)
+	check_integer(2)
 	self:SetValue((math_modf(value)))
 end
 
 --- Explicitly sets a Bool value.
 --- @param value boolean
 function ConVar:SetBool(value)
-	TypeCheck(value, "boolean", 1)
+	check_boolean(2)
 	self:SetValue(value)
 end
 
 --- Explicitly sets a String value.
 --- @param value string
 function ConVar:SetString(value)
-	TypeCheck(value, "string", 1)
+	check_string(2)
 	self:SetValue(value)
 end
 
@@ -463,14 +468,14 @@ end
 --- Adds a callback function to be executed when the ConVar changes.
 --- @param func function Signature callback(name, new_value, source)
 function ConVar:AddChangeCallback(func)
-	TypeCheck(func, "function", 1)
+	check_function(2)
 	self.Callbacks[func] = true
 end
 
 --- Removes a previously added callback.
 --- @param func function
 function ConVar:RemoveChangeCallback(func)
-	TypeCheck(func, "function", 1)
+	check_function(2)
 	self.Callbacks[func] = nil
 end
 
@@ -482,7 +487,7 @@ end
 --- @param name string The name of the console variable.
 --- @return ConVar|nil ConVar The console variable object, or nil if not found.
 local function ConVar_Get(name)
-	TypeCheck(name, "string", 1)
+	check_string(1)
 	return ConVars[name]
 end
 ConVar.Get = ConVar_Get
@@ -497,7 +502,7 @@ ConVar.Get = ConVar_Get
 --- @param params table|nil The list of supported parameters to display in the console (strings only).
 --- @return ConVar ConVar The console variable object.
 local function ConVar_GetOrCreate(name, default, help, flags, min_val, max_val, params)
-	TypeCheck(name, "string", 1)
+	check_string(1)
 	local cvar = ConVars[name]
 	if cvar then return cvar end
 	return ConVar_Register(name, default, help, flags, min_val, max_val, params)
@@ -511,8 +516,8 @@ if Server then
 	--- @param name string The ConVar name.
 	--- @return any any The value (converted to type if registered) or string. Returns nil if not found.
 	local function ConVar_GetPlayerInfo(player, name)
-		TypeCheck(player, "userdata", 1)
-		TypeCheck(name, "string", 2)
+		check_userdata(1)
+		check_string(2)
 
 		local info = PlayerUserInfos[player]
 		if not info then return end
