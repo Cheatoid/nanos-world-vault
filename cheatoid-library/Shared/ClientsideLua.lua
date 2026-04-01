@@ -4,11 +4,11 @@
 local ID = "allowcslua"
 local Enabled = false -- disabled by default
 
-local load, pcall = load, pcall
+local load, pcall, select = load, pcall, select
 local table_concat = table.concat
-
+local HASH = "#"
 local function RunLua(...)
-	if select("#", ...) == 0 then
+	if select(HASH, ...) == 0 then
 		return
 	end
 	local code = table_concat({ ... }, " ")
@@ -28,7 +28,8 @@ local function RunLua(...)
 end
 
 if Server then
-	Enabled = Server.GetCustomSettings().enable_cslua or Enabled
+	--Enabled = Server.GetCustomSettings().enable_cslua or Enabled
+	Enabled = Package.GetPersistentData("enable_cslua") or Enabled
 
 	-- Broadcast the convar's value initially
 	Server.SetValue(ID, Enabled, true)
@@ -67,6 +68,7 @@ if Server then
 
 		if valid_input then
 			if changed then -- only broadcast a message if the state has changed
+				Package.SetPersistentData("enable_cslua", Enabled)
 				Console.Log("Client-side Lua command has been %s", Enabled and "enabled" or "disabled")
 				Chat.BroadcastMessage(
 					string.format(

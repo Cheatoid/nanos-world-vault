@@ -1,11 +1,11 @@
 # vault configurations
 [meta]
     # friendly name
-    title =                 "Library   (v0.0.5)"
+    title =                 "Library   (v0.0.6)"
     # contributors
     author =                "Cheatoid"
     # version
-    version =               "0.0.5"
+    version =               "0.0.6"
 
 # script configurations
 [script]

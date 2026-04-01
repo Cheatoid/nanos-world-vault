@@ -23,9 +23,14 @@ local Server_SetValue = Server and Server.SetValue
 local Events_SubscribeRemote, Events_CallRemote = Events.SubscribeRemote, Events.CallRemote
 local Events_BroadcastRemote = Events.BroadcastRemote
 
--- TypeCheck is loaded from TypeCheck.lua via Index.lua
----@diagnostic disable-next-line: undefined-global
-local TypeCheck = _G.TypeCheck
+-- Import dependencies
+local TypeCheck = require("@cheatoid/standalone/type_check")
+local bitflags = require("@cheatoid/standalone/5.3/bitflags")
+local MakeBitEnum = bitflags.make_enum
+
+local table = require("@cheatoid/standard/table")
+local table_ensure_lazy = table.ensure_lazy
+local table_make_case_insensitive = table.make_case_insensitive
 
 --- @class ConVar
 --- Console Variable (CVar) library.
@@ -39,126 +44,14 @@ local REPLICATE_EVENT = "ConVar::Replicate"
 local REQUEST_EVENT = "ConVar::RequestSet"
 local USERINFO_EVENT = "ConVar::UserInfoUpdate"
 
---- Ensures a key exists in a table, setting it to a default value if it doesn't.
---- @param tbl table The table to check.
---- @param key any The key to check.
---- @param def any The default value to set if the key doesn't exist.
---- @return any any The value of the key (either the existing value or the default value).
-local function table_Ensure(tbl, key, def) -- TODO: Move this to Lua libs
-	if tbl[key] == nil then
-		tbl[key] = def
-		return def
-	end
-	return tbl[key]
-end
-
---- Ensures a key exists in a table, lazily creating it with a factory function if it doesn't.
---- The factory function is only called when the key is missing, and its return value is stored.
---- @param tbl table The table to check and modify.
---- @param key any The key to check for existence.
---- @param def function A factory function that creates the default value. Called with additional arguments.
---- @param ... any Additional arguments passed to the factory function.
---- @return any any The existing value of the key, or the newly created value from the factory function.
-local function table_EnsureLazy(tbl, key, def, ...) -- TODO: Move this to Lua libs
-	if tbl[key] == nil then
-		def = def(...)
-		tbl[key] = def
-		return def
-	end
-	return tbl[key]
-end
-
---- Creates a case-insensitive wrapper for any table or creates a new case-insensitive table.
---- Allows reading/writing string keys regardless of case.
---- @param tbl table|nil The table to wrap. If nil, creates a new empty table.
---- @return table table Case-insensitive wrapper for the target table.
-local function table_MakeCaseInsensitive(tbl) -- TODO: Move this to Lua libs
-	-- Create new table if none provided
-	if not tbl then
-		tbl = {}
-	end
-
-	local wrapper = {}
-
-	--- Metamethods for case-insensitive access
-	wrapper.__index = function(t, key)
-		if type(key) ~= "string" then return rawget(t, key) end
-		local v = rawget(t, string_upper(key))
-		if v ~= nil then return v end
-		return rawget(tbl, string_upper(key))
-	end
-
-	wrapper.__newindex = function(t, key, value)
-		if type(key) ~= "string" then
-			rawset(t, key, value)
-			return
-		end
-		local upper_key = string_upper(key)
-		rawset(t, upper_key, value)
-		tbl[upper_key] = value
-	end
-
-	-- Set up the metatable
-	return setmetatable(wrapper, wrapper)
-end
-
 --- Registry of all registered ConVars (case-insensitive keyed).
 --- Structure: [string: name] = ConVar: object
 --- @type table<string, ConVar>
-local ConVars = table_MakeCaseInsensitive()
+local ConVars = table_make_case_insensitive()
 
 --- Registry for per-player userinfo (client -> server convars).
 --- Structure: [Player] = { [string: cvar_name] = string: cvar_value }
 local PlayerUserInfos = setmetatable({}, { __mode = "k" }) -- TODO: Perhaps store directly on Player objects to persist state (support hotreload)
-
--- ==========================================
--- Bitwise Helpers
--- TODO: Move these to Lua lib
--- ==========================================
-
---- Checks if the value contains all of the specified flags.
---- @param val integer The current bitmask.
---- @param flags integer The flag or bitmask to check.
---- @return boolean boolean True if all bits in flag are set in val.
-local function HasFlags(val, flags)
-	return (val & flags) == flags
-end
-
---- Checks if the value contains any of the specified flags.
---- @param val integer The current bitmask.
---- @param flags integer A mask of flags to check against.
---- @return boolean boolean True if any bit in flags is set in val.
-local function HasAnyFlag(val, flags)
-	return (val & flags) ~= 0
-end
-
---- Adds (sets) the specified flags to the value.
---- @param val integer The current bitmask.
---- @param flag integer The flag or bitmask to add.
---- @return integer integer The new bitmask with flags added.
-local function AddFlag(val, flag)
-	return val | flag
-end
-
---- Removes (clears) the specified flags from the value.
---- @param val integer The current bitmask.
---- @param flag integer The flag or bitmask to remove.
---- @return integer integer The new bitmask with flags removed.
-local function RemoveFlag(val, flag)
-	return val & (~flag)
-end
-
---- Creates a factory function for generating sequential bit flags.
---- Each call to the returned function returns the next power of 2 (1, 2, 4, 8...).
---- @return function function A function that returns a new flag integer.
-local function MakeBitEnum() -- TODO: Move to Lua lib
-	local bit_index = 0
-	return function()
-		local flag = 1 << bit_index
-		bit_index = bit_index + 1
-		return flag
-	end
-end
 
 -- ==========================================
 -- Flags Definition
@@ -764,7 +657,7 @@ if Server then
 			if (cvar.Flags & FLAG.USERINFO) == 0 then return end
 			value_str = ValueToString(StringToValue(value_str, cvar.Type))
 		end
-		table_EnsureLazy(PlayerUserInfos, player, table_MakeCaseInsensitive)[name] = value_str
+		table_ensure_lazy(PlayerUserInfos, player, table_make_case_insensitive)[name] = value_str
 	end)
 
 	Player.Subscribe("Destroy", function(player)

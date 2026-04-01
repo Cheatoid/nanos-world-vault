@@ -1,18 +1,20 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
----@uses TypeCheck
+-- Import TypeCheck
+local tc = require("@cheatoid/standalone/type_check")
+local check_string = tc.check_string
 
 local ID = "BroadcastLua"
 
 if Server then
 	local function BroadcastLua(code)
-		TypeCheckArg(1, "string")
+		check_string(1)
 		return Events.BroadcastRemote(ID, code)
 	end
 
 	local function SendLua(player, code)
-		TypeCheckArg(2, "string")
+		check_string(2)
 		return Events.CallRemote(ID, player, code)
 	end
 
@@ -24,7 +26,7 @@ if Server then
 end
 
 -- Client-side
-local load, pcall = load, pcall
+local load, pcall, type = load, pcall, type
 Events.SubscribeRemote(ID, function(code)
 	local fn = load(code, ID, "t")
 	if type(fn) == "function" then

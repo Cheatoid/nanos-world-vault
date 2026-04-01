@@ -2,7 +2,8 @@
 	"Lua.workspace.checkThirdParty": false,
 	"Lua.workspace.ignoreSubmodules": false,
 	"Lua.workspace.library": [
-		"${workspaceFolder}/.nanos-world"
+		"${workspaceFolder}/.nanos-world",
+		"${workspaceFolder}/cheatoid-library/Shared"
 	],
 	"Lua.diagnostics.globals": [
 		"ConVar",
