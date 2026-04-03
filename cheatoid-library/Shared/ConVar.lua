@@ -30,7 +30,7 @@ local tc = require("@cheatoid/standalone/type_check")
 local check_type, opt_type = tc.check, tc.opt
 local check_boolean, check_integer, check_string, check_number, check_function, check_userdata =
 		tc.check_boolean, tc.check_integer, tc.check_string, tc.check_number, tc.check_function, tc.check_userdata
-local opt_table = tc.opt_table
+local opt_string, opt_table = tc.opt_string, tc.opt_table
 local make_bit_enum = require("@cheatoid/standalone/5.3/bitflags").make_enum
 
 local table = require("@cheatoid/standard/table")
