@@ -17,18 +17,21 @@ end
 local gaimers = require("@cheatoid/loader/gaimers")
 
 -- Localized global functions for better performance
+_G.GAIMERS = gaimers
+_G.r = require
 gaimers.r = require
-local g = gaimers.g
-local a = gaimers.a
-local i = gaimers.i
-local m = gaimers.m
-local e = gaimers.e
-local r = gaimers.r
-local s = gaimers.s
+local g, a, i, m, e, r, s = gaimers.g, gaimers.a, gaimers.i, gaimers.m, gaimers.e, gaimers.r, gaimers.s
 
 ----------------------------------------------------------------------
--- TODO: Auto initialize modules/packages
+-- TODO: Auto initialize modules/packages, add dependency injection...
 ----------------------------------------------------------------------
+
+-- As much as I like my custom loader GAIMERS, it is not particularly hintful to LuaLS...
+-- So I am rethinking my approach and will use the standard require function instead;
+-- Most likely, I will end up making a custom script that will "compile" the dependency graph,
+-- use the standard require function to load them, in order to have proper editor navigation...
+
+r "Config"
 m "@cheatoid/standalone/debug_helper"
 m "@cheatoid/standalone/type_check"
 r "RequireFolder"

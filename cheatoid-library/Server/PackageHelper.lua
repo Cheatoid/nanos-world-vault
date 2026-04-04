@@ -32,7 +32,7 @@ self.HasValidName = IsPackageNameValid
 --- Retrieves all available packages as a lookup table.
 --- @return table table A table with package names as keys and package objects as values.
 local function GetAllPackages()
-	local array = Server_GetPackages(false, -1)
+	local array = Server_GetPackages(false)
 	local lookup = {}
 	for _, p in next, array do
 		lookup[p.name] = p
@@ -59,7 +59,7 @@ local function GetMatchingPackages(name)
 		-- Check if we should use pattern matching mode
 		if string_sub(name, 1, 1) == (self.PatternPrefix or ":") then
 			local searchPattern = string_sub(name, 2) -- Remove the pattern prefix char
-			for _, p in next, Server_GetPackages(false, -1) do
+			for _, p in next, Server_GetPackages(false) do
 				if string_find(p.name, searchPattern, nil, true) then
 					matches[#matches + 1] = p.name
 				end
@@ -81,7 +81,7 @@ self.Match = GetMatchingPackages
 --- @param typeFilter integer|nil Package type filter (default: -1 for all types).
 local function ReloadAllPackages(onlyLoaded, typeFilter)
 	if onlyLoaded == nil then onlyLoaded = true end
-	if typeFilter == nil then typeFilter = -1 end -- PackageType.* or -1 for all
+	--if typeFilter == nil then typeFilter = -1 end -- PackageType.* or -1 for all
 	for _, p in next, Server_GetPackages(onlyLoaded, typeFilter) do
 		--Console_RunCommand("package reload " .. p.name)
 		pcall(Server_ReloadPackage, p.name)
@@ -118,7 +118,7 @@ self.Reload = ReloadPack
 local function LoadPack(...)
 	if select("#", ...) == 0 then
 		--Console_RunCommand("package load all")
-		for _, p in next, Server_GetPackages(false, -1) do
+		for _, p in next, Server_GetPackages(false) do
 			--if not Server_IsPackageLoaded(p.name) then
 			pcall(Server_LoadPackage, p.name)
 			--end
@@ -143,7 +143,7 @@ self.Load = LoadPack
 local function UnloadPack(...)
 	if select("#", ...) == 0 then
 		--Console_RunCommand("package unload all")
-		local result = Server_GetPackages(true, -1)
+		local result = Server_GetPackages(true)
 		for _, p in next, result do
 			--Console_RunCommand("package unload " .. p.name)
 			pcall(Server_UnloadPackage, p.name)

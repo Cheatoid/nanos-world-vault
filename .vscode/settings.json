@@ -3,7 +3,11 @@
 	"Lua.workspace.ignoreSubmodules": false,
 	"Lua.workspace.library": [
 		"${workspaceFolder}/.nanos-world",
-		"${workspaceFolder}/cheatoid-library/Shared"
+		"${workspaceFolder}/cheatoid-library/Shared",
+		"${workspaceFolder}/cheatoid-library/Shared/standard/global",
+		"${workspaceFolder}/cheatoid-library/Shared/standard/math",
+		"${workspaceFolder}/cheatoid-library/Shared/standard/string",
+		"${workspaceFolder}/cheatoid-library/Shared/standard/table"
 	],
 	"Lua.diagnostics.globals": [],
 	"Lua.runtime.version": "Lua 5.4",
@@ -17,5 +21,6 @@
 	},
 	"Lua.hint.setType": true,
 	"Lua.hint.enable": true,
-	"editor.inlayHints.enabled": "offUnlessPressed"
+	"editor.inlayHints.enabled": "offUnlessPressed",
+	"vscord.enable": true
 }

@@ -1,2 +1,4 @@
-local r = Package.Require
-r"PackageHelper.lua"
+-- Author: Cheatoid ~ https://github.com/Cheatoid
+-- License: MIT
+
+require "PackageHelper"

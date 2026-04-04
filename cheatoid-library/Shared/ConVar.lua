@@ -3,8 +3,6 @@
 
 --if _G.ConVar then return _G.ConVar end
 
--- TODO: Use Patcher to patch Console.RegisterCommand (lowercase)
-
 -- Localize global functions for performance
 local next = next
 local pcall = pcall
@@ -19,18 +17,37 @@ local string_lower = string.lower
 local string_upper = string.upper
 local table_concat = table.concat
 --local Console_Log, Console_Warn = Console.Log, Console.Warn
-local Console_RegisterCommand = Console.RegisterCommand
 local Client_GetValue, Client_SetValue = Client and Client.GetValue, Client and Client.SetValue
 local Server_SetValue = Server and Server.SetValue
 local Events_SubscribeRemote, Events_CallRemote = Events.SubscribeRemote, Events.CallRemote
 local Events_BroadcastRemote = Events.BroadcastRemote
+
+-- TODO: Release command-line parser library.
+
+-- Use Patcher to monkey-patch Console.RegisterCommand globally (make it case-insensitive)
+do
+	local Patcher = require("@cheatoid/standalone/patcher")
+	local function Hook_ConsoleRegisterCommand(orig, command, ...)
+		if command then
+			command = string_lower(command)
+		end
+		return orig(command, ...)
+	end
+	Patcher.new()
+	--:id("Console.RegisterCommand: make it case-insensitive")
+			:target(Console, "RegisterCommand")
+			:replace(Hook_ConsoleRegisterCommand)
+			:apply()
+	--_G.Console.RegisterCommand = Hook_ConsoleRegisterCommand
+end
+local Console_RegisterCommand = Console.RegisterCommand -- cache it after hooking
 
 -- Import dependencies
 local tc = require("@cheatoid/standalone/type_check")
 local check_type, opt_type = tc.check, tc.opt
 local check_boolean, check_integer, check_string, check_number, check_function, check_userdata =
 		tc.check_boolean, tc.check_integer, tc.check_string, tc.check_number, tc.check_function, tc.check_userdata
-local opt_string, opt_table = tc.opt_string, tc.opt_table
+local opt_number, opt_string, opt_table = tc.opt_number, tc.opt_string, tc.opt_table
 local make_bit_enum = require("@cheatoid/standalone/5.3/bitflags").make_enum
 
 local table = require("@cheatoid/standard/table")

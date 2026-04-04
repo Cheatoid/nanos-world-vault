@@ -2,6 +2,7 @@
 <p align="center">Currrently featuring... more coming soon™ 🚀</p>
 
 ## ConVar
+
 Exposed as (global) `ConVar`; used for creating console variables (Source-engine style).  
 By default, it creates `cvarlist` conmmand to dump created convars, adds `sv_cheats` (placeholder convar), and also adds `sv_password` used for changing server's password.  
 

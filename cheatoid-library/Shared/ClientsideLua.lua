@@ -5,7 +5,7 @@ local ID = "allowcslua"
 local Enabled = false -- disabled by default
 
 local load, pcall, select = load, pcall, select
-local table_concat = table.concat
+local table_concat, table_pack, table_unpack = table.concat, table.pack, table.unpack
 local HASH = "#"
 local function RunLua(...)
 	if select(HASH, ...) == 0 then
@@ -14,10 +14,11 @@ local function RunLua(...)
 	local code = table_concat({ ... }, " ")
 	local fn, err = load(code, nil, "t")
 	if type(fn) == "function" then
-		local ok, res = pcall(fn)
+		local packed = table_pack(pcall(fn))
+		local ok, res = packed[1], packed[2]
 		if ok then
-			if res ~= nil then
-				Console.Log("[lua] %s", res) -- okay
+			if #packed >= 2 then
+				Console.Log("[lua] %s", table_unpack(packed, 2)) -- okay
 			end
 		else
 			Console.Warn("[lua] %s", res) -- runtime error (e.g. attempt to index nil)
@@ -29,11 +30,38 @@ end
 
 if Server then
 	--Enabled = Server.GetCustomSettings().enable_cslua or Enabled
-	Enabled = Package.GetPersistentData("enable_cslua") or Enabled
+	--Enabled = Package.GetPersistentData("enable_cslua") or Enabled
+	--print("initial enable_cslua:", Enabled)
+
+	local Config = require("Config")
+	Enabled = Config.get("enable_cslua", false)
+	print("initial enable_cslua:", Enabled)
 
 	-- Broadcast the convar's value initially
 	Server.SetValue(ID, Enabled, true)
 	--Events.BroadcastRemote(ID, Enabled)
+
+	-- When the server is starting
+	Server.Subscribe("Start", function()
+		print("Server started")
+	end)
+
+	-- When the server stops / shutdown
+	Server.Subscribe("Stop", function()
+		Config.write()
+		print("Server stopped")
+	end)
+
+	-- When a Player joins the server
+	Player.Subscribe("Spawn", function(ply)
+		print("[Player.Spawn]", ply:GetSteamID())
+		Events.BroadcastRemote(ID, Enabled)
+	end)
+
+	-- When the Player leaves the server
+	Player.Subscribe("Destroy", function(ply)
+		print("[Player.Destroy]", ply:GetSteamID())
+	end)
 
 	-- C2S: Query the convar's value; old approach
 	--Events.SubscribeRemote(ID, function(player)
@@ -43,25 +71,27 @@ if Server then
 	-- ConVar to enable/disable client-side Lua console command
 	-- TODO: Use ConVar API
 	Console.RegisterCommand(ID, function(state)
-		local valid_input = false
-		local changed = false
+		local valid_input --= false
+		local changed --= false
 
 		if state then
-			if state == "1" then
+			local num = tonumber(state)
+			if num then
 				valid_input = true
-				changed = not Enabled
-				if changed then
-					Enabled = true
-					Server.SetValue(ID, Enabled, true)
-					Events.BroadcastRemote(ID, Enabled)
-				end
-			elseif state == "0" then
-				valid_input = true
-				changed = Enabled
-				if changed then
-					Enabled = false
-					Server.SetValue(ID, Enabled, true)
-					Events.BroadcastRemote(ID, Enabled)
+				if num ~= 0 then
+					changed = not Enabled
+					if changed then
+						Enabled = true
+						Server.SetValue(ID, Enabled, true)
+						Events.BroadcastRemote(ID, Enabled)
+					end
+				else --if state == "0" then
+					changed = Enabled
+					if changed then
+						Enabled = false
+						Server.SetValue(ID, Enabled, true)
+						Events.BroadcastRemote(ID, Enabled)
+					end
 				end
 			end
 		end
@@ -69,6 +99,7 @@ if Server then
 		if valid_input then
 			if changed then -- only broadcast a message if the state has changed
 				Package.SetPersistentData("enable_cslua", Enabled)
+				Config.set("enable_cslua", Enabled)
 				Console.Log("Client-side Lua command has been %s", Enabled and "enabled" or "disabled")
 				Chat.BroadcastMessage(
 					string.format(
@@ -80,7 +111,8 @@ if Server then
 				Console.Log("Client-side Lua command is already %s", Enabled and "enabled" or "disabled")
 			end
 		else
-			Console.Warn("Invalid or no argument, expected: 0 to disable, or 1 to enable client-side Lua console command")
+			Console.Warn(
+				"Invalid or no argument, expected: 0 to disable, or 1 to enable client-side Lua console command")
 		end
 	end, "enable players to run Lua on client-side", { "0/1" })
 
@@ -90,8 +122,8 @@ else
 
 	-- S2C: synchronise convar state
 	Events.SubscribeRemote(ID, function(enable)
-		Enabled = not not enable -- old approach; make sure we have a boolean
-		--Enabled = Client.GetValue(ID, false) -- new approach
+		--Enabled = not not enable -- old approach; make sure we have a boolean
+		Enabled = Client.GetValue(ID, enable) -- new approach
 		if Enabled then
 			Client.SetDebugEnabled(true)
 		end
@@ -101,7 +133,7 @@ else
 	--Events.CallRemote(ID)
 
 	Console.RegisterCommand("lua", function(...)
-		--Enabled = Client.GetValue(ID, false) -- new approach
+		Enabled = Client.GetValue(ID, false) -- new approach
 		if Enabled then
 			RunLua(...)
 		end

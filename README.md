@@ -9,15 +9,18 @@
 </div>
 
 # 🧭 Roadmap
+
 - [ ] Admin mod
 - [ ] Prop protection mod
 - [ ] Lua/Script debugger
 - [ ] Wire mod
 
 # ❤️ Support
+
 If you like this project, consider giving it a ⭐ or sharing it with others.
 
 # 🤝 Contributing
+
 Contributions are welcome. Open an issue or submit a PR.
 
 <h2 align="center">Contributors</h2>
@@ -42,4 +45,5 @@ Contributions are welcome. Open an issue or submit a PR.
 -->
 
 # 📜 License
+
 MIT License
