@@ -9,6 +9,7 @@ License: MIT
 	<script>
 		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
 		// Using 'const' or 'let' would cause a redeclaration error.
+		// noinspection ES6ConvertVarToLetConst
 		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
 		var Events = window.Events;
 
