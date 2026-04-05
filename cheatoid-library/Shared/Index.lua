@@ -15,11 +15,13 @@ end
 
 -- Import dependencies
 local gaimers = require("@cheatoid/loader/gaimers")
+gaimers.r = require
 
--- Localized global functions for better performance
+-- Globally export GAIMERS + require for convenience
 _G.GAIMERS = gaimers
 _G.r = require
-gaimers.r = require
+
+-- Localized global functions for better performance
 local g, a, i, m, e, r, s = gaimers.g, gaimers.a, gaimers.i, gaimers.m, gaimers.e, gaimers.r, gaimers.s
 
 ----------------------------------------------------------------------
