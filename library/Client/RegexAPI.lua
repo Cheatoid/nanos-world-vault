@@ -10,8 +10,11 @@ local RegexAPI = {}
 --- Enqueue until ready
 local send
 do
-	local RegexWebUI =
-		WebUI("cheatoid-library.regex.api", "file:///UI/RegexAPI.html", WidgetVisibility.Hidden, true, false, 0, 0)
+	local RegexWebUI = WebUI(
+		Package.GetName() .. ":regex.api",
+		"file:///UI/RegexAPI.html",
+		WidgetVisibility.Hidden, true, false, 0, 0
+	)
 	local pending = {} ---@type table<integer, function|nil>
 	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}|nil>
 	local req_id = math.mininteger or 0
@@ -29,11 +32,11 @@ do
 	end)
 
 	--- Dispatch request to JS
-	---@param event string
-	---@param args table
-	---@param callback function
-	---@param use_req_id integer|nil
-	---@return integer req_id
+	--- @param event string
+	--- @param args table
+	--- @param callback function
+	--- @param use_req_id integer|nil
+	--- @return integer req_id
 	local function dispatch(event, args, callback, use_req_id)
 		local id = use_req_id or (req_id + 1)
 		if not use_req_id then

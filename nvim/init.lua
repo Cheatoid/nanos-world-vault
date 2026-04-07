@@ -64,6 +64,35 @@ vim.g.coc_global_extensions = { 'coc-lua', 'coc-json', 'coc-explorer' }
 -- Set the absolute path to your node.exe
 vim.g.coc_node_path = 'C:\\Program Files\\nodejs\\node.exe'
 
+-- Configure CoC Lua Language Server to include nanos-world annotations (matches VSCode settings)
+-- Dynamically detect the vault root (parent of the 'nvim' folder containing this script)
+local this_file = debug.getinfo(1, "S").source:sub(2) -- remove leading '@'
+local vault_path = vim.fn.fnamemodify(this_file, ':h:h') -- go up twice: init.lua -> nvim -> vault root
+vim.g.coc_user_config = {
+	Lua = {
+		workspace = {
+			library = {
+				vault_path .. '\\.nanos-world',
+				vault_path .. '\\library\\Shared',
+				vault_path .. '\\library\\Shared\\@cheatoid\\standard',
+			},
+			checkThirdParty = false,
+			ignoreSubmodules = false,
+		},
+		runtime = {
+			version = 'Lua 5.4',
+		},
+		diagnostics = {
+			globals = {},
+			disable = { 'different-requires' },
+		},
+		hint = {
+			setType = true,
+			enable = true,
+		},
+	},
+}
+
 -- 4. Completion Setup (Basic)
 if false then
 	local cmp = require('cmp')

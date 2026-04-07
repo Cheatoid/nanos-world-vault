@@ -57,7 +57,7 @@ if (string.IsNullOrEmpty(token))
 	}
 }
 
-var useCliMode = false;
+string? cliMode = null;
 var isReleaseMode = false;
 var isUpdatePackagesMode = false;
 string? singlePackage = null;
@@ -80,9 +80,14 @@ if (args is { Length: > 0 })
 			break;
 		}
 		var argLower = arg.ToLowerInvariant();
-		if (argLower is "--cli")
+		if (argLower is "--cli" && index + 1 < args.Length)
 		{
-			useCliMode = true;
+			cliMode = args[++index];
+			if (!Path.IsPathFullyQualified(cliMode))
+			{
+				cliMode = Path.GetFullPath(cliMode,
+					Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory);
+			}
 		}
 		else if (argLower is "--release" or "-r")
 		{
@@ -113,7 +118,7 @@ else
 }
 if (dirs is null || dirs.Length == 0)
 {
-	dirs = [Environment.ProcessPath ?? Environment.CurrentDirectory];
+	dirs = [Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory];
 }
 
 if (isReleaseMode || isUpdatePackagesMode)
@@ -200,10 +205,10 @@ foreach (var dir in dirs)
 		File.WriteAllBytes(file, bytes);
 	}
 
-	//var packageRoots = FindPackageRoots(); // smart auto-find from current directory
-	var packageRoots = GetPackageRoots(gitRoot); // explicitly get package roots (requires packages.json)
+	//var packageRoots = FindPackageRoots().ToArray(); // smart auto-find from current directory
+	var packageRoots = GetPackageRoots(gitRoot).ToArray(); // explicitly get package roots (requires packages.json)
 
-	foreach (var (packageRoot, packageName, tomlTable) in packageRoots.ToArray())
+	foreach (var (packageRoot, packageName, tomlTable) in packageRoots)
 	{
 		if (!tomlTable.TryGetValue("meta", out var meta) ||
 			meta is not TomlTable metaTable ||
@@ -222,6 +227,7 @@ foreach (var dir in dirs)
 		c.WriteLine($"ℹ package author: {packageAuthor}");
 		Directory.CreateDirectory(Path.Combine(packageRoot, "Shared"));
 		var packageFiles = Directory.GetFiles(packageRoot, "*", SearchOption.AllDirectories);
+		c.WriteLine($"ℹ found {packageFiles.Length} files in {packageRoot}");
 		var filesList = new List<string>(packageFiles.Length);
 		{
 			foreach (var file in packageFiles)
@@ -231,7 +237,8 @@ foreach (var dir in dirs)
 					continue;
 				try
 				{
-					filesList.Add(entryName);
+					filesList.Add(file);
+					c.WriteLine($"ℹ added to filelist: {entryName}");
 				}
 				catch
 				{
@@ -239,6 +246,7 @@ foreach (var dir in dirs)
 				}
 			}
 		}
+		c.WriteLine($"ℹ files after filtering: {filesList.Count}");
 		{
 			// Find current git tag (if any) matching "v*" and get previous commit hash
 			var currentTag = $"v{packageVersion}";
@@ -328,13 +336,13 @@ foreach (var dir in dirs)
 							.Select(static f => (path: f, dir: Path.GetDirectoryName(f) ?? ""))
 							.OrderBy(static t => t.dir, StringComparer.Ordinal)
 							.ThenBy(static t => t.path, StringComparer.Ordinal)
-							.Select(static t => $"\"{t.path}\","))}}
+							.Select(static t => $"\"{t.path.Replace('\\', '/')}\","))}}
 					},
 				}
 				""".ReplaceLineEndings("\n").Trim() + "\n"
 			);
 		}
-		var zipBytes = CreateZipFromFiles(filesList.ToArray(), packageRoot, ZipFilterRegexes);
+		var zipBytes = CreateZipFromFilesNoFilter(filesList.ToArray(), packageRoot);
 		var zipFileSize = zipBytes.Length;
 		if (zipFileSize > 0)
 		{
@@ -389,51 +397,102 @@ foreach (var dir in dirs)
 					// Assume package does not exist, first-time upload
 					shouldUpload = true;
 				}
+#if DEBUG
+				shouldUpload = true; // TODO/REMOVEME
+#endif
 				if (shouldUpload)
 				{
-					// Request presigned URL
-					var presign = await HttpGet<PresignResponse>(
-						$"store/packages/presign/{packageName}?{timeNow}&filename={zipFileName}&size={zipFileSize}",
-						apiKey: token);
-					if (presign is { success: true, content.payload: not null, error: null } &&
-						presign.content.Message.ToLowerInvariant() is "presigned url generated successfully")
+					if (!string.IsNullOrEmpty(cliMode))
 					{
-						var presignPayload = presign.content.payload;
-						var presignedUrl = presignPayload.PresignedUrl;
-						var cdnUrl = presignPayload.Url;
-						c.WriteLine($"ℹ obtained presigned URL: {presignedUrl}");
-						c.WriteLine($"ℹ obtained CDN URL: {cdnUrl}");
-						// Upload zip to presigned URL (Cloudflare R2)
-						// TODO/FIXME: I keep getting 404 (not found)...
-						var uploadResponse = await HttpSendJson<byte[], string>(
-							presignedUrl!.ToString(),
-							zipBytes,
-							HttpMethod.Put,
-							token,
-							MediaTypeNames.Application.Zip
-						);
-						c.WriteLine($"ℹ success: {uploadResponse.success}");
-						c.WriteLine($"ℹ upload response: {uploadResponse}");
-						// TODO: Finalize upload...
-						var finishResponse = await HttpSendJson<(string name, string url), string>(
-							$"store/packages/upload/finish?{timeNow}",
-							(name: packageName, url: cdnUrl!.ToString()),
-							HttpMethod.Post,
-							token,
-							MediaTypeNames.Application.Json
-						);
-						c.WriteLine($"ℹ success: {finishResponse.success}");
-						c.WriteLine($"ℹ finish response: {finishResponse.result}");
-						if (!finishResponse.success)
+						if (!File.Exists(cliMode))
 						{
-							return 4;
+							c.Error.WriteLine("❗ server executable not found");
+							return 3;
 						}
+						isUpdatePackagesMode = true;
 					}
 					else
 					{
-						c.Error.WriteLine("❗ error: something went wrong during presign request");
-						c.Error.WriteLine(presign.error?.Message ?? "unknown error");
-						return 3;
+						// Request presigned URL
+						var presign = await HttpGet<PresignResponse>(
+							$"store/packages/presign/{packageName}?filename={zipFileName}&size={zipFileSize}",
+							apiKey: token
+						);
+						if (presign is { success: true, content.payload: not null, error: null } &&
+						    presign.content.Message.ToLowerInvariant() is "presigned url generated successfully")
+						{
+							var presignPayload = presign.content.payload;
+							var presignedUrl = presignPayload.PresignedUrl;
+							var cdnUrl = presignPayload.Url;
+							c.WriteLine($"ℹ obtained presigned URL: {presignedUrl}");
+							c.WriteLine($"ℹ obtained CDN URL: {cdnUrl}");
+							/*
+							curl -s -w "\n%{http_code}" \
+								-X PUT \
+								"$presigned_url" \
+								-H "Content-Type: application/zip" \
+								--data-binary "@${zip_path}"
+							*/
+							// Upload zip to presigned URL (Cloudflare R2)
+							// TODO/FIXME: I keep getting 404 (not found)...
+							var uploadResponse = await HttpSend<byte[], string>(
+								url: presignedUrl!.ToString(),
+								body: zipBytes,
+								httpMethod: HttpMethod.Put,
+								//apiKey: token,
+								contentType: MediaTypeNames.Application.Zip
+							);
+							c.WriteLine($"ℹ success: {uploadResponse.success}");
+							c.WriteLine($"ℹ upload response: {uploadResponse}");
+							if (uploadResponse.success)
+							{
+								/*
+								curl -s -w "\n%{http_code}" \
+									-X POST \
+									"${api_url}/store/packages/upload/finish" \
+									-H "Content-Type: application/json" \
+									-H "Authorization: Token ${token}" \
+									--data-raw "{\"name\":\"${package_name}\",\"url\":\"${cdn_url}\"}"
+								*/
+								// Finalize upload...
+								var finishResponse = await HttpSend<Dictionary<string, string>, string>(
+									url: $"store/packages/upload/finish",
+									//body: (name: packageName, url: cdnUrl!.ToString()),
+									body: new()
+									{
+										{ "name", packageName },
+										{ "url", cdnUrl!.ToString() }
+									},
+									httpMethod: HttpMethod.Post,
+									apiKey: token,
+									contentType: MediaTypeNames.Application.Json
+								);
+								c.WriteLine($"ℹ success: {finishResponse.success}");
+								c.WriteLine($"ℹ finish response: {finishResponse.result}");
+								if (finishResponse.success)
+								{
+									c.WriteLine("🚀 uploaded to nanos world store");
+								}
+								else
+								{
+									c.Error.WriteLine("❗ error: something went wrong during finish");
+									c.Error.WriteLine(finishResponse.error ?? "unknown error");
+									return 5;
+								}
+							}
+							else
+							{
+								c.Error.WriteLine("❗ error: something went wrong during upload");
+								c.Error.WriteLine(uploadResponse.error ?? "unknown error");
+								return 4;
+							}
+						}
+						else
+						{
+							c.Error.WriteLine("❗ error: something went wrong during presign request");
+							c.Error.WriteLine(presign.error?.Message ?? "unknown error");
+							return 3;
+						}
 					}
 				}
 			}
@@ -479,7 +538,7 @@ if (isUpdatePackagesMode)
 	// Filter to single package if specified
 	var packagesToProcess = singlePackage is not null
 		? packagesMap.Where(kvp => kvp.Key == singlePackage || kvp.Value == singlePackage)
-			.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+			.ToDictionary(static kvp => kvp.Key, kvp => kvp.Value)
 		: packagesMap;
 
 	if (packagesToProcess.Count == 0)
@@ -626,7 +685,8 @@ if (isUpdatePackagesMode)
 				RedirectStandardOutput = true,
 				RedirectStandardError = true,
 				UseShellExecute = false,
-				CreateNoWindow = true
+				CreateNoWindow = true,
+				WorkingDirectory = Path.GetDirectoryName(serverExe)
 			};
 			// Use ArgumentList instead of Arguments for proper escaping
 			//psi.ArgumentList.Add("--token"); // Token saved in Config.toml
@@ -830,6 +890,85 @@ static string ComputeSHA256(byte[] data)
 	return Convert.ToHexString(hash).ToLowerInvariant();
 }
 
+static bool IsValueTupleType(Type type)
+{
+	if (!type.IsGenericType)
+		return false;
+	var genericType = type.GetGenericTypeDefinition();
+	return genericType == typeof(ValueTuple<>)
+	       || genericType == typeof(ValueTuple<,>)
+	       || genericType == typeof(ValueTuple<,,>)
+	       || genericType == typeof(ValueTuple<,,,>)
+	       || genericType == typeof(ValueTuple<,,,,>)
+	       || genericType == typeof(ValueTuple<,,,,,>)
+	       || genericType == typeof(ValueTuple<,,,,,,>)
+	       || genericType == typeof(ValueTuple<,,,,,,,>);
+}
+
+static Dictionary<string, object?> ConvertValueTupleToDictionary<T>(T tuple)
+{
+	var type = typeof(T);
+	var fields = type.GetFields();
+	var dict = new Dictionary<string, object?>();
+
+	// Get TupleElementNames from the calling method's generic type argument
+	// The attribute is stored on the method signature, not the runtime type
+	string?[]? tupleNames = null;
+	try
+	{
+		var stackTrace = new StackTrace(1, false); // Skip this frame
+		for (var i = 0; i < stackTrace.FrameCount; ++i)
+		{
+			var frame = stackTrace.GetFrame(i);
+			if (frame == null) continue;
+			var method = frame.GetMethod();
+			if (method == null) continue;
+
+			// Check if this method has a generic return type that matches our tuple type
+			if (method is MethodInfo { IsGenericMethod: true } methodInfo)
+			{
+				// Get the generic method definition (has the original type parameters with attributes)
+				var methodDef = methodInfo.GetGenericMethodDefinition();
+				var genericArgs = methodDef.GetGenericArguments();
+				foreach (var t in genericArgs)
+				{
+					// Use GetCustomAttributesData to read raw metadata
+					var attrData = t.GetCustomAttributesData()
+						.FirstOrDefault(a =>
+							a.AttributeType.FullName == "System.Runtime.CompilerServices.TupleElementNamesAttribute");
+					if (attrData != null && attrData.ConstructorArguments.Count > 0)
+					{
+						var namesArg = attrData.ConstructorArguments[0];
+						if (namesArg.Value is IList<CustomAttributeTypedArgument> namesList &&
+						    namesList.Count == fields.Length)
+						{
+							tupleNames = namesList.Select(n => n.Value as string).ToArray();
+							break;
+						}
+					}
+				}
+				if (tupleNames != null) break;
+			}
+		}
+	}
+	catch
+	{
+		// Ignore stack trace errors, fall back to ItemN names
+	}
+
+	for (var i = 0; i < fields.Length; ++i)
+	{
+		var field = fields[i];
+		// Use the actual name from TupleElementNames if available, otherwise use ItemN
+		var key = tupleNames != null && i < tupleNames.Length && tupleNames[i] != null
+			? tupleNames[i]!
+			: field.Name;
+		dict[key] = field.GetValue(tuple);
+	}
+
+	return dict;
+}
+
 string? FindGitRoot(string startPath)
 {
 	// Find the root of the git repository (from nested path)
@@ -1007,7 +1146,7 @@ byte[] CreateZipInMemory(HashSet<string> filePaths, string? basePath = null)
 	return ms.ToArray();
 }
 
-byte[] CreateZipFromFiles(
+static byte[] CreateZipFromFiles(
 	string[] files,
 	string basePath,
 	Regex[] includeEntryNameRegexes
@@ -1022,6 +1161,33 @@ byte[] CreateZipFromFiles(
 			var entryName = Path.GetRelativePath(basePath, file).Replace('\\', '/');
 			if (!includeEntryNameRegexes.Any(r => r.IsMatch('/' + entryName)))
 				continue;
+			try
+			{
+				c.WriteLine($"ℹ adding file to zip: {entryName}");
+				zip.CreateEntryFromFile(file, entryName, CompressionLevel.SmallestSize);
+			}
+			catch
+			{
+				// ignored
+			}
+		}
+	} // zip disposed here - writes central directory to stream
+	return ms.ToArray();
+}
+
+static byte[] CreateZipFromFilesNoFilter(
+	string[] files,
+	string basePath
+)
+{
+	using var ms = new MemoryStream();
+	// Use leaveOpen: true so disposing zip doesn't close the stream
+	using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+	{
+		foreach (var file in files)
+		{
+			var entryName = Path.GetRelativePath(basePath, file).Replace('\\', '/');
+			// Files are already filtered above, no need to filter again
 			try
 			{
 				c.WriteLine($"ℹ adding file to zip: {entryName}");
@@ -1144,7 +1310,7 @@ async Task<(bool success, T? result, Exception? error)>
 }
 
 async Task<(bool success, TResponse? result, string? error)>
-	HttpSendJson<TRequest, TResponse>(
+	HttpSend<TRequest, TResponse>(
 		string url,
 		TRequest body,
 		HttpMethod? httpMethod = null,
@@ -1168,10 +1334,24 @@ async Task<(bool success, TResponse? result, string? error)>
 		}
 		else
 		{
-			var json = JsonSerializer.Serialize(body);
+			string json;
+			// Support variadic ValueTuple (convert to dictionary key-value)
+			if (IsValueTupleType(typeof(TRequest)))
+			{
+				var dict = ConvertValueTupleToDictionary(body);
+				json = JsonSerializer.Serialize(dict);
+			}
+			else
+			{
+				json = JsonSerializer.Serialize(body);
+			}
 			request.Content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
 		}
-		request.Content?.Headers.Add("Content-Type", contentType ?? MediaTypeNames.Application.Json);
+		if (request.Content is not null)
+		{
+			request.Content!.Headers.ContentType =
+				new MediaTypeHeaderValue(contentType ?? MediaTypeNames.Application.Json);
+		}
 		try
 		{
 			if (!string.IsNullOrEmpty(apiKey))

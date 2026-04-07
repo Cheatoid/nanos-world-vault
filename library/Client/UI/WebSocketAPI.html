@@ -1,0 +1,348 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<html>
+
+<head>
+	<script>
+		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
+		// Using 'const' or 'let' would cause a redeclaration error.
+		// noinspection ES6ConvertVarToLetConst
+		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
+		var Events = window.Events;
+
+		// ============================================================
+		// Setup
+		// ============================================================
+
+		let is_ready = false;
+		const sockets = new Map(); // socket_id -> WebSocket instance
+		const handlers = new Map(); // socket_id -> {message, error, close, open} handlers
+		let socket_counter = 0;
+
+		const on_page_load = () => {
+			if (is_ready) return;
+			is_ready = true;
+			//console.log("WebSocketAPI ready");
+			Events.Call("WebSocketReady");
+		};
+
+		document.addEventListener("DOMContentLoaded", on_page_load);
+		window.onload = on_page_load;
+
+		// ============================================================
+		// Helpers
+		// ============================================================
+
+		const safe_call = (
+			/** @type {function(...any): any} */ fn,
+			/** @type {any[]} */ ...args
+			/** @returns {[boolean, any]} */
+		) => {
+			try {
+				return [true, fn(...args)];
+			} catch (e) {
+				return [false, e.toString()];
+			}
+		};
+
+		const send = (
+			/** @type {number} */ id,
+			/** @type {boolean} */ success,
+			/** @type {any} */ payload
+		) => Events.Call("WebSocketResult", id, success, payload);
+
+		const reply = (
+			/** @type {number} */ id,
+			/** @type {function(...any): any} */ fn,
+			/** @type {any[]} */ ...args
+		) => {
+			const [ok, out] = safe_call(fn, ...args);
+			return send(id, ok, out);
+		};
+
+		const generate_socket_id = () => {
+			return `socket_${++socket_counter}_${Date.now()}`;
+		};
+
+		const get_socket_state = (/** @type {WebSocket} */ socket) => {
+			switch (socket.readyState) {
+				case WebSocket.CONNECTING:
+					return "connecting";
+				case WebSocket.OPEN:
+					return "open";
+				case WebSocket.CLOSING:
+					return "closing";
+				case WebSocket.CLOSED:
+					return "closed";
+				default:
+					return "unknown";
+			}
+		};
+
+		// ============================================================
+		// Event Handlers
+		// ============================================================
+
+		const onDoConnect = (
+			/** @type {number} */ id,
+			/** @type {string} */ url,
+			/** @type {string|string[]|null} */ protocols
+		) =>
+			reply(id, (
+				/** @type {string} */ url,
+				/** @type {string|string[]|null} */ protocols
+			) => {
+				const socket_id = generate_socket_id();
+
+				try {
+					const socket = new WebSocket(url, protocols || []);
+
+					// Set up event handlers
+					socket.onopen = (event) => {
+						const socket_handlers = handlers.get(socket_id);
+						if (socket_handlers && socket_handlers.open) {
+							socket_handlers.open(event);
+						}
+					};
+
+					socket.onmessage = (event) => {
+						const socket_handlers = handlers.get(socket_id);
+						if (socket_handlers && socket_handlers.message) {
+							// Try to parse JSON, fallback to raw text
+							let data;
+							try {
+								data = JSON.parse(event.data);
+							} catch {
+								data = event.data;
+							}
+							socket_handlers.message(data);
+						}
+					};
+
+					socket.onerror = (event) => {
+						const socket_handlers = handlers.get(socket_id);
+						if (socket_handlers && socket_handlers.error) {
+							socket_handlers.error(event);
+						}
+					};
+
+					socket.onclose = (event) => {
+						const socket_handlers = handlers.get(socket_id);
+						if (socket_handlers && socket_handlers.close) {
+							socket_handlers.close(event);
+						}
+						// Clean up
+						sockets.delete(socket_id);
+						handlers.delete(socket_id);
+					};
+
+					// Store the socket
+					sockets.set(socket_id, socket);
+					handlers.set(socket_id, {});
+
+					return {
+						socket_id: socket_id,
+						state: get_socket_state(socket),
+						message: "WebSocket connection initiated"
+					};
+				} catch (e) {
+					throw new Error(`Failed to create WebSocket: ${e.message}`);
+				}
+			}, url, protocols);
+
+		const onDoDisconnect = (
+			/** @type {number} */ id,
+			/** @type {string} */ socket_id
+		) =>
+			reply(id, (
+				/** @type {string} */ socket_id
+			) => {
+				const socket = sockets.get(socket_id);
+				if (!socket) {
+					throw new Error(`Socket not found: ${socket_id}`);
+				}
+
+				try {
+					socket.close();
+					return {
+						socket_id: socket_id,
+						message: "WebSocket disconnect initiated"
+					};
+				} catch (e) {
+					throw new Error(`Failed to close WebSocket: ${e.message}`);
+				}
+			}, socket_id);
+
+		const onDoSend = (
+			/** @type {number} */ id,
+			/** @type {string} */ socket_id,
+			/** @type {string|object} */ data
+		) =>
+			reply(id, (
+				/** @type {string} */ socket_id,
+				/** @type {string|object} */ data
+			) => {
+				const socket = sockets.get(socket_id);
+				if (!socket) {
+					throw new Error(`Socket not found: ${socket_id}`);
+				}
+
+				if (socket.readyState !== WebSocket.OPEN) {
+					throw new Error(`Socket not open: ${socket_id} (state: ${get_socket_state(socket)})`);
+				}
+
+				try {
+					const message = typeof data === 'string' ? data : JSON.stringify(data);
+					socket.send(message);
+					return {
+						socket_id: socket_id,
+						message: "Data sent successfully",
+						data_type: typeof data
+					};
+				} catch (e) {
+					throw new Error(`Failed to send data: ${e.message}`);
+				}
+			}, socket_id, data);
+
+		const onDoOnMessage = (
+			/** @type {number} */ id,
+			/** @type {string} */ socket_id
+		) =>
+			reply(id, (
+				/** @type {string} */ socket_id
+			) => {
+				const socket_handlers = handlers.get(socket_id);
+				if (!socket_handlers) {
+					throw new Error(`Socket handlers not found: ${socket_id}`);
+				}
+
+				// Set up message handler that forwards to Lua
+				socket_handlers.message = (/** @type {any} */ message) => {
+					Events.Call("WebSocketMessage", socket_id, message);
+				};
+
+				return {
+					socket_id: socket_id,
+					message: "Message handler registered"
+				};
+			}, socket_id);
+
+		const onDoOnError = (
+			/** @type {number} */ id,
+			/** @type {string} */ socket_id
+		) =>
+			reply(id, (
+				/** @type {string} */ socket_id
+			) => {
+				const socket_handlers = handlers.get(socket_id);
+				if (!socket_handlers) {
+					throw new Error(`Socket handlers not found: ${socket_id}`);
+				}
+
+				// Set up error handler that forwards to Lua
+				socket_handlers.error = (/** @type {Event} */ error) => {
+					Events.Call("WebSocketError", socket_id, error);
+				};
+
+				return {
+					socket_id: socket_id,
+					message: "Error handler registered"
+				};
+			}, socket_id);
+
+		const onDoOnClose = (
+			/** @type {number} */ id,
+			/** @type {string} */ socket_id
+		) =>
+			reply(id, (
+				/** @type {string} */ socket_id
+			) => {
+				const socket_handlers = handlers.get(socket_id);
+				if (!socket_handlers) {
+					throw new Error(`Socket handlers not found: ${socket_id}`);
+				}
+
+				// Set up close handler that forwards to Lua
+				socket_handlers.close = (/** @type {CloseEvent} */ event) => {
+					Events.Call("WebSocketClose", socket_id, {
+						code: event.code,
+						reason: event.reason,
+						wasClean: event.wasClean
+					});
+				};
+
+				return {
+					socket_id: socket_id,
+					message: "Close handler registered"
+				};
+			}, socket_id);
+
+		const onDoOnOpen = (
+			/** @type {number} */ id,
+			/** @type {string} */ socket_id
+		) =>
+			reply(id, (
+				/** @type {string} */ socket_id
+			) => {
+				const socket_handlers = handlers.get(socket_id);
+				if (!socket_handlers) {
+					throw new Error(`Socket handlers not found: ${socket_id}`);
+				}
+
+				// Set up open handler that forwards to Lua
+				socket_handlers.open = (/** @type {Event} */ event) => {
+					Events.Call("WebSocketOpen", socket_id, event);
+				};
+
+				return {
+					socket_id: socket_id,
+					message: "Open handler registered"
+				};
+			}, socket_id);
+
+		const onDoGetState = (
+			/** @type {number} */ id,
+			/** @type {string} */ socket_id
+		) =>
+			reply(id, (
+				/** @type {string} */ socket_id
+			) => {
+				const socket = sockets.get(socket_id);
+				if (!socket) {
+					throw new Error(`Socket not found: ${socket_id}`);
+				}
+
+				return {
+					socket_id: socket_id,
+					state: get_socket_state(socket),
+					readyState: socket.readyState
+				};
+			}, socket_id);
+
+		// ============================================================
+		// Subscriptions - Subscribe to events
+		// ============================================================
+
+		const event_handlers = {
+			DoConnect: onDoConnect,
+			DoDisconnect: onDoDisconnect,
+			DoSend: onDoSend,
+			DoOnMessage: onDoOnMessage,
+			DoOnError: onDoOnError,
+			DoOnClose: onDoOnClose,
+			DoOnOpen: onDoOnOpen,
+			DoGetState: onDoGetState
+		};
+
+		for (const [event, handler] of Object.entries(event_handlers)) {
+			Events.Subscribe(event, handler);
+		}
+	</script>
+</head>
+
+<body></body>
+
+</html>

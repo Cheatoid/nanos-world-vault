@@ -46,38 +46,40 @@ print("metadata numver: " .. packageMetadata.num_version)
 print("metadata tag: " .. packageMetadata.tag)
 print("metadata timestamp: " .. packageMetadata.timestamp)
 
-local http = require("HttpWrapper")
-http.get(
-	string.format("https://api.nanos-world.com/store/packages/%s", packageName),
-	function(data, status, url)
-		print("store status: " .. status)
-		print("store data: " .. data)
-		local parsedJson = JSON.parse(data)
-		local storeVersion = parsedJson.payload.version.version
-		print("store version: " .. storeVersion)
-	end
-)
-http.get(
-	string.format(
-	--"https://github.com/%s/%s/raw/refs/heads/main/%s/Shared/metadata.g.lua",
-		"https://raw.github.com/%s/%s/main/%s/Shared/metadata.g.lua", -- shorter
-		packageMetadata.owner,
-		packageMetadata.repo,
-		packagePath
-	),
-	function(data, status, url)
-		print("github status: " .. status)
-		print("github data: " .. data)
-		local githubMetadata = load(data)() ---@type { num_version: integer, prev_hash: string, tag: string }
-		local githubNumVer, githubPrevHash, githubTag =
-			githubMetadata.num_version, githubMetadata.prev_hash, githubMetadata.tag
-		print("github latest numver: " .. githubNumVer)
-		print("github prev hash: " .. githubPrevHash)
-		print("github latest tag: " .. githubTag)
-	end
-)
+if Server then
+	local http = require("HttpWrapper")
+	http.get(
+		string.format("https://api.nanos-world.com/store/packages/%s", packageName),
+		function(data, status, url)
+			print("store status: " .. status)
+			print("store data: " .. data)
+			local parsedJson = JSON.parse(data)
+			local storeVersion = parsedJson.payload.version.version
+			print("store version: " .. storeVersion)
+		end
+	)
+	http.get(
+		string.format(
+		--"https://github.com/%s/%s/raw/refs/heads/main/%s/Shared/metadata.g.lua",
+			"https://raw.github.com/%s/%s/main/%s/Shared/metadata.g.lua", -- shorter
+			packageMetadata.owner,
+			packageMetadata.repo,
+			packagePath
+		),
+		function(data, status, url)
+			print("github status: " .. status)
+			print("github data: " .. data)
+			local githubMetadata = load(data)() ---@type { num_version: integer, prev_hash: string, tag: string }
+			local githubNumVer, githubPrevHash, githubTag =
+				githubMetadata.num_version, githubMetadata.prev_hash, githubMetadata.tag
+			print("github latest numver: " .. githubNumVer)
+			print("github prev hash: " .. githubPrevHash)
+			print("github latest tag: " .. githubTag)
+		end
+	)
+end
 
--- TODO: Automatic updates
+-- TODO: Automatic updates, because "upload to store" is a painful process
 
 --do
 --	local filename = string.format("test_%s.txt", Server and "server" or "client")
