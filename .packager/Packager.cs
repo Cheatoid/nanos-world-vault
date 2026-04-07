@@ -336,7 +336,7 @@ foreach (var dir in dirs)
 							.Select(static f => (path: f, dir: Path.GetDirectoryName(f) ?? ""))
 							.OrderBy(static t => t.dir, StringComparer.Ordinal)
 							.ThenBy(static t => t.path, StringComparer.Ordinal)
-							.Select(static t => $"\"{t.path.Replace('\\', '/')}\","))}}
+							.Select(t => $"\"{t.path[(packageRoot.Length + 1)..].Replace('\\', '/')}\","))}}
 					},
 				}
 				""".ReplaceLineEndings("\n").Trim() + "\n"
