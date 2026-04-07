@@ -38,7 +38,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
         with:
-        dotnet-version: "10.0.x"
+          dotnet-version: "10.0.x"
 
       - name: Determine version (manual dispatch)
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -69,24 +69,24 @@ jobs:
           PREV_TAG=$(git describe --tags --abbrev=0 --match "v*" --exclude "$CUR_TAG" 2>/dev/null || echo "")
 
           if [ -z "$PREV_TAG" ]; then
-          echo "Initial release." >> CHANGELOG.md
-          echo "" >> CHANGELOG.md
-          COMMITS=$(git rev-list --reverse HEAD)
+            echo "Initial release." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            COMMITS=$(git rev-list --reverse HEAD)
           else
-          echo "Changes since $PREV_TAG:" >> CHANGELOG.md
-          echo "" >> CHANGELOG.md
-          COMMITS=$(git rev-list $PREV_TAG..HEAD)
+            echo "Changes since $PREV_TAG:" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            COMMITS=$(git rev-list $PREV_TAG..HEAD)
           fi
 
           for COMMIT in $COMMITS; do
-          MSG=$(git log -1 --pretty=format:%s $COMMIT)
-          echo "- [$MSG](https://github.com/${{ github.repository }}/commit/$COMMIT)" >> CHANGELOG.md
+            MSG=$(git log -1 --pretty=format:%s $COMMIT)
+            echo "- [$MSG](https://github.com/${{ github.repository }}/commit/$COMMIT)" >> CHANGELOG.md
           done
 
           # Add full changelog link for all non-initial releases
           if [ -n "$PREV_TAG" ]; then
-          echo "" >> CHANGELOG.md
-          echo "**Full changelog:** https://github.com/${{ github.repository }}/compare/$PREV_TAG...$CUR_TAG" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "**Full changelog:** https://github.com/${{ github.repository }}/compare/$PREV_TAG...$CUR_TAG" >> CHANGELOG.md
           fi
 
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
@@ -128,5 +128,5 @@ jobs:
           NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
           NANOS_PACKAGE_NAME: "cheatoid-library"
           PACKAGE_PATH: "library"
-          EXTRA_PACKAGE_PATHS: [ ]
+          EXTRA_PACKAGE_PATHS: ""
           VERBOSE: true
