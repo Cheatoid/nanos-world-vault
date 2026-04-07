@@ -7,7 +7,9 @@ echo "Running packager to update metadata..."
 if [ -f "bin/packager.exe" ]; then
 	bin/packager.exe
 else
-	dotnet run --project ".packager/packager.csproj" --configuration Release --
+	dotnet restore --project ".packager/packager.csproj"
+	dotnet build --project ".packager/packager.csproj" --no-restore --configuration Release
+	dotnet run --project ".packager/packager.csproj" --no-build --configuration Release --
 fi
 
 # Check if packager succeeded
