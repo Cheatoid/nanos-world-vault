@@ -83,7 +83,7 @@ jobs:
           # Add full changelog link for all non-initial releases
           if [ -n "$PREV_TAG" ]; then
             echo "" >> CHANGELOG.md
-            echo "**Full changelog:** https://github.com/${{ github.repository }}/compare/$PREV_TAG...$CUR_TAG" >> CHANGELOG.md
+            # echo "**Full changelog:** https://github.com/${{ github.repository }}/compare/$PREV_TAG...$CUR_TAG" >> CHANGELOG.md
           fi
 
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
