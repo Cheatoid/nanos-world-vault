@@ -1,58 +1,26 @@
 #!/bin/sh
 
-VERSION_FILE=".version"
+# Run packager to regenerate metadata.g.lua files for all packages
+echo "Running packager to update metadata..."
 
-# Read stdin from Git (contains refs being pushed)
-# Format: <local ref> <local sha1> <remote ref> <remote sha1>
-while read local_ref local_sha remote_ref remote_sha
-do
-	# Only act if the ref being pushed is a tag
-	case "$local_ref" in
-		refs/tags/*)
-			TAG_NAME=$(echo "$local_ref" | sed 's#refs/tags/##')
+dotnet run --project ".packager/packager.csproj" --configuration Release
 
-			# Read current version
-			if [ -f "$VERSION_FILE" ]; then
-				CURRENT_VERSION=$(grep "version" "$VERSION_FILE" | sed 's/[^0-9]*//g')
-			else
-				CURRENT_VERSION=0
-			fi
+# Check if packager succeeded
+if [ $? -ne 0 ]; then
+	echo "ERROR: Packager failed. Aborting push."
+	exit 1
+fi
 
-			NEXT_VERSION=$((CURRENT_VERSION + 1))
+# Stage any updated metadata.g.lua files
+git add -A "*/Shared/metadata.g.lua"
 
-			# Previous commit hash (HEAD)
-			PREV_HASH=$(git rev-parse HEAD)
-
-			# Remote URL
-			REMOTE_URL=$(git config --get remote.origin.url)
-
-			# Normalize URL formats
-			NORMALIZED=$(echo "$REMOTE_URL" \
-				| sed -e 's#git@#https://#' \
-					  -e 's#ssh://git@#https://#' \
-					  -e 's#git://#https://#' \
-					  -e 's#:#/#')
-
-			OWNER=$(echo "$NORMALIZED" | awk -F'/' '{print $(NF-1)}')
-			REPO=$(echo "$NORMALIZED" | awk -F'/' '{print $NF}' | sed 's/.git$//')
-
-			# Write Lua table
-			cat > "$VERSION_FILE" <<EOF
-return {
-	version = $NEXT_VERSION,
-	prev_hash = "$PREV_HASH",
-	owner = "$OWNER",
-	repo = "$REPO",
-	tag = "$TAG_NAME",
-}
-EOF
-
-			# Commit the version bump
-			git add "$VERSION_FILE"
-			git commit -m "Version bump to $NEXT_VERSION (tag: $TAG_NAME)" --no-verify
-
-			;;
-	esac
-done
+# Check if there are staged changes
+if git diff --cached --quiet; then
+	echo "No metadata changes to commit."
+else
+	# Amend the commit with updated metadata
+	git commit --amend --no-edit --no-verify
+	echo "Metadata updated and amended to commit."
+fi
 
 exit 0

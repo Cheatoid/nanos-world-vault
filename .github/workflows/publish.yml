@@ -18,7 +18,7 @@ permissions:
 jobs:
 	publish:
 		name: Publish
-		runs-on: ubuntu-latest
+		runs-on: windows-latest
 
 		permissions:
 			contents: write  # needed for creating GitHub releases
@@ -42,20 +42,23 @@ jobs:
 
 			- name: Determine version (manual dispatch)
 				if: ${{ github.event_name == 'workflow_dispatch' }}
+				shell: bash
 				run: |
 					TAG="v${{ github.event.inputs.version }}"
 					echo "TAG=$TAG" >> $GITHUB_ENV
-					# Create a tag for MinVer to detect
+					# Create a tag
 					git tag $TAG
 
 			- name: Determine version (tag push)
 				if: ${{ github.event_name == 'push' }}
+				shell: bash
 				run: |
 					TAG="${{ github.ref_name }}"
 					echo "TAG=$TAG" >> $GITHUB_ENV
 
 			- name: Generate changelog
 				id: changelog
+				shell: bash
 				run: |
 					echo "## Changelog" > CHANGELOG.md
 					echo "" >> CHANGELOG.md
@@ -96,16 +99,14 @@ jobs:
 			- name: Build solution
 				run: dotnet build -c Release --no-restore --no-incremental
 
-			- name: Create zip artifact
-				run: |
-					mkdir dist
-					zip -r "dist/cheatoid-library-${TAG}.zip" ./library
+			- name: Generate packages with packager
+				run: bin\packager.exe
 
 			- name: Upload zip artifact
 				uses: actions/upload-artifact@v7
 				with:
 					name: cheatoid-library
-					path: dist/*.zip
+					path: publish/cheatoid-library.zip
 
 			- name: Create GitHub release
 				uses: softprops/action-gh-release@v2
@@ -117,11 +118,12 @@ jobs:
 					prerelease: ${{ contains(env.TAG, '-') }}
 					generate_release_notes: true
 					files: |
-						dist/*.zip
+						publish/cheatoid-library.zip
 				env:
 					GITHUB_TOKEN: ${{ github.token }}
 
-			- uses: olivatooo/nanos-world-store-action@v1
+			- name: Publish to nanos-world store
+				uses: olivatooo/nanos-world-store-action@v1
 				with:
 					NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
 					NANOS_PACKAGE_NAME: "cheatoid-library"
