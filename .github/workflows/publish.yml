@@ -124,6 +124,7 @@ jobs:
 
       - name: Publish to nanos-world store
         uses: olivatooo/nanos-world-store-action@v1
+        shell: bash
         with:
           NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
           NANOS_PACKAGE_NAME: "cheatoid-library"
