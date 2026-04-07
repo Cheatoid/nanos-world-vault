@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Run packager to regenerate metadata.g.lua files for all packages
+echo "Running packager to update metadata..."
+
+# Use pre-built binary if available, otherwise fallback to dotnet run
+if [ -f "bin/packager.exe" ]; then
+	bin/packager.exe
+else
+	dotnet run --project ".packager/packager.csproj" --configuration Release --
+fi
+
+# Check if packager succeeded
+if [ $? -ne 0 ]; then
+	echo "ERROR: Packager failed. Please fix issues before committing."
+	exit 1
+fi
+
+# Stage any updated metadata.g.lua files (included in current commit)
+git add -A "*/Shared/metadata.g.lua"
+
+exit 0
