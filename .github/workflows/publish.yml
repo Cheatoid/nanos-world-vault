@@ -18,7 +18,7 @@ permissions:
 jobs:
   publish:
     name: Publish
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     permissions:
       contents: write  # needed for creating GitHub releases
@@ -42,7 +42,6 @@ jobs:
 
       - name: Determine version (manual dispatch)
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        shell: bash
         run: |
           TAG="v${{ github.event.inputs.version }}"
           echo "TAG=$TAG" >> $GITHUB_ENV
@@ -51,14 +50,12 @@ jobs:
 
       - name: Determine version (tag push)
         if: ${{ github.event_name == 'push' }}
-        shell: bash
         run: |
           TAG="${{ github.ref_name }}"
           echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Generate changelog
         id: changelog
-        shell: bash
         run: |
           echo "## Changelog" > CHANGELOG.md
           echo "" >> CHANGELOG.md
@@ -93,14 +90,11 @@ jobs:
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Restore dependencies
-        run: dotnet restore --no-cache
-
-      - name: Build solution
-        run: dotnet build -c Release --no-restore --no-incremental
-
       - name: Generate packages with packager
-        run: bin\packager.exe
+        run: |
+          dotnet restore
+          dotnet build -c Release
+          dotnet run --project .packager/packager.csproj -c Release --
 
       - name: Upload zip artifact
         uses: actions/upload-artifact@v7
@@ -124,7 +118,6 @@ jobs:
 
       - name: Publish to nanos-world store
         uses: olivatooo/nanos-world-store-action@v1
-        shell: bash
         with:
           NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
           NANOS_PACKAGE_NAME: "cheatoid-library"
