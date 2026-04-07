@@ -305,16 +305,9 @@ foreach (var dir in dirs)
 					c.WriteLine($"ℹ latest git tag: {currentTag} ({allVersionTags.Length} v* tags found)");
 					numericVersion = allVersionTags.Length + 1;
 					c.WriteLine($"ℹ numeric version: {numericVersion}");
-					// Get the previous commit hash (first parent)
-					if (headCommit.Parents.FirstOrDefault() is { } parentCommit)
-					{
-						previousCommitHash = parentCommit.Sha;
-						c.WriteLine($"ℹ previous commit hash: {previousCommitHash}");
-					}
-					else
-					{
-						c.WriteLine("ℹ previous commit hash: none (no parent commits)");
-					}
+					// Get the current HEAD commit hash (pre-commit runs before commit, so HEAD is the previous state)
+					previousCommitHash = headCommit.Sha;
+					c.WriteLine($"ℹ current commit hash: {previousCommitHash}");
 				}
 			}
 			// TODO: Build dependency graph, generate require(), and inject dependencies (OOP framework)
