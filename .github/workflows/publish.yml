@@ -1,132 +1,132 @@
 name: Publish
 
 on:
-	workflow_dispatch:
-		inputs:
-			version:
-				description: "Version to publish (e.g. 1.0.0)"
-				required: true
-				type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 1.0.0)"
+        required: true
+        type: string
 
-	push:
-		tags:
-			- "v*.*.*"
+  push:
+    tags:
+      - "v*.*.*"
 
 permissions:
-	contents: write
+  contents: write
 
 jobs:
-	publish:
-		name: Publish
-		runs-on: windows-latest
+  publish:
+    name: Publish
+    runs-on: windows-latest
 
-		permissions:
-			contents: write  # needed for creating GitHub releases
+    permissions:
+      contents: write  # needed for creating GitHub releases
 
-		env:
-			DOTNET_CLI_TELEMETRY_OPTOUT: true
-			DOTNET_NOLOGO: true
-			DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_NOLOGO: true
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
-		steps:
-			- name: Checkout repository (with submodules)
-				uses: actions/checkout@v6
-				with:
-					submodules: recursive
-					fetch-depth: 0  # needed for changelog history
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0  # needed for changelog history
 
-			- name: Setup .NET SDK
-				uses: actions/setup-dotnet@v5
-				with:
-					dotnet-version: "10.0.x"
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+        dotnet-version: "10.0.x"
 
-			- name: Determine version (manual dispatch)
-				if: ${{ github.event_name == 'workflow_dispatch' }}
-				shell: bash
-				run: |
-					TAG="v${{ github.event.inputs.version }}"
-					echo "TAG=$TAG" >> $GITHUB_ENV
-					# Create a tag
-					git tag $TAG
+      - name: Determine version (manual dispatch)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: bash
+        run: |
+          TAG="v${{ github.event.inputs.version }}"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          # Create a tag
+          git tag $TAG
 
-			- name: Determine version (tag push)
-				if: ${{ github.event_name == 'push' }}
-				shell: bash
-				run: |
-					TAG="${{ github.ref_name }}"
-					echo "TAG=$TAG" >> $GITHUB_ENV
+      - name: Determine version (tag push)
+        if: ${{ github.event_name == 'push' }}
+        shell: bash
+        run: |
+          TAG="${{ github.ref_name }}"
+          echo "TAG=$TAG" >> $GITHUB_ENV
 
-			- name: Generate changelog
-				id: changelog
-				shell: bash
-				run: |
-					echo "## Changelog" > CHANGELOG.md
-					echo "" >> CHANGELOG.md
+      - name: Generate changelog
+        id: changelog
+        shell: bash
+        run: |
+          echo "## Changelog" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
 
-					CUR_TAG="${TAG}"
+          CUR_TAG="${TAG}"
 
-					# Find previous tag (if any)
-					PREV_TAG=$(git describe --tags --abbrev=0 --match "v*" --exclude "$CUR_TAG" 2>/dev/null || echo "")
+          # Find previous tag (if any)
+          PREV_TAG=$(git describe --tags --abbrev=0 --match "v*" --exclude "$CUR_TAG" 2>/dev/null || echo "")
 
-					if [ -z "$PREV_TAG" ]; then
-						echo "Initial release." >> CHANGELOG.md
-						echo "" >> CHANGELOG.md
-						COMMITS=$(git rev-list --reverse HEAD)
-					else
-						echo "Changes since $PREV_TAG:" >> CHANGELOG.md
-						echo "" >> CHANGELOG.md
-						COMMITS=$(git rev-list $PREV_TAG..HEAD)
-					fi
+          if [ -z "$PREV_TAG" ]; then
+          echo "Initial release." >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          COMMITS=$(git rev-list --reverse HEAD)
+          else
+          echo "Changes since $PREV_TAG:" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          COMMITS=$(git rev-list $PREV_TAG..HEAD)
+          fi
 
-					for COMMIT in $COMMITS; do
-						MSG=$(git log -1 --pretty=format:%s $COMMIT)
-						echo "- [$MSG](https://github.com/${{ github.repository }}/commit/$COMMIT)" >> CHANGELOG.md
-					done
+          for COMMIT in $COMMITS; do
+          MSG=$(git log -1 --pretty=format:%s $COMMIT)
+          echo "- [$MSG](https://github.com/${{ github.repository }}/commit/$COMMIT)" >> CHANGELOG.md
+          done
 
-					# Add full changelog link for all non-initial releases
-					if [ -n "$PREV_TAG" ]; then
-						echo "" >> CHANGELOG.md
-						echo "**Full changelog:** https://github.com/${{ github.repository }}/compare/$PREV_TAG...$CUR_TAG" >> CHANGELOG.md
-					fi
+          # Add full changelog link for all non-initial releases
+          if [ -n "$PREV_TAG" ]; then
+          echo "" >> CHANGELOG.md
+          echo "**Full changelog:** https://github.com/${{ github.repository }}/compare/$PREV_TAG...$CUR_TAG" >> CHANGELOG.md
+          fi
 
-					echo "changelog<<EOF" >> $GITHUB_OUTPUT
-					cat CHANGELOG.md >> $GITHUB_OUTPUT
-					echo "EOF" >> $GITHUB_OUTPUT
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-			- name: Restore dependencies
-				run: dotnet restore --no-cache
+      - name: Restore dependencies
+        run: dotnet restore --no-cache
 
-			- name: Build solution
-				run: dotnet build -c Release --no-restore --no-incremental
+      - name: Build solution
+        run: dotnet build -c Release --no-restore --no-incremental
 
-			- name: Generate packages with packager
-				run: bin\packager.exe
+      - name: Generate packages with packager
+        run: bin\packager.exe
 
-			- name: Upload zip artifact
-				uses: actions/upload-artifact@v7
-				with:
-					name: cheatoid-library
-					path: publish/cheatoid-library.zip
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: cheatoid-library
+          path: publish/cheatoid-library.zip
 
-			- name: Create GitHub release
-				uses: softprops/action-gh-release@v2
-				with:
-					tag_name: ${{ env.TAG }}
-					name: "cheatoid-library ${{ env.TAG }}"
-					body: ${{ steps.changelog.outputs.changelog }}
-					draft: false
-					prerelease: ${{ contains(env.TAG, '-') }}
-					generate_release_notes: true
-					files: |
-						publish/cheatoid-library.zip
-				env:
-					GITHUB_TOKEN: ${{ github.token }}
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: "cheatoid-library ${{ env.TAG }}"
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: ${{ contains(env.TAG, '-') }}
+          generate_release_notes: true
+          files: |
+            publish/cheatoid-library.zip
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-			- name: Publish to nanos-world store
-				uses: olivatooo/nanos-world-store-action@v1
-				with:
-					NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
-					NANOS_PACKAGE_NAME: "cheatoid-library"
-					PACKAGE_PATH: "library"
-					EXTRA_PACKAGE_PATHS: []
-					VERBOSE: true
+      - name: Publish to nanos-world store
+        uses: olivatooo/nanos-world-store-action@v1
+        with:
+          NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
+          NANOS_PACKAGE_NAME: "cheatoid-library"
+          PACKAGE_PATH: "library"
+          EXTRA_PACKAGE_PATHS: [ ]
+          VERBOSE: true

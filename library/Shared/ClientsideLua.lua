@@ -35,33 +35,34 @@ if Server then
 
 	local Config = require("Config")
 	Enabled = Config.get("enable_cslua", false)
-	print("initial enable_cslua:", Enabled)
+	print("[config] enable_cslua:", Enabled)
 
 	-- Broadcast the convar's value initially
 	Server.SetValue(ID, Enabled, true)
 	--Events.BroadcastRemote(ID, Enabled)
 
 	-- When the server is starting
-	Server.Subscribe("Start", function()
-		print("Server started")
-	end)
+	--Server.Subscribe("Start", function()
+	--	print("Server started")
+	--end)
 
 	-- When the server stops / shutdown
 	Server.Subscribe("Stop", function()
 		Config.write()
-		print("Server stopped")
+		--print("Server stopped")
 	end)
 
 	-- When a Player joins the server
 	Player.Subscribe("Spawn", function(ply)
-		print("[Player.Spawn]", ply:GetSteamID())
-		Events.BroadcastRemote(ID, Enabled)
+		--print("[Player.Spawn]", ply:GetSteamID())
+		--Events.BroadcastRemote(ID, Enabled)
+		Events.CallRemote(ID, ply, Enabled)
 	end)
 
 	-- When the Player leaves the server
-	Player.Subscribe("Destroy", function(ply)
-		print("[Player.Destroy]", ply:GetSteamID())
-	end)
+	--Player.Subscribe("Destroy", function(ply)
+	--	print("[Player.Destroy]", ply:GetSteamID())
+	--end)
 
 	-- C2S: Query the convar's value; old approach
 	--Events.SubscribeRemote(ID, function(player)
