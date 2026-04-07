@@ -573,3 +573,6 @@ vite.config.ts.timestamp-*
 # Private files
 .private/
 
+# Neovim
+.nvim-win64/
+.nvim-data/

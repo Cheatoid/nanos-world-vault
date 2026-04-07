@@ -6,7 +6,8 @@ r "@cheatoid/standard/table"
 
 local oop = require("@cheatoid/oop/oop")
 local try = require("@cheatoid/standalone/try").try
-local ref = require("@cheatoid/ref/ref").new -- TODO: use this for managing config state externally (+ auto-save on field write)
+local ref = require("@cheatoid/ref/ref")
+	.new -- TODO: use this for managing config state externally (+ auto-save on field write)
 
 local File = File
 local JSON = JSON

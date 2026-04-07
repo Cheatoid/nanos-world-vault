@@ -1,7 +1,0 @@
-return {
-	version = 7,
-	prev_hash = "4048f41a23146077792468360bdf0caa087d67e3",
-	owner = "Cheatoid",
-	repo = "nanos-world-vault",
-	tag = "v0.0.9",
-}

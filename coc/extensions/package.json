@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "coc-lua": ">=2.0.6",
+    "coc-json": ">=1.9.3",
+    "coc-explorer": ">=0.27.3"
+  }
+}

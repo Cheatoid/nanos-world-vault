@@ -163,9 +163,12 @@ end
 self.Unload = UnloadPack
 
 -- Register console commands
-Console.RegisterCommand("reload", ReloadPack, "reload a specific package or all")
-Console.RegisterCommand("load", LoadPack, "load a specific package or all")
-Console.RegisterCommand("unload", UnloadPack, "unload a specific package or all")
+Console.RegisterCommand("reload", ReloadPack,
+	"reload a specific package or all, use colon (:) prefix for pattern-matching mode")
+Console.RegisterCommand("load", LoadPack,
+	"load a specific package or all, use colon (:) prefix for pattern-matching mode")
+Console.RegisterCommand("unload", UnloadPack,
+	"unload a specific package or all, use colon (:) prefix for pattern-matching mode")
 
 -- Export the API to be accessed by other packages
 return self

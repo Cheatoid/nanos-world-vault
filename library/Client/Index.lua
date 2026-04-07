@@ -3,6 +3,5 @@
 
 local g, a, i, m, e, r, s = GAIMERS.g, GAIMERS.a, GAIMERS.i, GAIMERS.m, GAIMERS.e, GAIMERS.r, GAIMERS.s
 
-g "Queue" "@cheatoid/collections/queue"
 i "RegexAPI"
--- TODO: WebSocket, WebGL/WebGPU, Canvas APIs...
+-- TODO: WebSocket, WebGL/WebGPU, WebRTC, Canvas APIs...

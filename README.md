@@ -28,13 +28,13 @@ Contributions are welcome. Open an issue or submit a PR.
 <table style="border-collapse: collapse;">
   <tr>
     <td align="center" style="border: none;">
-      <a href="https://github.com/Cheatoid">
+    <a href="https://github.com/Cheatoid">
         <img src="https://avatars.githubusercontent.com/Cheatoid" width="80" style="border-radius:50%;" />
         <br />
         <sub><b><a href="https://github.com/Cheatoid">
   <img src="https://img.shields.io/badge/-Cheatoid-blue?style=flat-square&logo=github&logoColor=white" /> 💻👨‍💻
 </a></b></sub>
-      </a>
+    </a>
     </td>
   </tr>
 </table>

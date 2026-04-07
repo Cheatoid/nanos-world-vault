@@ -11,7 +11,7 @@ local RegexAPI = {}
 local send
 do
 	local RegexWebUI =
-		WebUI("cheatoid-library.regex.api", "file://UI/RegexAPI.html", WidgetVisibility.Hidden, true, false, 0, 0)
+		WebUI("cheatoid-library.regex.api", "file:///UI/RegexAPI.html", WidgetVisibility.Hidden, true, false, 0, 0)
 	local pending = {} ---@type table<integer, function|nil>
 	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}|nil>
 	local req_id = math.mininteger or 0
@@ -66,10 +66,11 @@ do
 	end)
 
 	function send(event, args, callback)
-		if is_ready then -- dispatch immediately if ready
+		-- Dispatch immediately if ready
+		if is_ready then
 			return dispatch(event, args, callback)
 		end
-		-- otherwise, enqueue the request until DOM is ready
+		-- Otherwise, enqueue the request until DOM is ready
 		req_id = req_id + 1
 		queued[#queued + 1] = { event = event, args = args, callback = callback, req_id = req_id }
 		return req_id

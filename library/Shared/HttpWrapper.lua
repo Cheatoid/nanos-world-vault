@@ -6,15 +6,15 @@
 -- Import dependencies
 local math = require("@cheatoid/standard/math")
 local table = require("@cheatoid/standard/table")
-local curry = require("@cheatoid/standalone/curry")
+--local curry = require("@cheatoid/standalone/curry")
 local tc = require("@cheatoid/standalone/type_check")
 local util = require("@cheatoid/standalone/util")
 
 -- Localized global functions for better performance
 local inrange = math.inrange
 local table_upper = table.uppercase
-local check_type, check_string = tc.check, tc.check_string
-local either, safe_call, callable = util.either, util.safe_call, util.callable
+local check_arg, check_string = tc.check_arg, tc.check_string
+local either, safe_call = util.either, util.safe_call
 
 local HTTP_RequestAsync = assert(HTTP.RequestAsync, "HTTP.RequestAsync function is missing")
 
@@ -35,7 +35,7 @@ local function HttpWrapper(method)
 
 		-- Overload resolution via type-checker
 		-- TODO: Optimize this, use util.create_type_dispatcher (type lookup table)
-		if check_type(on_success, "function|table", 2) == "table" then
+		if check_arg(2, "function|table") == "table" then
 			-- *Options-table overload*
 			---@type table
 			local options = on_success
@@ -57,10 +57,10 @@ local function HttpWrapper(method)
 			end
 
 			return HTTP_RequestAsync(
-				url,             -- main URI (the base address)
+				url,     -- main URI (the base address)
 				options.ENDPOINT, -- endpoint
 				options.METHOD,
-				options.DATA,    -- data / body payload
+				options.DATA, -- data / body payload
 				options.CONTENTTYPE, -- content type
 				options.COMPRESS, -- whether or not to compress the content with gzip
 				options.HEADERS, -- request headers
@@ -81,11 +81,11 @@ local function HttpWrapper(method)
 			end
 		end
 		return HTTP_RequestAsync(
-			url,  -- main URI (the base address)
-			nil,  -- endpoint
+			url, -- main URI (the base address)
+			nil, -- endpoint
 			method,
-			nil,  -- data / body payload
-			nil,  -- content type
+			nil, -- data / body payload
+			nil, -- content type
 			false, -- whether or not to compress the content with gzip
 			headers, -- request headers
 			callback

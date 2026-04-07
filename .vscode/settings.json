@@ -3,13 +3,13 @@
 	"Lua.workspace.ignoreSubmodules": false,
 	"Lua.workspace.library": [
 		"${workspaceFolder}/.nanos-world",
-		"${workspaceFolder}/cheatoid-library/Shared",
-		"${workspaceFolder}/cheatoid-library/Shared/standard/global",
-		"${workspaceFolder}/cheatoid-library/Shared/standard/math",
-		"${workspaceFolder}/cheatoid-library/Shared/standard/string",
-		"${workspaceFolder}/cheatoid-library/Shared/standard/table"
+		"${workspaceFolder}/library/Shared",
+		"${workspaceFolder}/library/Shared/standard"
 	],
 	"Lua.diagnostics.globals": [],
+	"Lua.diagnostics.disable": [
+		"different-requires"
+	],
 	"Lua.runtime.version": "Lua 5.4",
 	"Lua.format.enable": true,
 	"Lua.format.defaultConfig": {

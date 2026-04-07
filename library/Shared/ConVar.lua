@@ -34,10 +34,10 @@ do
 		return orig(command, ...)
 	end
 	Patcher.new()
-	--:id("Console.RegisterCommand: make it case-insensitive")
-			:target(Console, "RegisterCommand")
-			:replace(Hook_ConsoleRegisterCommand)
-			:apply()
+	--:id("case-insensitive patch for Console.RegisterCommand")
+		:target(Console, "RegisterCommand")
+		:replace(Hook_ConsoleRegisterCommand)
+		:apply()
 	--_G.Console.RegisterCommand = Hook_ConsoleRegisterCommand
 end
 local Console_RegisterCommand = Console.RegisterCommand -- cache it after hooking
@@ -46,7 +46,7 @@ local Console_RegisterCommand = Console.RegisterCommand -- cache it after hookin
 local tc = require("@cheatoid/standalone/type_check")
 local check_type, opt_type = tc.check, tc.opt
 local check_boolean, check_integer, check_string, check_number, check_function, check_userdata =
-		tc.check_boolean, tc.check_integer, tc.check_string, tc.check_number, tc.check_function, tc.check_userdata
+	tc.check_boolean, tc.check_integer, tc.check_string, tc.check_number, tc.check_function, tc.check_userdata
 local opt_number, opt_string, opt_table = tc.opt_number, tc.opt_string, tc.opt_table
 local make_bit_enum = require("@cheatoid/standalone/5.3/bitflags").make_enum
 
