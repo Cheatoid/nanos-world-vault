@@ -33,8 +33,52 @@ local g, a, i, m, e, r, s = gaimers.g, gaimers.a, gaimers.i, gaimers.m, gaimers.
 -- Most likely, I will end up making a custom script that will "compile" the dependency graph,
 -- use the standard require function to load them, in order to have proper editor navigation...
 
-print("Package name:", Package.GetName())
-print("Package version:", Package.GetVersion())
+local Version = require("Version")
+local packageName = Package.GetName()
+print("package name: " .. packageName)
+--print("package version: " .. Package.GetVersion())
+print("package version: " .. tostring(Version.getCurrent()))
+
+local packageMetadata = require("metadata.g")
+local packagePath = packageMetadata.path
+print("metadata path: " .. packagePath)
+print("metadata numver: " .. packageMetadata.num_version)
+print("metadata tag: " .. packageMetadata.tag)
+print("metadata timestamp: " .. packageMetadata.timestamp)
+
+local http = require("HttpWrapper")
+http.get(
+	string.format("https://api.nanos-world.com/store/packages/%s", packageName),
+	function(data, status, url)
+		print("store status: " .. status)
+		print("store data: " .. data)
+		local parsedJson = JSON.parse(data)
+		local storeVersion = parsedJson.payload.version.version
+		print("store version: " .. storeVersion)
+	end
+)
+http.get(
+	string.format(
+	--"https://github.com/%s/%s/raw/refs/heads/main/%s/Shared/metadata.g.lua",
+		"https://raw.github.com/%s/%s/main/%s/Shared/metadata.g.lua", -- shorter
+		packageMetadata.owner,
+		packageMetadata.repo,
+		packagePath
+	),
+	function(data, status, url)
+		print("github status: " .. status)
+		print("github data: " .. data)
+		local githubMetadata = load(data)() ---@type { num_version: integer, prev_hash: string, tag: string }
+		local githubNumVer, githubPrevHash, githubTag =
+			githubMetadata.num_version, githubMetadata.prev_hash, githubMetadata.tag
+		print("github latest numver: " .. githubNumVer)
+		print("github prev hash: " .. githubPrevHash)
+		print("github latest tag: " .. githubTag)
+	end
+)
+
+-- TODO: Automatic updates
+
 --do
 --	local filename = string.format("test_%s.txt", Server and "server" or "client")
 --	print("Creating " .. filename)
@@ -45,7 +89,6 @@ print("Package version:", Package.GetVersion())
 --	print("Created " .. filename)
 --end
 
-r "metadata.g"
 r "Config"
 m "@cheatoid/standalone/debug_helper"
 m "@cheatoid/standalone/type_check"
