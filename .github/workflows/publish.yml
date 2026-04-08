@@ -155,7 +155,7 @@ jobs:
           & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
           # Prepare packages with packager
           # dotnet run --project .packager/packager.csproj -c Release -- --cli ..\.server\server -r
-          Push-Location ".bin"
+          Push-Location "bin"
           & ".\packager.exe" --cli "..\.server\server"
           Pop-Location
           # Setup nanos world server (generate Config.toml; required because --cli mode does not respect --token)
@@ -165,6 +165,6 @@ jobs:
           # Finally upload packages using CLI mode
           #& ".\NanosWorldServer.exe" --cli upload package cheatoid-library
           # Actually, use in-house packager
-          Push-Location ".bin"
+          Push-Location "bin"
           & ".\packager.exe" --cli "..\.server\server" --token "$env:NANOS_PERSONAL_ACCESS_TOKEN" --upload-packages
           Pop-Location
