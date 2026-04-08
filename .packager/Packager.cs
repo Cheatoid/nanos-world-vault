@@ -477,21 +477,21 @@ foreach (var dir in dirs)
 								{
 									c.Error.WriteLine("❗ error: something went wrong during finish");
 									c.Error.WriteLine(finishResponse.error ?? "unknown error");
-									return 5;
+									//return 5;
 								}
 							}
 							else
 							{
 								c.Error.WriteLine("❗ error: something went wrong during upload");
 								c.Error.WriteLine(uploadResponse.error ?? "unknown error");
-								return 4;
+								//return 4;
 							}
 						}
 						else
 						{
 							c.Error.WriteLine("❗ error: something went wrong during presign request");
 							c.Error.WriteLine(presign.error?.Message ?? "unknown error");
-							return 3;
+							//return 3;
 						}
 					}
 				}
@@ -500,120 +500,216 @@ foreach (var dir in dirs)
 		else
 		{
 			c.Error.WriteLine("❗ error: no files to zip");
-			return 2;
+			//return 2;
 		}
 		c.WriteLine();
 	}
 
-	break;
-}
-
-// Handle --upload-packages
-if (isUploadPackagesMode)
-{
-	var gitRoot = FindGitRoot(dirs[0]);
-	if (gitRoot == null || !Repository.IsValid(gitRoot))
+	// Handle --upload-packages
+	if (isUploadPackagesMode)
 	{
-		c.Error.WriteLine("❗ error: not a valid git repository");
-		return 1;
-	}
+		// Setup paths (mirroring PowerShell script)
+		var vaultRoot = gitRoot; // The vault root is the git root
+		var serverRoot = string.IsNullOrEmpty(cliMode)
+			? (Path.GetDirectoryName(vaultRoot) ?? vaultRoot)
+			: (Path.GetDirectoryName(cliMode) ?? cliMode);
+		var packagesDir = Path.Combine(serverRoot, "Packages");
+		var publishDir = Path.Combine(vaultRoot, "publish");
+		var packagesJsonPath = Path.Combine(vaultRoot, "packages.json");
 
-	// Setup paths (mirroring PowerShell script)
-	var vaultRoot = gitRoot; // The vault root is the git root
-	var serverRoot = string.IsNullOrEmpty(cliMode)
-		? (Path.GetDirectoryName(vaultRoot) ?? vaultRoot)
-		: (Path.GetDirectoryName(cliMode) ?? cliMode);
-	var packagesDir = Path.Combine(serverRoot, "Packages");
-	var publishDir = Path.Combine(vaultRoot, "publish");
-	var packagesJsonPath = Path.Combine(vaultRoot, "packages.json");
-
-	if (!File.Exists(packagesJsonPath))
-	{
-		c.Error.WriteLine($"❗ error: packages.json not found at: {packagesJsonPath}");
-		return 1;
-	}
-
-	// Read packages.json
-	var packagesMap = JsonSerializer.Deserialize<Dictionary<string, string>>(
-		File.ReadAllText(packagesJsonPath), JsonOptions.Instance)!;
-
-	// Filter to single package if specified
-	var packagesToProcess = singlePackage is not null
-		? packagesMap.Where(kvp => kvp.Key == singlePackage || kvp.Value == singlePackage)
-			.ToDictionary(static kvp => kvp.Key, kvp => kvp.Value)
-		: packagesMap;
-
-	if (packagesToProcess.Count == 0)
-	{
-		c.Error.WriteLine("❗ error: no packages to process");
-		return 1;
-	}
-
-	Directory.CreateDirectory(publishDir);
-	foreach (var (folderName, packageName) in packagesToProcess)
-	{
-		c.WriteLine($"ℹ processing package: {packageName}");
-
-		// Build the package (reuse existing logic)
-		var packageRoot = Path.Combine(vaultRoot, folderName);
-		if (!Directory.Exists(packageRoot))
+		if (!File.Exists(packagesJsonPath))
 		{
-			c.Error.WriteLine($"❗ error: package folder not found: {packageRoot}");
+			c.Error.WriteLine($"❗ error: packages.json not found at: {packagesJsonPath}");
 			continue;
 		}
 
-		// Create zip using existing logic
-		var packageTomlPath = Path.Combine(packageRoot, PackageToml);
-		if (!File.Exists(packageTomlPath))
+		// Read packages.json
+		var packagesMap = JsonSerializer.Deserialize<Dictionary<string, string>>(
+			File.ReadAllText(packagesJsonPath), JsonOptions.Instance)!;
+
+		// Filter to single package if specified
+		var packagesToProcess = singlePackage is not null
+			? packagesMap.Where(kvp => kvp.Key == singlePackage || kvp.Value == singlePackage)
+				.ToDictionary(static kvp => kvp.Key, kvp => kvp.Value)
+			: packagesMap;
+
+		if (packagesToProcess.Count == 0)
 		{
-			c.Error.WriteLine($"❗ error: {PackageToml} not found in {packageRoot}");
+			c.Error.WriteLine("❗ error: no packages to process");
 			continue;
 		}
 
-		var toml = File.ReadAllText(packageTomlPath);
-		var tomlTable = TomlSerializer.Deserialize<TomlTable>(toml);
-		if (tomlTable is null)
+		Directory.CreateDirectory(publishDir);
+		foreach (var (folderName, packageName) in packagesToProcess)
 		{
-			c.Error.WriteLine($"❗ error: failed to parse {PackageToml}");
-			continue;
-		}
+			c.WriteLine($"ℹ processing package: {packageName}");
 
-		var packageFiles = Directory.EnumerateFiles(packageRoot, "*", SearchOption.AllDirectories);
-		var zipBytes = CreateZipFromFiles(packageFiles.ToArray(), packageRoot, ZipFilterRegexes);
-		var zipFileSize = zipBytes.Length;
-		if (zipFileSize <= 0)
-		{
-			c.Error.WriteLine($"❗ error: no files to zip for package {packageName}");
-			continue;
-		}
-
-		var zipFileName = $"{packageName}.zip";
-		var zipFullPath = Path.Combine(publishDir, zipFileName);
-		await File.WriteAllBytesAsync(zipFullPath, zipBytes);
-		c.WriteLine($"ℹ created zip: {zipFileSize} bytes -> {Path.Combine("publish", zipFileName)}");
-
-		// Verify the zip file is valid before extraction
-		try
-		{
-			await using var verifyStream = File.OpenRead(zipFullPath);
-			await using var verifyZip = new ZipArchive(verifyStream, ZipArchiveMode.Read);
-			if (verifyZip.Entries.Count == 0)
+			// Build the package (reuse existing logic)
+			var packageRoot = Path.Combine(vaultRoot, folderName);
+			if (!Directory.Exists(packageRoot))
 			{
-				c.Error.WriteLine("❗ error: zip file has no entries");
+				c.Error.WriteLine($"❗ error: package folder not found: {packageRoot}");
 				continue;
 			}
-		}
-		catch (Exception ex)
-		{
-			c.Error.WriteLine($"❗ error: zip file is corrupted: {ex.Message}");
-			continue;
-		}
 
-		// Extract zip to Packages folder
-		var extractPath = Path.Combine(packagesDir, packageName);
-		c.WriteLine($"ℹ removing extracted {packageName} folder");
-		if (Directory.Exists(extractPath))
-		{
+			// Create zip using existing logic
+			var packageTomlPath = Path.Combine(packageRoot, PackageToml);
+			if (!File.Exists(packageTomlPath))
+			{
+				c.Error.WriteLine($"❗ error: {PackageToml} not found in {packageRoot}");
+				continue;
+			}
+
+			var toml = File.ReadAllText(packageTomlPath);
+			var tomlTable = TomlSerializer.Deserialize<TomlTable>(toml);
+			if (tomlTable is null)
+			{
+				c.Error.WriteLine($"❗ error: failed to parse {PackageToml}");
+				continue;
+			}
+
+			var packageFiles = Directory.EnumerateFiles(packageRoot, "*", SearchOption.AllDirectories);
+			var zipBytes = CreateZipFromFiles(packageFiles.ToArray(), packageRoot, ZipFilterRegexes);
+			var zipFileSize = zipBytes.Length;
+			if (zipFileSize <= 0)
+			{
+				c.Error.WriteLine($"❗ error: no files to zip for package {packageName}");
+				continue;
+			}
+
+			var zipFileName = $"{packageName}.zip";
+			var zipFullPath = Path.Combine(publishDir, zipFileName);
+			await File.WriteAllBytesAsync(zipFullPath, zipBytes);
+			c.WriteLine($"ℹ created zip: {zipFileSize} bytes -> {Path.Combine("publish", zipFileName)}");
+
+			// Verify the zip file is valid before extraction
+			try
+			{
+				await using var verifyStream = File.OpenRead(zipFullPath);
+				await using var verifyZip = new ZipArchive(verifyStream, ZipArchiveMode.Read);
+				if (verifyZip.Entries.Count == 0)
+				{
+					c.Error.WriteLine("❗ error: zip file has no entries");
+					continue;
+				}
+			}
+			catch (Exception ex)
+			{
+				c.Error.WriteLine($"❗ error: zip file is corrupted: {ex.Message}");
+				continue;
+			}
+
+			// Extract zip to Packages folder
+			var extractPath = Path.Combine(packagesDir, packageName);
+			c.WriteLine($"ℹ removing extracted {packageName} folder");
+			if (Directory.Exists(extractPath))
+			{
+				try
+				{
+					Directory.Delete(extractPath, recursive: true);
+				}
+				catch
+				{
+					// ignored
+				}
+			}
+
+			c.WriteLine("ℹ extracting zipped package");
+			var extractionSuccess = false;
+			Exception? lastExtractionError = null;
+			for (var retry = 0; retry <= 3; retry++)
+			{
+				if (retry > 0)
+				{
+					c.WriteLine($"ℹ retry attempt {retry}/3 after 500ms delay...");
+					await Task.Delay(500);
+				}
+				try
+				{
+					if (Directory.Exists(extractPath))
+					{
+						try
+						{
+							Directory.Delete(extractPath, recursive: true);
+						}
+						catch
+						{
+							// ignored
+						}
+					}
+					Directory.CreateDirectory(extractPath);
+					ZipFile.ExtractToDirectory(zipFullPath, extractPath, overwriteFiles: true);
+					extractionSuccess = true;
+					break;
+				}
+				catch (Exception ex)
+				{
+					lastExtractionError = ex;
+					c.WriteLine($"⚠ extraction attempt {retry + 1} failed: {ex.Message}");
+				}
+			}
+			if (!extractionSuccess)
+			{
+				c.Error.WriteLine($"❗ error: failed to extract zip after 3 attempts: {lastExtractionError?.Message}");
+				continue;
+			}
+
+			// Upload using NanosWorldServer.exe
+			c.WriteLine("ℹ uploading package");
+			var serverExe = Path.Combine(serverRoot, "NanosWorldServer.exe");
+			if (!File.Exists(serverExe))
+			{
+				c.Error.WriteLine($"❗ error: NanosWorldServer.exe not found at: {serverExe}");
+				continue;
+			}
+			var serverConfig = Path.Combine(serverRoot, "Config.toml");
+			if (!File.Exists(serverConfig))
+			{
+				c.Error.WriteLine($"❗ error: Config.toml not found at: {serverConfig}");
+				continue;
+			}
+
+			try
+			{
+				var psi = new ProcessStartInfo
+				{
+					FileName = serverExe,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true,
+					UseShellExecute = false,
+					CreateNoWindow = true,
+					WorkingDirectory = Path.GetDirectoryName(serverExe)
+				};
+				// Use ArgumentList instead of Arguments for proper escaping
+				//psi.ArgumentList.Add("--token"); // Token saved in Config.toml
+				//psi.ArgumentList.Add(token);
+				psi.ArgumentList.Add("--cli");
+				psi.ArgumentList.Add("upload");
+				psi.ArgumentList.Add("package");
+				psi.ArgumentList.Add(packageName);
+				using var process = Process.Start(psi);
+				if (process is null)
+				{
+					c.Error.WriteLine("❗ error: failed to start NanosWorldServer.exe");
+					continue;
+				}
+				await process.WaitForExitAsync();
+				if (process.ExitCode != 0)
+				{
+					var stderr = await process.StandardError.ReadToEndAsync();
+					c.Error.WriteLine($"❗ error: upload failed (exit code: {process.ExitCode}): {stderr}");
+					continue;
+				}
+				c.WriteLine("ℹ upload successful");
+			}
+			catch (Exception ex)
+			{
+				c.Error.WriteLine($"❗ error: upload command failed: {ex.Message}");
+				continue;
+			}
+
+			// Remove extracted folder and create symbolic link
+			c.WriteLine($"ℹ removing extracted {packageName} folder");
 			try
 			{
 				Directory.Delete(extractPath, recursive: true);
@@ -622,127 +718,25 @@ if (isUploadPackagesMode)
 			{
 				// ignored
 			}
-		}
 
-		c.WriteLine("ℹ extracting zipped package");
-		var extractionSuccess = false;
-		Exception? lastExtractionError = null;
-		for (var retry = 0; retry <= 3; retry++)
-		{
-			if (retry > 0)
-			{
-				c.WriteLine($"ℹ retry attempt {retry}/3 after 500ms delay...");
-				await Task.Delay(500);
-			}
+			c.WriteLine($"ℹ creating symbolic-link {packageName} folder");
 			try
 			{
-				if (Directory.Exists(extractPath))
-				{
-					try
-					{
-						Directory.Delete(extractPath, recursive: true);
-					}
-					catch
-					{
-						// ignored
-					}
-				}
-				Directory.CreateDirectory(extractPath);
-				ZipFile.ExtractToDirectory(zipFullPath, extractPath, overwriteFiles: true);
-				extractionSuccess = true;
-				break;
+				// Use Junction for directories (works without admin on Windows)
+				var junction = new JunctionPoint(extractPath, packageRoot);
+				junction.Create();
+				c.WriteLine($"ℹ created symbolic-link: {extractPath} -> {packageRoot}");
 			}
 			catch (Exception ex)
 			{
-				lastExtractionError = ex;
-				c.WriteLine($"⚠ extraction attempt {retry + 1} failed: {ex.Message}");
+				c.WriteLine(
+					$"⚠ warning: failed to create symbolic-link (run as Admin for symlink support): {ex.Message}");
+				// Fallback: just copy the files or leave as extracted
 			}
-		}
-		if (!extractionSuccess)
-		{
-			c.Error.WriteLine($"❗ error: failed to extract zip after 3 attempts: {lastExtractionError?.Message}");
-			continue;
-		}
-
-		// Upload using NanosWorldServer.exe
-		c.WriteLine("ℹ uploading package");
-		var serverExe = Path.Combine(serverRoot, "NanosWorldServer.exe");
-		if (!File.Exists(serverExe))
-		{
-			c.Error.WriteLine($"❗ error: NanosWorldServer.exe not found at: {serverExe}");
-			continue;
-		}
-		var serverConfig = Path.Combine(serverRoot, "Config.toml");
-		if (!File.Exists(serverConfig))
-		{
-			c.Error.WriteLine($"❗ error: Config.toml not found at: {serverConfig}");
-			continue;
-		}
-
-		try
-		{
-			var psi = new ProcessStartInfo
-			{
-				FileName = serverExe,
-				RedirectStandardOutput = true,
-				RedirectStandardError = true,
-				UseShellExecute = false,
-				CreateNoWindow = true,
-				WorkingDirectory = Path.GetDirectoryName(serverExe)
-			};
-			// Use ArgumentList instead of Arguments for proper escaping
-			//psi.ArgumentList.Add("--token"); // Token saved in Config.toml
-			//psi.ArgumentList.Add(token);
-			psi.ArgumentList.Add("--cli");
-			psi.ArgumentList.Add("upload");
-			psi.ArgumentList.Add("package");
-			psi.ArgumentList.Add(packageName);
-			using var process = Process.Start(psi);
-			if (process is null)
-			{
-				c.Error.WriteLine("❗ error: failed to start NanosWorldServer.exe");
-				continue;
-			}
-			await process.WaitForExitAsync();
-			if (process.ExitCode != 0)
-			{
-				var stderr = await process.StandardError.ReadToEndAsync();
-				c.Error.WriteLine($"❗ error: upload failed (exit code: {process.ExitCode}): {stderr}");
-				continue;
-			}
-			c.WriteLine("ℹ upload successful");
-		}
-		catch (Exception ex)
-		{
-			c.Error.WriteLine($"❗ error: upload command failed: {ex.Message}");
-			continue;
-		}
-
-		// Remove extracted folder and create symbolic link
-		c.WriteLine($"ℹ removing extracted {packageName} folder");
-		try
-		{
-			Directory.Delete(extractPath, recursive: true);
-		}
-		catch
-		{
-			// ignored
-		}
-
-		c.WriteLine($"ℹ creating symbolic-link {packageName} folder");
-		try
-		{
-			// Use Junction for directories (works without admin on Windows)
-			var junction = new JunctionPoint(extractPath, packageRoot);
-			junction.Create();
-			c.WriteLine($"ℹ created symbolic-link: {extractPath} -> {packageRoot}");
-		}
-		catch (Exception ex)
-		{
-			c.WriteLine($"⚠ warning: failed to create symbolic-link (run as Admin for symlink support): {ex.Message}");
-			// Fallback: just copy the files or leave as extracted
 		}
 	}
+
+	break;
 }
 
 // Fetch all packages in nanos world store:

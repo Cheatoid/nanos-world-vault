@@ -153,19 +153,17 @@ jobs:
           # Run twice to handle SteamCMD first-run priming issue (missing steamapps configuration)
           & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
           & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
-          # Prepare packages with packager
-          # dotnet run --project .packager/packager.csproj -c Release -- --cli ..\.server\server -r
-          Push-Location "bin"
-          & ".\packager.exe" --cli "..\.server\server"
-          Pop-Location
+          # Get token from environment variable
+          $token = $env:NANOS_PERSONAL_ACCESS_TOKEN
           # Setup nanos world server (generate Config.toml; required because --cli mode does not respect --token)
           Push-Location ".server\server"
-          $j = Start-Job { & ".\NanosWorldServer.exe" --token $env:NANOS_PERSONAL_ACCESS_TOKEN --save }
+          $j = Start-Job { & ".\NanosWorldServer.exe" --token "$using:token" --save }
           Start-Sleep 5; Stop-Job $j; Remove-Job $j
           # Finally upload packages using CLI mode
-          #& ".\NanosWorldServer.exe" --cli upload package cheatoid-library
+          # & ".\NanosWorldServer.exe" --cli upload package cheatoid-library
           Pop-Location
           # Actually, use in-house packager
+          # dotnet run --project .packager/packager.csproj -c Release -- --cli ..\.server\server -r
           Push-Location "bin"
-          & ".\packager.exe" --cli "..\.server\server" --token "$env:NANOS_PERSONAL_ACCESS_TOKEN" --upload-packages
+          & ".\packager.exe" --upload-packages --cli "..\.server\server" --token "$token"
           Pop-Location
