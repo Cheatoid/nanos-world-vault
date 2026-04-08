@@ -511,8 +511,8 @@ foreach (var dir in dirs)
 		// Setup paths (mirroring PowerShell script)
 		var vaultRoot = gitRoot; // The vault root is the git root
 		var serverRoot = string.IsNullOrEmpty(cliMode)
-			? (Path.GetDirectoryName(vaultRoot) ?? vaultRoot)
-			: (Path.GetDirectoryName(cliMode) ?? cliMode);
+			? (Path.GetDirectoryName(vaultRoot) ?? vaultRoot) // assume it is in the upper directory
+			: cliMode;
 		var packagesDir = Path.Combine(serverRoot, "Packages");
 		var publishDir = Path.Combine(vaultRoot, "publish");
 		var packagesJsonPath = Path.Combine(vaultRoot, "packages.json");
