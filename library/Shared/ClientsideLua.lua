@@ -4,6 +4,8 @@
 local ID = "allowcslua"
 local Enabled = false -- disabled by default
 
+local ref = require("@cheatoid/ref/ref")
+
 local load, pcall, select = load, pcall, select
 local table_concat, table_pack, table_unpack = table.concat, table.pack, table.unpack
 local HASH = "#"
@@ -34,7 +36,8 @@ if Server then
 	--print("initial enable_cslua:", Enabled)
 
 	local Config = require("Config")
-	Enabled = Config.get("enable_cslua", false)
+	local cfg = Config.read()
+	Enabled = Config.get("enable_cslua", cfg.enable_cslua)
 	print("[config] enable_cslua:", Enabled)
 
 	-- Broadcast the convar's value initially
@@ -101,6 +104,7 @@ if Server then
 			if changed then -- only broadcast a message if the state has changed
 				Package.SetPersistentData("enable_cslua", Enabled)
 				Config.set("enable_cslua", Enabled)
+				Config.write(true)
 				Console.Log("Client-side Lua command has been %s", Enabled and "enabled" or "disabled")
 				Chat.BroadcastMessage(
 					string.format(

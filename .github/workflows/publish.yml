@@ -18,7 +18,7 @@ permissions:
 jobs:
   publish:
     name: Publish
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     permissions:
       contents: write  # needed for creating GitHub releases
@@ -27,6 +27,7 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
       DOTNET_NOLOGO: true
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+      NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
 
     steps:
       - name: Checkout repository (with submodules)
@@ -43,6 +44,7 @@ jobs:
       - name: Determine version (manual dispatch)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
+        shell: bash
           TAG="v${{ github.event.inputs.version }}"
           echo "TAG=$TAG" >> $GITHUB_ENV
           # Create a tag
@@ -51,12 +53,14 @@ jobs:
       - name: Determine version (tag push)
         if: ${{ github.event_name == 'push' }}
         run: |
+        shell: bash
           TAG="${{ github.ref_name }}"
           echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Generate changelog
         id: changelog
         run: |
+        shell: bash
           echo "## Changelog" > CHANGELOG.md
           echo "" >> CHANGELOG.md
 
@@ -92,6 +96,7 @@ jobs:
 
       - name: Generate packages with packager
         run: |
+        shell: bash
           dotnet restore
           dotnet build -c Release
           dotnet run --project .packager/packager.csproj -c Release --
@@ -116,11 +121,50 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Publish to nanos-world store
-        uses: olivatooo/nanos-world-store-action@v1
-        with:
-          NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
-          NANOS_PACKAGE_NAME: "cheatoid-library"
-          PACKAGE_PATH: "library"
-          EXTRA_PACKAGE_PATHS: ""
-          VERBOSE: true
+      # This works "fine", except it creates a zip file which is *not* optimized, therefore I'll use my own packager
+      #- name: Publish to nanos-world store
+      #  uses: olivatooo/nanos-world-store-action@v1
+      #  with:
+      #    NANOS_PERSONAL_ACCESS_TOKEN: ${{ secrets.NANOS_PERSONAL_ACCESS_TOKEN }}
+      #    NANOS_PACKAGE_NAME: "cheatoid-library"
+      #    PACKAGE_PATH: "library"
+      #    EXTRA_PACKAGE_PATHS: ""
+      #    VERBOSE: true
+
+      #- name: Download nanos world server with steamcmd (linux)
+      #  run: |
+      #    # curl -o steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
+      #    # tar -xvf steamcmd.tar.gz
+      #    # rm steamcmd.tar.gz
+      #    curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+      #    # Download nanos world server
+      #    ./steamcmd.sh +force_install_dir ./server +login anonymous "+app_update 1936830 -beta bleeding-edge" validate +quit
+
+      - name: Publish packages
+        # continue-on-error: true
+        run: |
+          shell: pwsh
+          # Download nanos world server with SteamCMD (windows)
+          New-Item -ItemType Directory -Path .server -Force | Out-Null
+          & curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -o .server\steamcmd.zip
+          Expand-Archive -Path .server\steamcmd.zip -DestinationPath .server
+          # Remove-Item .server\steamcmd.zip
+          & ".server\steamcmd.exe" +quit
+          # Run twice to handle SteamCMD first-run priming issue (missing steamapps configuration)
+          & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
+          & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
+          # Prepare packages with packager
+          # dotnet run --project .packager/packager.csproj -c Release -- --cli ..\.server\server -r
+          Push-Location ".bin"
+          & ".\packager.exe" --cli "..\.server\server"
+          Pop-Location
+          # Setup nanos world server (generate Config.toml; required because --cli mode does not respect --token)
+          Push-Location ".server\server"
+          $j = Start-Job { & ".\NanosWorldServer.exe" --token $env:NANOS_PERSONAL_ACCESS_TOKEN --save }
+          Start-Sleep 5; Stop-Job $j; Remove-Job $j
+          # Finally upload packages using CLI mode
+          #& ".\NanosWorldServer.exe" --cli upload package cheatoid-library
+          # Actually, use in-house packager
+          Push-Location ".bin"
+          & ".\packager.exe" --cli "..\.server\server" --token "$env:NANOS_PERSONAL_ACCESS_TOKEN" --upload-packages
+          Pop-Location

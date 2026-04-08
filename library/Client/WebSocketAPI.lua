@@ -5,6 +5,7 @@
 local table_insert = table.insert
 local table_unpack = table.unpack
 
+-- WebSocket (client) API - bridged via WebUI
 local WebSocketAPI = {}
 
 --- Enqueue until ready
@@ -48,9 +49,9 @@ do
 		pending[id] = callback
 		-- T-1 : inject the request ID as the first arg, so we can track this request properly
 		table_insert(args, 1, id)
-		-- ... aaaaaand ... ignition
+		-- ... aaaaaand ... ignition 🔥
 		WebSocketWebUI:CallEvent(event, table_unpack(args))
-		-- liftoff!
+		-- liftoff! 🚀
 		return id
 	end
 

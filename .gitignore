@@ -576,3 +576,6 @@ vite.config.ts.timestamp-*
 # Neovim
 .nvim-win64/
 .nvim-data/
+
+# SteamCMD & server
+.server/

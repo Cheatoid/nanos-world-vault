@@ -6,6 +6,8 @@
 
 -- Load the WebSocket API
 local WebSocketAPI = require("WebSocketAPI")
+-- Alternatively, remove the above local completely and it would still work the same,
+-- because WebSocketAPI is exported globally in Index.lua via GAIMERS
 
 -- Test WebSocket connection
 local function test_websocket()

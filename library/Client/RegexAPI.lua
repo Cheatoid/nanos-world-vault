@@ -5,6 +5,7 @@
 local table_insert = table.insert
 local table_unpack = table.unpack
 
+-- Regular expression API - bridged via WebUI
 local RegexAPI = {}
 
 --- Enqueue until ready

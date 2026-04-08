@@ -249,7 +249,10 @@ function get(key, default)
 		init()
 	end
 	if config_data then
-		return config_data[key] ~= nil and config_data[key] or default
+		local value = config_data[key]
+		if value ~= nil then
+			return value
+		end
 	end
 	return default
 end

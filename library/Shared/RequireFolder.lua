@@ -1,14 +1,16 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
--- Localize frequently used globals for performance
+-- Localized global functions for better performance
 local next = next
 local string_gsub = string.gsub
 local Package_GetFiles = Package.GetFiles
 local Package_GetDirectories = Package.GetDirectories
 local Package_Require = Package.Require -- _G.require
 
--- Normalize paths like "some//weird\\path.lua" to "some/weird/path.lua"
+--- Normalizes a path by converting backslashes to forward slashes and removing redundant slashes.
+--- @param path string The path to normalize.
+--- @return string string The normalized path.
 local function normalize_path(path)
 	-- Replace backslashes with forward slashes
 	path = string_gsub(path, "\\", "/")
@@ -21,7 +23,10 @@ local function normalize_path(path)
 	return path
 end
 
--- Standalone recursive file collector
+--- Recursively collects all Lua files from the specified path.
+--- @param path string The directory path to collect files from.
+--- @param out table Array to append collected file paths to (modified in-place).
+--- @param recursive boolean|nil If true, recursively collects files from subfolders.
 local function collect_files(path, out, recursive)
 	path = normalize_path(path)
 	-- Collect lua files in this folder
@@ -38,6 +43,10 @@ local function collect_files(path, out, recursive)
 	end
 end
 
+--- Requires all Lua files from the specified folder with optional priority ordering.
+--- @param folder string The folder path to load Lua files from.
+--- @param load_priority table|nil Optional table defining load priority (array entries = load order, keyed entries = skip/override).
+--- @param recursive boolean|nil If true, recursively collects files from subfolders.
 local function RequireFolder(folder, load_priority, recursive)
 	folder = normalize_path(folder)
 

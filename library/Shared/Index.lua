@@ -8,7 +8,7 @@
 --	print("[package file]", f)
 --end
 
--- Patch require like a good boi
+-- Patch 'require' function like a good boi
 if "INTERNAL - Package Lua Implementation" == debug.getinfo(require, "S").source then
 	require = require("@cheatoid/patch/require.lua")
 end
@@ -95,7 +95,7 @@ r "Config"
 m "@cheatoid/standalone/debug_helper"
 m "@cheatoid/standalone/type_check"
 r "RequireFolder"
-r "ConVar"
+i "ConVar"
 g "oop" "@cheatoid/oop/oop"
 m "BroadcastLua"
 r "ClientsideLua"

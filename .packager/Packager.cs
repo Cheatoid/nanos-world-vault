@@ -59,7 +59,7 @@ if (string.IsNullOrEmpty(token))
 
 string? cliMode = null;
 var isReleaseMode = false;
-var isUpdatePackagesMode = false;
+var isUploadPackagesMode = false;
 string? singlePackage = null;
 
 string[]? dirs;
@@ -93,9 +93,9 @@ if (args is { Length: > 0 })
 		{
 			isReleaseMode = true;
 		}
-		else if (argLower is "--update-packages")
+		else if (argLower is "--upload-packages")
 		{
-			isUpdatePackagesMode = true;
+			isUploadPackagesMode = true;
 		}
 		else if (argLower is "--single-package" && index + 1 < args.Length)
 		{
@@ -121,7 +121,7 @@ if (dirs is null || dirs.Length == 0)
 	dirs = [Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory];
 }
 
-if (isReleaseMode || isUpdatePackagesMode)
+if (isReleaseMode || isUploadPackagesMode)
 {
 	if (token is null || (token = token.Trim()).Length == 0)
 	{
@@ -409,7 +409,7 @@ foreach (var dir in dirs)
 							c.Error.WriteLine("❗ server executable not found");
 							return 3;
 						}
-						isUpdatePackagesMode = true;
+						isUploadPackagesMode = true;
 					}
 					else
 					{
@@ -508,8 +508,8 @@ foreach (var dir in dirs)
 	break;
 }
 
-// Handle --update-packages mode
-if (isUpdatePackagesMode)
+// Handle --upload-packages
+if (isUploadPackagesMode)
 {
 	var gitRoot = FindGitRoot(dirs[0]);
 	if (gitRoot == null || !Repository.IsValid(gitRoot))
@@ -520,7 +520,9 @@ if (isUpdatePackagesMode)
 
 	// Setup paths (mirroring PowerShell script)
 	var vaultRoot = gitRoot; // The vault root is the git root
-	var serverRoot = Path.GetDirectoryName(vaultRoot) ?? vaultRoot;
+	var serverRoot = string.IsNullOrEmpty(cliMode)
+		? (Path.GetDirectoryName(vaultRoot) ?? vaultRoot)
+		: (Path.GetDirectoryName(cliMode) ?? cliMode);
 	var packagesDir = Path.Combine(serverRoot, "Packages");
 	var publishDir = Path.Combine(vaultRoot, "publish");
 	var packagesJsonPath = Path.Combine(vaultRoot, "packages.json");

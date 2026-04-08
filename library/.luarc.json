@@ -1,0 +1,30 @@
+{
+	"workspace": {
+		"library": [
+			"./"
+		],
+		"ignoreDir": [
+			".git",
+			"node_modules",
+			"bin",
+			"publish"
+		]
+	},
+	"Lua.runtime.version": "Lua 5.4",
+	"Lua.runtime.path": [
+		"?.lua",
+		"Shared/?.lua",
+		"Client/?.lua",
+		"Server/?.lua"
+	],
+	"Lua.workspace.library": [
+		"./"
+	],
+	"Lua.diagnostics.globals": [
+		"package",
+		"require",
+		"GAIMERS"
+	],
+	"Lua.workspace.preloadFileSize": 1000,
+	"Lua.workspace.maxPreload": 1000
+}

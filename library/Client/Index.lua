@@ -3,6 +3,8 @@
 
 local g, a, i, m, e, r, s = GAIMERS.g, GAIMERS.a, GAIMERS.i, GAIMERS.m, GAIMERS.e, GAIMERS.r, GAIMERS.s
 
+-- Import clientside libs, and export them as globals
 i "RegexAPI"
 i "WebSocketAPI"
--- TODO: WebSocket, WebGL/WebGPU, WebRTC, Canvas APIs...
+
+-- TODO: WebGL/WebGPU, WebRTC, Canvas APIs...

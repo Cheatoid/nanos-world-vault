@@ -1,9 +1,9 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
---if _G.ConVar then return _G.ConVar end
+-- Source-engine inspired ConVar library.
 
--- Localize global functions for performance
+-- Localized global functions for better performance
 local next = next
 local pcall = pcall
 local type = type
@@ -39,6 +39,9 @@ do
 		:replace(Hook_ConsoleRegisterCommand)
 		:apply()
 	--_G.Console.RegisterCommand = Hook_ConsoleRegisterCommand
+	--Console.Subscribe("PlayerSubmit", function(text)
+	--	-- TODO: Handle console commands using case-insensitive matching (requires parser library).
+	--end)
 end
 local Console_RegisterCommand = Console.RegisterCommand -- cache it after hooking
 
