@@ -33,11 +33,11 @@ do
 	end)
 
 	--- Dispatch request to JS
-	--- @param event string
-	--- @param args table
-	--- @param callback function
-	--- @param use_req_id integer|nil
-	--- @return integer req_id
+	---@param event string
+	---@param args table
+	---@param callback function
+	---@param use_req_id integer|nil
+	---@return integer req_id
 	local function dispatch(event, args, callback, use_req_id)
 		local id = use_req_id or (req_id + 1)
 		if not use_req_id then
@@ -87,11 +87,11 @@ end
 
 --- Creates a WebSocket connection to the specified URL.<br>
 --- Establishes a WebSocket connection that can be used for real-time communication.
---- @param url string The WebSocket server URL (e.g., "ws://localhost:8080").
---- @param protocols string|nil Optional WebSocket protocols array or single protocol string.
---- @param callback function Callback function to receive the connection result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param url string The WebSocket server URL (e.g., "ws://localhost:8080").
+---@param protocols string|nil Optional WebSocket protocols array or single protocol string.
+---@param callback function Callback function to receive the connection result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- WebSocketAPI.Connect("ws://localhost:8080", nil, function(success, result)
 ---     if success then
@@ -110,10 +110,10 @@ end
 
 --- Disconnects a WebSocket connection.<br>
 --- Closes the specified WebSocket connection gracefully.
---- @param socket_id string The socket ID returned from Connect.
---- @param callback function Callback function to receive the disconnection result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param socket_id string The socket ID returned from Connect.
+---@param callback function Callback function to receive the disconnection result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- WebSocketAPI.Disconnect(socket_id, function(success, result)
 ---     if success then
@@ -127,11 +127,11 @@ end
 
 --- Sends a message through the WebSocket connection.<br>
 --- Transmits data to the WebSocket server.
---- @param socket_id string The socket ID returned from Connect.
---- @param data string|table The data to send (will be JSON stringified if table).
---- @param callback function Callback function to receive the send result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param socket_id string The socket ID returned from Connect.
+---@param data string|table The data to send (will be JSON stringified if table).
+---@param callback function Callback function to receive the send result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- WebSocketAPI.Send(socket_id, "Hello Server!", function(success, result)
 ---     if success then
@@ -145,10 +145,10 @@ end
 
 --- Sets up a message event handler for the WebSocket connection.<br>
 --- Registers a callback function to handle incoming messages.
---- @param socket_id string The socket ID returned from Connect.
---- @param callback function Callback function to handle incoming messages (function(message)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param socket_id string The socket ID returned from Connect.
+---@param callback function Callback function to handle incoming messages (function(message)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- WebSocketAPI.OnMessage(socket_id, function(message)
 ---     print("Received:", message)
@@ -160,10 +160,10 @@ end
 
 --- Sets up an error event handler for the WebSocket connection.<br>
 --- Registers a callback function to handle WebSocket errors.
---- @param socket_id string The socket ID returned from Connect.
---- @param callback function Callback function to handle errors (function(error)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param socket_id string The socket ID returned from Connect.
+---@param callback function Callback function to handle errors (function(error)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- WebSocketAPI.OnError(socket_id, function(error)
 ---     print("WebSocket error:", error)
@@ -175,10 +175,10 @@ end
 
 --- Sets up a close event handler for the WebSocket connection.<br>
 --- Registers a callback function to handle connection close events.
---- @param socket_id string The socket ID returned from Connect.
---- @param callback function Callback function to handle close events (function(event)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param socket_id string The socket ID returned from Connect.
+---@param callback function Callback function to handle close events (function(event)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- WebSocketAPI.OnClose(socket_id, function(event)
 ---     print("WebSocket closed:", event.reason)
@@ -190,10 +190,10 @@ end
 
 --- Gets the current connection state of the WebSocket.<br>
 --- Returns the ready state of the WebSocket connection.
---- @param socket_id string The socket ID returned from Connect.
---- @param callback function Callback function to receive the state result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param socket_id string The socket ID returned from Connect.
+---@param callback function Callback function to receive the state result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- WebSocketAPI.GetState(socket_id, function(success, state)
 ---     if success then
@@ -207,10 +207,10 @@ end
 
 --- Sets up a connection event handler for the WebSocket connection.<br>
 --- Registers a callback function to handle connection open events.
---- @param socket_id string The socket ID returned from Connect.
---- @param callback function Callback function to handle connection open (function(event)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param socket_id string The socket ID returned from Connect.
+---@param callback function Callback function to handle connection open (function(event)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- WebSocketAPI.OnOpen(socket_id, function(event)
 ---     print("WebSocket opened")

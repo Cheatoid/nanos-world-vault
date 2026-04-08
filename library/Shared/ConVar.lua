@@ -57,7 +57,7 @@ local table = require("@cheatoid/standard/table")
 local table_ensure_lazy = table.ensure_lazy
 local table_make_case_insensitive = table.make_case_insensitive
 
---- @class ConVar
+---@class ConVar
 --- Console Variable (CVar) library.
 local ConVar = {}
 ConVar.__index = ConVar
@@ -71,7 +71,7 @@ local USERINFO_EVENT = "ConVar::UserInfoUpdate"
 
 --- Registry of all registered ConVars (case-insensitive keyed).
 --- Structure: [string: name] = ConVar: object
---- @type table<string, ConVar>
+---@type table<string, ConVar>
 local ConVars = table_make_case_insensitive()
 
 --- Registry for per-player userinfo (client -> server convars).
@@ -101,8 +101,8 @@ do
 end
 
 --- Helper to convert flag integer to a readable string.
---- @param flags number
---- @return string string
+---@param flags number
+---@return string string
 local function FlagsToString(flags) -- TODO: Move to Lua lib
 	if flags == 0 then return "NONE" end
 	local parts = {}
@@ -115,11 +115,11 @@ local function FlagsToString(flags) -- TODO: Move to Lua lib
 end
 
 --- Validates that a value is a proper bitflag (non-negative integer or valid flag enum value).
---- @param val any The value to validate.
---- @param flag_enum table The flag enum table to validate against (result from MakeBitEnum()).
---- @param param_name string The name of the parameter being validated (for error messages).
---- @param param_pos integer The parameter position (for error messages).
---- @return integer integer The validated flag value.
+---@param val any The value to validate.
+---@param flag_enum table The flag enum table to validate against (result from MakeBitEnum()).
+---@param param_name string The name of the parameter being validated (for error messages).
+---@param param_pos integer The parameter position (for error messages).
+---@return integer integer The validated flag value.
 local function ValidateBitFlag(val, flag_enum, param_name, param_pos) -- TODO: Move to Lua lib
 	-- Allow nil, default to 0
 	if val == nil then return 0 end
@@ -150,8 +150,8 @@ local function ValidateBitFlag(val, flag_enum, param_name, param_pos) -- TODO: M
 end
 
 --- Helper to detect type using modf for integer detection.
---- @param val any
---- @return string string
+---@param val any
+---@return string string
 local function GetValueType(val)
 	local t = type(val)
 	if t == "number" then
@@ -168,17 +168,17 @@ local function GetValueType(val)
 end
 
 --- Helper to cast value to string (for networking/console).
---- @param val any
---- @return string string
+---@param val any
+---@return string string
 local function ValueToString(val)
 	if type(val) == "boolean" then return val and "1" or "0" end
 	return tostring(val)
 end
 
 --- Helper to parse string to target type.
---- @param str string
---- @param targetType string
---- @return any any
+---@param str string
+---@param targetType string
+---@return any any
 local function StringToValue(str, targetType)
 	if targetType == "boolean" then
 		-- Allow literal "true" / "false" strings
@@ -206,7 +206,7 @@ end
 
 --- Allows converting the ConVar object directly to a string representation of its value.
 --- Usage: print(my_cvar)
---- @return string string
+---@return string string
 function ConVar:__tostring()
 	return self:GetString()
 end
@@ -216,14 +216,14 @@ end
 -- ==========================================
 
 --- Creates a new ConVar or retrieves an existing one.
---- @param name string The name of the console variable.
---- @param default boolean|number|integer|string|nil The default value.
---- @param help string|nil Description of the ConVar.
---- @param flags integer|nil Bitwise flags (ConVar.FLAG).
---- @param min_val number|integer|nil Minimum value (numeric only).
---- @param max_val number|integer|nil Maximum value (numeric only).
---- @param params table|nil The list of supported parameters to display in the console (strings only).
---- @return ConVar ConVar The console variable object.
+---@param name string The name of the console variable.
+---@param default boolean|number|integer|string|nil The default value.
+---@param help string|nil Description of the ConVar.
+---@param flags integer|nil Bitwise flags (ConVar.FLAG).
+---@param min_val number|integer|nil Minimum value (numeric only).
+---@param max_val number|integer|nil Maximum value (numeric only).
+---@param params table|nil The list of supported parameters to display in the console (strings only).
+---@return ConVar ConVar The console variable object.
 local function ConVar_Register(name, default, help, flags, min_val, max_val, params)
 	check_string(1)
 	opt_type(default, "boolean|number|string", 2)
@@ -318,7 +318,7 @@ end
 -- ==========================================
 
 --- Internal handler for console input.
---- @param args table
+---@param args table
 function ConVar:OnConsoleCommand(args)
 	if not args or #args == 0 then
 		-- Use FlagsToString for human readable output
@@ -349,8 +349,8 @@ function ConVar:OnConsoleCommand(args)
 end
 
 --- Sets the value of the ConVar.
---- @param value any
---- @param source string|nil Optional identifier of who changed the value.
+---@param value any
+---@param source string|nil Optional identifier of who changed the value.
 function ConVar:SetValue(value, source)
 	local typed_val
 	if self.Type == "boolean" then
@@ -415,47 +415,47 @@ function ConVar:SetValue(value, source)
 end
 
 --- Explicitly sets a Float value.
---- @param value number
+---@param value number
 function ConVar:SetFloat(value)
 	check_number(2)
 	self:SetValue(value)
 end
 
 --- Explicitly sets an Int value.
---- @param value integer
+---@param value integer
 function ConVar:SetInt(value)
 	check_integer(2)
 	self:SetValue((math_modf(value)))
 end
 
 --- Explicitly sets a Bool value.
---- @param value boolean
+---@param value boolean
 function ConVar:SetBool(value)
 	check_boolean(2)
 	self:SetValue(value)
 end
 
 --- Explicitly sets a String value.
---- @param value string
+---@param value string
 function ConVar:SetString(value)
 	check_string(2)
 	self:SetValue(value)
 end
 
 --- Gets the raw value.
---- @return any any
+---@return any any
 function ConVar:GetValue()
 	return self.Value
 end
 
 --- Gets the value as a String.
---- @return string string
+---@return string string
 function ConVar:GetString()
 	return (self.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or ValueToString(self.Value)
 end
 
 --- Gets the value as an Integer (truncated towards zero).
---- @return integer integer
+---@return integer integer
 function ConVar:GetInt()
 	local num = tonumber(self.Value)
 	if not num then return 0 end
@@ -463,13 +463,13 @@ function ConVar:GetInt()
 end
 
 --- Gets the value as a Float.
---- @return number number
+---@return number number
 function ConVar:GetFloat()
 	return tonumber(self.Value) or 0.0
 end
 
 --- Gets the value as a Boolean.
---- @return boolean boolean
+---@return boolean boolean
 function ConVar:GetBool()
 	local value = self.Value
 	if type(value) == "boolean" then return value end
@@ -486,14 +486,14 @@ function ConVar:Reset()
 end
 
 --- Adds a callback function to be executed when the ConVar changes.
---- @param func function Signature callback(name, new_value, source)
+---@param func function Signature callback(name, new_value, source)
 function ConVar:AddChangeCallback(func)
 	check_function(2)
 	self.Callbacks[func] = true
 end
 
 --- Removes a previously added callback.
---- @param func function
+---@param func function
 function ConVar:RemoveChangeCallback(func)
 	check_function(2)
 	self.Callbacks[func] = nil
@@ -504,8 +504,8 @@ end
 -- ==========================================
 
 --- Retrieves a ConVar by name.
---- @param name string The name of the console variable.
---- @return ConVar|nil ConVar The console variable object, or nil if not found.
+---@param name string The name of the console variable.
+---@return ConVar|nil ConVar The console variable object, or nil if not found.
 local function ConVar_Get(name)
 	check_string(1)
 	return ConVars[name]
@@ -513,14 +513,14 @@ end
 ConVar.Get = ConVar_Get
 
 --- Gets an existing ConVar or creates a new one if it doesn't exist.
---- @param name string The name of the console variable.
---- @param default boolean|number|integer|string|nil The default value.
---- @param help string|nil Description of the ConVar.
---- @param flags integer|nil Bitwise flags (ConVar.FLAG).
---- @param min_val number|integer|nil Minimum value (numeric only).
---- @param max_val number|integer|nil Maximum value (numeric only).
---- @param params table|nil The list of supported parameters to display in the console (strings only).
---- @return ConVar ConVar The console variable object.
+---@param name string The name of the console variable.
+---@param default boolean|number|integer|string|nil The default value.
+---@param help string|nil Description of the ConVar.
+---@param flags integer|nil Bitwise flags (ConVar.FLAG).
+---@param min_val number|integer|nil Minimum value (numeric only).
+---@param max_val number|integer|nil Maximum value (numeric only).
+---@param params table|nil The list of supported parameters to display in the console (strings only).
+---@return ConVar ConVar The console variable object.
 local function ConVar_GetOrCreate(name, default, help, flags, min_val, max_val, params)
 	check_string(1)
 	local cvar = ConVars[name]
@@ -532,9 +532,9 @@ ConVar.GetOrCreate = ConVar_GetOrCreate
 if Server then
 	--- Retrieves a USERINFO value for a specific player on the server.
 	--- This is used for client-side ConVars that replicate their state to the server.
-	--- @param player Player The player object.
-	--- @param name string The ConVar name.
-	--- @return any any The value (converted to type if registered) or string. Returns nil if not found.
+	---@param player Player The player object.
+	---@param name string The ConVar name.
+	---@return any any The value (converted to type if registered) or string. Returns nil if not found.
 	local function ConVar_GetPlayerInfo(player, name)
 		check_userdata(1)
 		check_string(2)
@@ -560,7 +560,7 @@ if Server then
 end
 
 --- Returns an iterator over all registered ConVars.
---- @return function, table
+---@return function, table
 local function ConVar_GetIterator()
 	return next, ConVars
 end
@@ -572,10 +572,10 @@ ConVar.GetIterator = ConVar_GetIterator
 
 --- Helper function to format and log a single ConVar entry.
 --- Returns true if the ConVar should be displayed, false otherwise.
---- @param name string The ConVar name.
---- @param cvar ConVar The ConVar object.
---- @param filter string|nil Optional filter pattern string.
---- @return boolean boolean True if the ConVar was displayed.
+---@param name string The ConVar name.
+---@param cvar ConVar The ConVar object.
+---@param filter string|nil Optional filter pattern string.
+---@return boolean boolean True if the ConVar was displayed.
 local function LogConVarEntry(name, cvar, filter)
 	-- Check filter
 	if filter and not string_find(name, filter, nil, false) then

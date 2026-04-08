@@ -12,25 +12,25 @@ local Server_LoadPackage = Server.LoadPackage
 local Server_ReloadPackage = Server.ReloadPackage
 local Server_UnloadPackage = Server.UnloadPackage
 
---- @class PackageHelper
+---@class PackageHelper
 --- Package management utility library for Nanos World.
 --- Provides console commands & functions for loading, unloading, and reloading packages with pattern matching support.
 local self = {
 	--- Prefix for pattern matching mode
-	--- @type string
+	---@type string
 	PatternPrefix = ":"
 }
 
 --- Validates if a package name is properly formatted.
---- @param name string The package name to validate.
---- @return boolean boolean True if the name is valid, false otherwise.
+---@param name string The package name to validate.
+---@return boolean boolean True if the name is valid, false otherwise.
 local function IsPackageNameValid(name)
 	return name and type(name) == "string" --and string_match(name, "^[%w%-%._]*$")
 end
 self.HasValidName = IsPackageNameValid
 
 --- Retrieves all available packages as a lookup table.
---- @return table table A table with package names as keys and package objects as values.
+---@return table table A table with package names as keys and package objects as values.
 local function GetAllPackages()
 	local array = Server_GetPackages(false)
 	local lookup = {}
@@ -42,8 +42,8 @@ end
 self.GetAll = GetAllPackages
 
 --- Checks if a package with the given name exists.
---- @param name string The package name to check.
---- @return boolean boolean True if the package exists, false otherwise.
+---@param name string The package name to check.
+---@return boolean boolean True if the package exists, false otherwise.
 local function PackageExists(name)
 	return GetAllPackages()[name] ~= nil
 end
@@ -51,8 +51,8 @@ self.Exists = PackageExists
 
 --- Finds packages matching a name or pattern.
 --- Supports exact name matching and pattern matching (when name starts with PatternPrefix).
---- @param name string The package name or pattern to match.
---- @return table table A table of matching package names.
+---@param name string The package name or pattern to match.
+---@return table table A table of matching package names.
 local function GetMatchingPackages(name)
 	local matches = {}
 	if type(name) == "string" then
@@ -77,8 +77,8 @@ end
 self.Match = GetMatchingPackages
 
 --- Reloads all packages with optional filtering.
---- @param onlyLoaded boolean|nil Whether to only reload loaded packages (default: true).
---- @param typeFilter integer|nil Package type filter (default: -1 for all types).
+---@param onlyLoaded boolean|nil Whether to only reload loaded packages (default: true).
+---@param typeFilter integer|nil Package type filter (default: -1 for all types).
 local function ReloadAllPackages(onlyLoaded, typeFilter)
 	if onlyLoaded == nil then onlyLoaded = true end
 	--if typeFilter == nil then typeFilter = -1 end -- PackageType.* or -1 for all
@@ -91,7 +91,7 @@ self.ReloadAll = ReloadAllPackages
 
 --- Reloads specified packages or all packages if none specified.
 --- Supports pattern matching for multiple packages.
---- @param ... string Variable number of package names or patterns to reload.
+---@param ... string Variable number of package names or patterns to reload.
 local function ReloadPack(...)
 	if select("#", ...) == 0 then
 		--Console_RunCommand("package reload all")
@@ -114,7 +114,7 @@ self.Reload = ReloadPack
 
 --- Loads specified packages or all packages if none specified.
 --- Supports pattern matching for multiple packages.
---- @param ... string Variable number of package names or patterns to load.
+---@param ... string Variable number of package names or patterns to load.
 local function LoadPack(...)
 	if select("#", ...) == 0 then
 		--Console_RunCommand("package load all")
@@ -139,7 +139,7 @@ self.Load = LoadPack
 
 --- Unloads specified packages or all loaded packages if none specified.
 --- Supports pattern matching for multiple packages.
---- @param ... string Variable number of package names or patterns to unload.
+---@param ... string Variable number of package names or patterns to unload.
 local function UnloadPack(...)
 	if select("#", ...) == 0 then
 		--Console_RunCommand("package unload all")

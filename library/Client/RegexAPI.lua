@@ -33,11 +33,11 @@ do
 	end)
 
 	--- Dispatch request to JS
-	--- @param event string
-	--- @param args table
-	--- @param callback function
-	--- @param use_req_id integer|nil
-	--- @return integer req_id
+	---@param event string
+	---@param args table
+	---@param callback function
+	---@param use_req_id integer|nil
+	---@return integer req_id
 	local function dispatch(event, args, callback, use_req_id)
 		local id = use_req_id or (req_id + 1)
 		if not use_req_id then
@@ -87,12 +87,12 @@ end
 
 --- Performs a regex match on the given text.<br>
 --- Returns the first match of the pattern in the text.
---- @param pattern string The regular expression pattern to match.
---- @param text string The text to search within.
---- @param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
---- @param callback function Callback function to receive the match result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param pattern string The regular expression pattern to match.
+---@param text string The text to search within.
+---@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
+---@param callback function Callback function to receive the match result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- RegexAPI.Match("HELLO", "hello world", "i", function(success, result)
 ---     if success then
@@ -111,12 +111,12 @@ end
 
 --- Performs a regex match to find all occurrences in the given text.<br>
 --- Returns all non-overlapping matches of the pattern in the text.
---- @param pattern string The regular expression pattern to match.
---- @param text string The text to search within.
---- @param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
---- @param callback function Callback function to receive all matches (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param pattern string The regular expression pattern to match.
+---@param text string The text to search within.
+---@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
+---@param callback function Callback function to receive all matches (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- RegexAPI.MatchAll("\\d+", "abc123def456", "", function(success, results)
 ---     if success then
@@ -137,12 +137,12 @@ end
 
 --- Tests if a regex pattern matches the given text.<br>
 --- Returns a boolean indicating whether the pattern matches anywhere in the text.
---- @param pattern string The regular expression pattern to test.
---- @param text string The text to test against.
---- @param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
---- @param callback function Callback function to receive the test result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param pattern string The regular expression pattern to test.
+---@param text string The text to test against.
+---@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
+---@param callback function Callback function to receive the test result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- RegexAPI.Test("^\\d+$", "12345", "", function(success, matches)
 ---     print("Is numeric:", matches) -- true
@@ -159,13 +159,13 @@ end
 
 --- Replaces matches of a regex pattern in the given text.<br>
 --- Replaces all occurrences of the pattern with the specified replacement string.
---- @param pattern string The regular expression pattern to search for.
---- @param text string The text to perform replacements in.
---- @param replacement string The replacement string (can use $& for matched text, $1 for capture groups, etc.).
---- @param flags string|nil Optional regex flags (e.g., "i" for case-insensitive). Note: "g" is always applied.
---- @param callback function Callback function to receive the replaced result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param pattern string The regular expression pattern to search for.
+---@param text string The text to perform replacements in.
+---@param replacement string The replacement string (can use $& for matched text, $1 for capture groups, etc.).
+---@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive). Note: "g" is always applied.
+---@param callback function Callback function to receive the replaced result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- RegexAPI.Replace("\\d+", "abc123def456", "X", "", function(success, result)
 ---     if success then
@@ -184,12 +184,12 @@ end
 
 --- Splits a string using a regex pattern as the delimiter.<br>
 --- Returns an array of strings split by the pattern.
---- @param pattern string The regular expression pattern to use as delimiter.
---- @param text string The text to split.
---- @param flags string|nil Optional regex flags (e.g., "i" for case-insensitive).
---- @param callback function Callback function to receive the split result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param pattern string The regular expression pattern to use as delimiter.
+---@param text string The text to split.
+---@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive).
+---@param callback function Callback function to receive the split result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- RegexAPI.Split("[,;]", "a,b;c,d", "", function(success, parts)
 ---     if success then
@@ -210,12 +210,12 @@ end
 
 --- Executes a regex pattern on the given text.<br>
 --- Similar to match but returns detailed match information including capture groups.
---- @param pattern string The regular expression pattern to execute.
---- @param text string The text to execute against.
---- @param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
---- @param callback function Callback function to receive the exec result (function(success, payload)).
---- @return integer req_id The request ID for tracking.
---- @usage <br>
+---@param pattern string The regular expression pattern to execute.
+---@param text string The text to execute against.
+---@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
+---@param callback function Callback function to receive the exec result (function(success, payload)).
+---@return integer req_id The request ID for tracking.
+---@usage <br>
 --- ```
 --- RegexAPI.Exec("(\\d+)-(\\d+)", "123-456", "", function(success, result)
 ---     if success then

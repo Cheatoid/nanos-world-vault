@@ -57,6 +57,7 @@ if (string.IsNullOrEmpty(token))
 	}
 }
 
+var serverFileName = OperatingSystem.IsWindows() ? "NanosWorldServer.exe" : "NanosWorldServer.sh";
 string? cliMode = null;
 var isReleaseMode = false;
 var isUploadPackagesMode = false;
@@ -82,7 +83,7 @@ if (args is { Length: > 0 })
 		var argLower = arg.ToLowerInvariant();
 		if (argLower is "--cli" && index + 1 < args.Length)
 		{
-			cliMode = args[++index];
+			cliMode = args[++index].TrimEnd('\\', '/');
 			if (!Path.IsPathFullyQualified(cliMode))
 			{
 				cliMode = Path.GetFullPath(cliMode,
@@ -128,7 +129,7 @@ if (isReleaseMode || isUploadPackagesMode)
 		//throw new Exception(
 		//	"NANOS_PERSONAL_ACCESS_TOKEN / NANOS_API_KEY / NANOS_STORE_TOKEN environment variable is not set");
 		c.Error.WriteLine(
-			"❗ error: token is required for update-packages mode. Use --token or set environment variable.");
+			"❗ error: token is required for release/upload-packages mode. Use --token or set environment variable.");
 		return 1;
 	}
 }
@@ -348,14 +349,6 @@ foreach (var dir in dirs)
 		{
 			var zipFileName = $"{Path.GetFileName(packageName)}.zip";
 			var zipFullPath = Path.Combine(publishFolder, zipFileName);
-			//try
-			//{
-			//	File.Delete(zipFullPath);
-			//}
-			//catch
-			//{
-			//	// ignored
-			//}
 			File.WriteAllBytes(zipFullPath, zipBytes); // replace existing file
 			c.WriteLine(
 				$"ℹ created zip: {zipFileSize} bytes -> {Path.Combine(Path.GetFileName(publishFolder), zipFileName)}");
@@ -398,15 +391,15 @@ foreach (var dir in dirs)
 					shouldUpload = true;
 				}
 #if DEBUG
-				shouldUpload = true; // TODO/REMOVEME
+				//shouldUpload = true; // TODO/REMOVEME
 #endif
 				if (shouldUpload)
 				{
 					if (!string.IsNullOrEmpty(cliMode))
 					{
-						if (!File.Exists(cliMode))
+						if (!Directory.Exists(cliMode) || !File.Exists(Path.Combine(cliMode, serverFileName)))
 						{
-							c.Error.WriteLine("❗ server executable not found");
+							c.Error.WriteLine($"❗ server executable not found: {Path.Combine(cliMode, serverFileName)}");
 							return 3;
 						}
 						isUploadPackagesMode = true;
@@ -505,7 +498,7 @@ foreach (var dir in dirs)
 		c.WriteLine();
 	}
 
-	// Handle --upload-packages
+	// Handle --upload-packages and --release
 	if (isUploadPackagesMode)
 	{
 		// Setup paths (mirroring PowerShell script)
@@ -599,120 +592,159 @@ foreach (var dir in dirs)
 				continue;
 			}
 
-			// Extract zip to Packages folder
-			var extractPath = Path.Combine(packagesDir, packageName);
-			c.WriteLine($"ℹ removing extracted {packageName} folder");
-			if (Directory.Exists(extractPath))
-			{
-				try
-				{
-					Directory.Delete(extractPath, recursive: true);
-				}
-				catch
-				{
-					// ignored
-				}
-			}
+			var packagePath = Path.Combine(packagesDir, packageName);
 
-			c.WriteLine("ℹ extracting zipped package");
-			var extractionSuccess = false;
-			Exception? lastExtractionError = null;
-			for (var retry = 0; retry <= 3; retry++)
+			// Handle --release switch
+			if (isReleaseMode)
 			{
-				if (retry > 0)
+				c.WriteLine($"ℹ removing extracted {packageName} folder");
+				if (Directory.Exists(packagePath))
 				{
-					c.WriteLine($"ℹ retry attempt {retry}/3 after 500ms delay...");
-					await Task.Delay(500);
-				}
-				try
-				{
-					if (Directory.Exists(extractPath))
+					try
 					{
+						Directory.Delete(packagePath, recursive: true);
+					}
+					catch
+					{
+						// ignored
+					}
+				}
+				c.WriteLine("ℹ extracting zipped package");
+				var extractionSuccess = false;
+				Exception? lastExtractionError = null;
+				for (var retry = 0; retry <= 3; retry++)
+				{
+					if (retry > 0)
+					{
+						c.WriteLine($"ℹ retry attempt {retry}/3 after 500ms delay...");
+						await Task.Delay(500);
+					}
+					try
+					{
+						if (Directory.Exists(packagePath))
+						{
+							try
+							{
+								Directory.Delete(packagePath, recursive: true);
+							}
+							catch
+							{
+								// ignored
+							}
+						}
+						Directory.CreateDirectory(packagePath);
+						ZipFile.ExtractToDirectory(zipFullPath, packagePath, overwriteFiles: true);
+						extractionSuccess = true;
+						break;
+					}
+					catch (Exception ex)
+					{
+						lastExtractionError = ex;
+						c.WriteLine($"⚠ extraction attempt {retry + 1} failed: {ex.Message}");
+					}
+				}
+				if (!extractionSuccess)
+				{
+					c.Error.WriteLine(
+						$"❗ error: failed to extract zip after 3 attempts: {lastExtractionError?.Message}");
+					continue;
+				}
+				// Upload using NanosWorldServer
+				c.WriteLine("ℹ uploading package");
+				var serverExePath = Path.Combine(serverRoot, serverFileName);
+				if (!File.Exists(serverExePath))
+				{
+					c.Error.WriteLine($"❗ server executable not found: {serverExePath}");
+					continue;
+				}
+				var serverConfig = Path.Combine(serverRoot, "Config.toml");
+				if (!File.Exists(serverConfig))
+				{
+					c.WriteLine("ℹ Config.toml not found, generating by running server briefly...");
+					try
+					{
+						var psiConfig = new ProcessStartInfo
+						{
+							FileName = serverExePath,
+							RedirectStandardOutput = true,
+							RedirectStandardError = true,
+							UseShellExecute = false,
+							CreateNoWindow = true,
+							WorkingDirectory = Path.GetDirectoryName(serverExePath)
+						};
+						psiConfig.ArgumentList.Add("--token");
+						psiConfig.ArgumentList.Add(token!);
+						psiConfig.ArgumentList.Add("--save");
+						using var configProcess = Process.Start(psiConfig);
+						if (configProcess is null)
+						{
+							c.Error.WriteLine("❗ error: failed to start NanosWorldServer.exe to generate Config.toml");
+							continue;
+						}
+						await Task.Delay(TimeSpan.FromSeconds(5));
 						try
 						{
-							Directory.Delete(extractPath, recursive: true);
+							configProcess.Kill(true);
 						}
 						catch
 						{
-							// ignored
+							// Process may have already exited
 						}
+						await configProcess.WaitForExitAsync();
+						c.WriteLine("ℹ Config.toml generated successfully");
 					}
-					Directory.CreateDirectory(extractPath);
-					ZipFile.ExtractToDirectory(zipFullPath, extractPath, overwriteFiles: true);
-					extractionSuccess = true;
-					break;
+					catch (Exception ex)
+					{
+						c.Error.WriteLine($"❗ error: failed to generate Config.toml: {ex.Message}");
+						continue;
+					}
+				}
+
+				try
+				{
+					var psi = new ProcessStartInfo
+					{
+						FileName = serverExePath,
+						RedirectStandardOutput = true,
+						RedirectStandardError = true,
+						UseShellExecute = false,
+						CreateNoWindow = true,
+						WorkingDirectory = Path.GetDirectoryName(serverExePath)
+					};
+					// Use ArgumentList instead of Arguments for proper escaping
+					//psi.ArgumentList.Add("--token"); // Token saved in Config.toml
+					//psi.ArgumentList.Add(token);
+					psi.ArgumentList.Add("--cli");
+					psi.ArgumentList.Add("upload");
+					psi.ArgumentList.Add("package");
+					psi.ArgumentList.Add(packageName);
+					using var process = Process.Start(psi);
+					if (process is null)
+					{
+						c.Error.WriteLine("❗ error: failed to start NanosWorldServer.exe");
+						continue;
+					}
+					await process.WaitForExitAsync();
+					if (process.ExitCode != 0)
+					{
+						var stderr = await process.StandardError.ReadToEndAsync();
+						c.Error.WriteLine($"❗ error: upload failed (exit code: {process.ExitCode}): {stderr}");
+						continue;
+					}
+					c.WriteLine("ℹ upload successful");
 				}
 				catch (Exception ex)
 				{
-					lastExtractionError = ex;
-					c.WriteLine($"⚠ extraction attempt {retry + 1} failed: {ex.Message}");
-				}
-			}
-			if (!extractionSuccess)
-			{
-				c.Error.WriteLine($"❗ error: failed to extract zip after 3 attempts: {lastExtractionError?.Message}");
-				continue;
-			}
-
-			// Upload using NanosWorldServer.exe
-			c.WriteLine("ℹ uploading package");
-			var serverExe = Path.Combine(serverRoot, "NanosWorldServer.exe");
-			if (!File.Exists(serverExe))
-			{
-				c.Error.WriteLine($"❗ error: NanosWorldServer.exe not found at: {serverExe}");
-				continue;
-			}
-			var serverConfig = Path.Combine(serverRoot, "Config.toml");
-			if (!File.Exists(serverConfig))
-			{
-				c.Error.WriteLine($"❗ error: Config.toml not found at: {serverConfig}");
-				continue;
-			}
-
-			try
-			{
-				var psi = new ProcessStartInfo
-				{
-					FileName = serverExe,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					UseShellExecute = false,
-					CreateNoWindow = true,
-					WorkingDirectory = Path.GetDirectoryName(serverExe)
-				};
-				// Use ArgumentList instead of Arguments for proper escaping
-				//psi.ArgumentList.Add("--token"); // Token saved in Config.toml
-				//psi.ArgumentList.Add(token);
-				psi.ArgumentList.Add("--cli");
-				psi.ArgumentList.Add("upload");
-				psi.ArgumentList.Add("package");
-				psi.ArgumentList.Add(packageName);
-				using var process = Process.Start(psi);
-				if (process is null)
-				{
-					c.Error.WriteLine("❗ error: failed to start NanosWorldServer.exe");
+					c.Error.WriteLine($"❗ error: upload command failed: {ex.Message}");
 					continue;
 				}
-				await process.WaitForExitAsync();
-				if (process.ExitCode != 0)
-				{
-					var stderr = await process.StandardError.ReadToEndAsync();
-					c.Error.WriteLine($"❗ error: upload failed (exit code: {process.ExitCode}): {stderr}");
-					continue;
-				}
-				c.WriteLine("ℹ upload successful");
-			}
-			catch (Exception ex)
-			{
-				c.Error.WriteLine($"❗ error: upload command failed: {ex.Message}");
-				continue;
 			}
 
 			// Remove extracted folder and create symbolic link
 			c.WriteLine($"ℹ removing extracted {packageName} folder");
 			try
 			{
-				Directory.Delete(extractPath, recursive: true);
+				Directory.Delete(packagePath, recursive: true);
 			}
 			catch
 			{
@@ -723,9 +755,9 @@ foreach (var dir in dirs)
 			try
 			{
 				// Use Junction for directories (works without admin on Windows)
-				var junction = new JunctionPoint(extractPath, packageRoot);
+				var junction = new JunctionPoint(packagePath, packageRoot);
 				junction.Create();
-				c.WriteLine($"ℹ created symbolic-link: {extractPath} -> {packageRoot}");
+				c.WriteLine($"ℹ created symbolic-link: {packagePath} -> {packageRoot}");
 			}
 			catch (Exception ex)
 			{

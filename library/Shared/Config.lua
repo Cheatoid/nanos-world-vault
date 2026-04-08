@@ -12,19 +12,19 @@ local ref = require("@cheatoid/ref/ref")
 local File = File
 local JSON = JSON
 
---- @class cheatoidlib.config.field
---- @field type "boolean"|"string"|"number"|"integer"|"table"
---- @field default any
---- @field required boolean
---- @field validate nil|fun(value: any): boolean, string|nil
+---@class cheatoidlib.config.field
+---@field type "boolean"|"string"|"number"|"integer"|"table"
+---@field default any
+---@field required boolean
+---@field validate nil|fun(value: any): boolean, string|nil
 
---- @class cheatoidlib.config.schema
---- @field [string] cheatoidlib.config.field
+---@class cheatoidlib.config.schema
+---@field [string] cheatoidlib.config.field
 
---- @class cheatoidlib.config
---- @field enable_cslua boolean Enable client-side Lua execution
---- @field debug_mode boolean Enable debug logging
---- @field max_cache_size integer Maximum cache size in MB
+---@class cheatoidlib.config
+---@field enable_cslua boolean Enable client-side Lua execution
+---@field debug_mode boolean Enable debug logging
+---@field max_cache_size integer Maximum cache size in MB
 
 --- Configuration field types
 local FieldType = oop.Enum("FieldType", {
@@ -36,7 +36,7 @@ local FieldType = oop.Enum("FieldType", {
 	"array",
 })
 
---- @type cheatoidlib.config.schema
+---@type cheatoidlib.config.schema
 local SCHEMA = {
 	enable_cslua = {
 		type = "boolean",
@@ -61,7 +61,7 @@ local SCHEMA = {
 	},
 }
 
---- @type cheatoidlib.config
+---@type cheatoidlib.config
 local DEFAULTS = {
 	enable_cslua = false,
 	debug_mode = false,
@@ -76,11 +76,11 @@ local config_data ---@type cheatoidlib.config|nil
 local file_handle ---@type File|nil
 
 --- Validates a value against a field schema
---- @param key string
---- @param value any
---- @param schema cheatoidlib.config.field
---- @return boolean valid
---- @return string|nil error
+---@param key string
+---@param value any
+---@param schema cheatoidlib.config.field
+---@return boolean valid
+---@return string|nil error
 local function validate_field(key, value, schema)
 	if value == nil then
 		if schema.required then
@@ -117,9 +117,9 @@ local function validate_field(key, value, schema)
 end
 
 --- Validates entire config against schema
---- @param data table
---- @return boolean valid
---- @return string? error
+---@param data table
+---@return boolean valid
+---@return string? error
 local function validate_config(data)
 	for key, field_schema in next, SCHEMA do
 		local value = data[key]
@@ -132,9 +132,9 @@ local function validate_config(data)
 end
 
 --- Merges source table into target recursively
---- @param target table
---- @param source table
---- @param overwrite boolean
+---@param target table
+---@param source table
+---@param overwrite boolean
 local function merge_tables(target, source, overwrite)
 	for k, v in next, source do
 		if type(v) == "table" and type(target[k]) == "table" then
@@ -147,8 +147,8 @@ local function merge_tables(target, source, overwrite)
 end
 
 --- Applies defaults to missing fields
---- @param data table|nil
---- @return cheatoidlib.config
+---@param data table|nil
+---@return cheatoidlib.config
 local function apply_defaults(data)
 	local result = {}
 	for k, v in next, DEFAULTS do
@@ -163,8 +163,8 @@ end
 local init, read, get, set, update, write, reset, isDirty, getSchema, getDefaults, registerField
 
 --- Initializes the config module
---- @return boolean success
---- @return string|nil error
+---@return boolean success
+---@return string|nil error
 function init()
 	if is_initialized then
 		return true
@@ -229,7 +229,7 @@ function init()
 end
 
 --- Reads current config
---- @return cheatoidlib.config|nil
+---@return cheatoidlib.config|nil
 function read()
 	if not is_initialized then
 		local ok, err = init()
@@ -241,9 +241,9 @@ function read()
 end
 
 --- Gets a specific config value
---- @param key string
---- @param default any
---- @return any
+---@param key string
+---@param default any
+---@return any
 function get(key, default)
 	if not is_initialized then
 		init()
@@ -258,10 +258,10 @@ function get(key, default)
 end
 
 --- Sets a specific config value
---- @param key string
---- @param value any
---- @return boolean success
---- @return string|nil error
+---@param key string
+---@param value any
+---@return boolean success
+---@return string|nil error
 function set(key, value)
 	if not is_initialized then
 		local ok, err = init()
@@ -285,10 +285,10 @@ function set(key, value)
 end
 
 --- Updates config with new values (partial update)
---- @param updates table
---- @param overwrite boolean
---- @return boolean success
---- @return string|nil error
+---@param updates table
+---@param overwrite boolean
+---@return boolean success
+---@return string|nil error
 function update(updates, overwrite)
 	if type(updates) ~= "table" then
 		return false, "updates must be a table"
@@ -318,9 +318,9 @@ function update(updates, overwrite)
 end
 
 --- Writes current config to file
---- @param force boolean|nil
---- @return boolean success
---- @return string|nil error
+---@param force boolean|nil
+---@return boolean success
+---@return string|nil error
 function write(force)
 	if not is_initialized then
 		return false, "Config not initialized"
@@ -350,7 +350,7 @@ function write(force)
 end
 
 --- Resets config to defaults and optionally deletes the file
---- @param delete_file boolean
+---@param delete_file boolean
 function reset(delete_file)
 	if file_handle then
 		file_handle:Close()
@@ -371,13 +371,13 @@ function reset(delete_file)
 end
 
 --- Checks if config has unsaved changes
---- @return boolean
+---@return boolean
 function isDirty()
 	return is_dirty
 end
 
 --- Gets the schema definition
---- @return cheatoidlib.config.schema
+---@return cheatoidlib.config.schema
 function getSchema()
 	local copy = {}
 	for k, v in next, SCHEMA do
@@ -387,7 +387,7 @@ function getSchema()
 end
 
 --- Gets default values
---- @return cheatoidlib.config
+---@return cheatoidlib.config
 function getDefaults()
 	local copy = {}
 	for k, v in next, DEFAULTS do
@@ -397,8 +397,8 @@ function getDefaults()
 end
 
 --- Registers a new field in the schema (for extensibility)
---- @param key string
---- @param field_schema cheatoidlib.config.field
+---@param key string
+---@param field_schema cheatoidlib.config.field
 function registerField(key, field_schema)
 	if not field_schema or not field_schema.type then
 		return error("Field schema must have a 'type' property", 2)

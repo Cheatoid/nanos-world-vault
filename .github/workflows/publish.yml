@@ -131,7 +131,7 @@ jobs:
       #    EXTRA_PACKAGE_PATHS: ""
       #    VERBOSE: true
 
-      #- name: Download nanos world server with steamcmd (linux)
+      #- name: Download nanos world server with SteamCMD (Linux)
       #  run: |
       #    # curl -o steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
       #    # tar -xvf steamcmd.tar.gz
@@ -144,7 +144,8 @@ jobs:
         # continue-on-error: true
         shell: pwsh
         run: |
-          # Download nanos world server with SteamCMD (windows)
+          # TODO: Perhaps ship NanosWorldServer binaries within repository, to speed up this process significantly...
+          # Download nanos world server with SteamCMD (Windows)
           New-Item -ItemType Directory -Path .server -Force | Out-Null
           & curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -o .server\steamcmd.zip
           Expand-Archive -Path .server\steamcmd.zip -DestinationPath .server
@@ -155,15 +156,7 @@ jobs:
           & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
           # Get token from environment variable
           $token = $env:NANOS_PERSONAL_ACCESS_TOKEN
-          # Setup nanos world server (generate Config.toml; required because --cli mode does not respect --token)
-          Push-Location ".server\server"
-          $j = Start-Job { & ".\NanosWorldServer.exe" --token "$using:token" --save }
-          Start-Sleep 5; Stop-Job $j; Remove-Job $j
-          # Finally upload packages using CLI mode
-          # & ".\NanosWorldServer.exe" --cli upload package cheatoid-library
-          Pop-Location
-          # Actually, use in-house packager
-          # dotnet run --project .packager/packager.csproj -c Release -- --cli ..\.server\server -r
+          # Run in-house packager (handles Config.toml generation automatically, because NanosWorldServer --cli does not respect --token)
           Push-Location "bin"
-          & ".\packager.exe" --upload-packages --cli "..\.server\server" --token "$token"
+          & ".\packager.exe" --release --upload-packages --cli "..\.server\server" --token "$token"
           Pop-Location

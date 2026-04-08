@@ -18,22 +18,22 @@ local either, safe_call = util.either, util.safe_call
 
 local HTTP_RequestAsync = assert(HTTP.RequestAsync, "HTTP.RequestAsync function is missing")
 
---- @alias HttpSuccessCallback fun(data: string, status: integer, url: string): any
---- @alias HttpFailCallback fun(data: string, status: integer, url: string): any
---- @alias HttpOptions table<string, any>
+---@alias HttpSuccessCallback fun(data: string, status: integer, url: string): any
+---@alias HttpFailCallback fun(data: string, status: integer, url: string): any
+---@alias HttpOptions table<string, any>
 
---- @alias HttpMethod fun(url: string, on_success: HttpSuccessCallback, on_fail: HttpFailCallback?, headers: table?): integer
---- @alias HttpMethod_Options fun(url: string, options: HttpOptions): integer
+---@alias HttpMethod fun(url: string, on_success: HttpSuccessCallback, on_fail: HttpFailCallback?, headers: table?): integer
+---@alias HttpMethod_Options fun(url: string, options: HttpOptions): integer
 
 --- HTTP wrapper
---- @class HttpWrapper
---- @field get HttpMethod|HttpMethod_Options
---- @field post HttpMethod|HttpMethod_Options
---- @field put HttpMethod|HttpMethod_Options
---- @field delete HttpMethod|HttpMethod_Options
---- @field head HttpMethod|HttpMethod_Options
---- @field patch HttpMethod|HttpMethod_Options
---- @field options HttpMethod|HttpMethod_Options
+---@class HttpWrapper
+---@field get HttpMethod|HttpMethod_Options
+---@field post HttpMethod|HttpMethod_Options
+---@field put HttpMethod|HttpMethod_Options
+---@field delete HttpMethod|HttpMethod_Options
+---@field head HttpMethod|HttpMethod_Options
+---@field patch HttpMethod|HttpMethod_Options
+---@field options HttpMethod|HttpMethod_Options
 local M = {}
 
 local function is_success_status(code)
