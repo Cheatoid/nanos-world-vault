@@ -164,6 +164,7 @@ jobs:
           Start-Sleep 5; Stop-Job $j; Remove-Job $j
           # Finally upload packages using CLI mode
           #& ".\NanosWorldServer.exe" --cli upload package cheatoid-library
+          Pop-Location
           # Actually, use in-house packager
           Push-Location "bin"
           & ".\packager.exe" --cli "..\.server\server" --token "$env:NANOS_PERSONAL_ACCESS_TOKEN" --upload-packages
