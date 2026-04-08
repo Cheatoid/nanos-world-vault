@@ -43,8 +43,8 @@ jobs:
 
       - name: Determine version (manual dispatch)
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
         shell: bash
+        run: |
           TAG="v${{ github.event.inputs.version }}"
           echo "TAG=$TAG" >> $GITHUB_ENV
           # Create a tag
@@ -52,15 +52,15 @@ jobs:
 
       - name: Determine version (tag push)
         if: ${{ github.event_name == 'push' }}
-        run: |
         shell: bash
+        run: |
           TAG="${{ github.ref_name }}"
           echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Generate changelog
         id: changelog
-        run: |
         shell: bash
+        run: |
           echo "## Changelog" > CHANGELOG.md
           echo "" >> CHANGELOG.md
 
@@ -95,8 +95,8 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Generate packages with packager
-        run: |
         shell: bash
+        run: |
           dotnet restore
           dotnet build -c Release
           dotnet run --project .packager/packager.csproj -c Release --
