@@ -142,8 +142,8 @@ jobs:
 
       - name: Publish packages
         # continue-on-error: true
+        shell: pwsh
         run: |
-          shell: pwsh
           # Download nanos world server with SteamCMD (windows)
           New-Item -ItemType Directory -Path .server -Force | Out-Null
           & curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -o .server\steamcmd.zip
