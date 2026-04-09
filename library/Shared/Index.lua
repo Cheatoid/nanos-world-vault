@@ -42,12 +42,14 @@ print("local package version: " .. tostring(Version.getCurrent()))
 local packageMetadata = require("metadata_gen")
 local packagePath = packageMetadata.path
 print("metadata path: " .. packagePath)
-print("metadata numver: " .. packageMetadata.num_version)
+print("metadata version: " .. packageMetadata.package_version)
 print("metadata tag: " .. packageMetadata.tag)
 print("metadata timestamp: " .. packageMetadata.timestamp)
+print("metadata branch: " .. packageMetadata.branch_name)
 
 if Server then
 	local http = require("HttpWrapper")
+	local xml = require("@cheatoid/standalone/xml")
 	local zip = require("@cheatoid/standalone/zip")
 	local tsl = require("@cheatoid/standalone/to_string_literal")
 	http.get(
@@ -55,7 +57,7 @@ if Server then
 		function(data, status, url)
 			print("vault/store status: " .. status)
 			print("vault/store data:")
-			print(tsl.to_string_literal(data))
+			print(data)
 			pcall(function()
 				local parsedJson = JSON.parse(data)
 				local storeVersion = parsedJson.payload.version.version
@@ -63,6 +65,8 @@ if Server then
 			end)
 		end
 	)
+	-- "https://raw.github.com/%s/%s/main/VERSION" -- latest repo release version
+	-- "https://github.com/Cheatoid/nanos-world-vault/releases.atom" -- release feed xml
 	http.get(
 		string.format(
 		--"https://github.com/%s/%s/raw/refs/heads/main/%s/Shared/metadata_gen.lua",
@@ -74,12 +78,14 @@ if Server then
 		function(data, status, url)
 			print("github status: " .. status)
 			print("github data:")
-			print(tsl.to_string_literal(data))
+			print(data)
 			pcall(function()
 				local githubMetadata = load(data)() ---@type metadata_gen
-				local githubNumVer, githubPrevHash, githubTag =
-					githubMetadata.num_version, githubMetadata.prev_hash, githubMetadata.tag
-				print("github latest numver: " .. githubNumVer)
+				local githubVersion, githubTagCount, githubPrevHash, githubTag =
+					githubMetadata.package_version, githubMetadata.tag_count, githubMetadata.prev_hash,
+					githubMetadata.tag
+				print("github version: " .. githubVersion)
+				print("github tag count: " .. githubTagCount)
 				print("github prev hash: " .. githubPrevHash)
 				print("github latest tag: " .. githubTag)
 				http.get(
