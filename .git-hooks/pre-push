@@ -1,3 +1,27 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
+while read local_ref local_sha remote_ref remote_sha
+do
+	case "$local_ref" in
+		refs/tags/v*.*.*)
+			TAG="${local_ref#refs/tags/}"
+
+			# Ignore prerelease tags
+			if [[ "$TAG" =~ -(preview|alpha|beta|rc|dev|nightly)\.[0-9]+$ ]]; then
+				continue
+			fi
+
+			echo "Stable tag detected: $TAG"
+
+			# Save the stable version to a file
+			echo "$TAG" > VERSION
+
+			git add VERSION
+			git commit -m "Update version for tag: $TAG"
+
+			git push origin HEAD
+			;;
+	esac
+done
 
 exit 0
