@@ -22,7 +22,7 @@
 			}
 		},
 		{
-			"label": "Run Packager (generate packages)",
+			"label": "Run Packager (generate packages into publish folder)",
 			"type": "shell",
 			"command": "dotnet",
 			"args": [
@@ -40,15 +40,40 @@
 			}
 		},
 		{
-			"label": "Update/Upload packages (local server + store)",
+			"label": "Upload packages to local server",
 			"type": "shell",
-			"command": "pwsh",
+			"command": "dotnet",
 			"args": [
-				"-NoProfile",
-				"-ExecutionPolicy",
-				"Bypass",
-				"-File",
-				"${workspaceFolder}/.tools/update_packages.ps1"
+				"run",
+				"--project",
+				"${workspaceFolder}/.packager/packager.csproj",
+				"--",
+				"--upload-packages",
+				"--cli",
+				"${workspaceFolder}/.." // assume NanosWorldServer is 1 level above
+			],
+			"problemMatcher": [],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "Upload packages to local server + store",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"run",
+				"--project",
+				"${workspaceFolder}/.packager/packager.csproj",
+				"--",
+				"--release",
+				"--upload-packages",
+				"--cli",
+				"${workspaceFolder}/.." // assume NanosWorldServer is 1 level above
 			],
 			"problemMatcher": [],
 			"group": "build",

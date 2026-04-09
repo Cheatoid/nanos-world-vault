@@ -1,5 +1,8 @@
 #!/usr/bin/env pwsh
 
+# Author: Cheatoid ~ https://github.com/Cheatoid
+# License: MIT
+
 <#
 .SYNOPSIS
 		Removes UTF-8 BOM headers from all Lua files in the repository.

@@ -12,9 +12,9 @@
 
 ---@type metadata_gen
 return {
-	timestamp = "2026-04-09 02:02:27",
+	timestamp = "2026-04-09 02:06:10",
 	num_version = 16,
-	prev_hash = "3d0bbbd0f784e8f73d6198c0af098daa31cb3ed6",
+	prev_hash = "5652a6eb326bcb8eff56c79304c9c944f6b6a80d",
 	tag = "v0.0.20",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",

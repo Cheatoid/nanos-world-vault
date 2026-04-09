@@ -7,4 +7,5 @@ local g, a, i, m, e, r, s = GAIMERS.g, GAIMERS.a, GAIMERS.i, GAIMERS.m, GAIMERS.
 i "RegexAPI"
 i "WebSocketAPI"
 
--- TODO: WebGL/WebGPU, WebRTC, Canvas APIs...
+-- https://github.com/Cheatoid/nanos-world-vault/issues/11
+-- https://github.com/Cheatoid/nanos-world-vault/issues/12

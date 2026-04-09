@@ -3,7 +3,7 @@
 
 const string ApiUrl = "https://api.nanos-world.com";
 const string PackageToml = "Package.toml";
-//const string UserAgent = "Cheatoid.NanosWorldPackager/v{0}";
+//const string UserAgent = "Cheatoid.NanosWorldPackager/v{0}"; // {0} is replaced with app version
 const string UserAgent =
 	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36";
 
@@ -11,41 +11,56 @@ c.OutputEncoding = Encoding.UTF8;
 //c.Clear();
 c.Title = $"nanos world packager (v{ToolVersion}) by Cheatoid";
 
-var cookies = new CookieContainer();
-using var http_handler = new SocketsHttpHandler();
-http_handler.AllowAutoRedirect = true;
-http_handler.ConnectTimeout = TimeSpan.FromSeconds(60);
-http_handler.MaxAutomaticRedirections = 10;
-http_handler.MaxConnectionsPerServer = 10;
-http_handler.SslOptions = new SslClientAuthenticationOptions
+// HTTP client setup boilerplate
+// @formatter:off
+var cookies = new CookieContainer(); // Container for HTTP cookies
+using var http_handler = new SocketsHttpHandler(); // HTTP handler using sockets
+http_handler.AllowAutoRedirect           = true;                           // Automatically follow HTTP redirects
+http_handler.ConnectTimeout              = TimeSpan.FromSeconds(60);       // Connection timeout: 60 seconds
+http_handler.MaxAutomaticRedirections    = 10;                             // Max redirects: 10
+http_handler.MaxConnectionsPerServer     = 10;                             // Max connections per server: 10
+http_handler.PooledConnectionIdleTimeout = TimeSpan.FromMinutes(5);        // Idle connection timeout: 5 minutes
+http_handler.PooledConnectionLifetime    = TimeSpan.FromMinutes(10);       // Connection lifetime: 10 minutes
+http_handler.AutomaticDecompression      = DecompressionMethods.All;       // Auto-decompress all formats (gzip, deflate, brotli)
+http_handler.Expect100ContinueTimeout    = TimeSpan.FromSeconds(10);       // Expect-100-continue timeout: 10 seconds
+http_handler.ResponseDrainTimeout        = TimeSpan.FromSeconds(5);        // Response drain timeout: 5 seconds
+http_handler.KeepAlivePingPolicy         = HttpKeepAlivePingPolicy.Always; // Keep-alive ping: always
+http_handler.KeepAlivePingTimeout        = TimeSpan.FromSeconds(20);       // Keep-alive ping timeout: 20 seconds
+http_handler.KeepAlivePingDelay          = TimeSpan.FromSeconds(60);       // Keep-alive ping delay: 60 seconds
+http_handler.PreAuthenticate             = false;                          // Pre-authenticate: disabled
+http_handler.CookieContainer             = cookies;                        // Set cookie container
+http_handler.UseCookies                  = false;                          // i luv cookies, but not for this
+http_handler.UseProxy                    = false;                          // Proxy: disabled
+http_handler.Proxy                       = null;                           // No proxy configured
+http_handler.SslOptions = new SslClientAuthenticationOptions               // SSL options configuration
 {
-	EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls13,
+	EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls13, // Use TLS 1.3
 };
-http_handler.SslOptions = null; // nanos still on TLS 1.1
-http_handler.CookieContainer = cookies;
-http_handler.UseCookies = true; // i luv cookies
-http_handler.UseProxy = false;
-http_handler.Proxy = null;
-using var http = new HttpClient(http_handler);
-http.BaseAddress = new Uri(ApiUrl, UriKind.Absolute);
-http.Timeout = http_handler.ConnectTimeout;
-http.DefaultRequestHeaders.UserAgent.ParseAdd(string.Format(UserAgent, ToolVersion));
-http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
-http.DefaultRequestHeaders.Host = http.BaseAddress.Host;
-http.DefaultRequestHeaders.Add("Origin", ApiUrl);
-http.DefaultRequestHeaders.Referrer = http.BaseAddress;
-http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+http_handler.SslOptions = null;                       // nanos still on TLS 1.1
+using var http = new HttpClient(http_handler);        // Create HTTP client with handler
+http.BaseAddress = new Uri(ApiUrl, UriKind.Absolute); // Set base API URL
+http.Timeout = http_handler.ConnectTimeout;           // Set timeout from handler
+#pragma warning disable CA2241
+http.DefaultRequestHeaders.UserAgent.ParseAdd(string.Format(UserAgent, ToolVersion)); // Set user agent header
+#pragma warning restore CA2241
+var jsonMediaType = new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json);
+http.DefaultRequestHeaders.Accept.Add(jsonMediaType);    // Accept JSON responses
+http.DefaultRequestHeaders.Host = http.BaseAddress.Host; // Set Host header
+http.DefaultRequestHeaders.Add("Origin", ApiUrl);        // Add Origin header
+http.DefaultRequestHeaders.Referrer = http.BaseAddress;  // Set Referrer header
+http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue // Cache control settings
 {
-	NoCache = true,
-	NoStore = true,
-	NoTransform = true,
-	MaxAge = http.Timeout,
-	MustRevalidate = true,
-	ProxyRevalidate = true,
-	SharedMaxAge = http.Timeout,
+	NoCache = true,              // No caching
+	NoStore = true,              // Do not store responses
+	NoTransform = true,          // Do not transform
+	MaxAge = http.Timeout,       // Max age
+	MustRevalidate = true,       // Must revalidate
+	ProxyRevalidate = true,      // Proxy must revalidate
+	SharedMaxAge = http.Timeout, // Shared max age
 };
-http.DefaultRequestHeaders.Pragma.Add(new NameValueHeaderValue("no-cache"));
+http.DefaultRequestHeaders.Pragma.Add(new NameValueHeaderValue("no-cache")); // Add Pragma: no-cache
 //http.DefaultRequestHeaders.IfModifiedSince = DateTime.UtcNow; // nah
+// @formatter:on
 
 var token = Environment.GetEnvironmentVariable("NANOS_PERSONAL_ACCESS_TOKEN");
 if (string.IsNullOrEmpty(token))
@@ -58,11 +73,12 @@ if (string.IsNullOrEmpty(token))
 }
 
 var serverFileName = OperatingSystem.IsWindows() ? "NanosWorldServer.exe" : "NanosWorldServer.sh";
-string? cliMode = null;
+string? cliMode = null; // directory to NanosWorldServer
 var isReleaseMode = false;
 var isUploadPackagesMode = false;
 string? singlePackage = null;
 
+// Parse arguments
 string[]? dirs;
 if (args is { Length: > 0 })
 {
@@ -77,6 +93,8 @@ if (args is { Length: > 0 })
 			{
 				tmp.Add(args[i]);
 			}
+			// ReSharper disable once RedundantAssignment
+			args = tmp.ToArray(); // for convenience (might be used in future)
 			// Stop processing args
 			break;
 		}
@@ -150,7 +168,7 @@ foreach (var dir in dirs)
 	Directory.CreateDirectory(publishFolder);
 
 	HashSet<string> directories = [];
-	HashSet<string> files = [];
+	HashSet<string> files = []; // non-binary files only
 	foreach (var path in paths)
 	{
 		c.ForegroundColor = ConsoleColor.White;
@@ -183,6 +201,7 @@ foreach (var dir in dirs)
 		}
 		else
 		{
+			// excluded
 			c.ForegroundColor = ConsoleColor.Red;
 			c.WriteLine(fileInfo.FullName);
 			c.ForegroundColor = ConsoleColor.White;
@@ -191,6 +210,7 @@ foreach (var dir in dirs)
 	c.WriteLine($"ℹ first pass added {directories.Count} directories");
 	c.WriteLine($"ℹ first pass added {files.Count} files");
 
+	// 2nd pass: fix all included (non-binary) files (remove UTF-8 BOM, remove \r)
 	foreach (var file in files)
 	{
 		Span<byte> bytes = File.ReadAllBytes(file);
@@ -320,10 +340,22 @@ foreach (var dir in dirs)
 				}
 			}
 			// TODO: Build dependency graph, generate require(), and inject dependencies (OOP framework)
-			// Create metadata/version file (metadata.g.lua under <package root>/Shared folder)
-			File.WriteAllText(Path.Combine(packageRoot, "Shared", "metadata.g.lua"),
+			// Create metadata/version file (metadata_gen.lua under <package root>/Shared folder)
+			File.WriteAllText(Path.Combine(packageRoot, "Shared", "metadata_gen.lua"),
 				$$"""
 				-- <auto-generated> This file has been auto generated. </auto-generated>
+
+				---@class metadata_gen
+				---@field timestamp string
+				---@field num_version integer
+				---@field prev_hash string
+				---@field tag string
+				---@field owner string
+				---@field repo string
+				---@field path string
+				---@field files string[]
+
+				---@type metadata_gen
 				return {
 					timestamp = "{{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}}",
 					num_version = {{numericVersion}},
@@ -678,7 +710,7 @@ foreach (var dir in dirs)
 						using var configProcess = Process.Start(psiConfig);
 						if (configProcess is null)
 						{
-							c.Error.WriteLine("❗ error: failed to start NanosWorldServer.exe to generate Config.toml");
+							c.Error.WriteLine($"❗ error: failed to start {serverFileName} to generate Config.toml");
 							continue;
 						}
 						await Task.Delay(TimeSpan.FromSeconds(5));
@@ -721,7 +753,7 @@ foreach (var dir in dirs)
 					using var process = Process.Start(psi);
 					if (process is null)
 					{
-						c.Error.WriteLine("❗ error: failed to start NanosWorldServer.exe");
+						c.Error.WriteLine($"❗ error: failed to start {serverFileName}");
 						continue;
 					}
 					await process.WaitForExitAsync();
@@ -762,7 +794,7 @@ foreach (var dir in dirs)
 			catch (Exception ex)
 			{
 				c.WriteLine(
-					$"⚠ warning: failed to create symbolic-link (run as Admin for symlink support): {ex.Message}");
+					$"⚠ warning: failed to create symbolic-link (run as admin for symlink support): {ex.Message}");
 				// Fallback: just copy the files or leave as extracted
 			}
 		}

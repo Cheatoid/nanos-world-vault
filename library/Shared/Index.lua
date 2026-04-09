@@ -35,11 +35,11 @@ local g, a, i, m, e, r, s = gaimers.g, gaimers.a, gaimers.i, gaimers.m, gaimers.
 
 local Version = require("Version")
 local packageName = Package.GetName()
-print("package name: " .. packageName)
---print("package version: " .. Package.GetVersion())
-print("package version: " .. tostring(Version.getCurrent()))
+--print("package name: " .. packageName)
+--print("local package version: " .. Package.GetVersion())
+print("local package version: " .. tostring(Version.getCurrent()))
 
-local packageMetadata = require("metadata.g")
+local packageMetadata = require("metadata_gen")
 local packagePath = packageMetadata.path
 print("metadata path: " .. packagePath)
 print("metadata numver: " .. packageMetadata.num_version)
@@ -48,33 +48,54 @@ print("metadata timestamp: " .. packageMetadata.timestamp)
 
 if Server then
 	local http = require("HttpWrapper")
+	local zip = require("@cheatoid/standalone/zip")
+	local tsl = require("@cheatoid/standalone/to_string_literal")
 	http.get(
 		string.format("https://api.nanos-world.com/store/packages/%s", packageName),
 		function(data, status, url)
-			print("store status: " .. status)
-			print("store data: " .. data)
-			local parsedJson = JSON.parse(data)
-			local storeVersion = parsedJson.payload.version.version
-			print("store version: " .. storeVersion)
+			print("vault/store status: " .. status)
+			print("vault/store data:")
+			print(tsl.to_string_literal(data))
+			pcall(function()
+				local parsedJson = JSON.parse(data)
+				local storeVersion = parsedJson.payload.version.version
+				print("vault/store version: " .. storeVersion)
+			end)
 		end
 	)
 	http.get(
 		string.format(
-		--"https://github.com/%s/%s/raw/refs/heads/main/%s/Shared/metadata.g.lua",
-			"https://raw.github.com/%s/%s/main/%s/Shared/metadata.g.lua", -- shorter
+		--"https://github.com/%s/%s/raw/refs/heads/main/%s/Shared/metadata_gen.lua",
+			"https://raw.github.com/%s/%s/main/%s/Shared/metadata_gen.lua", -- shorter
 			packageMetadata.owner,
 			packageMetadata.repo,
 			packagePath
 		),
 		function(data, status, url)
 			print("github status: " .. status)
-			print("github data: " .. data)
-			local githubMetadata = load(data)() ---@type { num_version: integer, prev_hash: string, tag: string }
-			local githubNumVer, githubPrevHash, githubTag =
-				githubMetadata.num_version, githubMetadata.prev_hash, githubMetadata.tag
-			print("github latest numver: " .. githubNumVer)
-			print("github prev hash: " .. githubPrevHash)
-			print("github latest tag: " .. githubTag)
+			print("github data:")
+			print(tsl.to_string_literal(data))
+			pcall(function()
+				local githubMetadata = load(data)() ---@type metadata_gen
+				local githubNumVer, githubPrevHash, githubTag =
+					githubMetadata.num_version, githubMetadata.prev_hash, githubMetadata.tag
+				print("github latest numver: " .. githubNumVer)
+				print("github prev hash: " .. githubPrevHash)
+				print("github latest tag: " .. githubTag)
+				http.get(
+					string.format(
+						"https://github.com/%s/%s/releases/download/%s/%s.zip",
+						githubMetadata.owner or "Cheatoid",
+						githubMetadata.repo or "nanos-world-vault",
+						githubTag,
+						packageName
+					),
+					function(zipData, zipStatus, zipUrl)
+						print("latest zip status: " .. zipStatus)
+						print("latest zip size: " .. #zipData .. " bytes")
+					end
+				)
+			end)
 		end
 	)
 end
@@ -99,3 +120,22 @@ i "ConVar"
 g "oop" "@cheatoid/oop/oop"
 m "BroadcastLua"
 r "ClientsideLua"
+
+--[[
+Reminder to myself: Package-Release cycle
+
+0. for simplicity: run .\.scripts\ver.ps1 -next
+
+1. increase version in `Package.toml`
+2. create a version commit `v{version from Package.toml}`, and locally tag the commit
+3. make code changes and commit all staged changes
+4. run packager (regenerates `metadata_gen.lua`), stage all `metadata_gen.lua` files
+
+(tag exists to enable locally staged version at this point, it has to exist to have correct versioning)
+
+when ready to release it:
+5. remove the previously created local tag (created in step 2.)
+6. run packager again (regenerates `metadata_gen.lua`), stage all `metadata_gen.lua` files, and then commit+push
+7. create a tag on the pushed commit from previous step 6 (use the same version as in step 2.)
+8. push the tag
+]]

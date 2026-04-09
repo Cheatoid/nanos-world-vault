@@ -571,11 +571,14 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Private files
-.private/
+/.private/
 
 # Neovim
-.nvim-win64/
-.nvim-data/
+/.nvim-win64/
+/.nvim-data/
 
 # SteamCMD & server
+.logs/
+.sentry-native/
 .server/
+Packages/

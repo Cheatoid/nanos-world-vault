@@ -5,6 +5,11 @@
 
 // TODO: Use C# records instead of classes... and perhaps go into preview C# 15 and use unions...
 
+// TODO: Add models for these (for completeness):
+// - api.nanos-world.com/tags
+// - api.nanos-world.com/user/teams
+// - api.nanos-world.com/store/assets?page_size=100
+
 namespace NanosWorld;
 
 #if JSON_USE_SNAKE_CASE

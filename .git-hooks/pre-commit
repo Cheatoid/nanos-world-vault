@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# Run packager to regenerate metadata.g.lua files for all packages
+# Run packager to regenerate metadata_gen.lua files for all packages
 echo "Running packager to update metadata..."
 
 # Use pre-built binary if available, otherwise fallback to dotnet run
@@ -18,7 +18,7 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-# Stage any updated metadata.g.lua files (included in current commit)
-git add -A "*/Shared/metadata.g.lua"
+# Stage any updated metadata_gen.lua files (included in current commit)
+git add -A "*/Shared/metadata_gen.lua"
 
 exit 0
