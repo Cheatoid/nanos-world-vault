@@ -39,7 +39,9 @@ http_handler.SslOptions = new SslClientAuthenticationOptions               // SS
 http_handler.SslOptions = null;                       // nanos still on TLS 1.1
 using var http = new HttpClient(http_handler);        // Create HTTP client with handler
 http.BaseAddress = new Uri(ApiUrl, UriKind.Absolute); // Set base API URL
-http.Timeout = http_handler.ConnectTimeout;           // Set timeout from handler
+http.Timeout = http_handler.ConnectTimeout;           // Use timeout from handler (60 seconds)
+http.DefaultRequestVersion = HttpVersion.Version30;   // HTTP 3.0
+http.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
 #pragma warning disable CA2241
 http.DefaultRequestHeaders.UserAgent.ParseAdd(string.Format(UserAgent, ToolVersion)); // Set user agent header
 #pragma warning restore CA2241
@@ -372,11 +374,15 @@ foreach (var dir in dirs)
 			var filesHash = new Dictionary<string, string>(filesOrdered.Length);
 			foreach (var file in filesOrdered)
 			{
+				// Exclude metadata_gen from files_hash table because it is auto-generated, therefore it never matches
+				if (file == "Shared/metadata_gen.lua")
+					continue;
 				var fileHash = ComputeSHA256(File.ReadAllBytes(Path.Combine(packageRoot, file)));
 				filesHash.Add(file, fileHash);
 			}
 			// Convert filesHash Dictionary to Lua table format (using same ordering as filesOrdered)
 			var filesHashLua = "{\n\t\t" + string.Join(",\n\t\t", filesOrdered
+				.Where(filesHash.ContainsKey)
 				.Select(f => $"[\"{f}\"] = \"{filesHash[f]}\"")) + "\n\t}";
 			File.WriteAllText(Path.Combine(packageRoot, "Shared", "metadata_gen.lua"),
 				$$"""
@@ -474,7 +480,8 @@ foreach (var dir in dirs)
 					{
 						if (!Directory.Exists(cliMode) || !File.Exists(Path.Combine(cliMode, serverFileName)))
 						{
-							c.Error.WriteLine($"❗ server executable not found: {Path.Combine(cliMode, serverFileName)}");
+							c.Error.WriteLine(
+								$"❗ server executable not found: {Path.Combine(cliMode, serverFileName)}");
 							return 3;
 						}
 						isUploadPackagesMode = true;

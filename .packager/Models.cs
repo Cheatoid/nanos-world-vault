@@ -233,7 +233,7 @@ public sealed partial class Package
 		[J("download_url")]      public Uri? DownloadUrl { get; set; }
 		[J("published")]         public bool Published { get; set; }
 		[J("ratings")]           public Ratings Ratings { get; set; }
-		[J("links")]             public dynamic Links { get; set; } // TODO: Ask Syed ... Uri[] ?
+		[J("links")]             public dynamic Links { get; set; } // TODO: Ask Syed... Uri[]? (added, but never used)
 		[J("tags")]              public Tag[] Tags { get; set; }
 		[J("team_id")]           public Guid TeamId { get; set; }
 		[J("team")]              public Team Team { get; set; }

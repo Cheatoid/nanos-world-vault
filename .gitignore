@@ -582,3 +582,9 @@ vite.config.ts.timestamp-*
 .sentry-native/
 .server/
 Packages/
+
+ # Temporary/Downloads
+ .temp/
+ .tmp/
+ .download/
+ .downloads/
