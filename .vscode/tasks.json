@@ -50,7 +50,8 @@
 				"--",
 				"--upload-packages",
 				"--cli",
-				"${workspaceFolder}/.." // assume NanosWorldServer is 1 level above
+				"${workspaceFolder}/.."
+				// assume NanosWorldServer is 1 level above
 			],
 			"problemMatcher": [],
 			"group": "build",
@@ -73,7 +74,47 @@
 				"--release",
 				"--upload-packages",
 				"--cli",
-				"${workspaceFolder}/.." // assume NanosWorldServer is 1 level above
+				"${workspaceFolder}/.."
+				// assume NanosWorldServer is 1 level above
+			],
+			"problemMatcher": [],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "Download+Generate+Build Lua 5.4.8 binaries (CMake)",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"${workspaceFolder}/.lua/make.cmd",
+				"5.4.8",
+				"--download"
+			],
+			"problemMatcher": [],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "Download+Generate+Build Lua 5.4.8 binaries (Premake5)",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"${workspaceFolder}/.lua/make.cmd",
+				"5.4.8",
+				"--download",
+				"--premake"
 			],
 			"problemMatcher": [],
 			"group": "build",

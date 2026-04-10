@@ -4,8 +4,6 @@
 local ID = "allowcslua"
 local Enabled = false -- disabled by default
 
-local ref = require("@cheatoid/ref/ref")
-
 local load, pcall, select = load, pcall, select
 local table_concat, table_pack, table_unpack = table.concat, table.pack, table.unpack
 local HASH = "#"
@@ -31,18 +29,26 @@ local function RunLua(...)
 end
 
 if Server then
+	-- Import reference wrapper
+	local ref = require("@cheatoid/ref/ref")
+
 	--Enabled = Server.GetCustomSettings().enable_cslua or Enabled
 	--Enabled = Package.GetPersistentData("enable_cslua") or Enabled
 	--print("initial enable_cslua:", Enabled)
 
 	local Config = require("Config")
-	local cfg = Config.read()
+	-- Create a reactive Config reference, which will automatically flush to disk upon changing a field
+	local cfg = (ref >> Config.read())(function(_, _)
+		Config.write(true)
+	end) ---@type cheatoidlib.config
 	Enabled = Config.get("enable_cslua", cfg.enable_cslua)
 	print("[config] enable_cslua:", Enabled)
 
 	-- Broadcast the convar's value initially
 	Server.SetValue(ID, Enabled, true)
 	--Events.BroadcastRemote(ID, Enabled)
+
+	Enabled = nil -- NOTE: Stop using 'Enabled' after this point, and use ref cfg.enable_cslua instead :)
 
 	-- When the server is starting
 	--Server.Subscribe("Start", function()
@@ -58,8 +64,8 @@ if Server then
 	-- When a Player joins the server
 	Player.Subscribe("Spawn", function(ply)
 		--print("[Player.Spawn]", ply:GetSteamID())
-		--Events.BroadcastRemote(ID, Enabled)
-		Events.CallRemote(ID, ply, Enabled)
+		--Events.BroadcastRemote(ID, cfg.enable_cslua)
+		Events.CallRemote(ID, ply, cfg.enable_cslua)
 	end)
 
 	-- When the Player leaves the server
@@ -69,7 +75,7 @@ if Server then
 
 	-- C2S: Query the convar's value; old approach
 	--Events.SubscribeRemote(ID, function(player)
-	--	Events.CallRemote(ID, player, Enabled)
+	--	Events.CallRemote(ID, player, cfg.enable_cslua)
 	--end)
 
 	-- ConVar to enable/disable client-side Lua console command
@@ -83,37 +89,36 @@ if Server then
 			if num then
 				valid_input = true
 				if num ~= 0 then
-					changed = not Enabled
+					changed = cfg.enable_cslua == false
 					if changed then
-						Enabled = true
-						Server.SetValue(ID, Enabled, true)
-						Events.BroadcastRemote(ID, Enabled)
+						cfg.enable_cslua = true -- automatically flushes to disk
 					end
 				else --if state == "0" then
-					changed = Enabled
+					changed = cfg.enable_cslua == true
 					if changed then
-						Enabled = false
-						Server.SetValue(ID, Enabled, true)
-						Events.BroadcastRemote(ID, Enabled)
+						cfg.enable_cslua = false -- automatically flushes to disk
 					end
 				end
 			end
 		end
 
 		if valid_input then
+			local enabled = cfg.enable_cslua
 			if changed then -- only broadcast a message if the state has changed
-				Package.SetPersistentData("enable_cslua", Enabled)
-				Config.set("enable_cslua", Enabled)
-				Config.write(true)
-				Console.Log("Client-side Lua command has been %s", Enabled and "enabled" or "disabled")
+				Server.SetValue(ID, enabled, true)
+				Events.BroadcastRemote(ID, enabled)
+				Package.SetPersistentData("enable_cslua", enabled)
+				--Config.set("enable_cslua", enabled)
+				--Config.write(true)
+				Console.Log("Client-side Lua command has been %s", enabled and "enabled" or "disabled")
 				Chat.BroadcastMessage(
 					string.format(
 						"Client-side Lua command has been %s",
-						Enabled and "<green>enabled</>" or "<red>disabled</>"
+						enabled and "<green>enabled</>" or "<red>disabled</>"
 					)
 				)
 			else
-				Console.Log("Client-side Lua command is already %s", Enabled and "enabled" or "disabled")
+				Console.Log("Client-side Lua command is already %s", enabled and "enabled" or "disabled")
 			end
 		else
 			Console.Warn(
@@ -130,6 +135,7 @@ else
 		--Enabled = not not enable -- old approach; make sure we have a boolean
 		Enabled = Client.GetValue(ID, enable) -- new approach
 		if Enabled then
+			-- FIXME: Go upvote https://feedback.nanos-world.com/p/client-setconsoleenabled
 			Client.SetDebugEnabled(true)
 		end
 	end)

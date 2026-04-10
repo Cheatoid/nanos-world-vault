@@ -1,11 +1,15 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
-local g, a, i, m, e, r, s = GAIMERS.g, GAIMERS.a, GAIMERS.i, GAIMERS.m, GAIMERS.e, GAIMERS.r, GAIMERS.s
+-- Pre-load modules to cache them and prevent runtime errors.
+-- As a library, we only ensure modules are pre-loaded.
+-- Consumers will receive the cached values.
+-- Consumers should use GAIMERS or Package.Export to expose them globally.
 
--- Import clientside libs, and export them as globals
-i "RegexAPI"
-i "WebSocketAPI"
+require "RegexAPI"
+require "WebSocketAPI"
+
+--include "WebSocketTest.lua" -- call using original 'require'
 
 -- https://github.com/Cheatoid/nanos-world-vault/issues/11
 -- https://github.com/Cheatoid/nanos-world-vault/issues/12

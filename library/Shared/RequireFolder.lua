@@ -3,36 +3,27 @@
 
 -- Localized global functions for better performance
 local next = next
+local string = require "@cheatoid/standard/string"
 local string_gsub = string.gsub
+local string_match = string.match
+local string_path_clean = string.path_clean
 local Package_GetFiles = Package.GetFiles
 local Package_GetDirectories = Package.GetDirectories
-local Package_Require = Package.Require -- _G.require
-
---- Normalizes a path by converting backslashes to forward slashes and removing redundant slashes.
----@param path string The path to normalize.
----@return string string The normalized path.
-local function normalize_path(path)
-	-- Replace backslashes with forward slashes
-	path = string_gsub(path, "\\", "/")
-	-- Collapse multiple slashes into one
-	path = string_gsub(path, "/+", "/")
-	-- Remove trailing slash unless it's the root
-	if #path > 1 then
-		path = string_gsub(path, "/$", "")
-	end
-	return path
-end
+local Package_Require = Package.Require -- or require
 
 --- Recursively collects all Lua files from the specified path.
 ---@param path string The directory path to collect files from.
 ---@param out table Array to append collected file paths to (modified in-place).
 ---@param recursive boolean|nil If true, recursively collects files from subfolders.
 local function collect_files(path, out, recursive)
-	path = normalize_path(path)
+	path = string_path_clean(path)
 	-- Collect lua files in this folder
 	local files = Package_GetFiles(path, ".lua")
 	for _, file in next, files do
-		out[#out + 1] = normalize_path(file)
+		-- Skip .d.lua declaration files (LuaLS type definitions)
+		if not string_match(file, "%.[Dd]%.[Ll][Uu][Aa]$") then
+			out[#out + 1] = string_path_clean(file)
+		end
 	end
 	-- Recurse into subfolders if enabled
 	if recursive then
@@ -48,7 +39,7 @@ end
 ---@param load_priority table|nil Optional table defining load priority (array entries = load order, keyed entries = skip/override).
 ---@param recursive boolean|nil If true, recursively collects files from subfolders.
 local function RequireFolder(folder, load_priority, recursive)
-	folder = normalize_path(folder)
+	folder = string_path_clean(folder)
 
 	-- Gather all files
 	local all_files = {}
@@ -70,7 +61,7 @@ local function RequireFolder(folder, load_priority, recursive)
 		-- Array entries => priority load order
 		for key, entry in next, load_priority do
 			if type(key) == "number" then
-				local entry = normalize_path(entry) -- intentionally shadowing to avoid reassigning loop variable
+				local entry = string_path_clean(entry) -- intentionally shadowing to avoid reassigning loop variable
 				priority_order[#priority_order + 1] = entry
 				priority_lookup[entry] = true
 			end
@@ -79,7 +70,7 @@ local function RequireFolder(folder, load_priority, recursive)
 		-- Keyed entries => skip or override
 		for key, value in next, load_priority do
 			if type(key) == "string" then
-				priority_lookup[normalize_path(key)] = value ~= false
+				priority_lookup[string_path_clean(key)] = value ~= false
 			end
 		end
 	end

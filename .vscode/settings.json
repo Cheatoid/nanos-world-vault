@@ -22,5 +22,42 @@
 	"Lua.hint.setType": true,
 	"Lua.hint.enable": true,
 	"editor.inlayHints.enabled": "offUnlessPressed",
-	"vscord.enable": true
+	"vscord.enable": true,
+	"editor.largeFileOptimizations": true,
+	"files.exclude": {
+		"**/.git/**": true,
+		"**/.idea/**": true,
+		".lua/**": true,
+		".nvim-data/**": true,
+		".nvim-win64/**": true,
+		"**/.vs/**": true,
+		"**/bin/**": true,
+		"**/obj/**": true,
+		"**/node_modules/**": true,
+		"coc": true,
+		"publish/**": true
+	},
+	"files.watcherExclude": {
+		"**/.git/**": true,
+		"**/.idea/**": true,
+		".lua/**": true,
+		".nvim-data/**": true,
+		".nvim-win64/**": true,
+		"**/.vs/**": true,
+		"**/bin/**": true,
+		"**/obj/**": true,
+		"**/node_modules/**": true,
+		"coc": true,
+		"publish/**": true
+	},
+	"search.exclude": {
+		"**/.git/**": true,
+		"**/.idea/**": true,
+		"**/.vs/**": true,
+		".lua/**": true,
+		"**/bin/**": true,
+		"**/obj/**": true,
+		"**/node_modules/**": true,
+		"publish/**": true
+	}
 }

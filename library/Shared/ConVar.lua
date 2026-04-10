@@ -1,7 +1,7 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
--- Source-engine inspired ConVar library.
+-- Source-engine inspired ConVar library
 
 -- Localized global functions for better performance
 local next = next
@@ -22,7 +22,7 @@ local Server_SetValue = Server and Server.SetValue
 local Events_SubscribeRemote, Events_CallRemote = Events.SubscribeRemote, Events.CallRemote
 local Events_BroadcastRemote = Events.BroadcastRemote
 
--- TODO: Release command-line parser library.
+-- TODO: Release command-line/chat-commands parser library; https://github.com/Cheatoid/nanos-world-vault/issues/13
 
 -- Use Patcher to monkey-patch Console.RegisterCommand globally (make it case-insensitive)
 do
@@ -40,12 +40,13 @@ do
 		:apply()
 	--_G.Console.RegisterCommand = Hook_ConsoleRegisterCommand
 	--Console.Subscribe("PlayerSubmit", function(text)
-	--	-- TODO: Handle console commands using case-insensitive matching (requires parser library).
+	--	-- TODO: Handle console commands using case-insensitive matching (requires parser library)
 	--end)
 end
 local Console_RegisterCommand = Console.RegisterCommand -- cache it after hooking
 
 -- Import dependencies
+local oop = require("@cheatoid/oop/oop")
 local tc = require("@cheatoid/standalone/type_check")
 local check_type, opt_type = tc.check, tc.opt
 local check_boolean, check_integer, check_string, check_number, check_function, check_userdata =
@@ -62,9 +63,9 @@ local table_make_case_insensitive = table.make_case_insensitive
 local ConVar = {}
 ConVar.__index = ConVar
 
--- ==========================================
+----------------------------------------------------------------------
 -- Internal Configuration & State
--- ==========================================
+----------------------------------------------------------------------
 local REPLICATE_EVENT = "ConVar::Replicate"
 local REQUEST_EVENT = "ConVar::RequestSet"
 local USERINFO_EVENT = "ConVar::UserInfoUpdate"
@@ -76,11 +77,11 @@ local ConVars = table_make_case_insensitive()
 
 --- Registry for per-player userinfo (client -> server convars).
 --- Structure: [Player] = { [string: cvar_name] = string: cvar_value }
-local PlayerUserInfos = setmetatable({}, { __mode = "k" }) -- TODO: Perhaps store directly on Player objects to persist state (support hotreload)
+local PlayerUserInfos = oop.WeakTable() -- TODO: Perhaps store directly on Player objects to persist state (support hotreload)
 
--- ==========================================
+----------------------------------------------------------------------
 -- Flags Definition
--- ==========================================
+----------------------------------------------------------------------
 
 --- Bitwise flags for ConVar behavior
 local FLAG
@@ -200,9 +201,9 @@ local function StringToValue(str, targetType)
 	return str
 end
 
--- ==========================================
+----------------------------------------------------------------------
 -- Metamethods
--- ==========================================
+----------------------------------------------------------------------
 
 --- Allows converting the ConVar object directly to a string representation of its value.
 --- Usage: print(my_cvar)
@@ -211,9 +212,9 @@ function ConVar:__tostring()
 	return self:GetString()
 end
 
--- ==========================================
+----------------------------------------------------------------------
 -- Constructor
--- ==========================================
+----------------------------------------------------------------------
 
 --- Creates a new ConVar or retrieves an existing one.
 ---@param name string The name of the console variable.
@@ -313,9 +314,9 @@ function ConVar:__call(...)
 	return ConVar_Register(...)
 end
 
--- ==========================================
+----------------------------------------------------------------------
 -- Core Methods
--- ==========================================
+----------------------------------------------------------------------
 
 --- Internal handler for console input.
 ---@param args table
@@ -499,9 +500,9 @@ function ConVar:RemoveChangeCallback(func)
 	self.Callbacks[func] = nil
 end
 
--- ==========================================
+----------------------------------------------------------------------
 -- Static / Global Methods
--- ==========================================
+----------------------------------------------------------------------
 
 --- Retrieves a ConVar by name.
 ---@param name string The name of the console variable.
@@ -566,9 +567,9 @@ local function ConVar_GetIterator()
 end
 ConVar.GetIterator = ConVar_GetIterator
 
--- ==========================================
+----------------------------------------------------------------------
 -- Networking Setup & Utility Commands
--- ==========================================
+----------------------------------------------------------------------
 
 --- Helper function to format and log a single ConVar entry.
 --- Returns true if the ConVar should be displayed, false otherwise.

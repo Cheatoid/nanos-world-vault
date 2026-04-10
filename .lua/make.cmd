@@ -46,6 +46,8 @@ goto parse_args
 
 rem Download Lua source if requested
 if %USE_DOWNLOAD%==1 (
+	echo Cleaning up (previous) %LUA_VERSION%...
+	rmdir /s /q "%LUA_SOURCE_DIR%" >NUL 2>&1
 	echo Downloading Lua %LUA_VERSION%...
 	call "download.cmd" --version "%LUA_VERSION%" --force
 	if %ERRORLEVEL% neq 0 (

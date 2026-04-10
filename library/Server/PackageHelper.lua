@@ -27,6 +27,7 @@ local self = {
 local function IsPackageNameValid(name)
 	return name and type(name) == "string" --and string_match(name, "^[%w%-%._]*$")
 end
+
 self.HasValidName = IsPackageNameValid
 
 --- Retrieves all available packages as a lookup table.
@@ -39,6 +40,7 @@ local function GetAllPackages()
 	end
 	return lookup
 end
+
 self.GetAll = GetAllPackages
 
 --- Checks if a package with the given name exists.
@@ -47,6 +49,7 @@ self.GetAll = GetAllPackages
 local function PackageExists(name)
 	return GetAllPackages()[name] ~= nil
 end
+
 self.Exists = PackageExists
 
 --- Finds packages matching a name or pattern.
@@ -74,6 +77,7 @@ local function GetMatchingPackages(name)
 	end
 	return matches
 end
+
 self.Match = GetMatchingPackages
 
 --- Reloads all packages with optional filtering.
@@ -87,6 +91,7 @@ local function ReloadAllPackages(onlyLoaded, typeFilter)
 		pcall(Server_ReloadPackage, p.name)
 	end
 end
+
 self.ReloadAll = ReloadAllPackages
 
 --- Reloads specified packages or all packages if none specified.
@@ -110,6 +115,7 @@ local function ReloadPack(...)
 		end
 	end
 end
+
 self.Reload = ReloadPack
 
 --- Loads specified packages or all packages if none specified.
@@ -135,6 +141,7 @@ local function LoadPack(...)
 		end
 	end
 end
+
 self.Load = LoadPack
 
 --- Unloads specified packages or all loaded packages if none specified.
@@ -160,6 +167,7 @@ local function UnloadPack(...)
 		end
 	end
 end
+
 self.Unload = UnloadPack
 
 -- Register console commands

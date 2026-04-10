@@ -1,8 +1,9 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
--- Import dependencies
-r "@cheatoid/standard/table"
+-- Robust configuration module (provides type-safe configuration/settings management with schema validation)
+
+-- TODO: Add support for in-memory configuration
 
 local oop = require("@cheatoid/oop/oop")
 local try = require("@cheatoid/standalone/try").try
@@ -10,7 +11,8 @@ local ref = require("@cheatoid/ref/ref")
 	.new -- TODO: use this for managing config state externally (+ auto-save on field write)
 
 local File = File
-local JSON = JSON
+local StringifyJSON = JSON.stringify
+local ParseJSON = JSON.parse
 
 ---@class cheatoidlib.config.field
 ---@field type "boolean"|"string"|"number"|"integer"|"table"
@@ -27,7 +29,7 @@ local JSON = JSON
 ---@field max_cache_size integer Maximum cache size in MB
 
 --- Configuration field types
-local FieldType = oop.Enum("FieldType", {
+local FieldType = oop.enum("FieldType", {
 	"boolean",
 	"string",
 	"number",
@@ -175,7 +177,7 @@ function init()
 		if not File.Exists(FILE_NAME) then
 			-- Create a default config file
 			config_data = apply_defaults()
-			local json_str = JSON.stringify(config_data)
+			local json_str = StringifyJSON(config_data)
 			local file = File(FILE_NAME, true)
 			file:Write(json_str)
 			file:Flush()
@@ -198,7 +200,7 @@ function init()
 		if not content or content == "" then
 			config_data = apply_defaults()
 		else
-			local ok, parsed = pcall(JSON.parse, content)
+			local ok, parsed = pcall(ParseJSON, content)
 			if not ok or type(parsed) ~= "table" then
 				return error("Failed to parse config file as JSON", 2)
 			end
@@ -207,7 +209,7 @@ function init()
 			local valid, err = validate_config(parsed)
 			if not valid then
 				-- Log warning but still use defaults for invalid fields
-				print(string.format("[Config] Validation warning: %s", err))
+				print(string.format("[config] Validation warning: %s", err))
 			end
 
 			config_data = apply_defaults(parsed)
@@ -234,7 +236,7 @@ function read()
 	if not is_initialized then
 		local ok, err = init()
 		if not ok then
-			print(string.format("[Config] Init failed: %s", err))
+			print(string.format("[config] Init failed: %s", err))
 		end
 	end
 	return config_data
@@ -331,7 +333,7 @@ function write(force)
 	end
 
 	local success, err = pcall(function()
-		local json_str = JSON.stringify(config_data or DEFAULTS)
+		local json_str = StringifyJSON(config_data or DEFAULTS)
 		local file = File(FILE_NAME, true)
 		if not file:IsGood() then
 			return error("Failed to open config file for writing", 2)
