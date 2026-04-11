@@ -130,8 +130,8 @@ end
 -- Consumers will receive the cached values.
 -- Consumers should use GAIMERS or Package.Export to expose them globally.
 
-local RequireFolder = require "RequireFolder"
-RequireFolder("@cheatoid/standard")
+local requiref = require "RequireFolder"
+requiref "@cheatoid/standard"
 
 require "@cheatoid/standalone/debug_helper"
 require "@cheatoid/standalone/type_check"
