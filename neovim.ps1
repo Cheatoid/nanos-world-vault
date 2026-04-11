@@ -1,4 +1,7 @@
-#$env:NVIM_APPNAME = "my-custom-config";
+# Author: Cheatoid ~ https://github.com/Cheatoid
+# License: MIT
+
+#$env:NVIM_APPNAME = "my-custom-config"; # nah don't use this
 
 # Get the absolute path of the current directory
 $repoRoot = Get-Location

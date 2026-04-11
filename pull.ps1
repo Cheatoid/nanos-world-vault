@@ -1,3 +1,6 @@
+# Author: Cheatoid ~ https://github.com/Cheatoid
+# License: MIT
+
 param(
 	# The root directory to perform the pull in
 	$baseDir = ".",
