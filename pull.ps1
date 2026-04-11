@@ -6,7 +6,7 @@ param(
 	$baseDir = ".",
 
 	# How deep down you want to look for .git folders
-	$depth = 2,
+	$depth = 3,
 
 	# The command you want to perform
 	$cmd = "pull"
