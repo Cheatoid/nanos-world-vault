@@ -26,7 +26,7 @@ local Events_BroadcastRemote = Events.BroadcastRemote
 
 -- Use Patcher to monkey-patch Console.RegisterCommand globally (make it case-insensitive)
 do
-	local Patcher = require("@cheatoid/standalone/patcher")
+	local Patcher = require "@cheatoid/standalone/patcher"
 	local function Hook_ConsoleRegisterCommand(orig, command, ...)
 		if command then
 			command = string_lower(command)
@@ -46,15 +46,15 @@ end
 local Console_RegisterCommand = Console.RegisterCommand -- cache it after hooking
 
 -- Import dependencies
-local oop = require("@cheatoid/oop/oop")
-local tc = require("@cheatoid/standalone/type_check")
+local oop = require "@cheatoid/oop/oop"
+local tc = require "@cheatoid/standalone/type_check"
 local check_type, opt_type = tc.check, tc.opt
 local check_boolean, check_integer, check_string, check_number, check_function, check_userdata =
 	tc.check_boolean, tc.check_integer, tc.check_string, tc.check_number, tc.check_function, tc.check_userdata
 local opt_number, opt_string, opt_table = tc.opt_number, tc.opt_string, tc.opt_table
 local make_bit_enum = require("@cheatoid/standalone/5_3/bitflags").make_enum
 
-local table = require("@cheatoid/standard/table")
+local table = require "@cheatoid/standard/table"
 local table_ensure_lazy = table.ensure_lazy
 local table_make_case_insensitive = table.make_case_insensitive
 
@@ -70,12 +70,12 @@ local REPLICATE_EVENT = "ConVar::Replicate"
 local REQUEST_EVENT = "ConVar::RequestSet"
 local USERINFO_EVENT = "ConVar::UserInfoUpdate"
 
---- Registry of all registered ConVars (case-insensitive keyed).
+--- Registry of all registered ConVars (case-insensitive keyed).<br>
 --- Structure: [string: name] = ConVar: object
 ---@type table<string, ConVar>
 local ConVars = table_make_case_insensitive()
 
---- Registry for per-player userinfo (client -> server convars).
+--- Registry for per-player userinfo (client -> server convars).<br>
 --- Structure: [Player] = { [string: cvar_name] = string: cvar_value }
 local PlayerUserInfos = oop.WeakTable() -- TODO: Perhaps store directly on Player objects to persist state (support hotreload)
 
@@ -205,7 +205,7 @@ end
 -- Metamethods
 ----------------------------------------------------------------------
 
---- Allows converting the ConVar object directly to a string representation of its value.
+--- Allows converting the ConVar object directly to a string representation of its value.<br>
 --- Usage: print(my_cvar)
 ---@return string string
 function ConVar:__tostring()
@@ -571,7 +571,7 @@ ConVar.GetIterator = ConVar_GetIterator
 -- Networking Setup & Utility Commands
 ----------------------------------------------------------------------
 
---- Helper function to format and log a single ConVar entry.
+--- Helper function to format and log a single ConVar entry.<br>
 --- Returns true if the ConVar should be displayed, false otherwise.
 ---@param name string The ConVar name.
 ---@param cvar ConVar The ConVar object.

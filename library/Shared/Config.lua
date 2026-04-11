@@ -5,9 +5,9 @@
 
 -- TODO: Add support for in-memory configuration
 
-local oop = require("@cheatoid/oop/oop")
+local oop = require "@cheatoid/oop/oop"
 local try = require("@cheatoid/standalone/try").try
-local ref = require("@cheatoid/ref/ref")
+local ref = require "@cheatoid/ref/ref"
 	.new -- TODO: use this for managing config state externally (+ auto-save on field write)
 
 local File = File

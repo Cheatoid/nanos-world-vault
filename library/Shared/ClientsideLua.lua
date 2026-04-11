@@ -7,12 +7,12 @@ local Enabled = false -- disabled by default
 local load, pcall, select = load, pcall, select
 local table_concat, table_pack, table_unpack = table.concat, table.pack, table.unpack
 local HASH = "#"
-local function RunLua(...)
+local function RunLua(...) -- TODO: Move to Lua lib (runlua)
 	if select(HASH, ...) == 0 then
 		return
 	end
 	local code = table_concat({ ... }, " ")
-	local fn, err = load(code, nil, "t")
+	local fn, err = load(code, nil, "t", _ENV or _G)
 	if type(fn) == "function" then
 		local packed = table_pack(pcall(fn))
 		local ok, res = packed[1], packed[2]
@@ -30,13 +30,13 @@ end
 
 if Server then
 	-- Import reference wrapper
-	local ref = require("@cheatoid/ref/ref")
+	local ref = require "@cheatoid/ref/ref"
 
 	--Enabled = Server.GetCustomSettings().enable_cslua or Enabled
 	--Enabled = Package.GetPersistentData("enable_cslua") or Enabled
 	--print("initial enable_cslua:", Enabled)
 
-	local Config = require("Config")
+	local Config = require "Config"
 	-- Create a reactive Config reference, which will automatically flush to disk upon changing a field
 	local cfg = (ref >> Config.read())(function(_, _)
 		Config.write(true)

@@ -13,7 +13,7 @@ local Server_ReloadPackage = Server.ReloadPackage
 local Server_UnloadPackage = Server.UnloadPackage
 
 ---@class PackageHelper
---- Package management utility library for Nanos World.
+--- Package management utility library for Nanos World.<br>
 --- Provides console commands & functions for loading, unloading, and reloading packages with pattern matching support.
 local self = {
 	--- Prefix for pattern matching mode
@@ -52,7 +52,7 @@ end
 
 self.Exists = PackageExists
 
---- Finds packages matching a name or pattern.
+--- Finds packages matching a name or pattern.<br>
 --- Supports exact name matching and pattern matching (when name starts with PatternPrefix).
 ---@param name string The package name or pattern to match.
 ---@return table table A table of matching package names.
@@ -94,7 +94,7 @@ end
 
 self.ReloadAll = ReloadAllPackages
 
---- Reloads specified packages or all packages if none specified.
+--- Reloads specified packages or all packages if none specified.<br>
 --- Supports pattern matching for multiple packages.
 ---@param ... string Variable number of package names or patterns to reload.
 local function ReloadPack(...)
@@ -118,7 +118,7 @@ end
 
 self.Reload = ReloadPack
 
---- Loads specified packages or all packages if none specified.
+--- Loads specified packages or all packages if none specified.<br>
 --- Supports pattern matching for multiple packages.
 ---@param ... string Variable number of package names or patterns to load.
 local function LoadPack(...)
@@ -144,7 +144,7 @@ end
 
 self.Load = LoadPack
 
---- Unloads specified packages or all loaded packages if none specified.
+--- Unloads specified packages or all loaded packages if none specified.<br>
 --- Supports pattern matching for multiple packages.
 ---@param ... string Variable number of package names or patterns to unload.
 local function UnloadPack(...)

@@ -9,11 +9,11 @@
 if "INTERNAL - Package Lua Implementation" == debug.getinfo(require, "S").source then
 	_G.include = require -- preserve original 'require' function as global 'include'
 	_ENV.include = require
-	require = require("@cheatoid/patch/require.lua")
+	require = require "@cheatoid/patch/require.lua"
 end
 
 -- Import dependencies
-local gaimers = require("@cheatoid/loader/gaimers")
+local gaimers = require "@cheatoid/loader/gaimers"
 gaimers.r = require
 
 -- Globally export GAIMERS + require for convenience
@@ -27,13 +27,13 @@ gaimers.r = require
 -- TODO: Auto initialize modules/packages, add dependency injection...
 ----------------------------------------------------------------------
 
-local Version = require("Version")
+local Version = require "Version"
 local packageName = Package.GetName()
 --print("package name: " .. packageName)
 --print("local package version: " .. Package.GetVersion())
 print("local package version: " .. tostring(Version.getCurrent()))
 
-local packageMetadata = require("metadata_gen")
+local packageMetadata = require "metadata_gen"
 local packagePath = packageMetadata.path
 print("metadata path: " .. packagePath)
 print("metadata version: " .. packageMetadata.package_version)
@@ -46,10 +46,10 @@ local CLIENT = type(Client) == "table"
 --print(SERVER, CLIENT)
 
 if SERVER then
-	local http = require("HttpWrapper")
-	local xml = require("@cheatoid/standalone/xml")
-	local zip = require("@cheatoid/standalone/zip")
-	local tsl = require("@cheatoid/standalone/to_string_literal")
+	local http = require "HttpWrapper"
+	local xml = require "@cheatoid/standalone/xml"
+	local zip = require "@cheatoid/standalone/zip"
+	local tsl = require "@cheatoid/standalone/to_string_literal"
 	local target_url = string.format("https://api.nanos-world.com/store/packages/%s", packageName)
 	print("asset store url: " .. target_url)
 	http.get(
@@ -71,7 +71,7 @@ if SERVER then
 	-- "https://github.com/%s/%s/releases.atom" -- release feed xml
 	--target_url = "https://github.com/Cheatoid/nanos-world-vault/releases.atom"
 	target_url = string.format(
-	--"https://github.com/%s/%s/raw/refs/heads/main/%s/Shared/metadata_gen.lua",
+	--"https://github.com/%s/%s/raw/refs/heads/%s/%s/Shared/metadata_gen.lua",
 		"https://raw.github.com/%s/%s/%s/%s/Shared/metadata_gen.lua", -- shorter
 		packageMetadata.owner,
 		packageMetadata.repo,
@@ -130,17 +130,17 @@ end
 -- Consumers will receive the cached values.
 -- Consumers should use GAIMERS or Package.Export to expose them globally.
 
-local RequireFolder = require("RequireFolder")
+local RequireFolder = require "RequireFolder"
 RequireFolder("@cheatoid/standard")
 
-require("@cheatoid/standalone/debug_helper")
-require("@cheatoid/standalone/type_check")
-require("@cheatoid/oop/oop")
-require("Config")
-require("ConVar")
-require("BroadcastLua")
-require("ClientsideLua")
-require("HttpWrapper")
+require "@cheatoid/standalone/debug_helper"
+require "@cheatoid/standalone/type_check"
+require "@cheatoid/oop/oop"
+require "Config"
+require "ConVar"
+require "BroadcastLua"
+require "ClientsideLua"
+require "HttpWrapper"
 
 --[[
 Reminder to myself: Package-Release cycle

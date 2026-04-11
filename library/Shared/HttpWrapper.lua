@@ -5,12 +5,12 @@
 local M = {}
 
 -- Import dependencies
-local math = require("@cheatoid/standard/math")
-local string = require("@cheatoid/standard/string")
-local table = require("@cheatoid/standard/table")
---local curry = require("@cheatoid/standalone/curry")
-local tc = require("@cheatoid/standalone/type_check")
-local util = require("@cheatoid/standalone/util")
+local math = require "@cheatoid/standard/math"
+local string = require "@cheatoid/standard/string"
+local table = require "@cheatoid/standard/table"
+--local curry = require "@cheatoid/standalone/curry"
+local tc = require "@cheatoid/standalone/type_check"
+local util = require "@cheatoid/standalone/util"
 
 -- Localized global functions for better performance
 local inrange = math.inrange
@@ -24,19 +24,6 @@ local HTTP_RequestAsync = assert(HTTP.RequestAsync, "HTTP.RequestAsync function 
 ---@alias HttpSuccessCallback fun(data: string, status: integer, url: string): unknown
 ---@alias HttpFailCallback fun(data: string, status: integer, url: string): unknown
 ---@alias HttpOptions table<string, any>
-
----@alias HttpMethod fun(url: string, on_success: HttpSuccessCallback, on_fail: HttpFailCallback?, headers: HttpOptions?): unknown
----@alias HttpMethod_Options fun(url: string, options: HttpOptions): unknown
-
---- HTTP wrapper
----class HttpWrapper
----field get HttpMethod|HttpMethod_Options
----field post HttpMethod|HttpMethod_Options
----field put HttpMethod|HttpMethod_Options
----field delete HttpMethod|HttpMethod_Options
----field head HttpMethod|HttpMethod_Options
----field patch HttpMethod|HttpMethod_Options
----field options HttpMethod|HttpMethod_Options
 
 local function is_internal_error(code)
 	-- Failed before HTTP request is even being made (e.g. invalid URL, or firewall issue)
@@ -83,7 +70,7 @@ M.is_server_error_status = is_server_error_status
 
 --- Common MIME types / Content-Type values for convenience
 ---@class ContentTypes
-M.CONTENT_TYPES = {
+M.CONTENT_TYPES = table.make_case_insensitive {
 	-- Text types
 	TEXT_PLAIN = "text/plain",
 	TEXT_HTML = "text/html",
@@ -132,14 +119,15 @@ M.CONTENT_TYPES = {
 	FONT_OTF = "font/otf",
 }
 
+M.ContentTypes = M.CONTENT_TYPES
 M.MEDIA_TYPES = M.CONTENT_TYPES
+M.MediaTypes = M.CONTENT_TYPES
 
 --- Generic HTTP method wrapper
----@param method string
----@return HttpMethod|HttpMethod_Options
+---@param method integer Specify HTTPMethod
 local function HttpWrapper(method)
-	---@overload HttpMethod
-	---@overload HttpMethod_Options
+	---@overload fun(url: string, on_success: HttpSuccessCallback, on_fail: HttpFailCallback?, headers: HttpOptions?): unknown
+	---@overload fun(url: string, options: HttpOptions): unknown
 	return function(url, on_success, on_fail, headers)
 		check_string(1)
 		local callback
@@ -217,7 +205,7 @@ end
 --	M[string.lower(method)] = HttpWrapper(v)
 --end
 
---- Perform an HTTP GET request.
+--- Perform an HTTP GET request.<br>
 --- The GET method requests a representation of the specified resource. Requests using GET should only retrieve data.
 ---@param url string The URL to request.
 ---@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
@@ -241,7 +229,7 @@ end
 --- ```
 M.get = HttpWrapper(HTTPMethod.GET)
 
---- Perform an HTTP POST request.
+--- Perform an HTTP POST request.<br>
 --- The POST method submits an entity to the specified resource, often causing a change in state or side effects on the server.
 ---@param url string The URL to request.
 ---@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
@@ -258,7 +246,7 @@ M.get = HttpWrapper(HTTPMethod.GET)
 --- ```
 M.post = HttpWrapper(HTTPMethod.POST)
 
---- Perform an HTTP PUT request.
+--- Perform an HTTP PUT request.<br>
 --- The PUT method replaces all current representations of the target resource with the request payload.
 ---@param url string The URL to request.
 ---@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
@@ -275,7 +263,7 @@ M.post = HttpWrapper(HTTPMethod.POST)
 --- ```
 M.put = HttpWrapper(HTTPMethod.PUT)
 
---- Perform an HTTP DELETE request.
+--- Perform an HTTP DELETE request.<br>
 --- The DELETE method deletes the specified resource.
 ---@param url string The URL to request.
 ---@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
@@ -292,7 +280,7 @@ M.put = HttpWrapper(HTTPMethod.PUT)
 --- ```
 M.delete = HttpWrapper(HTTPMethod.DELETE)
 
---- Perform an HTTP HEAD request.
+--- Perform an HTTP HEAD request.<br>
 --- The HEAD method asks for a response identical to a GET request, but without the response body.
 ---@param url string The URL to request.
 ---@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
@@ -309,7 +297,7 @@ M.delete = HttpWrapper(HTTPMethod.DELETE)
 --- ```
 M.head = HttpWrapper(HTTPMethod.HEAD)
 
---- Perform an HTTP PATCH request.
+--- Perform an HTTP PATCH request.<br>
 --- The PATCH method applies partial modifications to a resource.
 ---@param url string The URL to request.
 ---@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
@@ -326,7 +314,7 @@ M.head = HttpWrapper(HTTPMethod.HEAD)
 --- ```
 M.patch = HttpWrapper(HTTPMethod.PATCH)
 
---- Perform an HTTP OPTIONS request.
+--- Perform an HTTP OPTIONS request.<br>
 --- The OPTIONS method describes the communication options for the target resource.
 ---@param url string The URL to request.
 ---@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
