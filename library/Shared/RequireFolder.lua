@@ -4,7 +4,6 @@
 -- Localized global functions for better performance
 local next = next
 local string = require "@cheatoid/standard/string"
-local string_gsub = string.gsub
 local string_match = string.match
 local string_path_clean = string.path_clean
 local Package_GetFiles = Package.GetFiles

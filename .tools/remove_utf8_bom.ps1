@@ -44,8 +44,7 @@ Write-Host "Searching for Lua files in: $Path" -ForegroundColor Green
 # Get all Lua files recursively
 $luaFiles = Get-ChildItem -Path $Path -Filter "*.lua" -Recurse -File
 
-if ($luaFiles.Count -eq 0)
-{
+if ($luaFiles.Count -eq 0) {
 	Write-Host "No Lua files found." -ForegroundColor Yellow
 	exit 0
 }
@@ -55,12 +54,10 @@ Write-Host "Found $( $luaFiles.Count ) Lua files. Checking for UTF-8 BOM..." -Fo
 $filesWithBom = 0
 $filesProcessed = 0
 
-foreach ($file in $luaFiles)
-{
+foreach ($file in $luaFiles) {
 	$filesProcessed++
 
-	try
-	{
+	try {
 		# Read file as bytes to check for BOM
 		$bytes = [System.IO.File]::ReadAllBytes($file.FullName)
 
@@ -68,18 +65,15 @@ foreach ($file in $luaFiles)
 		if ($bytes.Length -ge 3 -and
 			$bytes[0] -eq $BOM[0] -and
 			$bytes[1] -eq $BOM[1] -and
-			$bytes[2] -eq $BOM[2])
-		{
+			$bytes[2] -eq $BOM[2]) {
 
 			$filesWithBom++
 			$relativePath = Resolve-Path -Path $file.FullName -Relative
 
-			if ($DryRun)
-			{
+			if ($DryRun) {
 				Write-Host "[DRY RUN] Would remove BOM from: $relativePath" -ForegroundColor Cyan
 			}
-			else
-			{
+			else {
 				# Remove BOM by creating new byte array without first 3 bytes
 				$contentWithoutBom = $bytes[3..($bytes.Length - 1)]
 
@@ -90,14 +84,12 @@ foreach ($file in $luaFiles)
 			}
 		}
 	}
-	catch
-	{
+	catch {
 		Write-Host "Error processing file $( $file.FullName ): $( $_.Exception.Message )" -ForegroundColor Red
 	}
 
 	# Progress indicator
-	if ($filesProcessed % 10 -eq 0)
-	{
+	if ($filesProcessed % 10 -eq 0) {
 		Write-Progress -Activity "Processing Lua files" -Status "Checked $filesProcessed of $( $luaFiles.Count ) files" -PercentComplete (($filesProcessed / $luaFiles.Count) * 100)
 	}
 }
@@ -108,11 +100,9 @@ Write-Host "Processing complete!" -ForegroundColor Green
 Write-Host "Total Lua files processed: $( $luaFiles.Count )" -ForegroundColor White
 Write-Host "Files with UTF-8 BOM found: $filesWithBom" -ForegroundColor White
 
-if ($DryRun)
-{
+if ($DryRun) {
 	Write-Host "Dry run mode - no files were modified." -ForegroundColor Yellow
 }
-else
-{
+else {
 	Write-Host "BOM headers removed from $filesWithBom files." -ForegroundColor Green
 }

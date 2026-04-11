@@ -21,11 +21,11 @@
 		Force using stable VS Code (do not use Insiders even if present).
 
 .EXAMPLE
-		.\launcher-code.ps1 -Insiders
+		.\code.ps1 -Insiders
 		Force open VS Code Insiders with a clean profile.
 
 .EXAMPLE
-		.\launcher-code.ps1 -NoInsiders -TempBase C:\tmp\vscode-clean
+		.\code.ps1 -NoInsiders -TempBase C:\tmp\vscode-clean
 		Force open stable VS Code and use the provided TempBase for user-data and extensions.
 #>
 
@@ -37,19 +37,16 @@ param(
 )
 
 # Validate mutual exclusivity
-if ($TempBase -and $KeepTemp)
-{
+if ($TempBase -and $KeepTemp) {
 	Write-Error "Parameters -TempBase and -KeepTemp are mutually exclusive. Choose one."
 	exit 2
 }
-if ($Insiders -and $NoInsiders)
-{
+if ($Insiders -and $NoInsiders) {
 	Write-Error "Parameters -Insiders and -NoInsiders are mutually exclusive. Choose one."
 	exit 2
 }
 
-function New-UniqueTempDir
-{
+function New-UniqueTempDir {
 	param([string]$prefix = "vscode-clean")
 	$base = [System.IO.Path]::GetTempPath()
 	$name = "$prefix-$([guid]::NewGuid().ToString('N') )"
@@ -58,8 +55,7 @@ function New-UniqueTempDir
 	return $path
 }
 
-function Find-CodeBinary
-{
+function Find-CodeBinary {
 	param(
 		[switch]$preferInsiders, # if set, prefer Insiders
 		[switch]$forceInsiders,  # if set, require Insiders
@@ -67,8 +63,7 @@ function Find-CodeBinary
 	)
 
 	# Helper to return structured result
-	function _result($path, $flavor)
-	{
+	function _result($path, $flavor) {
 		return @{ Path = $path; Mode = "cli"; Flavor = $flavor }
 	}
 
@@ -76,18 +71,14 @@ function Find-CodeBinary
 	$insidersCmd = Get-Command "code-insiders" -ErrorAction SilentlyContinue
 	$stableCmd = Get-Command "code" -ErrorAction SilentlyContinue
 
-	if ($forceInsiders)
-	{
-		if ($insidersCmd)
-		{
+	if ($forceInsiders) {
+		if ($insidersCmd) {
 			return _result $insidersCmd.Source "insiders"
 		}
 		# try common user-local/system locations for Insiders before failing
 	}
-	if ($forceStable)
-	{
-		if ($stableCmd)
-		{
+	if ($forceStable) {
+		if ($stableCmd) {
 			return _result $stableCmd.Source "stable"
 		}
 		# try common user-local/system locations for stable before failing
@@ -96,32 +87,25 @@ function Find-CodeBinary
 	# If neither forced, respect preferInsiders flag or default prefer Insiders
 	$preferIns = $preferInsiders -or (-not $forceStable -and -not $forceInsiders)
 
-	if ($preferIns)
-	{
-		if ($insidersCmd)
-		{
+	if ($preferIns) {
+		if ($insidersCmd) {
 			return _result $insidersCmd.Source "insiders"
 		}
-		if ($stableCmd)
-		{
+		if ($stableCmd) {
 			return _result $stableCmd.Source "stable"
 		}
 	}
-	else
-	{
-		if ($stableCmd)
-		{
+	else {
+		if ($stableCmd) {
 			return _result $stableCmd.Source "stable"
 		}
-		if ($insidersCmd)
-		{
+		if ($insidersCmd) {
 			return _result $insidersCmd.Source "insiders"
 		}
 	}
 
 	# Platform-specific candidate lists, preferring user-local installs and Insiders first (or stable first if forced)
-	if ($IsWindows)
-	{
+	if ($IsWindows) {
 		$candidatesInsiders = @(
 			"$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\bin\code-insiders.cmd",
 			"$env:ProgramFiles\Microsoft VS Code Insiders\bin\code-insiders.cmd",
@@ -133,23 +117,17 @@ function Find-CodeBinary
 			"$env:ProgramFiles(x86)\Microsoft VS Code\bin\code.cmd"
 		)
 
-		if ($forceInsiders)
-		{
-			foreach ($p in $candidatesInsiders)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		if ($forceInsiders) {
+			foreach ($p in $candidatesInsiders) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "insiders"
 				}
 			}
 			return $null
 		}
-		if ($forceStable)
-		{
-			foreach ($p in $candidatesStable)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		if ($forceStable) {
+			foreach ($p in $candidatesStable) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "stable"
 				}
 			}
@@ -157,23 +135,18 @@ function Find-CodeBinary
 		}
 
 		# Default: prefer Insiders
-		foreach ($p in $candidatesInsiders)
-		{
-			if ($p -and (Test-Path $p))
-			{
+		foreach ($p in $candidatesInsiders) {
+			if ($p -and (Test-Path $p)) {
 				return _result $p "insiders"
 			}
 		}
-		foreach ($p in $candidatesStable)
-		{
-			if ($p -and (Test-Path $p))
-			{
+		foreach ($p in $candidatesStable) {
+			if ($p -and (Test-Path $p)) {
 				return _result $p "stable"
 			}
 		}
 	}
-	elseif ($IsMacOS)
-	{
+	elseif ($IsMacOS) {
 		$candidatesInsiders = @(
 			"$HOME/.local/bin/code-insiders",
 			"/usr/local/bin/code-insiders",
@@ -189,59 +162,43 @@ function Find-CodeBinary
 			"$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
 		)
 
-		if ($forceInsiders)
-		{
-			foreach ($p in $candidatesInsiders)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		if ($forceInsiders) {
+			foreach ($p in $candidatesInsiders) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "insiders"
 				}
 			}
 			return $null
 		}
-		if ($forceStable)
-		{
-			foreach ($p in $candidatesStable)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		if ($forceStable) {
+			foreach ($p in $candidatesStable) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "stable"
 				}
 			}
 			return $null
 		}
 
-		if ($preferIns)
-		{
-			foreach ($p in $candidatesInsiders)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		if ($preferIns) {
+			foreach ($p in $candidatesInsiders) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "insiders"
 				}
 			}
-			foreach ($p in $candidatesStable)
-			{
-				if ($p -and (Test-Path $p))
-				{
+			foreach ($p in $candidatesStable) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "stable"
 				}
 			}
 		}
-		else
-		{
-			foreach ($p in $candidatesStable)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		else {
+			foreach ($p in $candidatesStable) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "stable"
 				}
 			}
-			foreach ($p in $candidatesInsiders)
-			{
-				if ($p -and (Test-Path $p))
-				{
+			foreach ($p in $candidatesInsiders) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "insiders"
 				}
 			}
@@ -249,8 +206,7 @@ function Find-CodeBinary
 
 		return $null
 	}
-	else
-	{
+	else {
 		# Linux
 		$candidatesInsiders = @(
 			"$HOME/.local/bin/code-insiders",
@@ -265,59 +221,43 @@ function Find-CodeBinary
 			"/snap/bin/code"
 		)
 
-		if ($forceInsiders)
-		{
-			foreach ($p in $candidatesInsiders)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		if ($forceInsiders) {
+			foreach ($p in $candidatesInsiders) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "insiders"
 				}
 			}
 			return $null
 		}
-		if ($forceStable)
-		{
-			foreach ($p in $candidatesStable)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		if ($forceStable) {
+			foreach ($p in $candidatesStable) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "stable"
 				}
 			}
 			return $null
 		}
 
-		if ($preferIns)
-		{
-			foreach ($p in $candidatesInsiders)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		if ($preferIns) {
+			foreach ($p in $candidatesInsiders) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "insiders"
 				}
 			}
-			foreach ($p in $candidatesStable)
-			{
-				if ($p -and (Test-Path $p))
-				{
+			foreach ($p in $candidatesStable) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "stable"
 				}
 			}
 		}
-		else
-		{
-			foreach ($p in $candidatesStable)
-			{
-				if ($p -and (Test-Path $p))
-				{
+		else {
+			foreach ($p in $candidatesStable) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "stable"
 				}
 			}
-			foreach ($p in $candidatesInsiders)
-			{
-				if ($p -and (Test-Path $p))
-				{
+			foreach ($p in $candidatesInsiders) {
+				if ($p -and (Test-Path $p)) {
 					return _result $p "insiders"
 				}
 			}
@@ -329,12 +269,9 @@ function Find-CodeBinary
 
 # Prepare temp dirs
 $createdTempBase = $false
-if ($TempBase)
-{
-	try
-	{
-		if (-not (Test-Path -LiteralPath $TempBase))
-		{
+if ($TempBase) {
+	try {
+		if (-not (Test-Path -LiteralPath $TempBase)) {
 			New-Item -ItemType Directory -Path $TempBase -Force | Out-Null
 			$createdTempBase = $true
 		}
@@ -343,14 +280,12 @@ if ($TempBase)
 		New-Item -ItemType Directory -Path $userDataDir -Force | Out-Null
 		New-Item -ItemType Directory -Path $extensionsDir -Force | Out-Null
 	}
-	catch
-	{
+	catch {
 		Write-Error "Failed to create TempBase directories: $_"
 		exit 3
 	}
 }
-else
-{
+else {
 	$userDataDir = New-UniqueTempDir "vscode-user"
 	$extensionsDir = New-UniqueTempDir "vscode-ext"
 }
@@ -360,25 +295,20 @@ Write-Host "Extensions dir: $extensionsDir"
 
 # Determine find options from switches
 $findParams = @{ }
-if ($Insiders)
-{
+if ($Insiders) {
 	$findParams["forceInsiders"] = $true
 }
-elseif ($NoInsiders)
-{
+elseif ($NoInsiders) {
 	$findParams["forceStable"] = $true
 }
-else
-{
+else {
 	$findParams["preferInsiders"] = $true
 }
 
 $found = Find-CodeBinary @findParams
 
-try
-{
-	if ($found)
-	{
+try {
+	if ($found) {
 		$exe = $found.Path
 		$args = @(
 			"--user-data-dir", $userDataDir,
@@ -390,51 +320,39 @@ try
 		$proc = Start-Process -FilePath $exe -ArgumentList $args -PassThru
 		Wait-Process -Id $proc.Id
 	}
-	else
-	{
-		if ($IsMacOS)
-		{
+	else {
+		if ($IsMacOS) {
 			# macOS fallback: prefer Insiders app if Insiders forced or available, else stable
 			$insidersApp = "Visual Studio Code - Insiders"
 			$stableApp = "Visual Studio Code"
 			$args = @("--user-data-dir", $userDataDir, "--extensions-dir", $extensionsDir, "--disable-extensions")
 
-			if ($Insiders)
-			{
-				if (Test-Path "/Applications/Visual Studio Code - Insiders.app")
-				{
+			if ($Insiders) {
+				if (Test-Path "/Applications/Visual Studio Code - Insiders.app") {
 					$appToOpen = $insidersApp
 				}
-				else
-				{
+				else {
 					Write-Error "Insiders requested but not found on this system."
 					exit 6
 				}
 			}
-			elseif ($NoInsiders)
-			{
-				if (Test-Path "/Applications/Visual Studio Code.app")
-				{
+			elseif ($NoInsiders) {
+				if (Test-Path "/Applications/Visual Studio Code.app") {
 					$appToOpen = $stableApp
 				}
-				else
-				{
+				else {
 					Write-Error "Stable VS Code requested but not found on this system."
 					exit 7
 				}
 			}
-			else
-			{
-				if (Test-Path "/Applications/Visual Studio Code - Insiders.app")
-				{
+			else {
+				if (Test-Path "/Applications/Visual Studio Code - Insiders.app") {
 					$appToOpen = $insidersApp
 				}
-				elseif (Test-Path "/Applications/Visual Studio Code.app")
-				{
+				elseif (Test-Path "/Applications/Visual Studio Code.app") {
 					$appToOpen = $stableApp
 				}
-				else
-				{
+				else {
 					Write-Error "Neither VS Code Insiders nor stable app found."
 					exit 4
 				}
@@ -444,8 +362,7 @@ try
 			$proc = Start-Process -FilePath "open" -ArgumentList "-a", $appToOpen, "--args", $args -PassThru
 			Wait-Process -Id $proc.Id
 		}
-		else
-		{
+		else {
 			Write-Error "'code-insiders' and 'code' not found on PATH and no known fallback available for this OS."
 			Write-Host "Install the CLI or run the editor manually with:"
 			Write-Host "  --user-data-dir $userDataDir --extensions-dir $extensionsDir --disable-extensions"
@@ -453,30 +370,24 @@ try
 		}
 	}
 }
-finally
-{
+finally {
 	# Cleanup logic
-	if ($KeepTemp)
-	{
+	if ($KeepTemp) {
 		Write-Host "Kept temp dirs (requested):"
 		Write-Host "  $userDataDir"
 		Write-Host "  $extensionsDir"
 	}
-	elseif ($TempBase)
-	{
+	elseif ($TempBase) {
 		Write-Host "TempBase was provided; leaving directories in place:"
 		Write-Host "  $userDataDir"
 		Write-Host "  $extensionsDir"
 	}
-	else
-	{
-		try
-		{
+	else {
+		try {
 			Remove-Item -LiteralPath $userDataDir -Recurse -Force -ErrorAction SilentlyContinue
 			Remove-Item -LiteralPath $extensionsDir -Recurse -Force -ErrorAction SilentlyContinue
 		}
-		catch
-		{
+		catch {
 			Write-Warning "Failed to remove temp dirs: $_"
 		}
 	}
