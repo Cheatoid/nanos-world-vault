@@ -4,6 +4,8 @@
 -- Convenience HTTP library wrapper (provides simple callback & case-insensitive options overloads)
 local M = {}
 
+-- TODO: async/await support (with promises from oop)
+
 -- Import dependencies
 local math = require "@cheatoid/standard/math"
 local string = require "@cheatoid/standard/string"

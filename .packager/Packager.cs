@@ -1310,6 +1310,9 @@ static byte[] CreateZipFromFiles(
 			var entryName = Path.GetRelativePath(basePath, file).Replace('\\', '/');
 			if (!includeEntryNameRegexes.Any(r => r.IsMatch('/' + entryName)))
 				continue;
+			// Explicitly exclude .tests.lua files
+			if (entryName.EndsWith(".tests.lua", StringComparison.OrdinalIgnoreCase))
+				continue;
 			try
 			{
 				c.WriteLine($"ℹ adding file to zip: {entryName}");
@@ -1336,7 +1339,9 @@ static byte[] CreateZipFromFilesNoFilter(
 		foreach (var file in files)
 		{
 			var entryName = Path.GetRelativePath(basePath, file).Replace('\\', '/');
-			// Files are already filtered above, no need to filter again
+			// Files are already filtered above, but still exclude .tests.lua
+			if (entryName.EndsWith(".tests.lua", StringComparison.OrdinalIgnoreCase))
+				continue;
 			try
 			{
 				c.WriteLine($"ℹ adding file to zip: {entryName}");
@@ -1545,7 +1550,8 @@ internal static partial class Program
 
 	static Program()
 	{
-		ZipFilesFilterRegex = new(@"\.(css|html|js|lua|toml)$", RegexFlags); // TODO/CONS: add .md ?
+		// Include .css, .html, .js, .lua, .toml but exclude .tests.lua using negative lookahead
+		ZipFilesFilterRegex = new(@"(?!.*\.tests\.lua$)\.(css|html|js|lua|toml)$", RegexFlags); // TODO/CONS: add .md ?
 		ZipAdditionalFilesRegex = new(@"/(LICENSE|README\.md)$", RegexFlags);
 		ZipFilterRegexes = [ZipFilesFilterRegex, ZipAdditionalFilesRegex];
 		var executingAssembly = Assembly.GetExecutingAssembly();

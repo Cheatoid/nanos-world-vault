@@ -36,14 +36,18 @@ local function debug_print(...)
 	end
 end
 
+if is_preview then
+	Console.Warn("preview version detected; some features may not work")
+end
+
 local Version = require "Version"
 local package_name = Package.GetName()
 --log("package name: %s", package_name)
 --log("local package version: %s", Package.GetVersion())
-debug_print("local package version: %s", tostring(Version.getCurrent()))
+print("local package version: " .. tostring(Version.getCurrent()))
 debug_print("metadata path: %s", package_path)
-debug_print("metadata version: %s", package_metadata.package_version)
-debug_print("metadata tag: %s", package_metadata.tag)
+print("metadata version: " .. package_metadata.package_version)
+print("metadata tag: " .. package_metadata.tag)
 debug_print("metadata timestamp: %s", package_metadata.timestamp)
 debug_print("metadata branch: %s", package_metadata.branch_name)
 
@@ -53,7 +57,7 @@ debug_print("metadata branch: %s", package_metadata.branch_name)
 -- Consumers should use GAIMERS or Package.Export to expose them globally.
 
 --for _, f in next, Package.GetFiles(nil, ".lua") do
---	print("[package file]", f)
+--	debug_print("[package file]", f)
 --end
 
 --for f, hash in next, package_metadata.files_hash do
@@ -68,34 +72,36 @@ debug_print("metadata branch: %s", package_metadata.branch_name)
 local requiref = require "RequireFolder"
 requiref "Shared/@cheatoid" {
 	-- NOTE: *.d.lua are automatically ignored
+	--[0] = require("FileWrapper").vfs, -- pass VFS instance at index 0
 	"@cheatoid/standard",
 	"@cheatoid/standalone",
 	--["@cheatoid/patch/require.lua"] = false, -- ignore; it shouldn't hurt to require it again tho
-	["%.tests%.lua$"] = false,                                   -- skip all files ending in .tests.lua
-	["@cheatoid/require_finder/find_requires%.lua$"] = false,    -- ignore
-	["@cheatoid/require_finder/test_require_finder%.lua$"] = false, -- ignore
-	["@cheatoid/plugin_framework/example_usage%.lua$"] = false,  -- ignore
-	["@cheatoid/plugin_framework/hello_plugin%.lua$"] = false,   -- ignore
+	["%.tests%.lua$"] = false,                               -- skip all files ending in .tests.lua
+	["@cheatoid/require_finder/find_requires%.lua$"] = false, -- ignore
+	["@cheatoid/plugin_framework/example_usage%.lua$"] = false, -- ignore
+	["@cheatoid/plugin_framework/hello_plugin%.lua$"] = false, -- ignore
 }
+
 --dbg.debugger.disable()
 
 -- @formatter:off
---local dbg     = require "@cheatoid/standalone/debug_helper"
---local tc      = require "@cheatoid/standalone/type_check"
---local tsl     = require "@cheatoid/standalone/to_string_literal"
---local patcher = require "@cheatoid/standalone/patcher"
---local util    = require "@cheatoid/standalone/util"
---local xml     = require "@cheatoid/standalone/xml"
---local zip     = require "@cheatoid/standalone/zip"
---local plugins = require "@cheatoid/plugin_framework/plugin_framework"
---local oop     = require "@cheatoid/oop/oop"
---local ref     = require "@cheatoid/ref/ref"
---local vm      = require "@cheatoid/vm/vm"
---local config  = require "Config"
---local file    = require "FileWrapper"
---local vfs     = file.vfs
-local http   = require "HttpWrapper"
-local ConVar = require "ConVar"
+local dbg     = require "@cheatoid/standalone/debug_helper"
+local tc      = require "@cheatoid/standalone/type_check"
+local tsl     = require "@cheatoid/standalone/to_string_literal"
+local patcher = require "@cheatoid/standalone/patcher"
+local util    = require "@cheatoid/standalone/util"
+local xml     = require "@cheatoid/standalone/xml"
+local zip     = require "@cheatoid/standalone/zip"
+local cfg     = require "@cheatoid/standalone/cfg_parser"
+local plugins = require "@cheatoid/plugin_framework/plugin_framework"
+local oop     = require "@cheatoid/oop/oop"
+local ref     = require "@cheatoid/ref/ref"
+local vm      = require "@cheatoid/vm/vm"
+local config  = require "Config"
+local file    = require "FileWrapper"
+local vfs     = file.vfs
+local http    = require "HttpWrapper"
+local ConVar  = require "ConVar"
 require "BroadcastLua"
 require "ClientsideLua"
 -- @formatter:on
@@ -103,6 +109,7 @@ require "ClientsideLua"
 if SERVER then
 	local target_url = string.format("https://api.nanos-world.com/store/packages/%s", package_name)
 	debug_print("asset store url: %q", target_url)
+	-- TODO: use async/await from oop to avoid callback hell
 	http.get(
 		target_url,
 		function(data, status, url)
@@ -110,7 +117,10 @@ if SERVER then
 			pcall(function()
 				local parsedJson = JSON.parse(data)
 				local storeVersion = parsedJson.payload.version.version
-				debug_print("vault/store version: %s", storeVersion)
+				print("vault/store version: " .. storeVersion)
+				if Version.parse(storeVersion).isLessThan(Version.getCurrent()) then
+					is_preview = true
+				end
 			end)
 		end,
 		function(data, status, url)
@@ -139,24 +149,67 @@ if SERVER then
 				local githubVersion, githubCommitCount, githubTagCount, githubTag, githubPrevHash =
 					githubMetadata.package_version, githubMetadata.commit_count, githubMetadata.tag_count,
 					githubMetadata.tag, githubMetadata.prev_hash
-				debug_print("github version: %s", githubVersion)
+				print("github metadata version: " .. githubVersion)
 				debug_print("github tag count: %s", githubTagCount)
 				debug_print("github prev hash: %s", githubPrevHash)
-				debug_print("github latest tag: %s", githubTag)
+				print("github metadata tag: " .. githubTag)
+				-- Fetch the actual latest version from VERSION file
+				local versionUrl = string.format(
+					"https://raw.github.com/%s/%s/main/VERSION",
+					githubMetadata.owner or "Cheatoid",
+					githubMetadata.repo or "nanos-world-vault"
+				)
+				debug_print("fetching latest repo version: %q", versionUrl)
 				http.get(
-					string.format(
-						"https://github.com/%s/%s/releases/download/%s/%s.zip",
-						githubMetadata.owner or "Cheatoid",
-						githubMetadata.repo or "nanos-world-vault",
-						githubTag, -- TODO/FIXME: this should be using repo VERSION
-						package_name
-					),
-					function(zipData, zipStatus, zipUrl)
-						debug_print("latest zip status: %s", zipStatus)
-						debug_print("latest zip size: %d bytes", #zipData)
+					versionUrl,
+					function(versionData, versionStatus, versionUrl)
+						debug_print("[repo version] status: %s, data: %q", versionStatus, versionData)
+						local latestVersion = versionStatus == 200 and
+							versionData:match("^v?([%d%.]+)") -- NOTE: repo version should always be stable
+						if not latestVersion then
+							print("failed to fetch repo version, falling back to metadata tag: " .. githubTag)
+							latestVersion = githubTag
+						else
+							print("latest repo version: " .. latestVersion)
+						end
+						http.get(
+							string.format(
+								"https://github.com/%s/%s/releases/download/%s/%s.zip",
+								githubMetadata.owner or "Cheatoid",
+								githubMetadata.repo or "nanos-world-vault",
+								latestVersion,
+								package_name
+							),
+							function(zipData, zipStatus, zipUrl)
+								debug_print("latest zip status: %s", zipStatus)
+								debug_print("latest zip size: %d bytes", #zipData)
+								-- TODO: save to temporary downloads folder, and then extract via zip library
+								-- TODO/CONS: use vfs to store/load code instead of extracting zip to disk?
+							end,
+							function(data, status, url)
+								debug_print("[github zip] status: %s, url: %q, data: %q", status, url, data)
+							end
+						)
 					end,
 					function(data, status, url)
-						debug_print("[github zip] status: %s, url: %q, data: %q", status, url, data)
+						debug_print("[github version] failed - status: %s, url: %q", status, url)
+						-- Fallback: use githubTag from metadata
+						http.get(
+							string.format(
+								"https://github.com/%s/%s/releases/download/%s/%s.zip",
+								githubMetadata.owner or "Cheatoid",
+								githubMetadata.repo or "nanos-world-vault",
+								githubTag,
+								package_name
+							),
+							function(zipData, zipStatus, zipUrl)
+								debug_print("latest zip status: %s", zipStatus)
+								debug_print("latest zip size: %d bytes", #zipData)
+							end,
+							function(data, status, url)
+								debug_print("[github zip] status: %s, url: %q, data: %q", status, url, data)
+							end
+						)
 					end
 				)
 			end)

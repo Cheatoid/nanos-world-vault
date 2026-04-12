@@ -1,6 +1,8 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
+-- Convenient utility for loading scripts from a directory
+
 -- Localized global functions for better performance
 local next = next
 local string = string
@@ -11,8 +13,16 @@ local string_sub = string.sub
 local Package_GetFiles = Package.GetFiles
 local Package_GetDirectories = Package.GetDirectories
 local Package_Require = Package and Package.Require or require
+
+-- VFS-aware require function (will be set per-instance)
+local _require_fn
+
+-- Default require function
 local function _require(name, ...)
-	print("[RequireFolder.require]", name, ...)
+	--print("[RequireFolder.require]", name, ...)
+	if _require_fn then
+		return _require_fn(name, ...)
+	end
 	return Package_Require(name, ...)
 end
 
@@ -25,7 +35,8 @@ end
 ---@param path string The directory path to collect files from.
 ---@param out table Array to append collected file paths to (modified in-place).
 ---@param recursive boolean|nil If true, recursively collects files from subfolders.
-local function collect_files(path, out, recursive)
+---@param vfs table|nil Optional VFS interface with list_files, list_directories, is_directory methods.
+local function collect_files(path, out, recursive, vfs)
 	path = normalize_path(path)
 	out = out or {}
 
@@ -33,8 +44,14 @@ local function collect_files(path, out, recursive)
 	if string_sub(path, -1) ~= "/" then
 		path = path .. "/"
 	end
-	-- Collect lua files in this folder
-	local files = Package_GetFiles(path, ".lua")
+
+	-- Collect lua files using VFS or Package.GetFiles
+	local files
+	if vfs and vfs.list_files then
+		files = vfs.list_files(path, ".lua")
+	else
+		files = Package_GetFiles(path, ".lua")
+	end
 	--print("# files (raw):", #files)
 
 	-- Helper to check if file should be included based on filters
@@ -61,9 +78,14 @@ local function collect_files(path, out, recursive)
 	end
 	-- Recurse into subfolders if enabled
 	if recursive then
-		local subfolders = Package_GetDirectories(path)
+		local subfolders
+		if vfs and vfs.list_directories then
+			subfolders = vfs.list_directories(path)
+		else
+			subfolders = Package_GetDirectories(path)
+		end
 		for _, sub in next, subfolders do
-			collect_files(path .. sub .. "/", out, true)
+			collect_files(path .. sub .. "/", out, true, vfs)
 		end
 	end
 	return out
@@ -78,14 +100,19 @@ end
 local function matches_pattern(file, patterns)
 	for _, pattern in next, patterns do
 		if string_match(file, pattern) then
+			--print("[RequireFolder] Pattern matched:", pattern, "against", file)
 			return true
 		end
 	end
 	return false
 end
 
--- Helper to check if a path is a directory (by checking if it has files)
-local function is_directory(path)
+-- Helper to check if a path is a directory
+local function is_directory(path, vfs)
+	if vfs and vfs.is_directory then
+		return vfs.is_directory(path)
+	end
+	-- Fallback: check if it has files
 	local files = Package_GetFiles(path, ".lua")
 	return next(files) ~= nil
 end
@@ -107,6 +134,7 @@ local function load_file(file, loaded_files, priority_lookup, skip_patterns, inc
 		-- Check skip patterns
 		if matches_pattern(file, skip_patterns) then
 			-- Explicit skip via pattern
+			--print("[RequireFolder] Skipping file (pattern):", file)
 			return
 		elseif matches_pattern(file, include_patterns) then
 			-- Explicit include via pattern
@@ -114,6 +142,7 @@ local function load_file(file, loaded_files, priority_lookup, skip_patterns, inc
 			loaded_files[file] = true
 		else
 			-- No pattern match, load by default
+			--print("[RequireFolder] Loading file (default):", file)
 			require_fn(file)
 			loaded_files[file] = true
 		end
@@ -134,9 +163,10 @@ end
 ---@param priority_lookup table Lookup table for priority and skip (exact paths)
 ---@param skip_patterns table List of patterns for files to skip
 ---@param load_file_fn function Function to use for loading individual files
-local function load_priority_path(path, all_files, file_exists, priority_lookup, skip_patterns, load_file_fn)
+---@param vfs table|nil Optional VFS interface
+local function load_priority_path(path, all_files, file_exists, priority_lookup, skip_patterns, load_file_fn, vfs)
 	-- Check if it's a directory (even if not in file_exists)
-	if is_directory(path) then
+	if is_directory(path, vfs) then
 		-- Load all files in this directory first
 		for _, file in next, all_files do
 			if string_match(file, "^" .. normalize_path(path) .. "/") then
@@ -156,27 +186,59 @@ local function load_priority_path(path, all_files, file_exists, priority_lookup,
 end
 
 --- Requires all Lua files from the specified folder with optional priority ordering and ignore list.<br>
---- Supports currying: calling with just a folder returns a function that takes load_priority and recursive.
+--- Supports currying: calling with just a folder returns a function that takes load_priority, recursive, and vfs.
 ---@param folder string The folder path to load Lua files from.
 ---@param load_priority table|nil Optional table defining:<br>
 --- Keyed entries with Lua patterns (e.g., `"%.tests%.lua$"`) will be matched against file paths.
+--- - special index `[0]` can be used to pass a VFS instance
 --- - array entries = priority load order (e.g. `"file1.lua"`)
 --- - keyed entries = false to skip, or true to force include (e.g. `["file2.lua"] = false`)
 ---@param recursive boolean|nil If true, recursively collects files from subfolders (default: true).
-local function RequireFolder(folder, load_priority, recursive)
+---@param vfs table|nil Optional VFS interface with list_files, list_directories, is_directory, load methods.
+local function RequireFolder(folder, load_priority, recursive, vfs)
+	--print("[RequireFolder] Called with:", "folder=", folder, "load_priority=", type(load_priority), "recursive=", recursive, "vfs=", vfs)
 	folder = normalize_path(folder)
+
+	-- Support currying: if load_priority and recursive and vfs are nil, return a function
+	-- NOTE: This check must happen BEFORE setting defaults!
+	if load_priority == nil and recursive == nil and vfs == nil then
+		--print("[RequireFolder] Currying - returning function for folder:", folder)
+		return function(load_priority_arg, recursive_arg, vfs_arg)
+			--print("[RequireFolder] Curried function called with:", type(load_priority_arg), type(recursive_arg), type(vfs_arg))
+			return RequireFolder(folder, load_priority_arg, recursive_arg, vfs_arg)
+		end
+	end
+
 	if recursive == nil then recursive = true end
 
-	-- Support currying: if load_priority is nil, return a function
-	if load_priority == nil then
-		return function(load_priority_arg, recursive_arg)
-			return RequireFolder(folder, load_priority_arg, recursive_arg)
+	-- Check for VFS in load_priority[0] if not passed directly
+	if not vfs and load_priority and type(load_priority[0]) == "table" then
+		vfs = load_priority[0]
+	end
+
+	-- Set up VFS-aware require if VFS provides a load method
+	if vfs and vfs.load then
+		_require_fn = vfs.load
+	elseif vfs and vfs.get then
+		-- Fallback: use vfs.get and load the content
+		_require_fn = function(name, ...)
+			local content = vfs.get(name)
+			if content then
+				local chunk, err = load(content, "vfs:" .. name)
+				if chunk then
+					return chunk(...)
+				end
+				return error("failed to load " .. name .. ": " .. err, 2)
+			end
+			return Package_Require(name, ...)
 		end
+	else
+		_require_fn = nil
 	end
 
 	-- Gather all files
 	local all_files = {}
-	collect_files(folder, all_files, recursive)
+	collect_files(folder, all_files, recursive, vfs)
 
 	-- Fast lookup for existence
 	local file_exists = {}
@@ -195,6 +257,7 @@ local function RequireFolder(folder, load_priority, recursive)
 	local include_patterns = {}
 
 	if load_priority then
+		--print("[RequireFolder] load_priority is present, processing...")
 		-- Array entries => priority load order
 		for key, entry in next, load_priority do
 			if type(key) == "number" then
@@ -216,12 +279,16 @@ local function RequireFolder(folder, load_priority, recursive)
 		end
 
 		-- Keyed entries => skip or override
+		--print("[RequireFolder] Processing keyed entries, load_priority is:", type(load_priority))
 		for key, value in next, load_priority do
+			--print("[RequireFolder] Keyed entry:", type(key), key, "=", value)
 			if type(key) == "string" then
 				local cleaned_key = normalize_path(key)
+				--print("[RequireFolder] Checking if pattern:", key, "is_pattern:", is_pattern(key))
 				if is_pattern(key) then
 					-- Store as pattern
 					if value == false then
+						--print("[RequireFolder] Registering skip pattern:", key)
 						skip_patterns[#skip_patterns + 1] = key
 					else
 						include_patterns[#include_patterns + 1] = key
@@ -234,6 +301,11 @@ local function RequireFolder(folder, load_priority, recursive)
 		end
 	end
 
+	-- Debug: print all skip patterns
+	--for i, p in next, skip_patterns do
+	--	print("[RequireFolder] Skip pattern", i, ":", p)
+	--end
+
 	-- Track which files have been loaded to avoid duplicates
 	local loaded_files = {}
 
@@ -244,7 +316,7 @@ local function RequireFolder(folder, load_priority, recursive)
 
 	-- 1. Load priority files/directories first
 	for _, path in next, priority_order do
-		load_priority_path(path, all_files, file_exists, priority_lookup, skip_patterns, load_file_closure)
+		load_priority_path(path, all_files, file_exists, priority_lookup, skip_patterns, load_file_closure, vfs)
 	end
 
 	-- 2. Load remaining files
