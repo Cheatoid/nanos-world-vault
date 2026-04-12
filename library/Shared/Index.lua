@@ -1,10 +1,6 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
---for _, f in next, Package.GetFiles(nil, ".lua") do
---	print("[package file]", f)
---end
-
 -- Patch 'require' function like a good boi
 if "INTERNAL - Package Lua Implementation" == debug.getinfo(require, "S").source then
 	_G.include = require -- preserve original 'require' function as global 'include'
@@ -27,43 +23,98 @@ gaimers.r = require
 -- TODO: Auto initialize modules/packages, add dependency injection...
 ----------------------------------------------------------------------
 
-local Version = require "Version"
-local packageName = Package.GetName()
---print("package name: " .. packageName)
---print("local package version: " .. Package.GetVersion())
-print("local package version: " .. tostring(Version.getCurrent()))
-
-local packageMetadata = require "metadata_gen"
-local packagePath = packageMetadata.path
-print("metadata path: " .. packagePath)
-print("metadata version: " .. packageMetadata.package_version)
-print("metadata tag: " .. packageMetadata.tag)
-print("metadata timestamp: " .. packageMetadata.timestamp)
-print("metadata branch: " .. packageMetadata.branch_name)
-
 local SERVER = type(Server) == "table"
 local CLIENT = type(Client) == "table"
---print(SERVER, CLIENT)
+--print("SERVER:" .. tostring(SERVER), "CLIENT:" .. tostring(CLIENT))
+
+local package_metadata = require "metadata_gen"
+local package_path = package_metadata.path
+local is_preview = string.find(package_metadata.tag, "-", nil, true)
+local function debug_print(...)
+	if is_preview then
+		print(string.format(...))
+	end
+end
+
+local Version = require "Version"
+local package_name = Package.GetName()
+--log("package name: %s", package_name)
+--log("local package version: %s", Package.GetVersion())
+debug_print("local package version: %s", tostring(Version.getCurrent()))
+debug_print("metadata path: %s", package_path)
+debug_print("metadata version: %s", package_metadata.package_version)
+debug_print("metadata tag: %s", package_metadata.tag)
+debug_print("metadata timestamp: %s", package_metadata.timestamp)
+debug_print("metadata branch: %s", package_metadata.branch_name)
+
+-- Pre-load modules to cache them and prevent runtime errors.
+-- As a library, we only ensure modules are pre-loaded.
+-- Consumers will receive the cached values.
+-- Consumers should use GAIMERS or Package.Export to expose them globally.
+
+--for _, f in next, Package.GetFiles(nil, ".lua") do
+--	print("[package file]", f)
+--end
+
+--for f, hash in next, package_metadata.files_hash do
+--end
+
+--local dbg = require "@cheatoid/standalone/debug_helper"
+--dbg.debugger.on_hook(function(info, line, event)
+--	print("Event:", event, "at", info.source .. ":" .. line)
+--end)
+--dbg.debugger.enable("clr", 0)
+
+local requiref = require "RequireFolder"
+requiref "Shared/@cheatoid" {
+	-- NOTE: *.d.lua are automatically ignored
+	"@cheatoid/standard",
+	"@cheatoid/standalone",
+	--["@cheatoid/patch/require.lua"] = false, -- ignore; it shouldn't hurt to require it again tho
+	["%.tests%.lua$"] = false,                                   -- skip all files ending in .tests.lua
+	["@cheatoid/require_finder/find_requires%.lua$"] = false,    -- ignore
+	["@cheatoid/require_finder/test_require_finder%.lua$"] = false, -- ignore
+	["@cheatoid/plugin_framework/example_usage%.lua$"] = false,  -- ignore
+	["@cheatoid/plugin_framework/hello_plugin%.lua$"] = false,   -- ignore
+}
+--dbg.debugger.disable()
+
+-- @formatter:off
+--local dbg     = require "@cheatoid/standalone/debug_helper"
+--local tc      = require "@cheatoid/standalone/type_check"
+--local tsl     = require "@cheatoid/standalone/to_string_literal"
+--local patcher = require "@cheatoid/standalone/patcher"
+--local util    = require "@cheatoid/standalone/util"
+--local xml     = require "@cheatoid/standalone/xml"
+--local zip     = require "@cheatoid/standalone/zip"
+--local plugins = require "@cheatoid/plugin_framework/plugin_framework"
+--local oop     = require "@cheatoid/oop/oop"
+--local ref     = require "@cheatoid/ref/ref"
+--local vm      = require "@cheatoid/vm/vm"
+--local config  = require "Config"
+--local file    = require "FileWrapper"
+--local vfs     = file.vfs
+local http   = require "HttpWrapper"
+local ConVar = require "ConVar"
+require "BroadcastLua"
+require "ClientsideLua"
+-- @formatter:on
 
 if SERVER then
-	local http = require "HttpWrapper"
-	local xml = require "@cheatoid/standalone/xml"
-	local zip = require "@cheatoid/standalone/zip"
-	local tsl = require "@cheatoid/standalone/to_string_literal"
-	local target_url = string.format("https://api.nanos-world.com/store/packages/%s", packageName)
-	print("asset store url: " .. target_url)
+	local target_url = string.format("https://api.nanos-world.com/store/packages/%s", package_name)
+	debug_print("asset store url: %q", target_url)
 	http.get(
 		target_url,
 		function(data, status, url)
-			print("[asset store http]", status, url, "size: " .. #data)
+			debug_print("[asset store] status: %s, url: %q, size: %d", status, url, #data)
 			pcall(function()
 				local parsedJson = JSON.parse(data)
 				local storeVersion = parsedJson.payload.version.version
-				print("vault/store version: " .. storeVersion)
+				debug_print("vault/store version: %s", storeVersion)
 			end)
 		end,
 		function(data, status, url)
-			print("[asset store http]", status, url, data)
+			debug_print("[asset store] status: %s, url: %q, data: %q", status, url, data)
 		end
 	)
 	-- "https://raw.github.com/%s/%s/main/VERSION" -- latest repo release version
@@ -73,42 +124,45 @@ if SERVER then
 	target_url = string.format(
 	--"https://github.com/%s/%s/raw/refs/heads/%s/%s/Shared/metadata_gen.lua",
 		"https://raw.github.com/%s/%s/%s/%s/Shared/metadata_gen.lua", -- shorter
-		packageMetadata.owner,
-		packageMetadata.repo,
-		packageMetadata.branch_name,
-		packagePath
+		package_metadata.owner,
+		package_metadata.repo,
+		package_metadata.branch_name,
+		package_path
 	)
-	print("github url: " .. target_url)
+	debug_print("github metadata url: %q", target_url)
 	http.get(
 		target_url,
 		function(data, status, url)
-			print("[github repo http]", status, url, "size: " .. #data)
+			debug_print("[github metadata] status: %s, url: %q, size: %d", status, url, #data)
 			pcall(function()
 				local githubMetadata = load(data)() ---@type metadata_gen
 				local githubVersion, githubCommitCount, githubTagCount, githubTag, githubPrevHash =
 					githubMetadata.package_version, githubMetadata.commit_count, githubMetadata.tag_count,
 					githubMetadata.tag, githubMetadata.prev_hash
-				print("github version: " .. githubVersion)
-				print("github tag count: " .. githubTagCount)
-				print("github prev hash: " .. githubPrevHash)
-				print("github latest tag: " .. githubTag)
+				debug_print("github version: %s", githubVersion)
+				debug_print("github tag count: %s", githubTagCount)
+				debug_print("github prev hash: %s", githubPrevHash)
+				debug_print("github latest tag: %s", githubTag)
 				http.get(
 					string.format(
 						"https://github.com/%s/%s/releases/download/%s/%s.zip",
 						githubMetadata.owner or "Cheatoid",
 						githubMetadata.repo or "nanos-world-vault",
 						githubTag, -- TODO/FIXME: this should be using repo VERSION
-						packageName
+						package_name
 					),
 					function(zipData, zipStatus, zipUrl)
-						print("latest zip status: " .. zipStatus)
-						print("latest zip size: " .. #zipData .. " bytes")
+						debug_print("latest zip status: %s", zipStatus)
+						debug_print("latest zip size: %d bytes", #zipData)
+					end,
+					function(data, status, url)
+						debug_print("[github zip] status: %s, url: %q, data: %q", status, url, data)
 					end
 				)
 			end)
 		end,
 		function(data, status, url)
-			print("[github repo http]", status, url, data)
+			debug_print("[github metadata] status: %s, url: %q, data: %q", status, url, data)
 		end
 	)
 end
@@ -124,23 +178,6 @@ end
 --	testfile:Close()
 --	print("Created " .. filename)
 --end
-
--- Pre-load modules to cache them and prevent runtime errors.
--- As a library, we only ensure modules are pre-loaded.
--- Consumers will receive the cached values.
--- Consumers should use GAIMERS or Package.Export to expose them globally.
-
-local requiref = require "RequireFolder"
-requiref "@cheatoid/standard"
-
-require "@cheatoid/standalone/debug_helper"
-require "@cheatoid/standalone/type_check"
-require "@cheatoid/oop/oop"
-require "Config"
-require "ConVar"
-require "BroadcastLua"
-require "ClientsideLua"
-require "HttpWrapper"
 
 --[[
 Reminder to myself: Package-Release cycle

@@ -64,14 +64,53 @@ http.DefaultRequestHeaders.Pragma.Add(new NameValueHeaderValue("no-cache")); // 
 //http.DefaultRequestHeaders.IfModifiedSince = DateTime.UtcNow; // nah
 // @formatter:on
 
-var token = Environment.GetEnvironmentVariable("NANOS_PERSONAL_ACCESS_TOKEN");
-if (string.IsNullOrEmpty(token))
+// Try to read token from .env file first, then fall back to environment variables
+var token = GetTokenFromEnvFileOrEnvironment();
+
+// Helper method to read .env file and extract token
+static string? GetTokenFromEnvFileOrEnvironment()
 {
-	token = Environment.GetEnvironmentVariable("NANOS_API_KEY");
-	if (string.IsNullOrEmpty(token))
+	const string envFile = ".env";
+	if (File.Exists(envFile))
 	{
-		token = Environment.GetEnvironmentVariable("NANOS_STORE_TOKEN");
+		foreach (var line in File.ReadLines(envFile))
+		{
+			var trimmed = line.Trim();
+			if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith('#'))
+				continue;
+
+			var separatorIndex = trimmed.IndexOf('=');
+			if (separatorIndex <= 0)
+				continue;
+
+			var key = trimmed[..separatorIndex].Trim();
+			var value = trimmed[(separatorIndex + 1)..].Trim();
+
+			// Remove quotes if present
+			if ((value.StartsWith('"') && value.EndsWith('"')) ||
+			    (value.StartsWith('\'') && value.EndsWith('\'')))
+			{
+				value = value[1..^1];
+			}
+
+			if (key.ToUpperInvariant() is "NANOS_PERSONAL_ACCESS_TOKEN" or "NANOS_API_KEY" or "NANOS_STORE_TOKEN")
+			{
+				if (!string.IsNullOrEmpty(value))
+					return value;
+			}
+		}
 	}
+
+	// Fall back to environment variables
+	var envToken = Environment.GetEnvironmentVariable("NANOS_PERSONAL_ACCESS_TOKEN");
+	if (!string.IsNullOrEmpty(envToken))
+		return envToken;
+
+	envToken = Environment.GetEnvironmentVariable("NANOS_API_KEY");
+	if (!string.IsNullOrEmpty(envToken))
+		return envToken;
+
+	return Environment.GetEnvironmentVariable("NANOS_STORE_TOKEN");
 }
 
 var serverFileName = OperatingSystem.IsWindows() ? "NanosWorldServer.exe" : "NanosWorldServer.sh";

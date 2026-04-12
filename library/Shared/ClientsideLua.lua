@@ -1,18 +1,47 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
+-- A shared module implementing `lua` console command for executing Lua code via console.
+-- Provides server-side `allowcslua` convar to enable client-side Lua console command.
+
 local ID = "allowcslua"
 local Enabled = false -- disabled by default
 
 local load, pcall, select = load, pcall, select
 local table_concat, table_pack, table_unpack = table.concat, table.pack, table.unpack
 local HASH = "#"
+
+-- Import FileWrapper for file operations
+local file = require "FileWrapper"
+
 local function RunLua(...) -- TODO: Move to Lua lib (runlua)
 	if select(HASH, ...) == 0 then
 		return
 	end
-	local code = table_concat({ ... }, " ")
-	local fn, err = load(code, nil, "t", _ENV or _G)
+	local input = table_concat({ ... }, " ")
+	local code, source
+	-- Detect if input is a file path
+	if file.is_file_path(input) then
+		-- Try to read the file
+		local file_content, err = file.read(input)
+		if file_content then
+			code = file_content
+			source = "@" .. input -- prepend @ prefix for file source
+			Console.Log("[lua] Executing file: %s", input)
+			Console.Log(file_content)
+		else
+			-- File doesn't exist or can't be read, treat as code
+			Console.Warn("[lua] File not found or unreadable: %s (treating as code)", err)
+			code = input
+			source = nil
+		end
+	else
+		-- Treat as code
+		code = input
+		source = nil
+	end
+	-- Load, validate, and execute the compiled code
+	local fn, err = load(code, source, "t", _ENV or _G)
 	if type(fn) == "function" then
 		local packed = table_pack(pcall(fn))
 		local ok, res = packed[1], packed[2]
@@ -93,7 +122,7 @@ if Server then
 					if changed then
 						cfg.enable_cslua = true -- automatically flushes to disk
 					end
-				else --if state == "0" then
+				else          --if state == "0" then
 					changed = cfg.enable_cslua == true
 					if changed then
 						cfg.enable_cslua = false -- automatically flushes to disk
@@ -124,9 +153,9 @@ if Server then
 			Console.Warn(
 				"Invalid or no argument, expected: 0 to disable, or 1 to enable client-side Lua console command")
 		end
-	end, "enable players to run Lua on client-side", { "0/1" })
+	end, "enable or disable client-side Lua console command", { "0/1" })
 
-	Console.RegisterCommand("lua", RunLua, "run Lua", { "code" })
+	Console.RegisterCommand("lua", RunLua, "run Lua", { "code string -or- file path" })
 else
 	Enabled = Client.GetValue(ID, Enabled)
 
@@ -148,5 +177,5 @@ else
 		if Enabled then
 			RunLua(...)
 		end
-	end, "run Lua (" .. ID .. " must be enabled on server-side)", { "code" })
+	end, "run Lua (" .. ID .. " must be enabled on server-side)", { "code string -or- file path" })
 end

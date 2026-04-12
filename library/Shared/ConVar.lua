@@ -6,21 +6,23 @@
 -- Localized global functions for better performance
 local next = next
 local pcall = pcall
-local type = type
+local setmetatable = setmetatable
 local tonumber = tonumber
 local tostring = tostring
-local setmetatable = setmetatable
+local type = type
 local math_modf = math.modf
+local string = require "@cheatoid/standard/string"
 local string_find = string.find
 local string_format = string.format
 local string_lower = string.lower
-local string_upper = string.upper
+local string_pad_right = string.pad_right
 local table_concat = table.concat
 --local Console_Log, Console_Warn = Console.Log, Console.Warn
 local Client_GetValue, Client_SetValue = Client and Client.GetValue, Client and Client.SetValue
 local Server_SetValue = Server and Server.SetValue
 local Events_SubscribeRemote, Events_CallRemote = Events.SubscribeRemote, Events.CallRemote
 local Events_BroadcastRemote = Events.BroadcastRemote
+local to_string_literal = require("@cheatoid/standalone/to_string_literal").to_string_literal
 
 -- TODO: Release command-line/chat-commands parser library; https://github.com/Cheatoid/nanos-world-vault/issues/13
 
@@ -58,8 +60,19 @@ local table = require "@cheatoid/standard/table"
 local table_ensure_lazy = table.ensure_lazy
 local table_make_case_insensitive = table.make_case_insensitive
 
+-- TODO: Persist (archive-flagged) convars via Config
+local config = require("Config")
+
+--- Console variable (CVar)
 ---@class ConVar
---- Console Variable (CVar) library.
+---@field Name string ConVar name in lowercase
+---@field Type string Value type ("boolean", "float", "int", "string")
+---@field Default any Default value
+---@field Flags number Bitwise flags for ConVar behavior
+---@field Help string Help text description
+---@field Callbacks table Callback functions for value changes
+---@field Min number|nil Minimum value constraint
+---@field Max number|nil Maximum value constraint
 local ConVar = {}
 ConVar.__index = ConVar
 
@@ -71,13 +84,14 @@ local REQUEST_EVENT = "ConVar::RequestSet"
 local USERINFO_EVENT = "ConVar::UserInfoUpdate"
 
 --- Registry of all registered ConVars (case-insensitive keyed).<br>
---- Structure: [string: name] = ConVar: object
+--- Structure: `[string: name] = ConVar: object`
 ---@type table<string, ConVar>
 local ConVars = table_make_case_insensitive()
 
 --- Registry for per-player userinfo (client -> server convars).<br>
---- Structure: [Player] = { [string: cvar_name] = string: cvar_value }
-local PlayerUserInfos = oop.WeakTable() -- TODO: Perhaps store directly on Player objects to persist state (support hotreload)
+--- Structure: `[Player] = { [string: cvar_name] = string: cvar_value }`<br>
+--- TODO: Perhaps store directly on Player objects to persist state (support hotreload)
+local PlayerUserInfos = oop.WeakTable()
 
 ----------------------------------------------------------------------
 -- Flags Definition
@@ -90,7 +104,7 @@ do
 	-- @formatter:off
 	FLAG = {
 		NONE               = 0,
-		ARCHIVE            = FCVAR(), -- Save to config (Server side) - TODO
+		ARCHIVE            = FCVAR(), -- Save to config - TODO
 		REPLICATED         = FCVAR(), -- Server sends this to clients
 		CLIENT_CAN_EXECUTE = FCVAR(), -- Clients can change this (e.g., graphical settings)
 		CHEAT              = FCVAR(), -- Only usable if sv_cheats is 1
@@ -168,18 +182,33 @@ local function GetValueType(val)
 	return "unknown"
 end
 
---- Helper to cast value to string (for networking/console).
----@param val any
----@return string string
+--- Helper to cast value to string (for networking/console).<br>
+--- Converts boolean values to "1" or "0", other values using tostring.
+---@param val any The value to convert.
+---@return string string The string representation of the value.
+---@usage <br>
+--- ```
+--- local str = ValueToString(true)    -- returns "1"
+--- local str = ValueToString(42)      -- returns "42"
+--- local str = ValueToString("hello") -- returns "hello"
+--- ```
 local function ValueToString(val)
 	if type(val) == "boolean" then return val and "1" or "0" end
 	return tostring(val)
 end
 
---- Helper to parse string to target type.
----@param str string
----@param targetType string
----@return any any
+--- Helper to parse string to target type.<br>
+--- Converts string values to the specified target type (boolean, int, float, or string).
+---@param str string The string to parse.
+---@param targetType string The target type ("boolean", "int", "float", or "string").
+---@return any any The parsed value in the target type.
+---@usage <br>
+--- ```
+--- local val = StringToValue("1", "boolean")    -- returns true
+--- local val = StringToValue("42", "int")       -- returns 42
+--- local val = StringToValue("3.14", "float")   -- returns 3.14
+--- local val = StringToValue("hello", "string") -- returns "hello"
+--- ```
 local function StringToValue(str, targetType)
 	if targetType == "boolean" then
 		-- Allow literal "true" / "false" strings
@@ -189,7 +218,7 @@ local function StringToValue(str, targetType)
 		-- Handle numeric strings (e.g. "1", "0")
 		local num = tonumber(str)
 		-- If num is nil (invalid input), default to false instead of returning nil
-		return (num and num > 0) or false
+		return (num and num ~= 0) or false
 	end
 	if targetType == "int" then
 		local num = tonumber(str) or 0
@@ -201,13 +230,28 @@ local function StringToValue(str, targetType)
 	return str
 end
 
+--- Helper to format ConVar value for display in console output.<br>
+--- Returns empty string if NEVER_AS_STRING flag is set.<br>
+--- Uses to_string_literal for string types to properly escape them.
+---@param cvar ConVar The ConVar object.
+---@return string string The formatted value string.
+local function FormatValueForDisplay(cvar)
+	if (cvar.Flags & FLAG.NEVER_AS_STRING) ~= 0 then
+		return ""
+	end
+	if cvar.Type == "string" then
+		return to_string_literal(ValueToString(cvar.Value))
+	end
+	return ValueToString(cvar.Value)
+end
+
 ----------------------------------------------------------------------
 -- Metamethods
 ----------------------------------------------------------------------
 
 --- Allows converting the ConVar object directly to a string representation of its value.<br>
---- Usage: print(my_cvar)
----@return string string
+--- Usage: `print(my_cvar, tostring(my_cvar))`
+---@return string string Returns the string representation of the ConVar value.
 function ConVar:__tostring()
 	return self:GetString()
 end
@@ -248,16 +292,17 @@ local function ConVar_Register(name, default, help, flags, min_val, max_val, par
 		return cvar
 	end
 
-	local self = setmetatable({}, ConVar)
-	self.Name = string_lower(name) -- ConVar name in lowercase
-	self.Type = val_type
-	self.Default = default
-	self.Flags = flags
-	self.Help = help or ""
-	--- Weak table (keys) allows callbacks to be garbage collected if no other references exist.
-	self.Callbacks = {} --setmetatable({}, { __mode = "k" })
-	self.Min = min_val
-	self.Max = max_val
+	local self = setmetatable({
+		Name = string_lower(name),
+		Type = val_type,
+		Default = default,
+		Flags = flags,
+		Help = help or "",
+		-- Weak table allows callbacks to be garbage collected if no other references exist
+		Callbacks = {}, --setmetatable({}, { __mode = "k" })
+		Min = min_val,
+		Max = max_val,
+	}, ConVar)
 
 	local initial_val = default
 
@@ -323,11 +368,12 @@ end
 function ConVar:OnConsoleCommand(args)
 	if not args or #args == 0 then
 		-- Use FlagsToString for human readable output
+		local value_str = FormatValueForDisplay(self)
 		Console.Log(
 			string_format(
 				"%s%s [Flags: %s]",
 				self.Name,
-				(self.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or string_format(" = %q", ValueToString(self.Value)),
+				value_str and string_format(" = %s", value_str) or "",
 				FlagsToString(self.Flags)
 			)
 		)
@@ -387,7 +433,8 @@ function ConVar:SetValue(value, source)
 
 	local value = (self.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or self.Value
 
-	for _, cb in next, callbacks do
+	for i = 1, #callbacks do
+		local cb = callbacks[i]
 		if self.Callbacks[cb] then
 			local ok, err = pcall(cb, self.Name, value, source)
 			if not ok then
@@ -455,7 +502,8 @@ function ConVar:GetString()
 	return (self.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or ValueToString(self.Value)
 end
 
---- Gets the value as an Integer (truncated towards zero).
+--- Gets the value as an Integer.<br>
+--- Uses `math.modf` to extract the integer part of the value.
 ---@return integer integer
 function ConVar:GetInt()
 	local num = tonumber(self.Value)
@@ -464,7 +512,7 @@ function ConVar:GetInt()
 end
 
 --- Gets the value as a Float.
----@return number number
+---@return number float
 function ConVar:GetFloat()
 	return tonumber(self.Value) or 0.0
 end
@@ -591,7 +639,7 @@ local function LogConVarEntry(name, cvar, filter)
 	local val_str = cvar:GetString()
 	local help_str = cvar.Help or ""
 	local minmax_str = ""
-	local flag_str = " [Flags: " .. FlagsToString(cvar.Flags) .. "]"
+	local flag_str = cvar.Flags ~= 0 and (" [Flags: " .. FlagsToString(cvar.Flags) .. "]") or ""
 
 	if cvar.Min or cvar.Max then
 		minmax_str = string_format(" [Min: %s, Max: %s]", cvar.Min or "N/A", cvar.Max or "N/A")
@@ -601,7 +649,7 @@ local function LogConVarEntry(name, cvar, filter)
 		string_format(
 			"%s%s%s%s - %s",
 			cvar.Name,
-			(cvar.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or string_format(" = %q", val_str),
+			(cvar.Flags & FLAG.NEVER_AS_STRING) ~= 0 and "" or string_format(" = %s", to_string_literal(val_str)),
 			minmax_str,
 			flag_str,
 			help_str
@@ -613,10 +661,10 @@ end
 Console_RegisterCommand("cvarlist", function(args)
 	local filter
 	if args and args[1] then
-		filter = string_upper(args[1])
+		filter = string_lower(args[1])
 	end
 
-	Console.Log("-------------- ConVar List --------------")
+	Console.Log("======================================== ConVar List ========================================")
 
 	local count = 0
 	for name, cvar in ConVar_GetIterator() do
@@ -627,7 +675,7 @@ Console_RegisterCommand("cvarlist", function(args)
 		end
 	end
 
-	Console.Log(string_format("------------------------------ (%d found)", count))
+	Console.Log(string_pad_right(string_format("(found %d convars) ", count), 93, "="))
 end)
 
 if Server then
@@ -677,7 +725,7 @@ if Server then
 	end)
 
 	Events_SubscribeRemote(USERINFO_EVENT, function(player, name, value_str)
-		print("DEBUG:" .. USERINFO_EVENT, player, name, value_str)
+		--print("DEBUG:" .. USERINFO_EVENT, player, name, value_str)
 		local cvar = ConVars[name]
 		if cvar then
 			if (cvar.Flags & FLAG.USERINFO) == 0 then return end
