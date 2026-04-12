@@ -29,7 +29,7 @@ local CLIENT = type(Client) == "table"
 
 local package_metadata = require "metadata_gen"
 local package_path = package_metadata.path
-local is_preview = string.find(package_metadata.tag, "-", nil, true)
+local is_preview = string.find(package_metadata.tag, "-", nil, true) ~= nil
 local function debug_print(...)
 	if is_preview then
 		print(string.format(...))
@@ -118,8 +118,9 @@ if SERVER then
 				local parsedJson = JSON.parse(data)
 				local storeVersion = parsedJson.payload.version.version
 				print("vault/store version: " .. storeVersion)
-				if Version.parse(storeVersion).isLessThan(Version.getCurrent()) then
+				if Version.parse(storeVersion):isOlderThan(Version.getCurrent()) then
 					is_preview = true
+					Console.Warn("preview version detected; some features may not work")
 				end
 			end)
 		end,
