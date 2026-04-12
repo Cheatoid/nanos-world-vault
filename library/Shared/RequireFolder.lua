@@ -18,12 +18,12 @@ local Package_Require = Package and Package.Require or require
 local _require_fn
 
 -- Default require function
-local function _require(name, ...)
-	--print("[RequireFolder.require]", name, ...)
+local function _require(...)
+	--print("[RequireFolder.require]", ...)
 	if _require_fn then
-		return _require_fn(name, ...)
+		return _require_fn(...)
 	end
-	return Package_Require(name, ...)
+	return Package_Require(...)
 end
 
 -- Simple path normalization function (replaces backslashes with forward slashes)

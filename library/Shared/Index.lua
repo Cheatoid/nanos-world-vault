@@ -77,6 +77,7 @@ requiref "Shared/@cheatoid" {
 	"@cheatoid/standalone",
 	--["@cheatoid/patch/require.lua"] = false, -- ignore; it shouldn't hurt to require it again tho
 	["%.tests%.lua$"] = false,                               -- skip all files ending in .tests.lua
+	["@cheatoid/extensions/.*"] = false,                     -- ignore; extensions must be explicitly loaded because they modify default Lua types
 	["@cheatoid/require_finder/find_requires%.lua$"] = false, -- ignore
 	["@cheatoid/plugin_framework/example_usage%.lua$"] = false, -- ignore
 	["@cheatoid/plugin_framework/hello_plugin%.lua$"] = false, -- ignore
@@ -104,6 +105,8 @@ local http    = require "HttpWrapper"
 local ConVar  = require "ConVar"
 require "BroadcastLua"
 require "ClientsideLua"
+--require "@cheatoid/extensions/number"
+--require "@cheatoid/extensions/string"
 -- @formatter:on
 
 if SERVER then

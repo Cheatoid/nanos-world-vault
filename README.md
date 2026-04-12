@@ -8,6 +8,19 @@
 [<img src="https://raw.github.com/Cheatoid/gh_assets/_/images/rainbow-separator.png" width="100%" />](https://github.com/Cheatoid/nanos-world-vault)
 </div>
 
+# 📚 Library Documentation
+
+The main development library is located in the [`library/`](library/) folder.
+
+**[📖 View Library README, click here](library/README.md)**
+
+For complete documentation on:
+- Console variables (ConVar), Config management, File/HTTP/WebUI wrappers
+- OOP Framework with classes, interfaces, mixins, properties, events
+- Reactive references (Ref) with update/map operations
+- Plugin system with dependency injection and hot-reloading
+- Collections, LINQ, Virtual Machine, and much more
+
 # 🧭 Roadmap
 
 - [ ] Admin mod
