@@ -43,9 +43,9 @@ configuration management, file I/O with virtual file system support, HTTP wrappe
 
 ### ConVar
 
-Exposed as (global) `ConVar`; used for creating console variables (Source-engine style).  
+Allows for creating console variables (Source-engine style).  
 By default, it creates `cvarlist` command to dump created convars, adds `sv_cheats` (placeholder convar), and also adds
-`sv_password` used for changing server's password.
+`sv_password` used for changing server's password (on server-side).
 
 **How to change convars:**
 
@@ -239,6 +239,14 @@ printTree(vfs)
 --   components/
 --     button.lua (21 bytes)
 
+-- Convenient print function using dump_table
+local dump = require "@cheatoid/standalone/dump_table"
+dump.print(vfs, "vfs")
+-- Output:
+-- vfs.src.main.lua = "print('Hello')"
+-- vfs.src.utils.helper.lua = "return {}"
+-- vfs.src.components["button.lua"] = "-- Button component"
+
 -- Direct table manipulation (advanced)
 -- You can work with the VFS directly as a regular Lua table
 vfs["data"] = {
@@ -348,7 +356,7 @@ print("Error range:", http.is_client_error(400))     -- true
 
 ### WebUI Wrappers
 
-Client-side WebUI-bridged APIs for regex and WebSocket functionality.
+Client-side WebUI-bridged APIs for Regex and WebSocket functionality.
 
 ```lua
 -- RegexAPI (bridged via WebUI for full regex support)
@@ -481,10 +489,10 @@ Execute Lua code on clients from the server.
 local broadcast = require "BroadcastLua"
 
 -- Execute on all clients
-broadcast.BroadcastLua("Chat.BroadcastMessage('Hello everyone!')")
+broadcast.BroadcastLua("Chat.AddMessage('Hello!')")
 
 -- Execute on specific player
-broadcast.SendLua(player, "Client.PlayLocalSound('nanos-world::A_Quack_1')")
+broadcast.SendLua(player, "Sound('nanos-world::A_Quack_1'):Play()")
 ```
 
 ### ClientsideLua
@@ -495,9 +503,9 @@ client-side Lua execution.
 ```lua
 -- In console (when allowcslua is enabled):
 -- lua print("Hello from console!")
--- lua return Player.GetAll() -- prints all players
+-- lua for _, ply in next, Player.GetAll() do print(ply) end -- prints all players
 
--- Execute a file
+-- Execute a Lua script file (must end in .lua)
 -- lua scripts/test.lua
 ```
 
@@ -667,6 +675,11 @@ local parts = string.split("a,b,c", ",") -- {"a", "b", "c"}
 local merged = table.merge({a=1}, {b=2}) -- {a=1, b=2}
 local filtered = table.filter({1,2,3,4}, function(v) return v > 2 end)
 
+-- Path-based value retrieval (dot and bracket notation)
+local value = table.get_path(_G, "math.clamp")
+local value, found = table.get_path(_G, "package[\"loaded\"][\"table\"]")
+local value = table.get_path({a = {b = {[5] = "hello"}}}, "a.b.[5]")
+
 -- Math utilities
 local clamped = math.clamp(150, 0, 100) -- 100
 if math.inrange(x, 1, 10) then print("In range!") end
@@ -693,7 +706,7 @@ local result = linq.From({1, 2, 3, 4, 5})
 ```lua
 local linq = require "@cheatoid/linq/linq2"
 
-local result = linq.from({1, 2, 3, 4, 5})
+local result = linq({1, 2, 3, 4, 5})
 	:Where(function(x) return x > 2 end)
 	:Select(function(x) return x * 2 end)
 	:ToArray()
@@ -957,7 +970,7 @@ Various standalone utility modules:
 | `istype`               | Simple type-checking functions            |
 | `xml`                  | XML parsing and serialization             |
 | `zip`                  | ZIP archive handling                      |
-| `util`                 | General utility functions                 |
+| `util`                 | General utilities (coalesce, iff, etc.)   |
 | `patcher`              | Code patching utilities                   |
 | `debug_helper`         | Debugging and profiling tools             |
 | `to_string_literal`    | Convert values to string literals         |
@@ -974,7 +987,6 @@ Various standalone utility modules:
 | `pretty_hex_dump`      | Hex dump with ASCII view                  |
 | `dump_table`           | Recursive table dumper                    |
 | `track_value`          | Value change tracker with callbacks       |
-| `util`                 | General utilities (coalesce, iff, etc.)   |
 
 **Extensions** (modify built-in types):
 
@@ -1011,7 +1023,7 @@ if istype.number(x) and istype.integer(x) then print("It's an integer") end
 if istype.callable(fn) then fn() end
 if istype.none(...) then print("No arguments passed") end
 
--- Lua version compatibility and sandboxing
+-- Lua code sandboxing
 local isolated = require "@cheatoid/standalone/isolated"
 
 -- Loadstring works in all Lua versions (5.1, 5.2+, LuaJIT)
@@ -1120,6 +1132,43 @@ Patcher:restore("debug-hooks")
 -- Restore all patches
 Patcher:restore_all()
 
+-- Recursive table dumper
+local dump = require "@cheatoid/standalone/dump_table"
+
+-- Dump a table with options
+local myTable = {
+    name = "test",
+    nested = {
+        value = 42,
+        items = {1, 2, 3}
+    }
+}
+
+-- Get dump as lines
+local count, lines = dump.dump(myTable, "myTable")
+for i = 1, count do
+    print(lines[i])
+end
+-- Output:
+-- myTable.name = "test"
+-- myTable.nested.value = 42
+-- myTable.nested.items[1] = 1
+-- myTable.nested.items[2] = 2
+-- myTable.nested.items[3] = 3
+
+-- Print directly with depth limit
+dump.print(_G, "_G", { max_depth = 1 })
+
+-- Filter to skip certain keys
+local count, lines = dump.dump(_G, "_G", {
+    max_depth = 2,
+    filter = function(path, k, v)
+        -- Skip functions and tables that are too large
+        if type(v) == "function" then return false end
+        return true
+    end
+})
+
 -- Try/catch
 local try = require("@cheatoid/standalone/try").try
 try(function()
@@ -1148,9 +1197,6 @@ local xmlString = xml.stringify({
     }
 })
 print(xmlString) -- <person id="123"><name>John</name><age>30</age></person>
-
--- CFG file parser (Source-engine style configs)
-local cfg = require "@cheatoid/standalone/cfg_parser"
 
 -- String literal conversion (for generating Lua code)
 local str_lit = require "@cheatoid/standalone/to_string_literal"
@@ -1191,7 +1237,8 @@ end
 changed, new_val, old_val = tracker(10)
 print("Set to", new_val) -- 10
 
--- Parse Source-style config
+-- CFG file parser (Source-engine style configs)
+local cfg = require "@cheatoid/standalone/cfg_parser"
 local cfgContent = [[
 // Server configuration
 "hostname" "My Server"
@@ -1207,6 +1254,7 @@ local cfgContent = [[
 }
 ]]
 
+-- Parse Source-style config
 local result = cfg.parse(cfgContent)
 if result.ok then
     print("Hostname:", cfg.getString(result.value, "hostname"))
@@ -1259,8 +1307,9 @@ if metadata then
     end
 end
 
--- Debugger API (inspect stack, locals, breakpoints)
+-- DebugHelper and Debugger (inspect stack, locals, upvalues, breakpoints)
 local debug_helper = require "@cheatoid/standalone/debug_helper"
+local debugger = debug_helper.debugger
 
 -- Stack inspection
 local depth = debug_helper.get_stack_depth()
@@ -1300,24 +1349,24 @@ print("Upvalues:", frame.upvalues)
 
 -- Interactive debugger with breakpoints
 -- Set a breakpoint
-debug_helper.debugger.set_breakpoint("@myfile.lua", 42)
+debugger.set_breakpoint("@myfile.lua", 42)
 
 -- Set up break callback
-debug_helper.debugger.on_break(function(info, line, event, reason)
+debugger.on_break(function(info, line, event, reason)
     print("Paused at", info.source, "line", line, "reason:", reason)
     -- Continue execution
-    debug_helper.debugger.resume()
+    debugger.resume()
 end)
 
 -- List all breakpoints
-local bps = debug_helper.debugger.list_breakpoints()
+local bps = debugger.list_breakpoints()
 for source, lines in pairs(bps) do
     print(source .. ":" .. table.concat(lines, ", "))
 end
 
 -- Clear breakpoint
-debug_helper.debugger.clear_breakpoint("@myfile.lua", 42)
-debug_helper.debugger.clear_all_breakpoints()
+debugger.clear_breakpoint("@myfile.lua", 42)
+debugger.clear_all_breakpoints()
 
 -- Number extensions (modifies number-type metatable)
 require "@cheatoid/extensions/number"
