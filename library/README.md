@@ -1,5 +1,5 @@
-<h1 align="center"><img align="center" src="../.resources/cheatoid-library.jpg" width="400" height="250" alt="Library API"></h1>
-<p align="center">A comprehensive dev library for nanos-world 🚀</p>
+<a href="https://api.nanos-world.com/store/packages/cheatoid-library"><h1 align="center"><img align="center" src="../.resources/cheatoid-library.png" width="400" height="250" alt="Library API"></h1></a>
+<p align="center">A comprehensive development toolkit of handy libraries designed to supercharge your scripting workflow and let you focus on building great nanos-world gameplay... 🚀</p>
 
 > [!NOTE]
 > This README provides a quick overview of the library's features. Not everything is covered here, as it is
