@@ -1518,6 +1518,8 @@ require "@cheatoid/extensions/string"
 print("Hello " + "World")  -- "Hello World"
 print("abc" * 3)           -- "abcabcabc"
 print("test"[1])           -- "t" (character access)
+print("hello" << 2)        -- "llohe" (rotate left)
+print("hello" >> 2)        -- "lohel" (rotate right)
 ```
 
 ## Installation

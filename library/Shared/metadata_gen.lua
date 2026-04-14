@@ -18,11 +18,11 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.27",
-	timestamp = "2026-04-14 21:42:07",
+	timestamp = "2026-04-14 21:45:39",
 	commit_count = 133,
 	tag_count = 24,
 	branch_name = "main",
-	prev_hash = "450e108b8faa0223234836ab87c9c3a7b5ff425c",
+	prev_hash = "b097e644bc4cd9660b77a9f5990084351993c72d",
 	tag = "v0.0.28",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
@@ -31,7 +31,7 @@ return {
 	files_hash = {
 		["LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
 		["Package.toml"] = "2ae07535a9d16899ad58fe1e5522eafe86a3866e0a886de3924a6d1624b06d62",
-		["README.md"] = "2782a8aed2f461aedd94620e4d625576a5c6d82477dde7524beddb7de3098b35",
+		["README.md"] = "e327789b30bd61bb7e264c8257bf41f0b799943ad4b6596fba4da1347281ce24",
 		["Client/Index.lua"] = "af035c689e012a897bbbb8f76439cd5a2809e5dec64bdd6cdbddfdba61f94d4c",
 		["Client/RegexAPI.lua"] = "f00b80003e3658a15b3c817384bcc8743311c0e844f5179f1f4a4505fd2d7994",
 		["Client/WebSocketAPI.lua"] = "f7d54f0c3fce373f3105d54dd67599bf8064e9669ec07f031c44647304ada5f9",
