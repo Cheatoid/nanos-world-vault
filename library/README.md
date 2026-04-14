@@ -968,7 +968,8 @@ local isolated = s("some_module", true)  -- deep copy environment
 
 ### BigInteger
 
-Arbitrary-precision integer arithmetic for handling numbers that exceed Lua's number precision. Perfect for SteamIDs, large database IDs, and cryptographic calculations.
+Arbitrary-precision integer arithmetic for handling numbers that exceed Lua's number precision. Perfect for SteamIDs,
+large database IDs, and cryptographic calculations.
 
 ```lua
 local BigInteger = require "@cheatoid/standalone/biginteger"
@@ -1012,7 +1013,8 @@ local one = BigInteger.one
 
 ### Console
 
-Interactive command console with fuzzy completion, history tracking, and IntelliSense. Perfect for admin panels, debug interfaces, or in-game command systems.
+Interactive command console with fuzzy completion, history tracking, and IntelliSense. Perfect for admin panels, debug
+interfaces, or in-game command systems.
 
 ```lua
 local Console = require "@cheatoid/standalone/console"
@@ -1123,11 +1125,11 @@ Various standalone utility modules:
 
 **Extensions** (modify built-in types):
 
-| Module                             | Description                                                                      |
-|------------------------------------|----------------------------------------------------------------------------------|
-| `extensions/number`                | Adds time units, data sizes, duration objects to numbers                         |
-| `extensions/string`                | Adds `+` for concatenation, `*` for repetition, `<<`/`>> for rotation to strings |
-| `extensions/pretty_print_function` | Pretty-print functions with source info                                          |
+| Module                             | Description                                                                       |
+|------------------------------------|-----------------------------------------------------------------------------------|
+| `extensions/number`                | Adds time units, data sizes, duration objects to numbers                          |
+| `extensions/string`                | Adds `+` for concatenation, `*` for repetition, `<<`/`>>` for rotation to strings |
+| `extensions/pretty_print_function` | Pretty-print functions with source info                                           |
 
 ```lua
 -- Base encoding/decoding (Base16, Base58, Base64, custom)
