@@ -204,7 +204,7 @@ if SERVER then
 						)
 					end,
 					function(data, status, url)
-						debug_print("[remote version] failed - status: %s, url: %s", status, url,
+						debug_print("[remote version] failed - status: %s, url: %s, data: %s", status, url,
 							tsl.to_string_literal(data))
 						-- Fallback: use githubTag from metadata
 						http.get(
