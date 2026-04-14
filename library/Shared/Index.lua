@@ -113,9 +113,9 @@ require "ClientsideLua"
 -- @formatter:on
 
 if SERVER then
+	-- TODO: use async/await from oop to avoid callback hell
 	local target_url = string.format("https://api.nanos-world.com/store/packages/%s", package_name)
 	debug_print("asset store url: %q", target_url)
-	-- TODO: use async/await from oop to avoid callback hell
 	http.get(
 		target_url,
 		function(data, status, url)
@@ -131,7 +131,8 @@ if SERVER then
 			end)
 		end,
 		function(data, status, url)
-			debug_print("[asset store] status: %s, url: %q, data: %q", status, url, data)
+			debug_print("[asset store] status: %s, url: %q, data: %s", status, url,
+				tsl.to_string_literal(data))
 		end
 	)
 	-- "https://raw.github.com/%s/%s/main/VERSION" -- latest repo release version
@@ -172,7 +173,8 @@ if SERVER then
 				http.get(
 					version_url,
 					function(versionData, versionStatus, versionUrl)
-						debug_print("[repo version] status: %s, data: %q", versionStatus, versionData)
+						debug_print("[repo version] status: %s, data: %s", versionStatus,
+							tsl.to_string_literal(versionData))
 						local latest_version = versionStatus == 200 and
 							versionData:match("^(v?[%d%.]+)") -- NOTE: repo version should always be stable
 						if not latest_version then
@@ -196,12 +198,14 @@ if SERVER then
 								-- TODO/CONS: use vfs to store/load code instead of extracting zip to disk?
 							end,
 							function(data, status, url)
-								debug_print("[remote zip] status: %s, url: %q, data: %q", status, url, data)
+								debug_print("[remote zip] status: %s, url: %q, data: %s", status, url,
+									tsl.to_string_literal(data))
 							end
 						)
 					end,
 					function(data, status, url)
-						debug_print("[remote version] failed - status: %s, url: %q", status, url)
+						debug_print("[remote version] failed - status: %s, url: %s", status, url,
+							tsl.to_string_literal(data))
 						-- Fallback: use githubTag from metadata
 						http.get(
 							string.format(
@@ -216,7 +220,8 @@ if SERVER then
 								debug_print("latest zip size: %d bytes", #zipData)
 							end,
 							function(data, status, url)
-								debug_print("[remote zip] status: %s, url: %q, data: %q", status, url, data)
+								debug_print("[remote zip] status: %s, url: %q, data: %s", status, url,
+									tsl.to_string_literal(data))
 							end
 						)
 					end
@@ -224,7 +229,8 @@ if SERVER then
 			end)
 		end,
 		function(data, status, url)
-			debug_print("[remote metadata] status: %s, url: %q, data: %q", status, url, data)
+			debug_print("[remote metadata] status: %s, url: %q, data: %s", status, url,
+				tsl.to_string_literal(data))
 		end
 	)
 end
