@@ -43,13 +43,14 @@ end
 local Version = require "Version"
 local package_name = Package.GetName()
 --log("package name: %s", package_name)
---log("local package version: %s", Package.GetVersion())
-print("local package version: " .. tostring(Version.getCurrent()))
+--log("package version: %s", Package.GetVersion())
+print("package version: " .. tostring(Version.getCurrent()))
+local branch_name = package_metadata.branch_name or "main"
 debug_print("metadata path: %s", package_path)
 print("metadata version: " .. package_metadata.package_version)
 print("metadata tag: " .. package_metadata.tag)
 debug_print("metadata timestamp: %s", package_metadata.timestamp)
-debug_print("metadata branch: %s", package_metadata.branch_name)
+debug_print("metadata branch: %s", branch_name)
 
 -- Pre-load modules to cache them and prevent runtime errors.
 -- As a library, we only ensure modules are pre-loaded.
@@ -77,10 +78,12 @@ requiref "Shared/@cheatoid" {
 	"@cheatoid/standalone",
 	--["@cheatoid/patch/require.lua"] = false, -- ignore; it shouldn't hurt to require it again tho
 	["%.tests%.lua$"] = false,                               -- skip all files ending in .tests.lua
-	["@cheatoid/extensions/.*"] = false,                     -- ignore; extensions must be explicitly loaded because they modify default Lua types
+	["@cheatoid/extensions/.*"] = false,                     -- skip; extensions must be explicitly loaded because they modify default Lua types
+	["/?examples?%.lua$"] = false,                           -- ignore examples
 	["@cheatoid/require_finder/find_requires%.lua$"] = false, -- ignore
 	["@cheatoid/plugin_framework/example_usage%.lua$"] = false, -- ignore
 	["@cheatoid/plugin_framework/hello_plugin%.lua$"] = false, -- ignore
+	["@cheatoid/standard/global%.lua$"] = false,             -- ignore (let consumers explicitly load it)
 }
 
 --dbg.debugger.disable()
@@ -123,7 +126,7 @@ if SERVER then
 				print("vault/store version: " .. storeVersion)
 				if Version.parse(storeVersion):isOlderThan(Version.getCurrent()) then
 					is_preview = true
-					Console.Warn("preview version detected; some features may not work")
+					Console.Warn("preview version detected (delayed); some features may not work")
 				end
 			end)
 		end,
@@ -140,48 +143,50 @@ if SERVER then
 		"https://raw.github.com/%s/%s/%s/%s/Shared/metadata_gen.lua", -- shorter
 		package_metadata.owner,
 		package_metadata.repo,
-		package_metadata.branch_name,
+		branch_name,
 		package_path
 	)
-	debug_print("github metadata url: %q", target_url)
+	debug_print("remote metadata url: %q", target_url)
 	http.get(
 		target_url,
 		function(data, status, url)
-			debug_print("[github metadata] status: %s, url: %q, size: %d", status, url, #data)
+			debug_print("[remote metadata] status: %s, url: %q, size: %d", status, url, #data)
 			pcall(function()
 				local githubMetadata = load(data)() ---@type metadata_gen
 				local githubVersion, githubCommitCount, githubTagCount, githubTag, githubPrevHash =
 					githubMetadata.package_version, githubMetadata.commit_count, githubMetadata.tag_count,
 					githubMetadata.tag, githubMetadata.prev_hash
-				print("github metadata version: " .. githubVersion)
-				debug_print("github tag count: %s", githubTagCount)
-				debug_print("github prev hash: %s", githubPrevHash)
-				print("github metadata tag: " .. githubTag)
+				print("remote metadata version: " .. githubVersion)
+				debug_print("remote commit count: %s", githubCommitCount)
+				debug_print("remote tag count: %s", githubTagCount)
+				debug_print("remote prev hash: %s", githubPrevHash)
+				print("remote metadata tag: " .. githubTag)
 				-- Fetch the actual latest version from VERSION file
-				local versionUrl = string.format(
-					"https://raw.github.com/%s/%s/main/VERSION",
+				local version_url = string.format(
+					"https://raw.github.com/%s/%s/%s/VERSION",
 					githubMetadata.owner or "Cheatoid",
-					githubMetadata.repo or "nanos-world-vault"
+					githubMetadata.repo or "nanos-world-vault",
+					branch_name
 				)
-				debug_print("fetching latest repo version: %q", versionUrl)
+				debug_print("repo version url: %q", version_url)
 				http.get(
-					versionUrl,
+					version_url,
 					function(versionData, versionStatus, versionUrl)
 						debug_print("[repo version] status: %s, data: %q", versionStatus, versionData)
-						local latestVersion = versionStatus == 200 and
-							versionData:match("^v?([%d%.]+)") -- NOTE: repo version should always be stable
-						if not latestVersion then
-							print("failed to fetch repo version, falling back to metadata tag: " .. githubTag)
-							latestVersion = githubTag
-						else
-							print("latest repo version: " .. latestVersion)
+						local latest_version = versionStatus == 200 and
+							versionData:match("^(v?[%d%.]+)") -- NOTE: repo version should always be stable
+						if not latest_version then
+							debug_print("failed to fetch repo version, falling back to metadata tag: %s", githubTag)
+							latest_version = githubTag
 						end
+						if latest_version:sub(1, 1) ~= "v" then latest_version = "v" .. latest_version end
+						print("latest repo version: " .. latest_version)
 						http.get(
 							string.format(
 								"https://github.com/%s/%s/releases/download/%s/%s.zip",
 								githubMetadata.owner or "Cheatoid",
 								githubMetadata.repo or "nanos-world-vault",
-								latestVersion,
+								latest_version,
 								package_name
 							),
 							function(zipData, zipStatus, zipUrl)
@@ -191,12 +196,12 @@ if SERVER then
 								-- TODO/CONS: use vfs to store/load code instead of extracting zip to disk?
 							end,
 							function(data, status, url)
-								debug_print("[github zip] status: %s, url: %q, data: %q", status, url, data)
+								debug_print("[remote zip] status: %s, url: %q, data: %q", status, url, data)
 							end
 						)
 					end,
 					function(data, status, url)
-						debug_print("[github version] failed - status: %s, url: %q", status, url)
+						debug_print("[remote version] failed - status: %s, url: %q", status, url)
 						-- Fallback: use githubTag from metadata
 						http.get(
 							string.format(
@@ -211,7 +216,7 @@ if SERVER then
 								debug_print("latest zip size: %d bytes", #zipData)
 							end,
 							function(data, status, url)
-								debug_print("[github zip] status: %s, url: %q, data: %q", status, url, data)
+								debug_print("[remote zip] status: %s, url: %q, data: %q", status, url, data)
 							end
 						)
 					end
@@ -219,7 +224,7 @@ if SERVER then
 			end)
 		end,
 		function(data, status, url)
-			debug_print("[github metadata] status: %s, url: %q, data: %q", status, url, data)
+			debug_print("[remote metadata] status: %s, url: %q, data: %q", status, url, data)
 		end
 	)
 end

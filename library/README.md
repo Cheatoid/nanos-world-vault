@@ -55,18 +55,20 @@ By default, it creates `cvarlist` command to dump created convars, adds `sv_chea
 **How to register convars:**
 
 ```lua
+local ConVar = require "ConVar"
+
 local sv_allowcslua = ConVar.Register(
-	"sv_allowcslua", -- name
-	Server.GetCustomSettings().enable_cslua or false, -- optional, default value (either boolean, number or string)
-	"Enable players to run Lua on client-side", -- optional, description
-	ConVar.FLAG.REPLICATED, -- optional, flags (can be combination of bitfields)
-	0, -- optional, minimum numeric value (0 for boolean)
-	1  -- optional, maximum numeric value (1 for boolean)
+    "sv_allowcslua", -- name
+    Server.GetCustomSettings().enable_cslua or false, -- optional, default value (either boolean, number or string)
+    "Enable players to run Lua on client-side", -- optional, description
+    ConVar.FLAG.REPLICATED, -- optional, flags (can be combination of bitfields)
+    0, -- optional, minimum numeric value (0 for boolean)
+    1  -- optional, maximum numeric value (1 for boolean)
 )
 
 -- You can also be notified about a change of convar's value by adding a callback
 sv_allowcslua:AddChangeCallback(function(name, new_value, source)
-	Console.Log("%s has been %s by %s", name, new_value and "enabled" or "disabled", source)
+    Console.Log("%s has been %s by %s", name, new_value and "enabled" or "disabled", source)
 end)
 
 -- Handy getters/setters
@@ -75,10 +77,10 @@ end)
 
 -- USERINFO flag example - client convars accessible on server
 if Client then
-	ConVar.Register("cl_userinfo_cvar", "stuff", "example userinfo cvar", ConVar.FLAG.USERINFO)
+    ConVar.Register("cl_userinfo_cvar", "stuff", "example userinfo cvar", ConVar.FLAG.USERINFO)
 else
-	-- On server-side we can fetch player's userinfo value:
-	ConVar.GetUserInfo(player, "cl_userinfo_cvar")
+    -- On server-side we can fetch player's userinfo value:
+    ConVar.GetPlayerInfo(player, "cl_userinfo_cvar")
 end
 ```
 
@@ -157,7 +159,7 @@ end
 file.create_directory("logs/2024")
 
 -- List files in directory
-local files = file.get_files("scripts", ".lua")
+local files = file.list_files("scripts", ".lua")
 for _, f in ipairs(files) do
     print("Found:", f)
 end
@@ -181,8 +183,9 @@ if file.vfs.exists(vfs, "config/settings.json") then
 end
 
 -- List VFS contents
-local entries = file.vfs.list(vfs, "scripts")
-for name, isDir in pairs(entries) do
+local entries = file.vfs.get(vfs, "scripts")
+for name, value in pairs(entries or {}) do
+    local isDir = type(value) == "table"
     print(name, isDir and "(dir)" or "(file)")
 end
 
@@ -240,8 +243,9 @@ printTree(vfs)
 --     button.lua (21 bytes)
 
 -- Convenient print function using dump_table
-local dump = require "@cheatoid/standalone/dump_table"
-dump.print(vfs, "vfs")
+--local dump = require "@cheatoid/standalone/dump_table"
+--dump.print(vfs, "vfs")
+table.dump_print(vfs, "vfs") -- Shorthand
 -- Output:
 -- vfs.src.main.lua = "print('Hello')"
 -- vfs.src.utils.helper.lua = "return {}"
@@ -464,16 +468,16 @@ local v = Version.parse("1.2.3")
 
 -- Compare versions
 if v:isOlderThan("1.3.0") then
-	print("Update available!")
+    print("Update available!")
 end
 
 if v:isNewerThan("1.0.0") then
-	print("Running newer version")
+    print("Running newer version")
 end
 
 -- Check against current package version
 if Version.isUpdateAvailable("1.2.4") then
-	print("New version available!")
+    print("New version available!")
 end
 
 -- Get current package version
@@ -492,7 +496,7 @@ local broadcast = require "BroadcastLua"
 broadcast.BroadcastLua("Chat.AddMessage('Hello!')")
 
 -- Execute on specific player
-broadcast.SendLua(player, "Sound('nanos-world::A_Quack_1'):Play()")
+broadcast.SendLua(player, "Chat.AddMessage('Hello!')")
 ```
 
 ### ClientsideLua
@@ -519,16 +523,18 @@ local requiref = require "RequireFolder"
 -- Load all Lua files from a folder
 requiref "Shared/Modules" {}
 
--- Load with exclusions
+-- Load with priority and exclusions
 requiref "Shared/@cheatoid" {
-	["%.tests%.lua$"] = false,  -- skip test files
-	["example%.lua$"] = false   -- skip examples
+    "load_first/",  -- highest priority
+    "load_second/",
+    ["%.tests%.lua$"] = false,  -- skip *.tests.lua files
+    ["example%.lua$"] = false   -- skip example.lua
 }
 
 -- Load specific modules only
 requiref "Shared/Extensions" {
-	"extension1",
-	"extension2"
+    "extension1",
+    "extension2"
 }
 ```
 
@@ -536,8 +542,8 @@ requiref "Shared/Extensions" {
 
 ### OOP Framework
 
-Object-oriented programming utilities including classes, inheritance, interfaces, mixins, properties, events, enums, and
-promises.
+Object-oriented programming utilities including classes, inheritance, interfaces, mixins, properties, events, enums,
+promises, and integrated profiler.
 
 ```lua
 local oop = require "@cheatoid/oop/oop"
@@ -547,7 +553,7 @@ local MyClass = oop.class("MyClass")
 
 -- Define constructor
 function MyClass:constructor(name)
-	self.name = name
+    self.name = name
 end
 
 -- Create instance
@@ -673,11 +679,12 @@ local parts = string.split("a,b,c", ",") -- {"a", "b", "c"}
 
 -- Table utilities
 local merged = table.merge({a=1}, {b=2}) -- {a=1, b=2}
-local filtered = table.filter({1,2,3,4}, function(v) return v > 2 end)
+local unique = table.unique({1,2,2,3,3,3}) -- {1,2,3}
+local filtered = table.filter({1,2,3,4,5}, function(v) return v > 2 end) -- {3,4,5}
 
 -- Path-based value retrieval (dot and bracket notation)
 local value = table.get_path(_G, "math.clamp")
-local value, found = table.get_path(_G, "package[\"loaded\"][\"table\"]")
+local value = table.get_path(_G, "package[\"loaded\"][\"table\"]")
 local value = table.get_path({a = {b = {[5] = "hello"}}}, "a.b.[5]")
 
 -- Math utilities
@@ -695,9 +702,9 @@ Language-Integrated Query for Lua collections. Three versions are available with
 local linq = require "@cheatoid/linq/linq"
 
 local result = linq.From({1, 2, 3, 4, 5})
-	:Where(function(x) return x > 2 end)
-	:Select(function(x) return x * 2 end)
-	:ToTable()
+    :Where(function(x) return x > 2 end)
+    :Select(function(x) return x * 2 end)
+    :ToTable()
 -- result: {6, 8, 10}
 ```
 
@@ -707,9 +714,9 @@ local result = linq.From({1, 2, 3, 4, 5})
 local linq = require "@cheatoid/linq/linq2"
 
 local result = linq({1, 2, 3, 4, 5})
-	:Where(function(x) return x > 2 end)
-	:Select(function(x) return x * 2 end)
-	:ToArray()
+    :Where(function(x) return x > 2 end)
+    :Select(function(x) return x * 2 end)
+    :ToArray()
 ```
 
 **linq3 (v3)** - camelCase methods:
@@ -718,9 +725,9 @@ local result = linq({1, 2, 3, 4, 5})
 local Enumerable = require "@cheatoid/linq/linq3"
 
 local result = Enumerable.from({1, 2, 3, 4, 5})
-	:where(function(x) return x > 2 end)
-	:select(function(x) return x * 2 end)
-	:toTable()
+    :where(function(x) return x > 2 end)
+    :select(function(x) return x * 2 end)
+    :toTable()
 ```
 
 ### Ref
@@ -825,28 +832,28 @@ local manager = PluginManager.new({ debug = true })
 
 -- Register a service (dependency injection)
 manager:register_service("logger", {
-	log = function(msg) print("[LOG]", msg) end
+    log = function(msg) print("[LOG]", msg) end
 })
 
 -- Load plugin from string
 local plugin_code = [[
 function plugin:init(manager)
-	print("[my_plugin] Initializing...")
-	self.state.count = 0
+    print("[my_plugin] Initializing...")
+    self.state.count = 0
 end
 
 function plugin:start()
-	print("[my_plugin] Starting...")
+    print("[my_plugin] Starting...")
 end
 
 function plugin:stop()
-	print("[my_plugin] Stopping...")
+    print("[my_plugin] Stopping...")
 end
 
 function plugin:greet(name)
-	self.state.count = self.state.count + 1
-	print("Hello, " .. name .. "!")
-	return self.state.count
+    self.state.count = self.state.count + 1
+    print("Hello, " .. name .. "!")
+    return self.state.count
 end
 ]]
 
@@ -854,32 +861,32 @@ local my_plugin = manager:loadstring("my_plugin", plugin_code)
 
 -- Create plugin using fluent API
 local counter = Plugin("counter")
-	:with_config({ max = 100 })
-	:with_init(function(self, manager)
+    :with_config({ max = 100 })
+    :with_init(function(self, manager)
 		self.state.value = 0
-	end)
-	:with_start(function(self)
+    end)
+    :with_start(function(self)
 		print("Counter started")
-	end)
-	:with_stop(function(self)
+    end)
+    :with_stop(function(self)
 		print("Counter stopped at:", self.state.value)
-	end)
+    end)
 
 manager:register(counter)
 
 -- Plugin with dependencies
 local dependent = Plugin("dependent")
-	:depends_on("my_plugin")
-	:with_init(function(self, manager)
+    :depends_on("my_plugin")
+    :with_init(function(self, manager)
 		local parent = manager:get_plugin("my_plugin")
 		print("Dependency count:", parent.state.count)
-	end)
+    end)
 
 manager:register(dependent)
 
 -- Event system
 manager:on("my_plugin:custom", function(data)
-	print("Event received:", data.message)
+    print("Event received:", data.message)
 end)
 
 -- Lifecycle management
@@ -890,7 +897,7 @@ manager:stop_all()  -- Stop all plugins
 
 -- List all plugins
 for _, name in next, manager:list_plugins() do
-	print("Plugin:", name)
+    print("Plugin:", name)
 end
 ```
 
@@ -959,6 +966,131 @@ local s = gaimers.s
 local isolated = s("some_module", true)  -- deep copy environment
 ```
 
+### BigInteger
+
+Arbitrary-precision integer arithmetic for handling numbers that exceed Lua's number precision. Perfect for SteamIDs, large database IDs, and cryptographic calculations.
+
+```lua
+local BigInteger = require "@cheatoid/standalone/biginteger"
+
+-- Create from string (recommended for large numbers)
+local steamid64 = BigInteger("76561198000000000")
+print("SteamID64:", steamid64:to_string())
+
+-- Arithmetic operations
+local a = BigInteger("76561198000000000")
+local b = BigInteger("1000000000000000")
+local sum = a + b
+local diff = a - b
+local product = a * b
+print("Sum:", sum:to_string())         -- 76561199000000000
+print("Difference:", diff:to_string()) -- 75561198000000000
+print("Product:", product:to_string()) -- Very large number
+
+-- Power operation (exponentiation)
+local large = BigInteger("2")
+local result = large ^ 100
+print("2^100:", result:to_string())
+
+-- Modulo operation (useful for SteamID calculations)
+local account_id = BigInteger("76561198000000000") % BigInteger("10000000000")
+print("Account ID:", account_id:to_string())
+
+-- Expression evaluator (Shunting-yard algorithm)
+local expr = BigInteger.eval("(76561198000000000 + 1000000000000000) * 2")
+print("Evaluated:", expr:to_string())
+
+-- Convert to Lua number (caution: may lose precision for very large numbers)
+local small = BigInteger("12345")
+local num = small:to_number()
+print("As number:", num) -- 12345
+
+-- Zero and one constants
+local zero = BigInteger.zero
+local one = BigInteger.one
+```
+
+### Console
+
+Interactive command console with fuzzy completion, history tracking, and IntelliSense. Perfect for admin panels, debug interfaces, or in-game command systems.
+
+```lua
+local Console = require "@cheatoid/standalone/console"
+
+-- Create a new console instance
+local console = Console.new({
+  suggestion_limit = 10,
+  history_limit = 100,
+  case_sensitive = false
+})
+
+-- Register commands with typed arguments
+console:register({
+  name = "kick",
+  aliases = { "ban" },
+  desc = "Kick a player from the server",
+  args = {
+    { name = "player", type = "string", desc = "Player name or ID" },
+    { name = "reason", type = "string", optional = true, desc = "Kick reason" }
+  },
+  handler = function(ctx, args)
+    return "Kicked " .. args.player .. (args.reason and (" for " .. args.reason) or "")
+  end
+})
+
+console:register({
+  name = "set",
+  desc = "Set a configuration value",
+  args = {
+    { name = "key", type = "string", desc = "Config key" },
+    { name = "value", type = "string", desc = "Config value" },
+    { name = "permanent", type = "bool", optional = true, default = false, desc = "Save permanently" }
+  },
+  handler = function(ctx, args)
+    return "Set " .. args.key .. " = " .. args.value .. (args.permanent and " (saved)" or "")
+  end
+})
+
+console:register({
+  name = "gamemode",
+  desc = "Set the game mode",
+  args = {
+    { name = "mode", type = "enum", choices = { "deathmatch", "ctf", "tdm", "sandbox" }, desc = "Game mode" }
+  },
+  handler = function(ctx, args)
+    return "Game mode set to: " .. args.mode
+  end
+})
+
+-- Register built-in commands (help, echo)
+console:register_defaults()
+
+-- Parse and execute commands
+local result, err = console:input_line('kick "Player123" "griefing"')
+if err then print("Error:", err) else print(result) end
+
+-- Get fuzzy suggestions for completion
+local suggestions = console:suggest("k", 10)
+for _, s in ipairs(suggestions) do
+  print(s.key, s.desc)
+end
+
+-- Tab completion
+local completion = console:complete("ki") -- returns "kick"
+
+-- History navigation
+local prev = console:history_prev()
+local next = console:history_next()
+
+-- Get help
+print(console:help()) -- List all commands
+print(console:help("kick")) -- Detailed help for kick command
+
+-- Save/load state (for persistence)
+local state = console:save_state()
+-- Later: console:load_state(state)
+```
+
 ### Standalone Utilities
 
 Various standalone utility modules:
@@ -972,7 +1104,7 @@ Various standalone utility modules:
 | `zip`                  | ZIP archive handling                      |
 | `util`                 | General utilities (coalesce, iff, etc.)   |
 | `patcher`              | Code patching utilities                   |
-| `debug_helper`         | Debugging and profiling tools             |
+| `debug_helper`         | Debugger and debugging utilities          |
 | `to_string_literal`    | Convert values to string literals         |
 | `biginteger`           | Arbitrary precision integers              |
 | `bits`                 | Bit manipulation utilities                |
@@ -987,14 +1119,15 @@ Various standalone utility modules:
 | `pretty_hex_dump`      | Hex dump with ASCII view                  |
 | `dump_table`           | Recursive table dumper                    |
 | `track_value`          | Value change tracker with callbacks       |
+| `console`              | Interactive console with fuzzy completion |
 
 **Extensions** (modify built-in types):
 
-| Module                             | Description                                               |
-|------------------------------------|-----------------------------------------------------------|
-| `extensions/number`                | Adds time units, data sizes, duration objects to numbers  |
-| `extensions/string`                | Adds `+` for concatenation, `*` for repetition to strings |
-| `extensions/pretty_print_function` | Pretty-print functions with source info                   |
+| Module                             | Description                                                                      |
+|------------------------------------|----------------------------------------------------------------------------------|
+| `extensions/number`                | Adds time units, data sizes, duration objects to numbers                         |
+| `extensions/string`                | Adds `+` for concatenation, `*` for repetition, `<<`/`>> for rotation to strings |
+| `extensions/pretty_print_function` | Pretty-print functions with source info                                          |
 
 ```lua
 -- Base encoding/decoding (Base16, Base58, Base64, custom)
@@ -1172,9 +1305,9 @@ local count, lines = dump.dump(_G, "_G", {
 -- Try/catch
 local try = require("@cheatoid/standalone/try").try
 try(function()
-	error("Something went wrong")
+    error("Something went wrong")
 end):catch(function(err)
-	print("Error:", err)
+    print("Error:", err)
 end)
 
 -- Type checking

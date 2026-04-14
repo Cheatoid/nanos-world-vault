@@ -127,7 +127,7 @@ function Update-Version($tag, $majorFlag, $minorFlag, $patchFlag, $suffix, $next
 		return "v$Major.$Minor.$( $Patch + 1 )"
 	}
 
-	# If prerelease exists → increment it
+	# If prerelease exists, then increment it
 	if ($pre)
 	{
 		foreach ($id in $PreIds)
@@ -140,7 +140,7 @@ function Update-Version($tag, $majorFlag, $minorFlag, $patchFlag, $suffix, $next
 		}
 	}
 
-	# No prerelease → normal patch bump
+	# No prerelease => normal patch bump
 	return "v$Major.$Minor.$( $Patch + 1 )"
 }
 
