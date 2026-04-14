@@ -18,11 +18,11 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.27",
-	timestamp = "2026-04-14 21:07:53",
-	commit_count = 130,
+	timestamp = "2026-04-14 21:08:34",
+	commit_count = 132,
 	tag_count = 23,
 	branch_name = "main",
-	prev_hash = "34173cb91c25db91b6bd55411c3fea7ecd1eeeb7",
+	prev_hash = "dc7527f47a3d721c6872addf90a7eb269c057376",
 	tag = "v0.0.27",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
