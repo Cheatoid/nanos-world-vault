@@ -142,11 +142,12 @@ local function HttpWrapper(method)
 		if check_arg(2, "function|table") == "table" then
 			-- *Options-table overload*
 
+			---@type table
+			local options = on_success
+
 			-- Use provided endpoint if available, otherwise use extracted endpoint
 			local endpoint = options.ENDPOINT or url_endpoint
 
-			---@type table
-			local options = on_success
 			options = table_upper(options or {}) -- uppercase lookup is faster
 			if options.ONSUCCESS or options.SUCCESS or options.ONFAIL or options.FAIL then
 				callback = function(status, data)
