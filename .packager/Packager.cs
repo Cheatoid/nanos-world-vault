@@ -763,7 +763,8 @@ foreach (var dir in dirs)
 			}
 
 			var packageFiles = Directory.EnumerateFiles(packageRoot, "*", SearchOption.AllDirectories);
-			var zipBytes = CreateZipFromFiles(packageFiles.ToArray(), packageRoot, ZipFilterRegexes);
+			var zipBytes = CreateZipFromFiles(packageFiles.ToArray(), packageRoot,
+				isCompileMode ? ZipCompileModeFilterRegexes : ZipFilterRegexes);
 			var zipFileSize = zipBytes.Length;
 			if (zipFileSize <= 0)
 			{
@@ -1640,7 +1641,7 @@ internal static partial class Program
 		ZipFilterRegexes = [ZipFilesFilterRegex, ZipAdditionalFilesRegex];
 		ZipCompileFilesFilterRegex = new(@"(?!.*(examples?|\.tests?)\.lua$)\.(css|html|js|lua|toml)$", RegexFlags);
 		ZipCompileAdditionalFilesRegex = new("/(LICENSE)$", RegexFlags);
-		ZipCompileModeFilterRegexes = [ZipFilesFilterRegex, ZipCompileAdditionalFilesRegex];
+		ZipCompileModeFilterRegexes = [ZipCompileFilesFilterRegex, ZipCompileAdditionalFilesRegex];
 		var executingAssembly = Assembly.GetExecutingAssembly();
 		ToolVersion =
 			executingAssembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version ??
