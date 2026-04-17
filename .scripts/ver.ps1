@@ -18,7 +18,9 @@ param(
 	[ValidateSet("preview", "alpha", "beta", "rc", "dev", "nightly")]
 	[string]$next,
 
-	[switch]$promote
+	[switch]$promote,
+
+	[switch]$release
 )
 
 if ($args.Count -gt 0)
@@ -29,7 +31,7 @@ if ($args.Count -gt 0)
 }
 
 # Validate that only one version modification method is used
-$versionMethods = @($major, $minor, $patch, $suffix, $next, $promote)
+$versionMethods = @($major, $minor, $patch, $suffix, $next, $promote, $release)
 $activeMethods = @()
 if ($major)
 {
@@ -54,6 +56,10 @@ if (-not [string]::IsNullOrWhiteSpace($next))
 if ($promote)
 {
 	$activeMethods += "-promote"
+}
+if ($release)
+{
+	$activeMethods += "-release"
 }
 
 if ($activeMethods.Count -gt 1)
@@ -156,6 +162,85 @@ if ( [string]::IsNullOrWhiteSpace($Version))
 	{
 		$Version = Update-Version $LatestTag $major $minor $patch $suffix $next $promote
 	}
+}
+
+# Handle release: move existing tag to main HEAD
+if ($release)
+{
+	if (-not $LatestTag)
+	{
+		Write-Host "No existing v* tag found to release."
+		exit 0
+	}
+
+	# Get current branch
+	$currentBranch = git branch --show-current
+
+	# Helper function to check git command exit code
+	function Test-GitSuccess($message)
+	{
+		if ($LASTEXITCODE -ne 0)
+		{
+			Write-Host "ERROR: $message"
+			exit 1
+		}
+	}
+
+	# Switch to main and pull latest
+	git fetch --tags origin
+	Test-GitSuccess "Failed to fetch tags from origin"
+	git fetch --prune origin
+	Test-GitSuccess "Failed to prune origin refs"
+	git checkout main | Out-Null
+	Test-GitSuccess "Failed to checkout main branch"
+	git pull origin main | Out-Null
+	Test-GitSuccess "Failed to pull latest from origin/main"
+
+	# Check for pending changes (clean working directory required before modifications)
+	$status = git status --porcelain
+	if ($status)
+	{
+		Write-Host "ERROR: Working directory has uncommitted changes. Please commit or stash them first."
+		git status --short
+		exit 1
+	}
+
+	# Remove 'v' prefix for version number
+	$VersionNumber = $LatestTag.TrimStart("v")
+
+	# Update Package.toml version
+	$packageToml = Join-Path $PSScriptRoot "..\library\Package.toml"
+	if (Test-Path $packageToml)
+	{
+		$content = Get-Content $packageToml -Raw
+		$content = [regex]::Replace($content, '^(\s*version\s*=\s*")[^"]*("\s*)$', "`$1$VersionNumber`$2", [System.Text.RegularExpressions.RegexOptions]::Multiline)
+		Set-Content $packageToml $content -NoNewline
+		git add $packageToml
+		git commit -m "Bump version to $VersionNumber"
+		Write-Host "Updated Package.toml version to $VersionNumber"
+	}
+
+	# Delete the tag first
+	#git push origin ":refs/tags/$LatestTag" 2>$null | Out-Null
+	git tag -d "$LatestTag" | Out-Null
+	Write-Host "Deleted local tag: $LatestTag"
+
+	# Recreate tag on main HEAD
+	git tag "$LatestTag" | Out-Null
+	Write-Host "Recreated tag '$LatestTag' on main HEAD"
+
+	# Push the tag
+	#git push origin "$LatestTag"
+	#git push --tags
+	#Write-Host "Pushed tag: $LatestTag"
+
+	# Switch back to original branch if different
+	if ($currentBranch -ne "main")
+	{
+		git checkout "$currentBranch" | Out-Null
+	}
+
+	exit 0
 }
 
 $stashCreated = $false

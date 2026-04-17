@@ -177,7 +177,7 @@ end
 --[[
 Reminder to myself: Package-Release cycle
 
-0. for simplicity: run .\.scripts\ver.ps1 -next
+0. for simplicity: double-click ver.ps1, or run .\.scripts\ver.ps1 -next
 
 1. increase version in `Package.toml`
 2. create a version commit `v{version from Package.toml}`, and locally tag the commit
@@ -187,9 +187,7 @@ Reminder to myself: Package-Release cycle
 (tag exists to enable locally staged version at this point, it has to exist to have correct versioning)
 
 when ready to release it:
-(make sure all changes are committed and pushed)
-5. remove the previously created local tag (created in step 2.)
-6. run packager again (regenerates `metadata_gen.lua`), stage all `metadata_gen.lua` files, and then commit+push
-7. create a tag on the pushed commit from previous step 6 (use the same version as in step 2.)
-8. push the tag
+(make sure all changes are committed and pushed, ensure packager has run)
+5. run .\.scripts\release.cmd
+6. push changes
 ]]
