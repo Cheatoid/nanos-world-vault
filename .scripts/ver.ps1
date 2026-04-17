@@ -224,6 +224,16 @@ if ($release)
 		Write-Host "Updated Package.toml version to $VersionNumber"
 	}
 
+	# Update VERSION file to match the tag
+	$versionFile = Join-Path $PSScriptRoot "..\VERSION"
+	if (Test-Path $versionFile)
+	{
+		Set-Content $versionFile "$LatestTag" -NoNewline
+		git add $versionFile
+		git commit -m "Update VERSION for release: $LatestTag"
+		Write-Host "Updated VERSION file to: $LatestTag"
+	}
+
 	# Delete the tag first
 	#git push origin ":refs/tags/$LatestTag" 2>$null | Out-Null
 	git tag -d "$LatestTag" | Out-Null
@@ -235,9 +245,14 @@ if ($release)
 	Write-Host "Recreated tag '$LatestTag' on commit $headCommit"
 
 	# Push the tag
+	#git push
 	#git push --tags
 	git push origin "$LatestTag"
 	Write-Host "Pushed tag: $LatestTag"
+
+	# Create next development version
+	Write-Host "Creating next development version..."
+	& $PSCommandPath -next
 
 	# Switch back to original branch if different
 	if ($currentBranch -ne "main")

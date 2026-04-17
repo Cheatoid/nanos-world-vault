@@ -117,6 +117,7 @@ var serverFileName = OperatingSystem.IsWindows() ? "NanosWorldServer.exe" : "Nan
 string? cliMode = null; // directory to NanosWorldServer
 var isReleaseMode = false;
 var isUploadPackagesMode = false;
+var isCompileMode = false;
 string? singlePackage = null;
 
 // Parse arguments
@@ -156,6 +157,10 @@ if (args is { Length: > 0 })
 		else if (argLower is "--upload-packages")
 		{
 			isUploadPackagesMode = true;
+		}
+		else if (argLower is "--compile" or "-c")
+		{
+			isCompileMode = true;
 		}
 		else if (argLower is "--single-package" && index + 1 < args.Length)
 		{
@@ -295,7 +300,8 @@ foreach (var dir in dirs)
 			foreach (var file in packageFiles)
 			{
 				var entryName = Path.GetRelativePath(packageRoot, file).Replace('\\', '/');
-				if (!ZipFilterRegexes.Any(r => r.IsMatch('/' + entryName)))
+				var regexesToUse = isCompileMode ? ZipCompileModeFilterRegexes : ZipFilterRegexes;
+				if (!regexesToUse.Any(r => r.IsMatch('/' + entryName)))
 					continue;
 				try
 				{
@@ -463,6 +469,80 @@ foreach (var dir in dirs)
 				""".ReplaceLineEndings("\n").Trim() + "\n"
 			);
 		}
+
+		// Compile Lua files if compile mode is enabled
+		if (isCompileMode)
+		{
+			var luacPath = Path.Combine(gitRoot, ".lua", "lua-5.4.8", "luac.exe");
+			if (!File.Exists(luacPath))
+			{
+				luacPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory,
+					"luac.exe");
+				if (!File.Exists(luacPath))
+				{
+					c.Error.WriteLine($"❗ error: luac.exe not found at: {luacPath}");
+					return 1;
+				}
+			}
+
+			// Lua bytecode header: 0x1B 'L' 'u' 'a' (0x1B4C7561)
+			ReadOnlySpan<byte> luaBytecodeHeader = [0x1B, 0x4C, 0x75, 0x61];
+
+			c.WriteLine("ℹ compiling Lua files...");
+			foreach (var file in filesList.ToArray())
+			{
+				if (!file.EndsWith(".lua", StringComparison.OrdinalIgnoreCase))
+					continue;
+
+				var entryName = Path.GetRelativePath(packageRoot, file).Replace('\\', '/');
+
+				// Check if file is already precompiled bytecode (only read first 4 bytes)
+				Span<byte> header = stackalloc byte[4];
+				int bytesRead;
+				using (var fs = File.OpenRead(file))
+				{
+					bytesRead = fs.Read(header);
+				}
+				if (bytesRead >= 4 && header.SequenceEqual(luaBytecodeHeader))
+				{
+					c.WriteLine($"ℹ skipping (already bytecode): {entryName}");
+					continue;
+				}
+
+				c.WriteLine($"ℹ compiling: {entryName}");
+
+				var psi = new ProcessStartInfo
+				{
+					FileName = luacPath,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true,
+					UseShellExecute = false,
+					CreateNoWindow = true
+				};
+				psi.ArgumentList.Add("-o");
+				psi.ArgumentList.Add(file);
+				psi.ArgumentList.Add("--");
+				psi.ArgumentList.Add(file);
+
+				using var process = Process.Start(psi);
+				if (process is null)
+				{
+					c.Error.WriteLine($"❗ error: failed to start luac for {entryName}");
+					return 1;
+				}
+
+				process.WaitForExit();
+
+				if (process.ExitCode != 0)
+				{
+					var stderr = process.StandardError.ReadToEnd();
+					c.Error.WriteLine($"❗ error: luac failed for {entryName}: {stderr}");
+					return 1;
+				}
+			}
+			c.WriteLine("ℹ Lua compilation complete");
+		}
+
 		var zipBytes = CreateZipFromFilesNoFilter(filesList.ToArray(), packageRoot);
 		var zipFileSize = zipBytes.Length;
 		if (zipFileSize > 0)
@@ -1544,16 +1624,23 @@ internal static partial class Program
 		//| RegexOptions.NonBacktracking
 		;
 
-	private static readonly Regex ZipFilesFilterRegex, ZipAdditionalFilesRegex;
-	private static readonly Regex[] ZipFilterRegexes;
+	private static readonly Regex ZipFilesFilterRegex,
+		ZipAdditionalFilesRegex,
+		ZipCompileFilesFilterRegex,
+		ZipCompileAdditionalFilesRegex;
+
+	private static readonly Regex[] ZipFilterRegexes, ZipCompileModeFilterRegexes;
 	private static readonly string ToolVersion;
 
 	static Program()
 	{
 		// Include .css, .html, .js, .lua, .toml but exclude .tests.lua using negative lookahead
-		ZipFilesFilterRegex = new(@"(?!.*\.tests\.lua$)\.(css|html|js|lua|toml)$", RegexFlags); // TODO/CONS: add .md ?
+		ZipFilesFilterRegex = new(@"(?!.*\.tests?\.lua$)\.(css|html|js|lua|toml)$", RegexFlags); // TODO/CONS: add .md?
 		ZipAdditionalFilesRegex = new(@"/(LICENSE|README\.md)$", RegexFlags);
 		ZipFilterRegexes = [ZipFilesFilterRegex, ZipAdditionalFilesRegex];
+		ZipCompileFilesFilterRegex = new(@"(?!.*(examples?|\.tests?)\.lua$)\.(css|html|js|lua|toml)$", RegexFlags);
+		ZipCompileAdditionalFilesRegex = new("/(LICENSE)$", RegexFlags);
+		ZipCompileModeFilterRegexes = [ZipFilesFilterRegex, ZipCompileAdditionalFilesRegex];
 		var executingAssembly = Assembly.GetExecutingAssembly();
 		ToolVersion =
 			executingAssembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version ??
@@ -1901,7 +1988,7 @@ internal sealed class JunctionPoint
 		targetBytes.CopyTo(pathBytes, 16);
 
 		if (!DeviceIoControl(handle.DangerousGetHandle(), 0x900A4, pathBytes, pathBytes.Length, null, 0, out _,
-				IntPtr.Zero))
+			    IntPtr.Zero))
 		{
 			throw new IOException("Failed to create junction point");
 		}
