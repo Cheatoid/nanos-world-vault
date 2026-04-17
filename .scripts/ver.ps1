@@ -217,7 +217,7 @@ if ($release)
 	if (Test-Path $packageToml)
 	{
 		$content = Get-Content $packageToml -Raw
-		$content = [regex]::Replace($content, '^(\s*version\s*=\s*")[^"]*("\s*)$', "`$1$VersionNumber`$2", [System.Text.RegularExpressions.RegexOptions]::Multiline)
+		$content = [regex]::Replace($content, '^(\s*version\s*=\s*")[^"]*("\s*)$', { param($m) $m.Groups[1].Value + $VersionNumber + $m.Groups[2].Value }, [System.Text.RegularExpressions.RegexOptions]::Multiline)
 		Set-Content $packageToml $content -NoNewline
 		git add $packageToml
 		git commit -m "Bump version to $VersionNumber"
@@ -229,13 +229,14 @@ if ($release)
 	git tag -d "$LatestTag" | Out-Null
 	Write-Host "Deleted local tag: $LatestTag"
 
-	# Recreate tag on main HEAD
-	git tag "$LatestTag" | Out-Null
-	Write-Host "Recreated tag '$LatestTag' on main HEAD"
+	# Recreate tag on main HEAD (use actual commit hash)
+	$headCommit = git rev-parse HEAD
+	git tag -a "$LatestTag" -m "$LatestTag" $headCommit
+	Write-Host "Recreated tag '$LatestTag' on commit $headCommit"
 
 	# Push the tag
-	#git push origin "$LatestTag"
-	git push --tags
+	#git push --tags
+	git push origin "$LatestTag"
 	Write-Host "Pushed tag: $LatestTag"
 
 	# Switch back to original branch if different
