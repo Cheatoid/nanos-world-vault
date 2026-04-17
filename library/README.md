@@ -30,6 +30,7 @@
     - [VM](#vm)
     - [GAIMERS Loader](#gaimers-loader)
     - [Standalone Utilities](#standalone-utilities)
+    - [Benchmark](#benchmark)
     - [Rate Limiter](#rate-limiter)
     - [Load Balancer & Matchmaking](#load-balancer--matchmaking)
 - [Installation](#installation)
@@ -1106,6 +1107,60 @@ local state = console:save_state()
 -- Later: console:load_state(state)
 ```
 
+### Benchmark
+
+Benchmarking toolkit for measuring code performance with statistical analysis, comparison tools, and multiple timing modes (with high-precision timer on LuaJIT)...
+
+See [Benchmark example](Shared/@cheatoid/benchmark/example.lua) for complete usage examples.
+
+```lua
+local bench = require "@cheatoid/benchmark/init"
+
+-- Quick one-shot timing
+local elapsed = bench.time(function()
+    -- Code to measure
+    local x = 0
+    for i = 1, 1e6 do
+        x = x + i
+    end
+    return x
+end)
+print(string.format("Elapsed: %s", bench.formatter.time(elapsed)))
+
+-- Run benchmark with default settings
+bench(function()
+    local x = 0
+    for i = 1, 1e6 do
+        x = x + i
+    end
+end, "loop addition")
+
+-- Create a benchmark suite for comparison
+local suite = bench.createSuite({
+    iterations = 500,
+    warmup = 20,
+    precision = 3,
+    show_percentiles = { 50, 95, 99 },
+})
+
+suite:add("table.insert", function()
+    local t = {}
+    for i = 1, 5000 do
+        t[#t + 1] = i
+    end
+end)
+
+suite:add("table.insert (pre-alloc)", function()
+    local t = {}
+    for i = 1, 5000 do
+        t[i] = i
+    end
+end)
+
+suite:run()
+suite:compare()
+```
+
 ### Standalone Utilities
 
 Various standalone utility modules:
@@ -1124,6 +1179,7 @@ Various standalone utility modules:
 | `biginteger`           | Arbitrary precision integers              |
 | `bits`                 | Bit manipulation utilities                |
 | `base_encoder_decoder` | Arbitrary Base encoding/decoding          |
+| `benchmark`            | Performance benchmarking toolkit          |
 | `cfg_parser`           | Custom CFG file parser                    |
 | `class`                | Lightweight class implementation          |
 | `readonly`             | Read-only table wrapper                   |
