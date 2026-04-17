@@ -30,6 +30,8 @@
     - [VM](#vm)
     - [GAIMERS Loader](#gaimers-loader)
     - [Standalone Utilities](#standalone-utilities)
+    - [Rate Limiter](#rate-limiter)
+    - [Load Balancer & Matchmaking](#load-balancer--matchmaking)
 - [Installation](#installation)
 - [Usage](#usage)
 - [License](#license)
@@ -452,6 +454,17 @@ WebSocketAPI.Connect("ws://localhost:8080", nil, function(success, result)
         -- end)
     else
         print("Failed to connect:", result.error)
+    end
+end)
+
+-- HashAPI (bridged via WebUI for hashing/checksums)
+local HashAPI = require "Client/HashAPI"
+
+HashAPI.SHA256("hello world", function(success, result)
+    if success then
+        print("SHA-256:", result)
+    else
+        print("Hash failed")
     end
 end)
 ```
@@ -1520,7 +1533,39 @@ print("abc" * 3)           -- "abcabcabc"
 print("test"[1])           -- "t" (character access)
 print("hello" << 2)        -- "llohe" (rotate left)
 print("hello" >> 2)        -- "lohel" (rotate right)
+
 ```
+
+### Rate Limiter
+
+Simple rate limiting primitives supporting multiple strategies (Fixed Window, Sliding Window Log, Token Bucket, and Leaky Bucket).
+
+Source: [Shared/@cheatoid/rate_limiter/rate_limiter.lua](Shared/@cheatoid/rate_limiter/rate_limiter.lua)
+
+```lua
+local RateLimiter = require "@cheatoid/rate_limiter/rate_limiter"
+
+-- 10 requests per second (fixed window)
+local limiter = RateLimiter(RateLimiter.strategy.FixedWindow.new(10, 1))
+
+if limiter:consume() then
+    -- allowed
+else
+    -- rate limited
+end
+
+-- Token bucket: 5 tokens/sec, burst up to 20
+local tb = RateLimiter(RateLimiter.strategy.TokenBucket.new(5, 20))
+if tb:check() then
+    tb:consume()
+end
+```
+
+### Load Balancer & Matchmaking
+
+Utilities for distributing work across backends (load balancing) and building matchmaking queues/strategies.
+
+Examples: [Shared/@cheatoid/load_balancer/examples.lua](Shared/@cheatoid/load_balancer/examples.lua)
 
 ## Installation
 
