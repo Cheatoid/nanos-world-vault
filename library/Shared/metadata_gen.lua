@@ -17,12 +17,12 @@
 
 ---@type metadata_gen
 return {
-	package_version = "0.0.27",
-	timestamp = "2026-04-17 01:30:30",
-	commit_count = 138,
+	package_version = "0.0.28",
+	timestamp = "2026-04-17 01:33:05",
+	commit_count = 139,
 	tag_count = 24,
 	branch_name = "main",
-	prev_hash = "0721a4c45bcb884ace44b6e342a4bf4fa49d2a9b",
+	prev_hash = "e1711e59f5337f4fa38f0130cd04b1423e59f23c",
 	tag = "v0.0.28",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
@@ -30,7 +30,7 @@ return {
 	filenames_hash = "d39311d77c9a9a9d230e713a4ba75c64dc407daee0dec9a1e937ec38938a2b46",
 	files_hash = {
 		["LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
-		["Package.toml"] = "2ae07535a9d16899ad58fe1e5522eafe86a3866e0a886de3924a6d1624b06d62",
+		["Package.toml"] = "3d8275b07e982a9e25e86124a389e820cb33ea4ded4f14e55fcf8ea5e6ca8ce0",
 		["README.md"] = "a29b9f0891dffd5d7bf886290e2b1d893a586a68b9203ccfe7c302d963af0364",
 		["Client/HashAPI.lua"] = "2670c2e4519cc4cbca630b45d8474a04a667965e905f50a00dbd2ba8d674454b",
 		["Client/Index.lua"] = "321c3f6e412d6261aaff9fd0082354be27f4bd40bd82466ebe03c0c485d7a4c1",
