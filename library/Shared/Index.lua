@@ -98,12 +98,15 @@ requiref "Shared/@cheatoid" {
 -- @formatter:off
 local dbg          = require "@cheatoid/standalone/debug_helper"
 local tc           = require "@cheatoid/standalone/type_check"
+local istype       = require "@cheatoid/standalone/istype"
 local tsl          = require "@cheatoid/standalone/to_string_literal"
 local patcher      = require "@cheatoid/standalone/patcher"
 local util         = require "@cheatoid/standalone/util"
 local xml          = require "@cheatoid/standalone/xml"
 local zip          = require "@cheatoid/standalone/zip"
 local cfg          = require "@cheatoid/standalone/cfg_parser"
+local benchmark    = require "@cheatoid/benchmark/init"
+local collections  = require "@cheatoid/collections/init"
 local plugins      = require "@cheatoid/plugin_framework/plugin_framework"
 local rate_limiter = require "@cheatoid/rate_limiter/rate_limiter"
 local oop          = require "@cheatoid/oop/oop"
@@ -119,6 +122,8 @@ require "ClientsideLua"
 --require "@cheatoid/extensions/number"
 --require "@cheatoid/extensions/string"
 -- @formatter:on
+
+--_G[Package.GetName()] = Package.GetVersion()
 
 --_G[pack_name] = pack_version
 --Package.SetPersistentData(pack_name, pack_version)

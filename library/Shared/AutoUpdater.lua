@@ -50,7 +50,7 @@ AutoUpdater.__index = AutoUpdater
 
 --- Creates a new AutoUpdater instance with the specified configuration.<br>
 --- If config fields are nil, they will be automatically populated from metadata_gen.lua.
---- @usage <br>
+---@usage <br>
 --- ```
 --- local updater = AutoUpdater.new({
 ---   debug = true,
@@ -283,7 +283,7 @@ end
 --- 2. Fetch remote metadata from GitHub
 --- 3. Fetch the latest VERSION file
 --- 4. Compare versions and trigger appropriate callbacks
---- @usage <br>
+---@usage <br>
 --- ```
 --- updater:checkForUpdates(function(has_update, remote, latest)
 ---   if has_update then
@@ -368,7 +368,7 @@ end
 
 --- Downloads the update zip for the specified version.<br>
 --- If version is nil, uses the latest_version from the last check.
---- @usage <br>
+---@usage <br>
 --- ```
 --- updater:downloadUpdate("v0.0.28", function(zip_data, version)
 ---   if zip_data then
@@ -425,7 +425,7 @@ end
 
 --- Checks if the current version is a preview version.<br>
 --- Preview versions are detected by the presence of a hyphen in the tag (e.g., "v0.0.28-alpha").
---- @usage <br>
+---@usage <br>
 --- ```
 --- if updater:isPreviewVersion() then
 ---     Console.Warn("Running preview version")
@@ -439,7 +439,7 @@ end
 --- Convenience method for a one-shot update check with optional configuration.<br>
 --- Creates a temporary AutoUpdater instance, performs the check, and invokes the callback.<br>
 --- Useful for simple update checks without managing an instance.
---- @usage <br>
+---@usage <br>
 --- ```
 --- AutoUpdater.check({ debug = true }, function(has_update, remote, latest)
 ---   if has_update then
