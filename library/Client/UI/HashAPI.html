@@ -1,0 +1,243 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<script>
+		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
+		// Using 'const' or 'let' would cause a redeclaration error.
+		// noinspection ES6ConvertVarToLetConst
+		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
+		var Events = window.Events;
+
+		// ============================================================
+		// Setup
+		// ============================================================
+
+		let is_ready = false;
+		const on_page_load = () => {
+			if (is_ready) return;
+			is_ready = true;
+			//console.log("HashAPI ready");
+			Events.Call("HashReady");
+		};
+
+		document.addEventListener("DOMContentLoaded", on_page_load);
+		window.onload = on_page_load;
+
+		// ============================================================
+		// Hash Implementation
+		// ============================================================
+
+		const HashAPI = {
+			// Helper for native algorithms (SHA-1, SHA-256, SHA-384, SHA-512)
+			async _nativeHash(algo, str) {
+				const buf = new TextEncoder().encode(str);
+				const hashBuf = await crypto.subtle.digest(algo, buf);
+				return Array.from(new Uint8Array(hashBuf))
+					.map(b => b.toString(16).padStart(2, '0')).join('');
+			},
+
+			// Native Web Crypto API methods
+			async sha1(str) {
+				return this._nativeHash('SHA-1', str);
+			},
+			async sha256(str) {
+				return this._nativeHash('SHA-256', str);
+			},
+			async sha384(str) {
+				return this._nativeHash('SHA-384', str);
+			},
+			async sha512(str) {
+				return this._nativeHash('SHA-512', str);
+			},
+
+			// CRC32 (manual implementation)
+			crc32(str) {
+				const table = new Uint32Array(256);
+				for (let i = 0; i < 256; i++) {
+					let c = i;
+					for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+					table[i] = c;
+				}
+				let crc = -1;
+				const buf = new TextEncoder().encode(str);
+				for (let i = 0; i < buf.length; i++) {
+					crc = (crc >>> 8) ^ table[(crc ^ buf[i]) & 0xFF];
+				}
+				return ((crc ^ -1) >>> 0).toString(16).padStart(8, '0');
+			},
+
+			// MD5 (manual implementation)
+			md5(str) {
+				const s = [
+					7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+					5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
+					4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+					6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
+				];
+				const k = [
+					0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
+					0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be, 0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821,
+					0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa, 0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8,
+					0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed, 0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a,
+					0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c, 0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70,
+					0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05, 0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665,
+					0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039, 0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
+					0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1, 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
+				];
+
+				const rotateLeft = (l, i) => (l << i) | (l >>> (32 - i));
+				let msg = new TextEncoder().encode(str);
+				let n = msg.length;
+				let words = new Uint32Array(((n + 8) >> 6) + 1 << 4);
+				for (let i = 0; i < n; i++) words[i >> 2] |= msg[i] << ((i % 4) << 3);
+				words[n >> 2] |= 0x80 << ((n % 4) << 3);
+				words[words.length - 2] = n * 8;
+
+				let [a, b, c, d] = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476];
+
+				for (let j = 0; j < words.length; j += 16) {
+					let [A, B, C, D] = [a, b, c, d];
+					for (let i = 0; i < 64; i++) {
+						let f, g;
+						if (i < 16) {
+							f = (b & c) | (~b & d);
+							g = i;
+						} else if (i < 32) {
+							f = (d & b) | (~d & c);
+							g = (5 * i + 1) % 16;
+						} else if (i < 48) {
+							f = b ^ c ^ d;
+							g = (3 * i + 5) % 16;
+						} else {
+							f = c ^ (b | ~d);
+							g = (7 * i) % 16;
+						}
+						let temp = d;
+						d = c;
+						c = b;
+						b = (b + rotateLeft((a + f + k[i] + words[j + g]), s[i])) | 0;
+						a = temp;
+					}
+					a = (a + A) | 0;
+					b = (b + B) | 0;
+					c = (c + C) | 0;
+					d = (d + D) | 0;
+				}
+				return [a, b, c, d].map(v => {
+					const arr = new Uint8Array(new Uint32Array([v]).buffer);
+					return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+				}).join('');
+			}
+		};
+
+		// ============================================================
+		// Helpers
+		// ============================================================
+
+		const safe_call = (
+			/** @type {function(...any): any} */ fn,
+			/** @type {any[]} */ ...args
+			/** @returns {[boolean, any]} */
+		) => {
+			try {
+				return [true, fn(...args)];
+			} catch (e) {
+				return [false, e.toString()];
+			}
+		};
+
+		const send = (
+			/** @type {number} */ id,
+			/** @type {boolean} */ success,
+			/** @type {any} */ payload
+		) => Events.Call("HashResult", id, success, payload);
+
+		const reply = (
+			/** @type {number} */ id,
+			/** @type {function(...any): any} */ fn,
+			/** @type {any[]} */ ...args
+		) => {
+			const [ok, out] = safe_call(fn, ...args);
+			return send(id, ok, out);
+		};
+
+		// ============================================================
+		// Event Handlers
+		// ============================================================
+
+		const onDoSHA1 = (
+			/** @type {number} */ id,
+			/** @type {string} */ str
+		) =>
+			reply(id, (
+				/** @type {string} */ str
+			) => HashAPI.sha1(str), str);
+
+		const onDoSHA256 = (
+			/** @type {number} */ id,
+			/** @type {string} */ str
+		) =>
+			reply(id, (
+				/** @type {string} */ str
+			) => HashAPI.sha256(str), str);
+
+		const onDoSHA384 = (
+			/** @type {number} */ id,
+			/** @type {string} */ str
+		) =>
+			reply(id, (
+				/** @type {string} */ str
+			) => HashAPI.sha384(str), str);
+
+		const onDoSHA512 = (
+			/** @type {number} */ id,
+			/** @type {string} */ str
+		) =>
+			reply(id, (
+				/** @type {string} */ str
+			) => HashAPI.sha512(str), str);
+
+		const onDoCRC32 = (
+			/** @type {number} */ id,
+			/** @type {string} */ str
+		) =>
+			reply(id, (
+				/** @type {string} */ str
+			) => HashAPI.crc32(str), str);
+
+		const onDoMD5 = (
+			/** @type {number} */ id,
+			/** @type {string} */ str
+		) =>
+			reply(id, (
+				/** @type {string} */ str
+			) => HashAPI.md5(str), str);
+
+		// ============================================================
+		// Subscriptions - Subscribe to events
+		// ============================================================
+
+		const handlers = {
+			DoSHA1: onDoSHA1,
+			DoSHA256: onDoSHA256,
+			DoSHA384: onDoSHA384,
+			DoSHA512: onDoSHA512,
+			DoCRC32: onDoCRC32,
+			DoMD5: onDoMD5
+		};
+
+		for (const [event, handler] of Object.entries(handlers)) {
+			Events.Subscribe(event, handler);
+		}
+	</script>
+</head>
+
+<body></body>
+
+</html>

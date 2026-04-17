@@ -2,7 +2,7 @@
 -- License: MIT
 
 local string_match = string.match
-local packageVersion = Package.GetVersion()
+local package_version = Package.GetVersion()
 
 --- Version utility class for semantic versioning (major.minor.build)
 ---@class Version
@@ -13,12 +13,12 @@ local Version = {}
 Version.__index = Version
 
 --- Parses a version string into a Version object.
----@param versionString string Version in format "major.minor.build".
+---@param version_string string Version in format "major.minor.build".
 ---@return Version Version object with major, minor, build fields.
-function Version.parse(versionString)
-	local major, minor, build = string_match(versionString, "^(%d+)%.(%d+)%.(%d+)$")
+function Version.parse(version_string)
+	local major, minor, build = string_match(version_string, "^(%d+)%.(%d+)%.(%d+)$")
 	if not major then
-		return error("Invalid version format. Expected 'major.minor.build', got: " .. tostring(versionString), 2)
+		return error("Invalid version format. Expected 'major.minor.build', got: " .. tostring(version_string), 2)
 	end
 	return setmetatable({
 		major = tonumber(major),
@@ -76,14 +76,14 @@ end
 --- Returns the current package version as a Version object.
 ---@return Version version Version object representing `Package.GetVersion()`.
 function Version.getCurrent()
-	return Version.parse(packageVersion)
+	return Version.parse(package_version)
 end
 
 --- Checks if an update is available compared to a remote version.
----@param remoteVersion string The remote version string to check against.
+---@param remote_version string The remote version string to check against.
 ---@return boolean boolean True if remote version is newer (update available).
-function Version.isUpdateAvailable(remoteVersion)
-	return Version.getCurrent():isOlderThan(remoteVersion)
+function Version.isUpdateAvailable(remote_version)
+	return Version.getCurrent():isOlderThan(remote_version)
 end
 
 -- Export

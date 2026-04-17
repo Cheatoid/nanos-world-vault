@@ -61,7 +61,7 @@ local table_ensure_lazy = table.ensure_lazy
 local table_make_case_insensitive = table.make_case_insensitive
 
 -- TODO: Persist (archive-flagged) convars via Config
-local config = require("Config")
+local config = require "Config"
 
 --- Console variable (CVar)
 ---@class ConVar

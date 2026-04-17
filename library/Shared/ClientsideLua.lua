@@ -62,14 +62,21 @@ if Server then
 	local ref = require "@cheatoid/ref/ref"
 
 	--Enabled = Server.GetCustomSettings().enable_cslua or Enabled
-	--Enabled = Package.GetPersistentData("enable_cslua") or Enabled
+	Enabled = Package.GetPersistentData("enable_cslua") or Enabled -- read from package toml
 	--print("initial enable_cslua:", Enabled)
 
+	-- NOTE: This writes into config.json (next to NanosWorldServer executable)
 	local Config = require "Config"
 	-- Create a reactive Config reference, which will automatically flush to disk upon changing a field
-	local cfg = (ref >> Config.read())(function(_, _)
+	local cfg = ref.reactive(Config.read(), function(_, _)
 		Config.write(true)
 	end) ---@type cheatoidlib.config
+	-- Alternative:
+	--local cfg = table.monitor({ enable_cslua = Enabled }, {
+	--	on_write = function(_, key, value)
+	--		Config.write(true)
+	--	end
+	--})
 	Enabled = Config.get("enable_cslua", cfg.enable_cslua)
 	print("[config] enable_cslua:", Enabled)
 

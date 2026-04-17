@@ -94,9 +94,9 @@ end
 ---@usage <br>
 --- ```
 --- WebSocketAPI.Connect("ws://localhost:8080", nil, function(success, result)
----     if success then
----         print("Connected:", result.socket_id)
----     end
+---   if success then
+---     print("Connected:", result.socket_id)
+---   end
 --- end)
 --- ```
 function WebSocketAPI.Connect(url, protocols, callback)
@@ -116,9 +116,9 @@ end
 ---@usage <br>
 --- ```
 --- WebSocketAPI.Disconnect(socket_id, function(success, result)
----     if success then
----         print("Disconnected:", result.message)
----     end
+---   if success then
+---     print("Disconnected:", result.message)
+---   end
 --- end)
 --- ```
 function WebSocketAPI.Disconnect(socket_id, callback)
@@ -134,9 +134,9 @@ end
 ---@usage <br>
 --- ```
 --- WebSocketAPI.Send(socket_id, "Hello Server!", function(success, result)
----     if success then
----         print("Message sent:", result.message)
----     end
+---   if success then
+---     print("Message sent:", result.message)
+---   end
 --- end)
 --- ```
 function WebSocketAPI.Send(socket_id, data, callback)
@@ -151,7 +151,7 @@ end
 ---@usage <br>
 --- ```
 --- WebSocketAPI.OnMessage(socket_id, function(message)
----     print("Received:", message)
+---   print("Received:", message)
 --- end)
 --- ```
 function WebSocketAPI.OnMessage(socket_id, callback)
@@ -166,7 +166,7 @@ end
 ---@usage <br>
 --- ```
 --- WebSocketAPI.OnError(socket_id, function(error)
----     print("WebSocket error:", error)
+---   print("WebSocket error:", error)
 --- end)
 --- ```
 function WebSocketAPI.OnError(socket_id, callback)
@@ -181,7 +181,7 @@ end
 ---@usage <br>
 --- ```
 --- WebSocketAPI.OnClose(socket_id, function(event)
----     print("WebSocket closed:", event.reason)
+---   print("WebSocket closed:", event.reason)
 --- end)
 --- ```
 function WebSocketAPI.OnClose(socket_id, callback)
@@ -196,9 +196,9 @@ end
 ---@usage <br>
 --- ```
 --- WebSocketAPI.GetState(socket_id, function(success, state)
----     if success then
----         print("State:", state) -- "connecting", "open", "closing", "closed"
----     end
+---   if success then
+---     print("State:", state) -- "connecting", "open", "closing", "closed"
+---   end
 --- end)
 --- ```
 function WebSocketAPI.GetState(socket_id, callback)
@@ -213,7 +213,7 @@ end
 ---@usage <br>
 --- ```
 --- WebSocketAPI.OnOpen(socket_id, function(event)
----     print("WebSocket opened")
+---   print("WebSocket opened")
 --- end)
 --- ```
 function WebSocketAPI.OnOpen(socket_id, callback)

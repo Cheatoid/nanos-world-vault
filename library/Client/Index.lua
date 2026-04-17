@@ -6,8 +6,9 @@
 -- Consumers will receive the cached values.
 -- Consumers should use GAIMERS or Package.Export to expose them globally.
 
-require "RegexAPI"
-require "WebSocketAPI"
+local HashAPI = require "HashAPI"
+local RegexAPI = require "RegexAPI"
+local WebSocketAPI = require "WebSocketAPI"
 
 --include "WebSocketTest.lua" -- call using original 'require'
 

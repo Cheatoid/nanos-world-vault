@@ -88,7 +88,7 @@ static string? GetTokenFromEnvFileOrEnvironment()
 
 			// Remove quotes if present
 			if ((value.StartsWith('"') && value.EndsWith('"')) ||
-			    (value.StartsWith('\'') && value.EndsWith('\'')))
+				(value.StartsWith('\'') && value.EndsWith('\'')))
 			{
 				value = value[1..^1];
 			}
@@ -533,7 +533,7 @@ foreach (var dir in dirs)
 							apiKey: token
 						);
 						if (presign is { success: true, content.payload: not null, error: null } &&
-						    presign.content.Message.ToLowerInvariant() is "presigned url generated successfully")
+							presign.content.Message.ToLowerInvariant() is "presigned url generated successfully")
 						{
 							var presignPayload = presign.content.payload;
 							var presignedUrl = presignPayload.PresignedUrl;
@@ -1045,13 +1045,13 @@ static bool IsValueTupleType(Type type)
 		return false;
 	var genericType = type.GetGenericTypeDefinition();
 	return genericType == typeof(ValueTuple<>)
-	       || genericType == typeof(ValueTuple<,>)
-	       || genericType == typeof(ValueTuple<,,>)
-	       || genericType == typeof(ValueTuple<,,,>)
-	       || genericType == typeof(ValueTuple<,,,,>)
-	       || genericType == typeof(ValueTuple<,,,,,>)
-	       || genericType == typeof(ValueTuple<,,,,,,>)
-	       || genericType == typeof(ValueTuple<,,,,,,,>);
+		   || genericType == typeof(ValueTuple<,>)
+		   || genericType == typeof(ValueTuple<,,>)
+		   || genericType == typeof(ValueTuple<,,,>)
+		   || genericType == typeof(ValueTuple<,,,,>)
+		   || genericType == typeof(ValueTuple<,,,,,>)
+		   || genericType == typeof(ValueTuple<,,,,,,>)
+		   || genericType == typeof(ValueTuple<,,,,,,,>);
 }
 
 static Dictionary<string, object?> ConvertValueTupleToDictionary<T>(T tuple)
@@ -1089,7 +1089,7 @@ static Dictionary<string, object?> ConvertValueTupleToDictionary<T>(T tuple)
 					{
 						var namesArg = attrData.ConstructorArguments[0];
 						if (namesArg.Value is IList<CustomAttributeTypedArgument> namesList &&
-						    namesList.Count == fields.Length)
+							namesList.Count == fields.Length)
 						{
 							tupleNames = namesList.Select(n => n.Value as string).ToArray();
 							break;

@@ -1525,9 +1525,9 @@ print("hello" >> 2)        -- "lohel" (rotate right)
 ## Installation
 
 1. Download the package from the nanos-world store/vault,
-   or [GitHub releases](https://github.com/Cheatoid/nanos-world-vault/releases)
+   or [automated GitHub releases](https://github.com/Cheatoid/nanos-world-vault/releases)
 2. Extract it in your server's `Packages/` folder
-3. Add it to your package's requirements in `Package.toml`:
+3. Add it to your package's requirements in `Package.toml` (preferably keep it first in the list):
 
 ```toml
 [game]
@@ -1536,21 +1536,31 @@ packages = [
 ]
 ```
 
+4. In your server's gamemode `Shared/Index.lua`, add the following line at the top:
+```lua
+require "cheatoid-library/Shared/Index.lua"
+```
+
 ## Usage
 
-Import modules using `require`:
+It is up to you to wire the *cheatoid-library* modules in your game.  
+Import modules using `require` (or use GAIMERS for convenience):
 
 ```lua
+local GAIMERS = require "cheatoid-library/Shared/@cheatoid/loader/gaimers"
+
 -- Core library modules
-local ConVar = require "ConVar"
-local Config = require "Config"
-local file = require "FileWrapper"
-local http = require "HttpWrapper"
-local Version = require "Version"
+local ConVar = require "cheatoid-library/Shared/ConVar"
+local Config = require "cheatoid-library/Shared/Config"
+local file = require "cheatoid-library/Shared/FileWrapper"
+local http = require "cheatoid-library/Shared/HttpWrapper"
+local Version = require "cheatoid-library/Shared/Version"
 
 -- Built-in @cheatoid modules
-local oop = require "@cheatoid/oop/oop"
-local string = require "@cheatoid/standard/string"
+local oop = require "cheatoid-library/Shared/@cheatoid/oop/oop"
+local ref = require "cheatoid-library/Shared/@cheatoid/ref/ref"
+local plugin_framework = require "cheatoid-library/Shared/@cheatoid/plugin_framework/plugin_framework"
+-- etc.
 ```
 
 ## License

@@ -6,4 +6,4 @@
 -- Consumers will receive the cached values.
 -- Consumers should use GAIMERS or Package.Export to expose them globally.
 
-require "PackageHelper"
+local package_helper = require "PackageHelper"

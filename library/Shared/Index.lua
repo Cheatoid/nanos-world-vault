@@ -1,6 +1,13 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
+--local pack_name = '"version:' .. Package.GetName() .. '"'
+--local pack_version = Package.GetVersion()
+--print("cheatoid library pre-check", _G[pack_name])
+--if _G[pack_name] == pack_version then return end
+--if Package.GetPersistentData(pack_name) == pack_version then return end
+--print("cheatoid library pre-check survived", pack_version)
+
 -- Patch 'require' function like a good boi
 if "INTERNAL - Package Lua Implementation" == debug.getinfo(require, "S").source then
 	_G.include = require -- preserve original 'require' function as global 'include'
@@ -37,7 +44,7 @@ local function debug_print(...)
 end
 
 if is_preview then
-	Console.Warn("preview version detected; some features may not work")
+	Console.Warn("Preview version detected; some features may not work")
 end
 
 local Version = require "Version"
@@ -76,9 +83,9 @@ requiref "Shared/@cheatoid" {
 	--[0] = require("FileWrapper").vfs, -- pass VFS instance at index 0
 	"@cheatoid/standard",
 	"@cheatoid/standalone",
-	--["@cheatoid/patch/require.lua"] = false, -- ignore; it shouldn't hurt to require it again tho
 	["%.tests%.lua$"] = false,                               -- skip all files ending in .tests.lua
 	["@cheatoid/extensions/.*"] = false,                     -- skip; extensions must be explicitly loaded because they modify default Lua types
+	["@cheatoid/patch/.*"] = false,                          -- skip; patches must be explicitly loaded
 	["/?examples?%.lua$"] = false,                           -- ignore examples
 	["@cheatoid/require_finder/find_requires%.lua$"] = false, -- ignore
 	["@cheatoid/plugin_framework/example_usage%.lua$"] = false, -- ignore
@@ -89,153 +96,68 @@ requiref "Shared/@cheatoid" {
 --dbg.debugger.disable()
 
 -- @formatter:off
-local dbg     = require "@cheatoid/standalone/debug_helper"
-local tc      = require "@cheatoid/standalone/type_check"
-local tsl     = require "@cheatoid/standalone/to_string_literal"
-local patcher = require "@cheatoid/standalone/patcher"
-local util    = require "@cheatoid/standalone/util"
-local xml     = require "@cheatoid/standalone/xml"
-local zip     = require "@cheatoid/standalone/zip"
-local cfg     = require "@cheatoid/standalone/cfg_parser"
-local plugins = require "@cheatoid/plugin_framework/plugin_framework"
-local oop     = require "@cheatoid/oop/oop"
-local ref     = require "@cheatoid/ref/ref"
-local vm      = require "@cheatoid/vm/vm"
-local config  = require "Config"
-local file    = require "FileWrapper"
-local vfs     = file.vfs
-local http    = require "HttpWrapper"
-local ConVar  = require "ConVar"
+local dbg          = require "@cheatoid/standalone/debug_helper"
+local tc           = require "@cheatoid/standalone/type_check"
+local tsl          = require "@cheatoid/standalone/to_string_literal"
+local patcher      = require "@cheatoid/standalone/patcher"
+local util         = require "@cheatoid/standalone/util"
+local xml          = require "@cheatoid/standalone/xml"
+local zip          = require "@cheatoid/standalone/zip"
+local cfg          = require "@cheatoid/standalone/cfg_parser"
+local plugins      = require "@cheatoid/plugin_framework/plugin_framework"
+local rate_limiter = require "@cheatoid/rate_limiter/rate_limiter"
+local oop          = require "@cheatoid/oop/oop"
+local ref          = require "@cheatoid/ref/ref"
+local vm           = require "@cheatoid/vm/vm"
+local config       = require "Config"
+local file         = require "FileWrapper"
+local vfs          = file.vfs
+local http         = require "HttpWrapper"
+local ConVar       = require "ConVar"
 require "BroadcastLua"
 require "ClientsideLua"
 --require "@cheatoid/extensions/number"
 --require "@cheatoid/extensions/string"
 -- @formatter:on
 
-if SERVER then
-	-- TODO: use async/await from oop to avoid callback hell
-	local target_url = string.format("https://api.nanos-world.com/store/packages/%s", package_name)
-	debug_print("asset store url: %q", target_url)
-	http.get(
-		target_url,
-		function(data, status, url)
-			debug_print("[asset store] status: %s, url: %q, size: %d", status, url, #data)
-			pcall(function()
-				local parsedJson = JSON.parse(data)
-				local storeVersion = parsedJson.payload.version.version
-				print("vault/store version: " .. storeVersion)
-				if Version.parse(storeVersion):isOlderThan(Version.getCurrent()) then
-					is_preview = true
-					Console.Warn("preview version detected (delayed); some features may not work")
-				end
-			end)
-		end,
-		function(data, status, url)
-			debug_print("[asset store] status: %s, url: %q, data: %s", status, url,
-				tsl.to_string_literal(data))
-		end
-	)
-	-- "https://raw.github.com/%s/%s/main/VERSION" -- latest repo release version
-	--target_url = "https://raw.github.com/Cheatoid/nanos-world-vault/main/VERSION"
-	-- "https://github.com/%s/%s/releases.atom" -- release feed xml
-	--target_url = "https://github.com/Cheatoid/nanos-world-vault/releases.atom"
-	target_url = string.format(
-	--"https://github.com/%s/%s/raw/refs/heads/%s/%s/Shared/metadata_gen.lua",
-		"https://raw.github.com/%s/%s/%s/%s/Shared/metadata_gen.lua", -- shorter
-		package_metadata.owner,
-		package_metadata.repo,
-		branch_name,
-		package_path
-	)
-	debug_print("remote metadata url: %q", target_url)
-	http.get(
-		target_url,
-		function(data, status, url)
-			debug_print("[remote metadata] status: %s, url: %q, size: %d", status, url, #data)
-			pcall(function()
-				local githubMetadata = load(data)() ---@type metadata_gen
-				local githubVersion, githubCommitCount, githubTagCount, githubTag, githubPrevHash =
-					githubMetadata.package_version, githubMetadata.commit_count, githubMetadata.tag_count,
-					githubMetadata.tag, githubMetadata.prev_hash
-				print("remote metadata version: " .. githubVersion)
-				debug_print("remote commit count: %s", githubCommitCount)
-				debug_print("remote tag count: %s", githubTagCount)
-				debug_print("remote prev hash: %s", githubPrevHash)
-				print("remote metadata tag: " .. githubTag)
-				-- Fetch the actual latest version from VERSION file
-				local version_url = string.format(
-					"https://raw.github.com/%s/%s/%s/VERSION",
-					githubMetadata.owner or "Cheatoid",
-					githubMetadata.repo or "nanos-world-vault",
-					branch_name
-				)
-				debug_print("repo version url: %q", version_url)
-				http.get(
-					version_url,
-					function(versionData, versionStatus, versionUrl)
-						debug_print("[repo version] status: %s, data: %s", versionStatus,
-							tsl.to_string_literal(versionData))
-						local latest_version = versionStatus == 200 and
-							versionData:match("^(v?[%d%.]+)") -- NOTE: repo version should always be stable
-						if not latest_version then
-							debug_print("failed to fetch repo version, falling back to metadata tag: %s", githubTag)
-							latest_version = githubTag
-						end
-						if latest_version:sub(1, 1) ~= "v" then latest_version = "v" .. latest_version end
-						print("latest repo version: " .. latest_version)
-						http.get(
-							string.format(
-								"https://github.com/%s/%s/releases/download/%s/%s.zip",
-								githubMetadata.owner or "Cheatoid",
-								githubMetadata.repo or "nanos-world-vault",
-								latest_version,
-								package_name
-							),
-							function(zipData, zipStatus, zipUrl)
-								debug_print("latest zip status: %s", zipStatus)
-								debug_print("latest zip size: %d bytes", #zipData)
-								-- TODO: save to temporary downloads folder, and then extract via zip library
-								-- TODO/CONS: use vfs to store/load code instead of extracting zip to disk?
-							end,
-							function(data, status, url)
-								debug_print("[remote zip] status: %s, url: %q, data: %s", status, url,
-									tsl.to_string_literal(data))
-							end
-						)
-					end,
-					function(data, status, url)
-						debug_print("[remote version] failed - status: %s, url: %s, data: %s", status, url,
-							tsl.to_string_literal(data))
-						-- Fallback: use githubTag from metadata
-						http.get(
-							string.format(
-								"https://github.com/%s/%s/releases/download/%s/%s.zip",
-								githubMetadata.owner or "Cheatoid",
-								githubMetadata.repo or "nanos-world-vault",
-								githubTag,
-								package_name
-							),
-							function(zipData, zipStatus, zipUrl)
-								debug_print("latest zip status: %s", zipStatus)
-								debug_print("latest zip size: %d bytes", #zipData)
-							end,
-							function(data, status, url)
-								debug_print("[remote zip] status: %s, url: %q, data: %s", status, url,
-									tsl.to_string_literal(data))
-							end
-						)
-					end
-				)
-			end)
-		end,
-		function(data, status, url)
-			debug_print("[remote metadata] status: %s, url: %q, data: %s", status, url,
-				tsl.to_string_literal(data))
-		end
-	)
-end
+--_G[pack_name] = pack_version
+--Package.SetPersistentData(pack_name, pack_version)
+--Package.FlushSetPersistentData()
 
--- TODO: Automatic updates, because "upload to store" is a painful process
+local updater = require "AutoUpdater"
+
+if SERVER then
+	-- Initialize AutoUpdater
+	local update = updater.new {
+		debug = is_preview,
+		check_asset_store = true,
+		auto_download = false,
+		on_check_start = function()
+			debug_print("Starting update check...")
+		end,
+		on_update_available = function(remote_version, current_version, metadata)
+			print(string.format("[AutoUpdater] Update available: %s -> %s", current_version, remote_version))
+			print("[AutoUpdater] Remote commit count: " .. (metadata.commit_count or "unknown"))
+			print("[AutoUpdater] Remote tag: " .. (metadata.tag or "unknown"))
+		end,
+		on_no_update = function(current_version)
+			debug_print("[AutoUpdater] Already up to date: %s", current_version)
+		end,
+		on_download_complete = function(zip_data, version)
+			debug_print("[AutoUpdater] Downloaded update %s (%d bytes)", version, #zip_data)
+			-- TODO: Save to temporary downloads folder, and then extract via Zip library
+			-- TODO/CONS: Use VFS to store/load code instead of extracting zip to disk?
+		end,
+		on_error = function(err, context)
+			Console.Warn(string.format("[AutoUpdater] Error in %s: %s", context, err))
+		end,
+		on_check_complete = function()
+			debug_print("Update check completed")
+		end,
+	}
+	-- Start the update check
+	update:checkForUpdates()
+end
 
 --do
 --	local filename = string.format("test_%s.txt", Server and "server" or "client")

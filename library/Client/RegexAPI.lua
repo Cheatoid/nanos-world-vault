@@ -95,9 +95,9 @@ end
 ---@usage <br>
 --- ```
 --- RegexAPI.Match("HELLO", "hello world", "i", function(success, result)
----     if success then
----         print("Matched:", result) -- "hello"
----     end
+---   if success then
+---     print("Matched:", result) -- "hello"
+---   end
 --- end)
 --- ```
 function RegexAPI.Match(pattern, text, flags, callback)
@@ -119,11 +119,11 @@ end
 ---@usage <br>
 --- ```
 --- RegexAPI.MatchAll("\\d+", "abc123def456", "", function(success, results)
----     if success then
----         for _, match in ipairs(results) do
----             print("Match:", match) -- "123", "456"
----         end
+---   if success then
+---     for _, match in ipairs(results) do
+---       print("Match:", match) -- "123", "456"
 ---     end
+---   end
 --- end)
 --- ```
 function RegexAPI.MatchAll(pattern, text, flags, callback)
@@ -145,7 +145,7 @@ end
 ---@usage <br>
 --- ```
 --- RegexAPI.Test("^\\d+$", "12345", "", function(success, matches)
----     print("Is numeric:", matches) -- true
+---   print("Is numeric:", matches) -- true
 --- end)
 --- ```
 function RegexAPI.Test(pattern, text, flags, callback)
@@ -168,9 +168,9 @@ end
 ---@usage <br>
 --- ```
 --- RegexAPI.Replace("\\d+", "abc123def456", "X", "", function(success, result)
----     if success then
----         print(result) -- "abcXdefX"
----     end
+---   if success then
+---     print(result) -- "abcXdefX"
+---   end
 --- end)
 --- ```
 function RegexAPI.Replace(pattern, text, replacement, flags, callback)
@@ -192,11 +192,11 @@ end
 ---@usage <br>
 --- ```
 --- RegexAPI.Split("[,;]", "a,b;c,d", "", function(success, parts)
----     if success then
----         for _, part in ipairs(parts) do
----             print(part) -- "a", "b", "c", "d"
----         end
+---   if success then
+---     for _, part in ipairs(parts) do
+---       print(part) -- "a", "b", "c", "d"
 ---     end
+---   end
 --- end)
 --- ```
 function RegexAPI.Split(pattern, text, flags, callback)
@@ -218,11 +218,11 @@ end
 ---@usage <br>
 --- ```
 --- RegexAPI.Exec("(\\d+)-(\\d+)", "123-456", "", function(success, result)
----     if success then
----         print("Full match:", result.match) -- "123-456"
----         print("Group 1:", result.groups and result.groups[1]) -- "123"
----         print("Group 2:", result.groups and result.groups[2]) -- "456"
----     end
+---   if success then
+---     print("Full match:", result.match) -- "123-456"
+---     print("Group 1:", result.groups and result.groups[1]) -- "123"
+---     print("Group 2:", result.groups and result.groups[2]) -- "456"
+---   end
 --- end)
 --- ```
 function RegexAPI.Exec(pattern, text, flags, callback)

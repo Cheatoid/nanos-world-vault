@@ -64,5 +64,5 @@ local function test_websocket()
 	end)
 end
 
--- Run the test
-test_websocket()
+-- Export
+return test_websocket
