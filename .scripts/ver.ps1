@@ -205,6 +205,10 @@ if ($release)
 		exit 1
 	}
 
+	# This should be fine if we are in-sync (ensure packager has run)
+	git push origin main
+	Test-GitSuccess "Failed to push changes to origin/main"
+
 	# Remove 'v' prefix for version number
 	$VersionNumber = $LatestTag.TrimStart("v")
 
@@ -231,8 +235,8 @@ if ($release)
 
 	# Push the tag
 	#git push origin "$LatestTag"
-	#git push --tags
-	#Write-Host "Pushed tag: $LatestTag"
+	git push --tags
+	Write-Host "Pushed tag: $LatestTag"
 
 	# Switch back to original branch if different
 	if ($currentBranch -ne "main")
