@@ -1805,6 +1805,8 @@ internal static partial class Program
 
 		public void ReadBytesChunked(Func<byte[], int, bool> processChunk, int chunkSize = 8192)
 		{
+			if (!fileInfo.Exists || fileInfo.Length == 0)
+				return;
 			using var fileStream = fileInfo.OpenRead();
 			var chunk = ArrayPool<byte>.Shared.Rent(chunkSize);
 			try
@@ -1824,6 +1826,8 @@ internal static partial class Program
 
 		public void ReadBytesChunkedMemoryMapped(Func<byte[], int, bool> processChunk, int chunkSize = 8192)
 		{
+			if (!fileInfo.Exists || fileInfo.Length == 0)
+				return;
 			using var fileStream = fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
 			using var memoryMappedFile = MemoryMappedFile.CreateFromFile(
 				fileStream,

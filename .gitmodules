@@ -1,7 +1,0 @@
-[submodule "library/Shared/@cheatoid"]
-	path = library/Shared/@cheatoid
-	url = https://github.com/Cheatoid/Lua.Scripts
-[submodule ".nanos-world"]
-	path = .nanos-world
-	url = https://github.com/nanos-world/vscode-extension
-	branch = docgen-output
