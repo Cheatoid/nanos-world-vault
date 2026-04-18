@@ -237,8 +237,8 @@ function Do-Add {
 
 		Info "Adding $path (branch: $branch)"
 
-		Verb "git rm --cached $path"
-		if (-not $DryRun) { git rm --cached $path 2>$null }
+		Verb "git submodule deinit -f $path"
+		if (-not $DryRun) { git submodule deinit -f $path 2>$null }
 
 		$meta = ".git/modules/$path"
 		if (Test-Path $meta) {
@@ -250,6 +250,9 @@ function Do-Add {
 			Verb "Removing directory: $path"
 			if (-not $DryRun) { Remove-Item -Recurse -Force $path }
 		}
+
+		Verb "git rm --cached -r --ignore-unmatch $path"
+		if (-not $DryRun) { git rm --cached -r --ignore-unmatch $path }
 
 		Verb "git submodule add -b $branch $url $path"
 		if (-not $DryRun) { git submodule add -b $branch $url $path }
