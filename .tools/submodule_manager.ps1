@@ -237,6 +237,9 @@ function Do-Add {
 
 		Info "Adding $path (branch: $branch)"
 
+		Verb "git rm --cached $path"
+		if (-not $DryRun) { git rm --cached $path 2>$null }
+
 		Verb "git submodule add -b $branch $url $path"
 		if (-not $DryRun) { git submodule add -b $branch $url $path }
 
