@@ -2,7 +2,7 @@
 	"Lua.workspace.checkThirdParty": false,
 	"Lua.workspace.ignoreSubmodules": false,
 	"Lua.workspace.library": [
-		"${workspaceFolder}/.nanos-world",
+		"${workspaceFolder}/.nanos-world/annotations",
 		"${workspaceFolder}/library/Shared",
 		"${workspaceFolder}/library/Shared/@cheatoid/standard"
 	],
