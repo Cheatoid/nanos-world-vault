@@ -4,13 +4,13 @@
 # License: MIT
 
 <#
-    submodule_manager.ps1
-    Unified Git Submodule Manager
-    Commands:
-      add     – Add submodules
-      remove  – Remove submodules (with TUI picker)
-      list    – List submodules
-      help    – Show help
+	submodule_manager.ps1
+	Unified Git Submodule Manager
+	Commands:
+	  add     – Add submodules
+	  remove  – Remove submodules (with TUI picker)
+	  list    – List submodules
+	  help    – Show help
 #>
 
 param(
@@ -239,6 +239,12 @@ function Do-Add {
 
 		Verb "git rm --cached $path"
 		if (-not $DryRun) { git rm --cached $path 2>$null }
+
+		$meta = ".git/modules/$path"
+		if (Test-Path $meta) {
+			Verb "Removing git metadata: $meta"
+			if (-not $DryRun) { Remove-Item -Recurse -Force $meta }
+		}
 
 		if (Test-Path $path) {
 			Verb "Removing directory: $path"
