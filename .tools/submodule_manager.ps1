@@ -240,6 +240,11 @@ function Do-Add {
 		Verb "git rm --cached $path"
 		if (-not $DryRun) { git rm --cached $path 2>$null }
 
+		if (Test-Path $path) {
+			Verb "Removing directory: $path"
+			if (-not $DryRun) { Remove-Item -Recurse -Force $path }
+		}
+
 		Verb "git submodule add -b $branch $url $path"
 		if (-not $DryRun) { git submodule add -b $branch $url $path }
 
