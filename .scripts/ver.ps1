@@ -252,7 +252,8 @@ if ($release)
 
 	# Create next development version
 	Write-Host "Creating next development version..."
-	& $PSCommandPath -next
+	#& $PSCommandPath -next dev
+	& $PSCommandPath
 
 	# Switch back to original branch if different
 	if ($currentBranch -ne "main")
