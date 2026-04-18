@@ -177,17 +177,11 @@ end
 --[[
 Reminder to myself: Package-Release cycle
 
-0. for simplicity: double-click ver.ps1, or run .\.scripts\ver.ps1 -next
-
-1. increase version in `Package.toml`
-2. create a version commit `v{version from Package.toml}`, and locally tag the commit
-3. make code changes and commit all staged changes
-4. run packager (regenerates `metadata_gen.lua`), stage all `metadata_gen.lua` files
-
+To start a new version simply double-click, or run .\.scripts\ver.ps1
 (tag exists to enable locally staged version at this point, it has to exist to have correct versioning)
 
-when ready to release it:
-(make sure all changes are committed and pushed, ensure packager has run)
-5. run .\.scripts\release.cmd
-6. push changes
+When ready to release it:
+Simply double-click, or run .\.scripts\release.cmd
+It will automatically handle everything:
+Push changes, make github release, upload packages to store and start a new version... 😎
 ]]
