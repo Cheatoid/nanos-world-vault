@@ -363,9 +363,20 @@ print("Error range:", http.is_client_error(400))     -- true
 
 ### WebUI Wrappers
 
-Client-side WebUI-bridged APIs for Regex and WebSocket functionality.
+Client-side WebUI-bridged APIs for Hash, Regex and WebSocket functionality.
 
 ```lua
+-- HashAPI (bridged via WebUI for hashing/checksums)
+local HashAPI = require "Client/HashAPI"
+
+HashAPI.SHA256("hello world", function(success, result)
+    if success then
+        print("SHA-256:", result)
+    else
+        print("Hash failed")
+    end
+end)
+
 -- RegexAPI (bridged via WebUI for full regex support)
 local RegexAPI = require "Client/RegexAPI"
 
@@ -455,17 +466,6 @@ WebSocketAPI.Connect("ws://localhost:8080", nil, function(success, result)
         -- end)
     else
         print("Failed to connect:", result.error)
-    end
-end)
-
--- HashAPI (bridged via WebUI for hashing/checksums)
-local HashAPI = require "Client/HashAPI"
-
-HashAPI.SHA256("hello world", function(success, result)
-    if success then
-        print("SHA-256:", result)
-    else
-        print("Hash failed")
     end
 end)
 ```
@@ -660,11 +660,28 @@ local result = fetchData("http://example.com"):await()
 
 ### Collections
 
-Data structures: Stack, Queue, Deque, LinkedList, CircularBuffer, PriorityQueue.
+[View all collections](Shared/@cheatoid/collections)
+
+Data structures:
+
+- [(OOP) ArrayPool](Shared/@cheatoid/oop/collections/ArrayPool.lua)
+- [BiMap](Shared/@cheatoid/collections/BiMap.lua)
+- [CircularBuffer](Shared/@cheatoid/collections/CircularBuffer.lua)
+- [Deque](Shared/@cheatoid/collections/Deque.lua)
+- [Heap](Shared/@cheatoid/collections/Heap.lua)
+- [LinkedList](Shared/@cheatoid/collections/LinkedList.lua)
+- [PriorityQueue](Shared/@cheatoid/collections/PriorityQueue.lua)
+- [Queue](Shared/@cheatoid/collections/Queue.lua)
+- [Set](Shared/@cheatoid/collections/Set.lua)
+- [SlotMap](Shared/@cheatoid/collections/SlotMap.lua)
+- [SparseArray](Shared/@cheatoid/collections/SparseArray.lua)
+- [Stack](Shared/@cheatoid/collections/Stack.lua)
 
 ```lua
 local Stack = require "@cheatoid/collections/Stack"
 local Queue = require "@cheatoid/collections/Queue"
+local Set = require "@cheatoid/collections/Set"
+local ArrayPool = require "@cheatoid/oop/collections/ArrayPool"
 
 -- Stack (LIFO)
 local stack = Stack()
@@ -676,11 +693,26 @@ local queue = Queue()
 queue:enqueue("first")
 queue:enqueue("second")
 local first = queue:dequeue()
+
+-- Set (unique elements)
+local set = Set()
+set:add("apple")
+set:add("banana")
+print(set:contains("apple")) -- true
+
+-- ArrayPool (reusable array pool to reduce GC pressure)
+local pool = ArrayPool.shared()
+local arr = pool:rent(100) -- Rent array with at least 100 elements
+arr[1] = "first"
+arr[100] = "last"
+pool:release(arr) -- Return to pool for reuse
 ```
 
 ### Standard Library Extensions
 
-Enhanced builtin `string`, `table`, and `math` libraries with additional functions.
+Enhanced
+builtin [string](library/Shared/@cheatoid/standard/string.lua), [table](library/Shared/@cheatoid/standard/table.lua),
+and [math](library/Shared/@cheatoid/standard/math.lua) libraries with additional functions.
 
 ```lua
 local string = require "@cheatoid/standard/string"
@@ -710,7 +742,7 @@ if math.inrange(x, 1, 10) then print("In range!") end
 
 Language-Integrated Query for Lua collections. Three versions are available with different API styles:
 
-**linq (v1)** - PascalCase methods:
+**[linq (v1)](Shared/@cheatoid/linq/linq.lua)** - PascalCase methods:
 
 ```lua
 local linq = require "@cheatoid/linq/linq"
@@ -722,7 +754,7 @@ local result = linq.From({1, 2, 3, 4, 5})
 -- result: {6, 8, 10}
 ```
 
-**linq2 (v2)** - Alternative implementation with PascalCase:
+**[linq2 (v2)](Shared/@cheatoid/linq/linq2.lua)** - Alternative implementation with PascalCase:
 
 ```lua
 local linq = require "@cheatoid/linq/linq2"
@@ -733,7 +765,7 @@ local result = linq({1, 2, 3, 4, 5})
     :ToArray()
 ```
 
-**linq3 (v3)** - camelCase methods:
+**[linq3 (v3)](Shared/@cheatoid/linq/linq3.lua)** - camelCase methods:
 
 ```lua
 local Enumerable = require "@cheatoid/linq/linq3"
@@ -877,13 +909,13 @@ local my_plugin = manager:loadstring("my_plugin", plugin_code)
 local counter = Plugin("counter")
     :with_config({ max = 100 })
     :with_init(function(self, manager)
-		self.state.value = 0
+        self.state.value = 0
     end)
     :with_start(function(self)
-		print("Counter started")
+        print("Counter started")
     end)
     :with_stop(function(self)
-		print("Counter stopped at:", self.state.value)
+        print("Counter stopped at:", self.state.value)
     end)
 
 manager:register(counter)
@@ -892,8 +924,8 @@ manager:register(counter)
 local dependent = Plugin("dependent")
     :depends_on("my_plugin")
     :with_init(function(self, manager)
-		local parent = manager:get_plugin("my_plugin")
-		print("Dependency count:", parent.state.count)
+        local parent = manager:get_plugin("my_plugin")
+        print("Dependency count:", parent.state.count)
     end)
 
 manager:register(dependent)
@@ -1109,7 +1141,8 @@ local state = console:save_state()
 
 ### Benchmark
 
-Benchmarking toolkit for measuring code performance with statistical analysis, comparison tools, and multiple timing modes (with high-precision timer on LuaJIT)...
+Benchmarking toolkit for measuring code performance with statistical analysis, comparison tools, and multiple timing
+modes (with high-precision timer on LuaJIT)...
 
 See [Benchmark example](Shared/@cheatoid/benchmark/example.lua) for complete usage examples.
 
@@ -1165,32 +1198,32 @@ suite:compare()
 
 Various standalone utility modules:
 
-| Module                 | Description                               |
-|------------------------|-------------------------------------------|
-| `try`                  | Exception handling with try/catch/finally |
-| `type_check`           | Runtime type checking and validation      |
-| `istype`               | Simple type-checking functions            |
-| `xml`                  | XML parsing and serialization             |
-| `zip`                  | ZIP archive handling                      |
-| `util`                 | General utilities (coalesce, iff, etc.)   |
-| `patcher`              | Code patching utilities                   |
-| `debug_helper`         | Debugger and debugging utilities          |
-| `to_string_literal`    | Convert values to string literals         |
-| `biginteger`           | Arbitrary precision integers              |
-| `bits`                 | Bit manipulation utilities                |
-| `base_encoder_decoder` | Arbitrary Base encoding/decoding          |
-| `benchmark`            | Performance benchmarking toolkit          |
-| `cfg_parser`           | Custom CFG file parser                    |
-| `class`                | Lightweight class implementation          |
-| `readonly`             | Read-only table wrapper                   |
-| `curry`                | Function currying utility                 |
-| `isolated`             | Lua version compatibility & sandboxing    |
-| `runlua`               | Advanced code execution with sandboxing   |
-| `pretty_grid`          | Formatted grid/table printing             |
-| `pretty_hex_dump`      | Hex dump with ASCII view                  |
-| `dump_table`           | Recursive table dumper                    |
-| `track_value`          | Value change tracker with callbacks       |
-| `console`              | Interactive console with fuzzy completion |
+| Module                                                                         | Description                               |
+|--------------------------------------------------------------------------------|-------------------------------------------|
+| [`try`](Shared/@cheatoid/standalone/try.lua)                                   | Exception handling with try/catch/finally |
+| [`type_check`](Shared/@cheatoid/standalone/type_check.lua)                     | Runtime type checking and validation      |
+| [`istype`](Shared/@cheatoid/standalone/istype.lua)                             | Simple type-checking functions            |
+| [`xml`](Shared/@cheatoid/standalone/xml.lua)                                   | XML parsing and serialization             |
+| [`zip`](Shared/@cheatoid/standalone/zip.lua)                                   | ZIP archive handling                      |
+| [`util`](Shared/@cheatoid/standalone/util.lua)                                 | General utilities (coalesce, iff, etc.)   |
+| [`patcher`](Shared/@cheatoid/standalone/patcher.lua)                           | Code patching utilities                   |
+| [`debug_helper`](Shared/@cheatoid/standalone/debug_helper.lua)                 | Debugger and debugging utilities          |
+| [`to_string_literal`](Shared/@cheatoid/standalone/to_string_literal.lua)       | Convert values to string literals         |
+| [`biginteger`](Shared/@cheatoid/standalone/biginteger.lua)                     | Arbitrary precision integers              |
+| [`bits`](Shared/@cheatoid/standalone/bits.lua)                                 | Bit manipulation utilities                |
+| [`base_encoder_decoder`](Shared/@cheatoid/standalone/base_encoder_decoder.lua) | Arbitrary Base encoding/decoding          |
+| [`benchmark`](Shared/@cheatoid/benchmark/init.lua)                             | Performance benchmarking toolkit          |
+| [`cfg_parser`](Shared/@cheatoid/standalone/cfg_parser.lua)                     | Custom CFG file parser                    |
+| [`class`](Shared/@cheatoid/standalone/class.lua)                               | Lightweight class implementation          |
+| [`readonly`](Shared/@cheatoid/standalone/readonly.lua)                         | Read-only table wrapper                   |
+| [`curry`](Shared/@cheatoid/standalone/curry.lua)                               | Function currying utility                 |
+| [`isolated`](Shared/@cheatoid/standalone/isolated.lua)                         | Lua version compatibility & sandboxing    |
+| [`runlua`](Shared/@cheatoid/standalone/runlua.lua)                             | Advanced code execution with sandboxing   |
+| [`pretty_grid`](Shared/@cheatoid/standalone/pretty_grid.lua)                   | Formatted grid/table printing             |
+| [`pretty_hex_dump`](Shared/@cheatoid/standalone/pretty_hex_dump.lua)           | Hex dump with ASCII view                  |
+| [`dump_table`](Shared/@cheatoid/standalone/dump_table.lua)                     | Recursive table dumper                    |
+| [`track_value`](Shared/@cheatoid/standalone/track_value.lua)                   | Value change tracker with callbacks       |
+| [`console`](Shared/@cheatoid/standalone/console.lua)                           | Interactive console with fuzzy completion |
 
 **Extensions** (modify built-in types):
 
@@ -1594,7 +1627,8 @@ print("hello" >> 2)        -- "lohel" (rotate right)
 
 ### Rate Limiter
 
-Simple rate limiting primitives supporting multiple strategies (Fixed Window, Sliding Window Log, Token Bucket, and Leaky Bucket).
+Simple rate limiting primitives supporting multiple strategies (Fixed Window, Sliding Window Log, Token Bucket, and
+Leaky Bucket).
 
 Source: [Shared/@cheatoid/rate_limiter/rate_limiter.lua](Shared/@cheatoid/rate_limiter/rate_limiter.lua)
 
@@ -1638,6 +1672,7 @@ packages = [
 ```
 
 4. In your server's gamemode `Shared/Index.lua`, add the following line at the top:
+
 ```lua
 require "cheatoid-library/Shared/Index.lua"
 ```

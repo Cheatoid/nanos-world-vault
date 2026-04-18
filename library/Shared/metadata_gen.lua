@@ -18,11 +18,11 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.32",
-	timestamp = "2026-04-18 16:40:10",
-	commit_count = 174,
+	timestamp = "2026-04-18 17:19:27",
+	commit_count = 176,
 	tag_count = 29,
 	branch_name = "main",
-	prev_hash = "e87c2d8c4d5cf842bf59743b45d5f8696079b61e",
+	prev_hash = "26cdcff92134354ccb6214682e9c72f18808005c",
 	tag = "v0.0.33",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
@@ -31,7 +31,7 @@ return {
 	files_hash = {
 		["LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
 		["Package.toml"] = "9f7c3598312dbb2d059c55047f18c7fc1cda12cb24f01c94fb6398d5a0c5fa25",
-		["README.md"] = "be6da843ff3d1399f9bbd885c349ccd0c21f7148e2f9a4017408782350578d54",
+		["README.md"] = "f01286034cc6ce0b275f708ef4796a348bbcf4b9fec00a552c346a310a18e2f1",
 		["Client/HashAPI.lua"] = "2670c2e4519cc4cbca630b45d8474a04a667965e905f50a00dbd2ba8d674454b",
 		["Client/Index.lua"] = "321c3f6e412d6261aaff9fd0082354be27f4bd40bd82466ebe03c0c485d7a4c1",
 		["Client/RegexAPI.lua"] = "7dbc55e03cd7de8f95cbfd77efaa785399486a66bb71dbad5dfd389f508bc891",
@@ -61,7 +61,7 @@ return {
 		["Shared/@cheatoid/benchmark/example.lua"] = "090ca6a8e02ef9afa532494b625bdcc26798e4bbfeeecbfe87c09e66d5ddf2af",
 		["Shared/@cheatoid/benchmark/formatter.lua"] = "d6006d49cde881a0ea0390c6ee7c6c0fe9e1ec3878cd7d370d23ba3d6f5aa067",
 		["Shared/@cheatoid/benchmark/init.lua"] = "c61ae3cae380a1cd394d276e268e2c29c89ab2d97f1cd1cf1cb008b3682fda2c",
-		["Shared/@cheatoid/benchmark/runner.lua"] = "0d53f0bd3bf32db730b72446e1c7eb4dc5b00ed88eacb6fdc72ad1da29b1b916",
+		["Shared/@cheatoid/benchmark/runner.lua"] = "61dabaf4734a6461cc4fd9ace65803936bfa56f27a4872a32028b989233595a2",
 		["Shared/@cheatoid/benchmark/stats.lua"] = "aef6ba9de01f112cc87032bf421116a01c2648ca25cc82f150b5809258095db6",
 		["Shared/@cheatoid/benchmark/suite.lua"] = "5ad536ac2cf9500c23683a5c4850808bdde44d6217e47694ea47f37c2feb9989",
 		["Shared/@cheatoid/benchmark/timer.lua"] = "3a0c21e411dc74cfac026f9edf569debd620446d635eaacb0d076974b0fe86ab",
