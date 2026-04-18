@@ -6,3 +6,15 @@
 	path = .nanos-world/annotations
 	url = https://github.com/nanos-world/vscode-extension
 	branch = docgen-output
+[submodule ".nanos-world/module-sdk"]
+	path = .nanos-world/module-sdk
+	url = https://github.com/nanos-world/module-sdk
+	branch = master
+[submodule ".nanos-world/native-lua-library"]
+	path = .nanos-world/native-lua-library
+	url = https://github.com/nanos-world/native-lua-library
+	branch = master
+[submodule ".nanos-world/sandbox"]
+	path = .nanos-world/sandbox
+	url = https://github.com/nanos-world/sandbox
+	branch = master
