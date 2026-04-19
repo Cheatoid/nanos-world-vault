@@ -18,16 +18,16 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.32",
-	timestamp = "2026-04-19 20:26:37",
-	commit_count = 182,
+	timestamp = "2026-04-19 20:29:45",
+	commit_count = 183,
 	tag_count = 29,
 	branch_name = "main",
-	prev_hash = "91af8058739f3868242c004264a796f243263035",
+	prev_hash = "1cb20f8d1ccc269b66f0d61455d17088bab1ec7e",
 	tag = "v0.0.33",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
 	path = "library",
-	filenames_hash = "0d9de21edbb65cc9b395ea228c14f85845cc8c8616e7daf64b9f2dfbacfa1e8c",
+	filenames_hash = "452a232b4b6a98a81836140df7a2a0a1c8847efd0a84d47b14878462a7193e7c",
 	files_hash = {
 		["LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
 		["Package.toml"] = "9f7c3598312dbb2d059c55047f18c7fc1cda12cb24f01c94fb6398d5a0c5fa25",
@@ -154,7 +154,6 @@ return {
 		["Shared/@cheatoid/standard/table.d.lua"] = "7a91d6afe33b7ba4c99daf6c47f18f4f4c4198631967232d53a394cf3ba1f865",
 		["Shared/@cheatoid/standard/table.lua"] = "265030218450ae17b95d630e312b930d55874f336b6fbf59c9688e21069ec22f",
 		["Shared/@cheatoid/vm/README.md"] = "10df7361210da1f435d0f3d603d199d5b86f8f63d3cf292b50ace5644b4e3886",
-		["Shared/@cheatoid/vm/luavm.lua"] = "b20e85294a844b0143d7775d5ab192b18a87cea72f541ef6e0e280bd48f400f3",
 		["Shared/@cheatoid/vm/stackvm.lua"] = "2926675e384a1f6974d4a30bfcf5bbaa9a04c289a674adae544bb7d69e135507",
 		["Shared/@cheatoid/vm/vm.lua"] = "eda7931a758e46fd3e7c1b7836d92b24f767da0dd8d563cce70c850f8da35c0c",
 		["Shared/@cheatoid/vm/vm.tests.lua"] = "775e4f2e9223fba1b0eabb1cb8d689049da98fe4efe15c82a503d18642889fe5"
@@ -286,7 +285,6 @@ return {
 		"Shared/@cheatoid/standard/table.d.lua",
 		"Shared/@cheatoid/standard/table.lua",
 		"Shared/@cheatoid/vm/README.md",
-		"Shared/@cheatoid/vm/luavm.lua",
 		"Shared/@cheatoid/vm/stackvm.lua",
 		"Shared/@cheatoid/vm/vm.lua",
 		"Shared/@cheatoid/vm/vm.tests.lua",

@@ -297,9 +297,17 @@ foreach (var dir in dirs)
 		c.WriteLine($"ℹ found {packageFiles.Length} files in {packageRoot}");
 		var filesList = new List<string>(packageFiles.Length);
 		{
+			using var repo = new Repository(gitRoot);
 			foreach (var file in packageFiles)
 			{
 				var entryName = Path.GetRelativePath(packageRoot, file).Replace('\\', '/');
+				var relativePath = Path.GetRelativePath(gitRoot, file).Replace('\\', '/');
+				// Skip files that are ignored by git
+				if (repo.Ignore.IsPathIgnored(relativePath))
+				{
+					c.WriteLine($"ℹ skipped (gitignored): {entryName}");
+					continue;
+				}
 				var regexesToUse = isCompileMode ? ZipCompileModeFilterRegexes : ZipFilterRegexes;
 				if (!regexesToUse.Any(r => r.IsMatch('/' + entryName)))
 					continue;
@@ -762,8 +770,15 @@ foreach (var dir in dirs)
 				continue;
 			}
 
-			var packageFiles = Directory.EnumerateFiles(packageRoot, "*", SearchOption.AllDirectories);
-			var zipBytes = CreateZipFromFiles(packageFiles.ToArray(), packageRoot,
+			var packageFiles = Directory.EnumerateFiles(packageRoot, "*", SearchOption.AllDirectories)
+				.Where(file =>
+				{
+					var relativePath = Path.GetRelativePath(gitRoot, file).Replace('\\', '/');
+					using var repo = new Repository(gitRoot);
+					return !repo.Ignore.IsPathIgnored(relativePath);
+				})
+				.ToArray();
+			var zipBytes = CreateZipFromFiles(packageFiles, packageRoot,
 				isCompileMode ? ZipCompileModeFilterRegexes : ZipFilterRegexes);
 			var zipFileSize = zipBytes.Length;
 			if (zipFileSize <= 0)
