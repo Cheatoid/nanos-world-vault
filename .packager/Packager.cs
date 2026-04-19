@@ -1993,7 +1993,7 @@ internal sealed class JunctionPoint
 		targetBytes.CopyTo(pathBytes, 16);
 
 		if (!DeviceIoControl(handle.DangerousGetHandle(), 0x900A4, pathBytes, pathBytes.Length, null, 0, out _,
-			    IntPtr.Zero))
+				IntPtr.Zero))
 		{
 			throw new IOException("Failed to create junction point");
 		}

@@ -66,7 +66,7 @@ vim.g.coc_node_path = 'C:\\Program Files\\nodejs\\node.exe'
 
 -- Configure CoC Lua Language Server to include nanos-world annotations (matches VSCode settings)
 -- Dynamically detect the vault root (parent of the 'nvim' folder containing this script)
-local this_file = debug.getinfo(1, "S").source:sub(2) -- remove leading '@'
+local this_file = debug.getinfo(1, "S").source:sub(2)    -- remove leading '@'
 local vault_path = vim.fn.fnamemodify(this_file, ':h:h') -- go up twice: init.lua -> nvim -> vault root
 vim.g.coc_user_config = {
 	Lua = {

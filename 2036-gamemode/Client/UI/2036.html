@@ -57,7 +57,9 @@ License: MIT
 			--fm: 'Share Tech Mono', monospace
 		}
 
-		*, *::before, *::after {
+		*,
+		*::before,
+		*::after {
 			margin: 0;
 			padding: 0;
 			box-sizing: border-box
@@ -99,6 +101,7 @@ License: MIT
 			from {
 				transform: scale(1)
 			}
+
 			to {
 				transform: scale(1.15)
 			}
@@ -153,7 +156,8 @@ License: MIT
 			height: 36px
 		}
 
-		.hc::before, .hc::after {
+		.hc::before,
+		.hc::after {
 			content: '';
 			position: absolute;
 			background: var(--ac);
@@ -255,22 +259,27 @@ License: MIT
 				opacity: 0;
 				clip-path: inset(50% 0 50% 0)
 			}
+
 			20% {
 				opacity: .6;
 				clip-path: inset(30% 0 30% 0)
 			}
+
 			40% {
 				opacity: .3;
 				clip-path: inset(10% 0 60% 0)
 			}
+
 			60% {
 				opacity: .5;
 				clip-path: inset(60% 0 10% 0)
 			}
+
 			80% {
 				opacity: .2;
 				clip-path: inset(20% 0 20% 0)
 			}
+
 			100% {
 				opacity: 0;
 				clip-path: inset(0)
@@ -281,16 +290,20 @@ License: MIT
 			0% {
 				transform: translateX(0)
 			}
+
 			100% {
 				transform: translateX(-50%)
 			}
 		}
 
 		@keyframes pulse {
-			0%, 100% {
+
+			0%,
+			100% {
 				opacity: 1;
 				box-shadow: 0 0 8px var(--ac3)
 			}
+
 			50% {
 				opacity: .6;
 				box-shadow: 0 0 4px var(--ac3)
@@ -331,6 +344,7 @@ License: MIT
 			0% {
 				filter: brightness(1.5)
 			}
+
 			100% {
 				filter: brightness(1)
 			}
@@ -595,7 +609,8 @@ License: MIT
 			animation: tG 4s infinite
 		}
 
-		.g-t::before, .g-t::after {
+		.g-t::before,
+		.g-t::after {
 			content: attr(data-text);
 			position: absolute;
 			top: 0;
@@ -618,36 +633,49 @@ License: MIT
 		}
 
 		@keyframes tG {
-			0%, 88%, 100% {
+
+			0%,
+			88%,
+			100% {
 				transform: translate(0)
 			}
+
 			90% {
 				transform: translate(-2px, 1px)
 			}
+
 			92% {
 				transform: translate(2px, -1px)
 			}
+
 			94% {
 				transform: translate(-1px, -1px)
 			}
+
 			96% {
 				transform: translate(1px, 1px)
 			}
 		}
 
 		@keyframes gB {
-			0%, 88%, 100% {
+
+			0%,
+			88%,
+			100% {
 				clip-path: inset(0 0 80% 0);
 				transform: translate(0)
 			}
+
 			90% {
 				clip-path: inset(15% 0 55% 0);
 				transform: translate(-4px, 0)
 			}
+
 			92% {
 				clip-path: inset(55% 0 15% 0);
 				transform: translate(4px, 0)
 			}
+
 			94% {
 				clip-path: inset(30% 0 40% 0);
 				transform: translate(-2px, 0)
@@ -655,18 +683,24 @@ License: MIT
 		}
 
 		@keyframes gA {
-			0%, 88%, 100% {
+
+			0%,
+			88%,
+			100% {
 				clip-path: inset(80% 0 0 0);
 				transform: translate(0)
 			}
+
 			90% {
 				clip-path: inset(60% 0 15% 0);
 				transform: translate(4px, 0)
 			}
+
 			92% {
 				clip-path: inset(10% 0 60% 0);
 				transform: translate(-4px, 0)
 			}
+
 			96% {
 				clip-path: inset(45% 0 25% 0);
 				transform: translate(2px, 0)
@@ -762,47 +796,56 @@ License: MIT
 			z-index: 3
 		}
 
-		.mb:hover, .mb.foc {
+		.mb:hover,
+		.mb.foc {
 			color: #fff;
 			transform: translateX(6px)
 		}
 
-		.mb:hover::before, .mb.foc::before {
+		.mb:hover::before,
+		.mb.foc::before {
 			transform: translateX(110%)
 		}
 
-		.mb:hover::after, .mb.foc::after {
+		.mb:hover::after,
+		.mb.foc::after {
 			opacity: 1;
 			box-shadow: 0 0 12px var(--ac), 0 0 30px rgba(0, 240, 255, .12);
 			top: 10%;
 			bottom: 10%
 		}
 
-		.mb:hover .mi, .mb.foc .mi {
+		.mb:hover .mi,
+		.mb.foc .mi {
 			opacity: 1;
 			color: var(--ac)
 		}
 
-		.mb:hover .mk, .mb.foc .mk {
+		.mb:hover .mk,
+		.mb.foc .mk {
 			opacity: 1;
 			border-color: var(--ba);
 			color: var(--ac)
 		}
 
-		.mb.qb:hover, .mb.qb.foc {
+		.mb.qb:hover,
+		.mb.qb.foc {
 			color: var(--ac2)
 		}
 
-		.mb.qb:hover::after, .mb.qb.foc::after {
+		.mb.qb:hover::after,
+		.mb.qb.foc::after {
 			background: var(--ac2);
 			box-shadow: 0 0 12px var(--ac2), 0 0 30px rgba(255, 0, 60, .12)
 		}
 
-		.mb.qb:hover .mi, .mb.qb.foc .mi {
+		.mb.qb:hover .mi,
+		.mb.qb.foc .mi {
 			color: var(--ac2)
 		}
 
-		.mb.qb:hover .mk, .mb.qb.foc .mk {
+		.mb.qb:hover .mk,
+		.mb.qb.foc .mk {
 			border-color: rgba(255, 0, 60, .5);
 			color: var(--ac2)
 		}
@@ -950,7 +993,8 @@ License: MIT
 			outline: 0
 		}
 
-		.bb:hover, .bb:focus-visible {
+		.bb:hover,
+		.bb:focus-visible {
 			border-color: var(--ba);
 			color: var(--ac);
 			background: rgba(0, 240, 255, .04);
@@ -978,7 +1022,7 @@ License: MIT
 		/* ── Character ── */
 		.ch-l {
 			display: grid;
-			grid-template-columns:240px 1fr;
+			grid-template-columns: 240px 1fr;
 			gap: 24px;
 			flex: 1;
 			overflow-y: auto;
@@ -1106,7 +1150,7 @@ License: MIT
 
 		.sr {
 			display: grid;
-			grid-template-columns:40px 1fr 30px;
+			grid-template-columns: 40px 1fr 30px;
 			align-items: center;
 			gap: 8px
 		}
@@ -1292,7 +1336,8 @@ License: MIT
 			outline: 0
 		}
 
-		.sto-fb:hover, .sto-fb:focus-visible {
+		.sto-fb:hover,
+		.sto-fb:focus-visible {
 			background: rgba(255, 0, 60, .18);
 			box-shadow: 0 0 20px rgba(255, 0, 60, .15)
 		}
@@ -1319,7 +1364,8 @@ License: MIT
 			outline: 0
 		}
 
-		.sc-b:hover, .sc-b:focus-visible {
+		.sc-b:hover,
+		.sc-b:focus-visible {
 			border-color: var(--ba);
 			color: var(--ac)
 		}
@@ -1332,7 +1378,7 @@ License: MIT
 
 		.sto-g {
 			display: grid;
-			grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 			gap: 12px
 		}
 
@@ -1348,7 +1394,8 @@ License: MIT
 			gap: 14px
 		}
 
-		.si:hover, .si:focus-visible {
+		.si:hover,
+		.si:focus-visible {
 			border-color: var(--ba);
 			background: var(--ch);
 			transform: translateY(-3px);
@@ -1361,7 +1408,8 @@ License: MIT
 			filter: grayscale(.6)
 		}
 
-		.si.si-unaffordable:hover, .si.si-unaffordable:focus-visible {
+		.si.si-unaffordable:hover,
+		.si.si-unaffordable:focus-visible {
 			border-color: var(--bd);
 			background: var(--card);
 			transform: none;
@@ -1457,7 +1505,7 @@ License: MIT
 		/* ── Crafting ── */
 		.cr-l {
 			display: grid;
-			grid-template-columns:240px 1fr;
+			grid-template-columns: 240px 1fr;
 			gap: 24px;
 			flex: 1;
 			overflow: hidden
@@ -1550,7 +1598,7 @@ License: MIT
 			overflow-y: auto;
 			padding: 16px;
 			display: grid;
-			grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+			grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 			gap: 14px;
 			align-content: start
 		}
@@ -1575,7 +1623,8 @@ License: MIT
 			outline: 0
 		}
 
-		.cr-card:hover, .cr-card:focus-visible {
+		.cr-card:hover,
+		.cr-card:focus-visible {
 			border-color: var(--ba);
 			background: var(--ch);
 			transform: translateY(-2px);
@@ -1663,7 +1712,8 @@ License: MIT
 			align-self: flex-start
 		}
 
-		.cr-btn:hover, .cr-btn:focus-visible {
+		.cr-btn:hover,
+		.cr-btn:focus-visible {
 			background: rgba(0, 240, 255, .15);
 			box-shadow: 0 0 14px rgba(0, 240, 255, .12)
 		}
@@ -1679,9 +1729,12 @@ License: MIT
 		}
 
 		@keyframes craftPulse {
-			0%, 100% {
+
+			0%,
+			100% {
 				box-shadow: 0 0 0 rgba(0, 240, 255, 0)
 			}
+
 			50% {
 				box-shadow: 0 0 30px rgba(0, 240, 255, .3)
 			}
@@ -1746,7 +1799,8 @@ License: MIT
 			outline: 0
 		}
 
-		.fr-fb:hover, .fr-fb:focus-visible {
+		.fr-fb:hover,
+		.fr-fb:focus-visible {
 			border-color: var(--ba);
 			color: var(--ac)
 		}
@@ -1851,7 +1905,8 @@ License: MIT
 			outline: 0
 		}
 
-		.fr-ab:hover, .fr-ab:focus-visible {
+		.fr-ab:hover,
+		.fr-ab:focus-visible {
 			border-color: var(--ba);
 			color: var(--ac);
 			background: rgba(0, 240, 255, .04)
@@ -1922,7 +1977,8 @@ License: MIT
 			outline: 0
 		}
 
-		.sv-fb:hover, .sv-fb:focus-visible {
+		.sv-fb:hover,
+		.sv-fb:focus-visible {
 			border-color: var(--ba);
 			color: var(--ac)
 		}
@@ -1952,7 +2008,7 @@ License: MIT
 
 		.sv-hdr {
 			display: grid;
-			grid-template-columns:2fr 1fr 1fr 80px 60px 100px;
+			grid-template-columns: 2fr 1fr 1fr 80px 60px 100px;
 			gap: 10px;
 			padding: 6px 12px;
 			font-family: var(--fd);
@@ -1965,7 +2021,7 @@ License: MIT
 
 		.sv-row {
 			display: grid;
-			grid-template-columns:2fr 1fr 1fr 80px 60px 100px;
+			grid-template-columns: 2fr 1fr 1fr 80px 60px 100px;
 			gap: 10px;
 			padding: 10px 12px;
 			border-radius: 4px;
@@ -2041,7 +2097,8 @@ License: MIT
 			white-space: nowrap
 		}
 
-		.sv-join:hover, .sv-join:focus-visible {
+		.sv-join:hover,
+		.sv-join:focus-visible {
 			background: rgba(0, 240, 255, .15);
 			box-shadow: 0 0 12px rgba(0, 240, 255, .1)
 		}
@@ -2181,6 +2238,7 @@ License: MIT
 				opacity: 0;
 				transform: translateY(5px)
 			}
+
 			to {
 				opacity: 1;
 				transform: translateY(0)
@@ -2281,7 +2339,8 @@ License: MIT
 			outline: 0
 		}
 
-		.ct-snd:hover, .ct-snd:focus-visible {
+		.ct-snd:hover,
+		.ct-snd:focus-visible {
 			background: rgba(0, 240, 255, .15);
 			box-shadow: 0 0 12px rgba(0, 240, 255, .1)
 		}
@@ -2372,7 +2431,8 @@ License: MIT
 			padding-top: 0
 		}
 
-		.nw-i:hover, .nw-i:focus-visible {
+		.nw-i:hover,
+		.nw-i:focus-visible {
 			padding-left: 14px
 		}
 
@@ -2487,7 +2547,8 @@ License: MIT
 			outline: 0
 		}
 
-		.op-tab:hover, .op-tab:focus-visible {
+		.op-tab:hover,
+		.op-tab:focus-visible {
 			color: var(--fg)
 		}
 
@@ -2719,7 +2780,8 @@ License: MIT
 			outline: 0
 		}
 
-		.con-x:hover, .con-x:focus-visible {
+		.con-x:hover,
+		.con-x:focus-visible {
 			color: var(--ac2)
 		}
 
@@ -2888,7 +2950,8 @@ License: MIT
 			outline: 0
 		}
 
-		.qb-can:hover, .qb-can:focus-visible {
+		.qb-can:hover,
+		.qb-can:focus-visible {
 			border-color: var(--ba);
 			color: var(--ac);
 			background: rgba(0, 240, 255, .04)
@@ -2910,7 +2973,8 @@ License: MIT
 			outline: 0
 		}
 
-		.qb-conf:hover, .qb-conf:focus-visible {
+		.qb-conf:hover,
+		.qb-conf:focus-visible {
 			background: rgba(255, 0, 60, .2);
 			box-shadow: 0 0 20px rgba(255, 0, 60, .12)
 		}
@@ -2933,7 +2997,8 @@ License: MIT
 			height: 40px
 		}
 
-		.mw:hover, .mw.exp {
+		.mw:hover,
+		.mw.exp {
 			width: 220px;
 			border-color: var(--ba)
 		}
@@ -2969,7 +3034,8 @@ License: MIT
 			pointer-events: none
 		}
 
-		.mw:hover .mw-sw, .mw.exp .mw-sw {
+		.mw:hover .mw-sw,
+		.mw.exp .mw-sw {
 			opacity: 1;
 			pointer-events: auto
 		}
@@ -2986,7 +3052,8 @@ License: MIT
 			transition: opacity .2s
 		}
 
-		.mw:hover .mw-viz, .mw.exp .mw-viz {
+		.mw:hover .mw-viz,
+		.mw.exp .mw-viz {
 			opacity: 1
 		}
 
@@ -3054,7 +3121,10 @@ License: MIT
 		}
 
 		@media (prefers-reduced-motion: reduce) {
-			*, *::before, *::after {
+
+			*,
+			*::before,
+			*::after {
 				animation-duration: .01ms !important;
 				animation-iteration-count: 1 !important;
 				transition-duration: .1ms !important
@@ -3066,8 +3136,9 @@ License: MIT
 				padding: 18px
 			}
 
-			.ch-l, .cr-l {
-				grid-template-columns:1fr
+			.ch-l,
+			.cr-l {
+				grid-template-columns: 1fr
 			}
 
 			.ch-av {
@@ -3083,11 +3154,12 @@ License: MIT
 			}
 
 			.sto-g {
-				grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))
+				grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))
 			}
 
-			.sv-hdr, .sv-row {
-				grid-template-columns:1.5fr 1fr 80px 60px 80px
+			.sv-hdr,
+			.sv-row {
+				grid-template-columns: 1.5fr 1fr 80px 60px 80px
 			}
 
 			.sv-map {
@@ -3118,11 +3190,11 @@ License: MIT
 			}
 
 			.sto-g {
-				grid-template-columns:1fr
+				grid-template-columns: 1fr
 			}
 
 			.cr-grid {
-				grid-template-columns:1fr
+				grid-template-columns: 1fr
 			}
 
 			#con-ov {
@@ -3133,1889 +3205,1918 @@ License: MIT
 		}
 	</style>
 </head>
+
 <body>
 
-<div id="slideshow" aria-hidden="true">
-	<div class="slide active" style="background-image:url('https://picsum.photos/seed/cybercity7/1920/1080.jpg')"></div>
-	<div class="slide" style="background-image:url('https://picsum.photos/seed/neonnight3/1920/1080.jpg')"></div>
-	<div class="slide" style="background-image:url('https://picsum.photos/seed/darkurban9/1920/1080.jpg')"></div>
-	<div class="slide" style="background-image:url('https://picsum.photos/seed/raincity2/1920/1080.jpg')"></div>
-</div>
-<div class="ov-scan" aria-hidden="true"></div>
-<div class="ov-vig" aria-hidden="true"></div>
-<div class="ov-grd" aria-hidden="true"></div>
-<div class="ov-nz" aria-hidden="true"></div>
-<canvas id="p-cv" aria-hidden="true"></canvas>
-<div class="hc htl" aria-hidden="true"></div>
-<div class="hc htr" aria-hidden="true"></div>
-<div class="hc hbl" aria-hidden="true"></div>
-<div class="hc hbr" aria-hidden="true"></div>
-<div id="tr-ov" aria-hidden="true"></div>
-
-<!-- BOOT -->
-<div id="boot-scr" aria-label="Loading">
-	<div class="bt-t">NEO WARS</div>
-	<div class="bt-s">v0.0.4 build 0004 &mdash; Cheatoid Interactive 2026</div>
-	<div id="boot-lines"></div>
-	<div class="bt-pw" id="boot-pw">
-		<div class="bt-pb">
-			<div class="bt-pf" id="boot-pf"></div>
+	<div id="slideshow" aria-hidden="true">
+		<div class="slide active" style="background-image:url('https://picsum.photos/seed/cybercity7/1920/1080.jpg')">
 		</div>
-		<div class="bt-pt" id="boot-pt">0%</div>
+		<div class="slide" style="background-image:url('https://picsum.photos/seed/neonnight3/1920/1080.jpg')"></div>
+		<div class="slide" style="background-image:url('https://picsum.photos/seed/darkurban9/1920/1080.jpg')"></div>
+		<div class="slide" style="background-image:url('https://picsum.photos/seed/raincity2/1920/1080.jpg')"></div>
 	</div>
-	<div class="bt-pr" id="boot-press">PRESS ANY KEY TO CONTINUE</div>
-</div>
+	<div class="ov-scan" aria-hidden="true"></div>
+	<div class="ov-vig" aria-hidden="true"></div>
+	<div class="ov-grd" aria-hidden="true"></div>
+	<div class="ov-nz" aria-hidden="true"></div>
+	<canvas id="p-cv" aria-hidden="true"></canvas>
+	<div class="hc htl" aria-hidden="true"></div>
+	<div class="hc htr" aria-hidden="true"></div>
+	<div class="hc hbl" aria-hidden="true"></div>
+	<div class="hc hbr" aria-hidden="true"></div>
+	<div id="tr-ov" aria-hidden="true"></div>
 
-<!-- CONNECTING -->
-<div id="conn-scr" aria-label="Connecting">
-	<div class="cn-t">CONNECTING TO SERVER</div>
-	<div class="cn-i" id="conn-info">Server: cheatoid-eu-west.cheatoid.gg:7777<br>Region: EU-West (Frankfurt)<br>Ping:
-		--ms
-	</div>
-	<div id="conn-lines"></div>
-	<div class="cn-pr" id="conn-pr">
-		<div class="cn-pf" id="conn-pf"></div>
-	</div>
-	<div class="cn-st" id="conn-st"></div>
-</div>
-
-<!-- MAIN -->
-<section id="screen-main" class="scr" role="main">
-	<div
-		style="position:absolute;top:36px;right:56px;display:flex;flex-direction:column;align-items:flex-end;gap:10px;z-index:20">
-		<div style="display:flex;align-items:center;gap:16px">
-			<div style="display:flex;align-items:center;gap:8px">
-				<div
-					style="width:8px;height:8px;border-radius:50%;background:var(--ac3);box-shadow:0 0 8px var(--ac3);animation:pulse 2s infinite"></div>
-				<span style="font-family:var(--fd);font-size:.7rem;letter-spacing:.15em;color:var(--ac3)">ONLINE</span>
+	<!-- BOOT -->
+	<div id="boot-scr" aria-label="Loading">
+		<div class="bt-t">NEO WARS</div>
+		<div class="bt-s">v0.0.4 build 0004 &mdash; Cheatoid Interactive 2026</div>
+		<div id="boot-lines"></div>
+		<div class="bt-pw" id="boot-pw">
+			<div class="bt-pb">
+				<div class="bt-pf" id="boot-pf"></div>
 			</div>
-			<div style="font-family:var(--fd);font-size:.65rem;letter-spacing:.1em;color:rgba(216,224,234,.4)">v0.0.4
-			</div>
+			<div class="bt-pt" id="boot-pt">0%</div>
 		</div>
+		<div class="bt-pr" id="boot-press">PRESS ANY KEY TO CONTINUE</div>
+	</div>
 
+	<!-- CONNECTING -->
+	<div id="conn-scr" aria-label="Connecting">
+		<div class="cn-t">CONNECTING TO SERVER</div>
+		<div class="cn-i" id="conn-info">Server: cheatoid-eu-west.cheatoid.gg:7777<br>Region: EU-West
+			(Frankfurt)<br>Ping:
+			--ms
+		</div>
+		<div id="conn-lines"></div>
+		<div class="cn-pr" id="conn-pr">
+			<div class="cn-pf" id="conn-pf"></div>
+		</div>
+		<div class="cn-st" id="conn-st"></div>
+	</div>
+
+	<!-- MAIN -->
+	<section id="screen-main" class="scr" role="main">
 		<div
-			style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(0,240,255,.12);border-radius:12px;background:rgba(0,0,0,.18);backdrop-filter:blur(6px)">
+			style="position:absolute;top:36px;right:56px;display:flex;flex-direction:column;align-items:flex-end;gap:10px;z-index:20">
+			<div style="display:flex;align-items:center;gap:16px">
+				<div style="display:flex;align-items:center;gap:8px">
+					<div
+						style="width:8px;height:8px;border-radius:50%;background:var(--ac3);box-shadow:0 0 8px var(--ac3);animation:pulse 2s infinite">
+					</div>
+					<span
+						style="font-family:var(--fd);font-size:.7rem;letter-spacing:.15em;color:var(--ac3)">ONLINE</span>
+				</div>
+				<div style="font-family:var(--fd);font-size:.65rem;letter-spacing:.1em;color:rgba(216,224,234,.4)">
+					v0.0.4
+				</div>
+			</div>
+
 			<div
-				style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(0,240,255,.3);overflow:hidden;background:rgba(0,240,255,.05);flex-shrink:0">
-				<img src="https://picsum.photos/seed/avatar42/80/80.jpg" alt="Player avatar"
-				     style="width:100%;height:100%;object-fit:cover;filter:hue-rotate(180deg) saturate(0.5) brightness(0.8)">
-			</div>
-			<div style="min-width:180px">
-				<div style="font-family:var(--fd);font-size:.8rem;letter-spacing:.1em;color:#fff">cheatoid</div>
-				<div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-					<span style="color:var(--ac);font-family:var(--fd);font-size:.65rem">LVL 27</span>
-					<div style="width:80px;height:4px;background:var(--mt);border-radius:2px;overflow:hidden">
-						<div
-							style="width:69%;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac3));border-radius:2px"></div>
-					</div>
-					<span style="font-size:.6rem;color:rgba(216,224,234,.4)">69%</span>
+				style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(0,240,255,.12);border-radius:12px;background:rgba(0,0,0,.18);backdrop-filter:blur(6px)">
+				<div
+					style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(0,240,255,.3);overflow:hidden;background:rgba(0,240,255,.05);flex-shrink:0">
+					<img src="https://picsum.photos/seed/avatar42/80/80.jpg" alt="Player avatar"
+						style="width:100%;height:100%;object-fit:cover;filter:hue-rotate(180deg) saturate(0.5) brightness(0.8)">
 				</div>
-			</div>
-			<div style="display:flex;align-items:center;gap:6px">
-				<i class="fas fa-coins" style="color:var(--ac4);font-size:.75rem"></i>
-				<span style="font-family:var(--fd);color:var(--ac4);font-size:.75rem">12,345</span>
-			</div>
-		</div>
-	</div>
-	<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
-		<div><h1 class="g-t" data-text="NEO WARS">NEO WARS</h1>
-			<p class="g-sub">Enter the Grid</p></div>
-		<nav class="mn" role="menu">
-			<button class="mb ripple-host" role="menuitem" data-action="continue" tabindex="0"><span class="mi"><i
-				class="fas fa-play"></i></span><span class="mt">Continue</span><span class="mk">ENTER</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="character" tabindex="-1"><span class="mi"><i
-				class="fas fa-user-astronaut"></i></span><span class="mt">Character</span><span class="mk">C</span>
-			</button>
-			<button class="mb ripple-host" role="menuitem" data-action="store" tabindex="-1"><span class="mi"><i
-				class="fas fa-store"></i></span><span class="mt">Store</span><span class="mk">S</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="crafting" tabindex="-1"><span class="mi"><i
-				class="fas fa-hammer"></i></span><span class="mt">Crafting</span><span class="mk">K</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="chat" tabindex="-1"><span class="mi"><i
-				class="fas fa-comments"></i></span><span class="mt">Chat</span><span class="mk">H</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="friends" tabindex="-1"><span class="mi"><i
-				class="fas fa-user-group"></i></span><span class="mt">Friends</span><span class="mk">F</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="servers" tabindex="-1"><span class="mi"><i
-				class="fas fa-server"></i></span><span class="mt">Servers</span><span class="mk">V</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="news" tabindex="-1"><span class="mi"><i
-				class="fas fa-satellite-dish"></i></span><span class="mt">News</span><span class="mk">N</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="options" tabindex="-1"><span class="mi"><i
-				class="fas fa-sliders"></i></span><span class="mt">Options</span><span class="mk">O</span></button>
-			<button class="mb ripple-host qb" role="menuitem" data-action="quit" tabindex="-1"><span class="mi"><i
-				class="fas fa-power-off"></i></span><span class="mt">Quit</span><span class="mk">Q</span></button>
-		</nav>
-	</div>
-	<div
-		style="margin-top:12px;overflow:hidden;white-space:nowrap;font-family:var(--fm);font-size:.65rem;color:rgba(216,224,234,.35);letter-spacing:.05em">
-		<div style="display:inline-block;animation:ticker 30s linear infinite">
-			SYS::NEXUS_CORE > CONNECTION_STABLE &nbsp;&nbsp; ::: &nbsp;&nbsp; SECTOR_7G > ALERT_LEVEL: NOMINAL &nbsp;&nbsp;
-			::: &nbsp;&nbsp; NET_FLUX > 0.0047 TERAOPS &nbsp;&nbsp; ::: &nbsp;&nbsp; FRAME_INTEGRITY > 99.2% &nbsp;&nbsp;
-			::: &nbsp;&nbsp; NEURAL_SYNC > ACTIVE &nbsp;&nbsp; ::: &nbsp;&nbsp; MEM_ALLOC > 847.3 PB_FREE &nbsp;&nbsp;
-			::: &nbsp;&nbsp; DARKNET_NODE > 47 ONLINE &nbsp;&nbsp; ::: &nbsp;&nbsp; SYS::NEXUS_CORE > CONNECTION_STABLE
-			&nbsp;&nbsp; ::: &nbsp;&nbsp; SECTOR_7G > ALERT_LEVEL: NOMINAL &nbsp;&nbsp; ::: &nbsp;&nbsp; NET_FLUX >
-			0.0047 TERAOPS &nbsp;&nbsp; ::: &nbsp;&nbsp; FRAME_INTEGRITY > 99.2% &nbsp;&nbsp; ::: &nbsp;&nbsp;
-			NEURAL_SYNC > ACTIVE &nbsp;&nbsp; ::: &nbsp;&nbsp; MEM_ALLOC > 847.3 PB_FREE &nbsp;&nbsp; ::: &nbsp;&nbsp;
-			DARKNET_NODE > 47 ONLINE &nbsp;&nbsp; ::: &nbsp;&nbsp; :::
-		</div>
-	</div>
-</section>
-
-<!-- CHARACTER -->
-<section id="screen-character" class="scr">
-	<header class="sh">
-		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
-		<h2 class="st">Character</h2>
-		<div class="sd"></div>
-	</header>
-	<div class="ch-l">
-		<div class="ch-av"><i class="fas fa-user-astronaut"></i>
-			<div class="ch-fr"></div>
-			<div class="ch-ct">NETRUNNER</div>
-		</div>
-		<div class="ch-i">
-			<div class="ch-nr"><span class="ch-nm">VEX-7</span><span class="ch-lb">LVL 27</span></div>
-			<div class="ch-xs">
-				<div class="ch-xl"><span>EXPERIENCE</span><span>7,200 / 10,000</span></div>
-				<div class="ch-xb">
-					<div class="ch-xf" data-width="72"></div>
-				</div>
-			</div>
-			<div class="sg" id="stat-grid"></div>
-			<div class="eq-s"><h3>Equipment</h3>
-				<div class="eq-g" id="eq-grid"></div>
-			</div>
-		</div>
-	</div>
-</section>
-
-<!-- STORE -->
-<section id="screen-store" class="scr">
-	<header class="sh">
-		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
-		<h2 class="st">Store</h2>
-		<div class="sd"></div>
-		<div style="display:flex;align-items:center;gap:6px"><i class="fas fa-coins"
-		                                                        style="color:var(--ac4);font-size:.75rem"></i><span
-			style="font-family:var(--fd);color:var(--ac4);font-size:.75rem">12,345</span></div>
-	</header>
-	<div class="sto-l">
-		<div class="sto-fe" id="sto-fe"></div>
-		<div class="sto-cs" id="sto-cs"></div>
-		<div class="sto-g" id="sto-g"></div>
-	</div>
-</section>
-
-<!-- CRAFTING -->
-<section id="screen-crafting" class="scr">
-	<header class="sh">
-		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
-		<h2 class="st">Crafting</h2>
-		<div class="sd"></div>
-		<span style="font-size:.75rem;color:rgba(216,224,234,.3)"><i class="fas fa-circle"
-		                                                             style="font-size:.4rem;color:var(--ac3);margin-right:4px"></i>Workbench Level 3</span>
-	</header>
-	<div class="cr-l">
-		<div class="cr-side">
-			<div class="cr-side-h">Recipes</div>
-			<div class="cr-cats" id="cr-cats"></div>
-		</div>
-		<div class="cr-main">
-			<div class="cr-main-h">Available Recipes</div>
-			<div class="cr-grid" id="cr-grid"></div>
-		</div>
-	</div>
-</section>
-
-<!-- CHAT -->
-<section id="screen-chat" class="scr" style="padding:24px 32px">
-	<header class="sh">
-		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
-		<h2 class="st">Global Chat</h2>
-		<div class="sd"></div>
-		<span style="font-size:.75rem;color:rgba(216,224,234,.3)"><i class="fas fa-circle"
-		                                                             style="font-size:.35rem;color:var(--ac3);margin-right:4px"></i>1,247 online</span>
-	</header>
-	<div class="ct-l" id="ct-l"></div>
-</section>
-
-<!-- FRIENDS -->
-<section id="screen-friends" class="scr">
-	<header class="sh">
-		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
-		<h2 class="st">Friends</h2>
-		<div class="sd"></div>
-		<span style="font-size:.75rem;color:rgba(216,224,234,.3)">12 / 47 friends online</span></header>
-	<div class="fr-l">
-		<div class="fr-bar"><input type="text" class="fr-search" placeholder="Search friends..."
-		                           aria-label="Search friends">
-			<div class="fr-filters">
-				<button class="fr-fb act" data-ff="all">All</button>
-				<button class="fr-fb" data-ff="online">Online</button>
-				<button class="fr-fb" data-ff="offline">Offline</button>
-			</div>
-		</div>
-		<div class="fr-list" id="fr-list"></div>
-	</div>
-</section>
-
-<!-- SERVERS -->
-<section id="screen-servers" class="scr">
-	<header class="sh">
-		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
-		<h2 class="st">Server Browser</h2>
-		<div class="sd"></div>
-	</header>
-	<div class="sv-l">
-		<div class="sv-bar"><input type="text" class="sv-search" placeholder="Search servers..."
-		                           aria-label="Search servers">
-			<div class="sv-filters">
-				<button class="sv-fb act" data-sf="all">All</button>
-				<button class="sv-fb" data-sf="pvp">PvP</button>
-				<button class="sv-fb" data-sf="pve">PvE</button>
-				<button class="sv-fb" data-sf="raid">Raid</button>
-			</div>
-		</div>
-		<div class="sv-hdr">
-			<span>Server</span><span>Mode</span><span>Map</span><span>Players</span><span>Ping</span><span></span></div>
-		<div class="sv-list" id="sv-list"></div>
-	</div>
-</section>
-
-<!-- NEWS -->
-<section id="screen-news" class="scr">
-	<header class="sh">
-		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
-		<h2 class="st">News</h2>
-		<div class="sd"></div>
-	</header>
-	<div class="nw-l" id="nw-list"></div>
-</section>
-
-<!-- OPTIONS -->
-<section id="screen-options" class="scr">
-	<header class="sh">
-		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
-		<h2 class="st">Options</h2>
-		<div class="sd"></div>
-	</header>
-	<div class="op-l">
-		<div class="op-tabs" role="tablist">
-			<button class="op-tab act" data-ot="display" role="tab">Display</button>
-			<button class="op-tab" data-ot="audio" role="tab">Audio</button>
-			<button class="op-tab" data-ot="controls" role="tab">Controls</button>
-			<button class="op-tab" data-ot="gameplay" role="tab">Gameplay</button>
-		</div>
-		<div class="op-pan act" id="op-display">
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Quality</div>
-				</div>
-				<div class="op-ct">
-					<div class="seg">
-						<button class="sg-b" data-val="low">Low</button>
-						<button class="sg-b" data-val="medium">Med</button>
-						<button class="sg-b act" data-val="high">High</button>
-						<button class="sg-b" data-val="ultra">Ultra</button>
+				<div style="min-width:180px">
+					<div style="font-family:var(--fd);font-size:.8rem;letter-spacing:.1em;color:#fff">cheatoid</div>
+					<div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+						<span style="color:var(--ac);font-family:var(--fd);font-size:.65rem">LVL 27</span>
+						<div style="width:80px;height:4px;background:var(--mt);border-radius:2px;overflow:hidden">
+							<div
+								style="width:69%;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac3));border-radius:2px">
+							</div>
+						</div>
+						<span style="font-size:.6rem;color:rgba(216,224,234,.4)">69%</span>
 					</div>
 				</div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">V-Sync</div>
-				</div>
-				<div class="op-ct">
-					<button class="tgl on" aria-label="V-Sync"></button>
-				</div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Anti-Aliasing</div>
-				</div>
-				<div class="op-ct">
-					<button class="tgl on" aria-label="AA"></button>
-				</div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Bloom</div>
-				</div>
-				<div class="op-ct">
-					<button class="tgl on" aria-label="Bloom"></button>
-				</div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Motion Blur</div>
-				</div>
-				<div class="op-ct">
-					<button class="tgl" aria-label="Motion Blur"></button>
-				</div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">FOV</div>
-					<div class="op-sb">Field of view</div>
-				</div>
-				<div class="op-ct"><input type="range" min="60" max="120" value="90" aria-label="FOV"><span class="rv">90</span>
+				<div style="display:flex;align-items:center;gap:6px">
+					<i class="fas fa-coins" style="color:var(--ac4);font-size:.75rem"></i>
+					<span style="font-family:var(--fd);color:var(--ac4);font-size:.75rem">12,345</span>
 				</div>
 			</div>
 		</div>
-		<div class="op-pan" id="op-audio">
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Master Volume</div>
-				</div>
-				<div class="op-ct"><input type="range" min="0" max="100" value="70" data-setting="mv"
-				                          aria-label="Master"><span class="rv">70</span></div>
+		<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+			<div>
+				<h1 class="g-t" data-text="NEO WARS">NEO WARS</h1>
+				<p class="g-sub">Enter the Grid</p>
 			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Music Volume</div>
-				</div>
-				<div class="op-ct"><input type="range" min="0" max="100" value="50" data-setting="musv"
-				                          aria-label="Music"><span class="rv">50</span></div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">SFX Volume</div>
-				</div>
-				<div class="op-ct"><input type="range" min="0" max="100" value="80" data-setting="sfxv"
-				                          aria-label="SFX"><span class="rv">80</span></div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Voice Volume</div>
-				</div>
-				<div class="op-ct"><input type="range" min="0" max="100" value="100" data-setting="voicv"
-				                          aria-label="Voice"><span class="rv">100</span></div>
+			<nav class="mn" role="menu">
+				<button class="mb ripple-host" role="menuitem" data-action="continue" tabindex="0"><span class="mi"><i
+							class="fas fa-play"></i></span><span class="mt">Continue</span><span
+						class="mk">ENTER</span></button>
+				<button class="mb ripple-host" role="menuitem" data-action="character" tabindex="-1"><span class="mi"><i
+							class="fas fa-user-astronaut"></i></span><span class="mt">Character</span><span
+						class="mk">C</span>
+				</button>
+				<button class="mb ripple-host" role="menuitem" data-action="store" tabindex="-1"><span class="mi"><i
+							class="fas fa-store"></i></span><span class="mt">Store</span><span
+						class="mk">S</span></button>
+				<button class="mb ripple-host" role="menuitem" data-action="crafting" tabindex="-1"><span class="mi"><i
+							class="fas fa-hammer"></i></span><span class="mt">Crafting</span><span
+						class="mk">K</span></button>
+				<button class="mb ripple-host" role="menuitem" data-action="chat" tabindex="-1"><span class="mi"><i
+							class="fas fa-comments"></i></span><span class="mt">Chat</span><span
+						class="mk">H</span></button>
+				<button class="mb ripple-host" role="menuitem" data-action="friends" tabindex="-1"><span class="mi"><i
+							class="fas fa-user-group"></i></span><span class="mt">Friends</span><span
+						class="mk">F</span></button>
+				<button class="mb ripple-host" role="menuitem" data-action="servers" tabindex="-1"><span class="mi"><i
+							class="fas fa-server"></i></span><span class="mt">Servers</span><span
+						class="mk">V</span></button>
+				<button class="mb ripple-host" role="menuitem" data-action="news" tabindex="-1"><span class="mi"><i
+							class="fas fa-satellite-dish"></i></span><span class="mt">News</span><span
+						class="mk">N</span></button>
+				<button class="mb ripple-host" role="menuitem" data-action="options" tabindex="-1"><span class="mi"><i
+							class="fas fa-sliders"></i></span><span class="mt">Options</span><span
+						class="mk">O</span></button>
+				<button class="mb ripple-host qb" role="menuitem" data-action="quit" tabindex="-1"><span class="mi"><i
+							class="fas fa-power-off"></i></span><span class="mt">Quit</span><span
+						class="mk">Q</span></button>
+			</nav>
+		</div>
+		<div
+			style="margin-top:12px;overflow:hidden;white-space:nowrap;font-family:var(--fm);font-size:.65rem;color:rgba(216,224,234,.35);letter-spacing:.05em">
+			<div style="display:inline-block;animation:ticker 30s linear infinite">
+				SYS::NEXUS_CORE > CONNECTION_STABLE &nbsp;&nbsp; ::: &nbsp;&nbsp; SECTOR_7G > ALERT_LEVEL: NOMINAL
+				&nbsp;&nbsp;
+				::: &nbsp;&nbsp; NET_FLUX > 0.0047 TERAOPS &nbsp;&nbsp; ::: &nbsp;&nbsp; FRAME_INTEGRITY > 99.2%
+				&nbsp;&nbsp;
+				::: &nbsp;&nbsp; NEURAL_SYNC > ACTIVE &nbsp;&nbsp; ::: &nbsp;&nbsp; MEM_ALLOC > 847.3 PB_FREE
+				&nbsp;&nbsp;
+				::: &nbsp;&nbsp; DARKNET_NODE > 47 ONLINE &nbsp;&nbsp; ::: &nbsp;&nbsp; SYS::NEXUS_CORE >
+				CONNECTION_STABLE
+				&nbsp;&nbsp; ::: &nbsp;&nbsp; SECTOR_7G > ALERT_LEVEL: NOMINAL &nbsp;&nbsp; ::: &nbsp;&nbsp; NET_FLUX >
+				0.0047 TERAOPS &nbsp;&nbsp; ::: &nbsp;&nbsp; FRAME_INTEGRITY > 99.2% &nbsp;&nbsp; ::: &nbsp;&nbsp;
+				NEURAL_SYNC > ACTIVE &nbsp;&nbsp; ::: &nbsp;&nbsp; MEM_ALLOC > 847.3 PB_FREE &nbsp;&nbsp; :::
+				&nbsp;&nbsp;
+				DARKNET_NODE > 47 ONLINE &nbsp;&nbsp; ::: &nbsp;&nbsp; :::
 			</div>
 		</div>
-		<div class="op-pan" id="op-controls">
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Mouse Sensitivity</div>
-				</div>
-				<div class="op-ct"><input type="range" min="1" max="20" value="8" aria-label="Sens"><span
-					class="rv">8</span></div>
+	</section>
+
+	<!-- CHARACTER -->
+	<section id="screen-character" class="scr">
+		<header class="sh">
+			<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
+			<h2 class="st">Character</h2>
+			<div class="sd"></div>
+		</header>
+		<div class="ch-l">
+			<div class="ch-av"><i class="fas fa-user-astronaut"></i>
+				<div class="ch-fr"></div>
+				<div class="ch-ct">NETRUNNER</div>
 			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Invert Y-Axis</div>
+			<div class="ch-i">
+				<div class="ch-nr"><span class="ch-nm">VEX-7</span><span class="ch-lb">LVL 27</span></div>
+				<div class="ch-xs">
+					<div class="ch-xl"><span>EXPERIENCE</span><span>7,200 / 10,000</span></div>
+					<div class="ch-xb">
+						<div class="ch-xf" data-width="72"></div>
+					</div>
 				</div>
-				<div class="op-ct">
-					<button class="tgl" aria-label="Invert Y"></button>
-				</div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Controller Vibration</div>
-				</div>
-				<div class="op-ct">
-					<button class="tgl on" aria-label="Vibration"></button>
-				</div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Aim Assist</div>
-				</div>
-				<div class="op-ct">
-					<button class="tgl" aria-label="Aim Assist"></button>
+				<div class="sg" id="stat-grid"></div>
+				<div class="eq-s">
+					<h3>Equipment</h3>
+					<div class="eq-g" id="eq-grid"></div>
 				</div>
 			</div>
 		</div>
-		<div class="op-pan" id="op-gameplay">
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Difficulty</div>
+	</section>
+
+	<!-- STORE -->
+	<section id="screen-store" class="scr">
+		<header class="sh">
+			<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
+			<h2 class="st">Store</h2>
+			<div class="sd"></div>
+			<div style="display:flex;align-items:center;gap:6px"><i class="fas fa-coins"
+					style="color:var(--ac4);font-size:.75rem"></i><span
+					style="font-family:var(--fd);color:var(--ac4);font-size:.75rem">12,345</span></div>
+		</header>
+		<div class="sto-l">
+			<div class="sto-fe" id="sto-fe"></div>
+			<div class="sto-cs" id="sto-cs"></div>
+			<div class="sto-g" id="sto-g"></div>
+		</div>
+	</section>
+
+	<!-- CRAFTING -->
+	<section id="screen-crafting" class="scr">
+		<header class="sh">
+			<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
+			<h2 class="st">Crafting</h2>
+			<div class="sd"></div>
+			<span style="font-size:.75rem;color:rgba(216,224,234,.3)"><i class="fas fa-circle"
+					style="font-size:.4rem;color:var(--ac3);margin-right:4px"></i>Workbench Level 3</span>
+		</header>
+		<div class="cr-l">
+			<div class="cr-side">
+				<div class="cr-side-h">Recipes</div>
+				<div class="cr-cats" id="cr-cats"></div>
+			</div>
+			<div class="cr-main">
+				<div class="cr-main-h">Available Recipes</div>
+				<div class="cr-grid" id="cr-grid"></div>
+			</div>
+		</div>
+	</section>
+
+	<!-- CHAT -->
+	<section id="screen-chat" class="scr" style="padding:24px 32px">
+		<header class="sh">
+			<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
+			<h2 class="st">Global Chat</h2>
+			<div class="sd"></div>
+			<span style="font-size:.75rem;color:rgba(216,224,234,.3)"><i class="fas fa-circle"
+					style="font-size:.35rem;color:var(--ac3);margin-right:4px"></i>1,247 online</span>
+		</header>
+		<div class="ct-l" id="ct-l"></div>
+	</section>
+
+	<!-- FRIENDS -->
+	<section id="screen-friends" class="scr">
+		<header class="sh">
+			<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
+			<h2 class="st">Friends</h2>
+			<div class="sd"></div>
+			<span style="font-size:.75rem;color:rgba(216,224,234,.3)">12 / 47 friends online</span>
+		</header>
+		<div class="fr-l">
+			<div class="fr-bar"><input type="text" class="fr-search" placeholder="Search friends..."
+					aria-label="Search friends">
+				<div class="fr-filters">
+					<button class="fr-fb act" data-ff="all">All</button>
+					<button class="fr-fb" data-ff="online">Online</button>
+					<button class="fr-fb" data-ff="offline">Offline</button>
 				</div>
-				<div class="op-ct">
-					<div class="seg">
-						<button class="sg-b" data-val="easy">Easy</button>
-						<button class="sg-b act" data-val="normal">Normal</button>
-						<button class="sg-b" data-val="hard">Hard</button>
-						<button class="sg-b" data-val="nightmare">NM</button>
+			</div>
+			<div class="fr-list" id="fr-list"></div>
+		</div>
+	</section>
+
+	<!-- SERVERS -->
+	<section id="screen-servers" class="scr">
+		<header class="sh">
+			<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
+			<h2 class="st">Server Browser</h2>
+			<div class="sd"></div>
+		</header>
+		<div class="sv-l">
+			<div class="sv-bar"><input type="text" class="sv-search" placeholder="Search servers..."
+					aria-label="Search servers">
+				<div class="sv-filters">
+					<button class="sv-fb act" data-sf="all">All</button>
+					<button class="sv-fb" data-sf="pvp">PvP</button>
+					<button class="sv-fb" data-sf="pve">PvE</button>
+					<button class="sv-fb" data-sf="raid">Raid</button>
+				</div>
+			</div>
+			<div class="sv-hdr">
+				<span>Server</span><span>Mode</span><span>Map</span><span>Players</span><span>Ping</span><span></span>
+			</div>
+			<div class="sv-list" id="sv-list"></div>
+		</div>
+	</section>
+
+	<!-- NEWS -->
+	<section id="screen-news" class="scr">
+		<header class="sh">
+			<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
+			<h2 class="st">News</h2>
+			<div class="sd"></div>
+		</header>
+		<div class="nw-l" id="nw-list"></div>
+	</section>
+
+	<!-- OPTIONS -->
+	<section id="screen-options" class="scr">
+		<header class="sh">
+			<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
+			<h2 class="st">Options</h2>
+			<div class="sd"></div>
+		</header>
+		<div class="op-l">
+			<div class="op-tabs" role="tablist">
+				<button class="op-tab act" data-ot="display" role="tab">Display</button>
+				<button class="op-tab" data-ot="audio" role="tab">Audio</button>
+				<button class="op-tab" data-ot="controls" role="tab">Controls</button>
+				<button class="op-tab" data-ot="gameplay" role="tab">Gameplay</button>
+			</div>
+			<div class="op-pan act" id="op-display">
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Quality</div>
+					</div>
+					<div class="op-ct">
+						<div class="seg">
+							<button class="sg-b" data-val="low">Low</button>
+							<button class="sg-b" data-val="medium">Med</button>
+							<button class="sg-b act" data-val="high">High</button>
+							<button class="sg-b" data-val="ultra">Ultra</button>
+						</div>
+					</div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">V-Sync</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl on" aria-label="V-Sync"></button>
+					</div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Anti-Aliasing</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl on" aria-label="AA"></button>
+					</div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Bloom</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl on" aria-label="Bloom"></button>
+					</div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Motion Blur</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl" aria-label="Motion Blur"></button>
+					</div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">FOV</div>
+						<div class="op-sb">Field of view</div>
+					</div>
+					<div class="op-ct"><input type="range" min="60" max="120" value="90" aria-label="FOV"><span
+							class="rv">90</span>
 					</div>
 				</div>
 			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Subtitles</div>
+			<div class="op-pan" id="op-audio">
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Master Volume</div>
+					</div>
+					<div class="op-ct"><input type="range" min="0" max="100" value="70" data-setting="mv"
+							aria-label="Master"><span class="rv">70</span></div>
 				</div>
-				<div class="op-ct">
-					<button class="tgl on" aria-label="Subs"></button>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Music Volume</div>
+					</div>
+					<div class="op-ct"><input type="range" min="0" max="100" value="50" data-setting="musv"
+							aria-label="Music"><span class="rv">50</span></div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">SFX Volume</div>
+					</div>
+					<div class="op-ct"><input type="range" min="0" max="100" value="80" data-setting="sfxv"
+							aria-label="SFX"><span class="rv">80</span></div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Voice Volume</div>
+					</div>
+					<div class="op-ct"><input type="range" min="0" max="100" value="100" data-setting="voicv"
+							aria-label="Voice"><span class="rv">100</span></div>
 				</div>
 			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Minimap</div>
+			<div class="op-pan" id="op-controls">
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Mouse Sensitivity</div>
+					</div>
+					<div class="op-ct"><input type="range" min="1" max="20" value="8" aria-label="Sens"><span
+							class="rv">8</span></div>
 				</div>
-				<div class="op-ct">
-					<button class="tgl on" aria-label="Minimap"></button>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Invert Y-Axis</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl" aria-label="Invert Y"></button>
+					</div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Controller Vibration</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl on" aria-label="Vibration"></button>
+					</div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Aim Assist</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl" aria-label="Aim Assist"></button>
+					</div>
 				</div>
 			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Damage Numbers</div>
+			<div class="op-pan" id="op-gameplay">
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Difficulty</div>
+					</div>
+					<div class="op-ct">
+						<div class="seg">
+							<button class="sg-b" data-val="easy">Easy</button>
+							<button class="sg-b act" data-val="normal">Normal</button>
+							<button class="sg-b" data-val="hard">Hard</button>
+							<button class="sg-b" data-val="nightmare">NM</button>
+						</div>
+					</div>
 				</div>
-				<div class="op-ct">
-					<button class="tgl on" aria-label="Dmg Nums"></button>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Subtitles</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl on" aria-label="Subs"></button>
+					</div>
 				</div>
-			</div>
-			<div class="op-r">
-				<div>
-					<div class="op-lb">Auto-Save</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Minimap</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl on" aria-label="Minimap"></button>
+					</div>
 				</div>
-				<div class="op-ct">
-					<button class="tgl on" aria-label="Auto-Save"></button>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Damage Numbers</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl on" aria-label="Dmg Nums"></button>
+					</div>
+				</div>
+				<div class="op-r">
+					<div>
+						<div class="op-lb">Auto-Save</div>
+					</div>
+					<div class="op-ct">
+						<button class="tgl on" aria-label="Auto-Save"></button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-</section>
+	</section>
 
-<!-- CONSOLE -->
-<div id="con-ov" aria-label="Developer Console">
-	<div class="con-h">
-		<div class="con-t"><i class="fas fa-terminal"></i> DEVELOPER CONSOLE</div>
-		<button class="con-x" id="con-x" aria-label="Close"><i class="fas fa-xmark"></i></button>
+	<!-- CONSOLE -->
+	<div id="con-ov" aria-label="Developer Console">
+		<div class="con-h">
+			<div class="con-t"><i class="fas fa-terminal"></i> DEVELOPER CONSOLE</div>
+			<button class="con-x" id="con-x" aria-label="Close"><i class="fas fa-xmark"></i></button>
+		</div>
+		<div class="con-o" id="con-o"></div>
+		<div class="con-iw"><span class="con-pr">&gt;</span><input type="text" class="con-in" id="con-in"
+				placeholder="Enter command..." autocomplete="off" spellcheck="false" aria-label="Command input"></div>
 	</div>
-	<div class="con-o" id="con-o"></div>
-	<div class="con-iw"><span class="con-pr">&gt;</span><input type="text" class="con-in" id="con-in"
-	                                                           placeholder="Enter command..." autocomplete="off"
-	                                                           spellcheck="false" aria-label="Command input"></div>
-</div>
 
-<!-- QUIT MODAL -->
-<div id="quit-md" role="dialog" aria-modal="true">
-	<div class="qb-x">
-		<div class="qb-i"><i class="fas fa-triangle-exclamation"></i></div>
-		<div class="qb-t">Disconnect</div>
-		<div class="qb-d">Are you sure you want to disconnect from the server? Unsaved progress will be lost.</div>
-		<div class="qb-btns">
-			<button class="qb-can ripple-host" id="qb-can">Cancel</button>
-			<button class="qb-conf ripple-host" id="qb-conf" onclick="Events.Call('Client.Disconnect')">Disconnect</button>
+	<!-- QUIT MODAL -->
+	<div id="quit-md" role="dialog" aria-modal="true">
+		<div class="qb-x">
+			<div class="qb-i"><i class="fas fa-triangle-exclamation"></i></div>
+			<div class="qb-t">Disconnect</div>
+			<div class="qb-d">Are you sure you want to disconnect from the server? Unsaved progress will be lost.</div>
+			<div class="qb-btns">
+				<button class="qb-can ripple-host" id="qb-can">Cancel</button>
+				<button class="qb-conf ripple-host" id="qb-conf"
+					onclick="Events.Call('Client.Disconnect')">Disconnect</button>
+			</div>
 		</div>
 	</div>
-</div>
 
-<!-- MUSIC WIDGET -->
-<div class="mw" id="mw" aria-label="Music">
-	<button class="mw-t" id="mw-t" aria-label="Toggle music"><i class="fas fa-play"></i></button>
-	<canvas class="mw-viz" id="mw-viz" width="60" height="28"></canvas>
-	<div class="mw-sw"><input type="range" min="0" max="100" value="40" id="mw-v" aria-label="Volume"></div>
-</div>
-<div id="toast-c" aria-live="polite"></div>
-<div class="ver" aria-hidden="true">v0.0.4 build 0004</div>
+	<!-- MUSIC WIDGET -->
+	<div class="mw" id="mw" aria-label="Music">
+		<button class="mw-t" id="mw-t" aria-label="Toggle music"><i class="fas fa-play"></i></button>
+		<canvas class="mw-viz" id="mw-viz" width="60" height="28"></canvas>
+		<div class="mw-sw"><input type="range" min="0" max="100" value="40" id="mw-v" aria-label="Volume"></div>
+	</div>
+	<div id="toast-c" aria-live="polite"></div>
+	<div class="ver" aria-hidden="true">v0.0.4 build 0004</div>
 
-<script>
-	/* ═══ DATA ═══ */
-	const charStats = [{key: 'STR', val: 18, max: 50, c: 'rd'}, {key: 'DEX', val: 32, max: 50, c: 'cy'}, {
-		key: 'INT',
-		val: 45,
-		max: 50,
-		c: 'cy'
-	}, {key: 'VIT', val: 22, max: 50, c: 'gr'}, {key: 'PER', val: 28, max: 50, c: 'cy'}, {
-		key: 'LCK',
-		val: 15,
-		max: 50,
-		c: 'gr'
-	}];
-	const equipData = [{
-		name: 'Phantom Blade MK.III',
-		type: 'Weapon',
-		icon: 'fa-crosshairs'
-	}, {name: 'Stealth Weave Suit', type: 'Armor', icon: 'fa-shield-halved'}, {
-		name: 'Neural Link Alpha',
-		type: 'Implant',
-		icon: 'fa-brain'
-	}, {name: 'Holo-Decoy Module', type: 'Accessory', icon: 'fa-clone'}];
-	const storeItems = [
-		{
-			name: 'Plasma Rifle X-9',
-			cat: 'weapons',
-			price: 12000,
-			rarity: 'rare',
-			img: 'plasmarifle',
-			desc: 'High-energy projectile weapon with overcharge capability'
-		},
-		{
-			name: 'Titanium Exo-Frame',
-			cat: 'armor',
-			price: 25000,
-			rarity: 'epic',
-			img: 'exoframe',
-			desc: 'Military-grade exoskeleton with integrated defense matrix'
-		},
-		{
-			name: 'Neural Accelerator',
-			cat: 'implants',
-			price: 18000,
-			rarity: 'epic',
-			img: 'neuralacc',
-			desc: 'Boosts cognitive processing speed by 340%'
-		},
-		{
-			name: 'Stealth Camo Module',
-			cat: 'mods',
-			price: 8500,
-			rarity: 'rare',
-			img: 'stealthcam',
-			desc: 'Active camouflage system, 30s duration'
-		},
-		{
-			name: 'Nano Repair Kit',
-			cat: 'consumables',
-			price: 2500,
-			rarity: 'common',
-			img: 'nanorepair',
-			desc: 'Nanobots restore 50% health over 10s'
-		},
-		{
-			name: 'Ion Blade',
-			cat: 'weapons',
-			price: 15000,
-			rarity: 'epic',
-			img: 'ionblade',
-			desc: 'Melee weapon with ionized edge, bypasses shields'
-		},
-		{
-			name: 'Aegis Shield Gen',
-			cat: 'mods',
-			price: 9200,
-			rarity: 'rare',
-			img: 'aegisshield',
-			desc: 'Portable energy barrier absorbs 500 damage'
-		},
-		{
-			name: 'Synthetic Muscle Weave',
-			cat: 'armor',
-			price: 11000,
-			rarity: 'rare',
-			img: 'synmuscle',
-			desc: 'Enhances strength by +12, reduces recoil'
-		},
-		{
-			name: 'Reflex Booster',
-			cat: 'implants',
-			price: 20000,
-			rarity: 'legendary',
-			img: 'reflexboost',
-			desc: 'Dodge chance +25%, bullet time +2s'
-		},
-		{
-			name: 'EMP Grenade x5',
-			cat: 'consumables',
-			price: 3000,
-			rarity: 'common',
-			img: 'empgrenade',
-			desc: 'Disables electronics in 8m radius for 5s'
-		},
-		{
-			name: 'Quantum Decryptor',
-			cat: 'implants',
-			price: 32000,
-			rarity: 'legendary',
-			img: 'quantumdec',
-			desc: 'Instantly crack any encryption, access all terminals'
-		},
-		{
-			name: 'Phantom Step',
-			cat: 'mods',
-			price: 14000,
-			rarity: 'epic',
-			img: 'phantomstep',
-			desc: 'Short-range teleport 15m, 8s cooldown'
-		},
-	];
-	const craftRecipes = [
-		{
-			name: 'Plasma Core',
-			cat: 'weapons',
-			rarity: 'rare',
-			img: 'plasmacore',
-			mats: [{n: 'Circuit Board', need: 3, have: 3}, {n: 'Energy Cell', need: 2, have: 1}]
-		},
-		{
-			name: 'Nano Fiber Weave',
-			cat: 'armor',
-			rarity: 'common',
-			img: 'nanofiber',
-			mats: [{n: 'Polymer Scrap', need: 5, have: 5}, {n: 'Carbon Nanotube', need: 2, have: 2}]
-		},
-		{
-			name: 'Signal Amplifier',
-			cat: 'implants',
-			rarity: 'epic',
-			img: 'sigamp',
-			mats: [{n: 'Quantum Chip', need: 1, have: 0}, {n: 'Copper Wire', need: 8, have: 8}, {
-				n: 'Rare Earth Magnet',
-				need: 2,
-				have: 1
+	<script>
+		/* ═══ DATA ═══ */
+		const charStats = [{ key: 'STR', val: 18, max: 50, c: 'rd' }, { key: 'DEX', val: 32, max: 50, c: 'cy' }, {
+			key: 'INT',
+			val: 45,
+			max: 50,
+			c: 'cy'
+		}, { key: 'VIT', val: 22, max: 50, c: 'gr' }, { key: 'PER', val: 28, max: 50, c: 'cy' }, {
+			key: 'LCK',
+			val: 15,
+			max: 50,
+			c: 'gr'
+		}];
+		const equipData = [{
+			name: 'Phantom Blade MK.III',
+			type: 'Weapon',
+			icon: 'fa-crosshairs'
+		}, { name: 'Stealth Weave Suit', type: 'Armor', icon: 'fa-shield-halved' }, {
+			name: 'Neural Link Alpha',
+			type: 'Implant',
+			icon: 'fa-brain'
+		}, { name: 'Holo-Decoy Module', type: 'Accessory', icon: 'fa-clone' }];
+		const storeItems = [
+			{
+				name: 'Plasma Rifle X-9',
+				cat: 'weapons',
+				price: 12000,
+				rarity: 'rare',
+				img: 'plasmarifle',
+				desc: 'High-energy projectile weapon with overcharge capability'
+			},
+			{
+				name: 'Titanium Exo-Frame',
+				cat: 'armor',
+				price: 25000,
+				rarity: 'epic',
+				img: 'exoframe',
+				desc: 'Military-grade exoskeleton with integrated defense matrix'
+			},
+			{
+				name: 'Neural Accelerator',
+				cat: 'implants',
+				price: 18000,
+				rarity: 'epic',
+				img: 'neuralacc',
+				desc: 'Boosts cognitive processing speed by 340%'
+			},
+			{
+				name: 'Stealth Camo Module',
+				cat: 'mods',
+				price: 8500,
+				rarity: 'rare',
+				img: 'stealthcam',
+				desc: 'Active camouflage system, 30s duration'
+			},
+			{
+				name: 'Nano Repair Kit',
+				cat: 'consumables',
+				price: 2500,
+				rarity: 'common',
+				img: 'nanorepair',
+				desc: 'Nanobots restore 50% health over 10s'
+			},
+			{
+				name: 'Ion Blade',
+				cat: 'weapons',
+				price: 15000,
+				rarity: 'epic',
+				img: 'ionblade',
+				desc: 'Melee weapon with ionized edge, bypasses shields'
+			},
+			{
+				name: 'Aegis Shield Gen',
+				cat: 'mods',
+				price: 9200,
+				rarity: 'rare',
+				img: 'aegisshield',
+				desc: 'Portable energy barrier absorbs 500 damage'
+			},
+			{
+				name: 'Synthetic Muscle Weave',
+				cat: 'armor',
+				price: 11000,
+				rarity: 'rare',
+				img: 'synmuscle',
+				desc: 'Enhances strength by +12, reduces recoil'
+			},
+			{
+				name: 'Reflex Booster',
+				cat: 'implants',
+				price: 20000,
+				rarity: 'legendary',
+				img: 'reflexboost',
+				desc: 'Dodge chance +25%, bullet time +2s'
+			},
+			{
+				name: 'EMP Grenade x5',
+				cat: 'consumables',
+				price: 3000,
+				rarity: 'common',
+				img: 'empgrenade',
+				desc: 'Disables electronics in 8m radius for 5s'
+			},
+			{
+				name: 'Quantum Decryptor',
+				cat: 'implants',
+				price: 32000,
+				rarity: 'legendary',
+				img: 'quantumdec',
+				desc: 'Instantly crack any encryption, access all terminals'
+			},
+			{
+				name: 'Phantom Step',
+				cat: 'mods',
+				price: 14000,
+				rarity: 'epic',
+				img: 'phantomstep',
+				desc: 'Short-range teleport 15m, 8s cooldown'
+			},
+		];
+		const craftRecipes = [
+			{
+				name: 'Plasma Core',
+				cat: 'weapons',
+				rarity: 'rare',
+				img: 'plasmacore',
+				mats: [{ n: 'Circuit Board', need: 3, have: 3 }, { n: 'Energy Cell', need: 2, have: 1 }]
+			},
+			{
+				name: 'Nano Fiber Weave',
+				cat: 'armor',
+				rarity: 'common',
+				img: 'nanofiber',
+				mats: [{ n: 'Polymer Scrap', need: 5, have: 5 }, { n: 'Carbon Nanotube', need: 2, have: 2 }]
+			},
+			{
+				name: 'Signal Amplifier',
+				cat: 'implants',
+				rarity: 'epic',
+				img: 'sigamp',
+				mats: [{ n: 'Quantum Chip', need: 1, have: 0 }, { n: 'Copper Wire', need: 8, have: 8 }, {
+					n: 'Rare Earth Magnet',
+					need: 2,
+					have: 1
+				}]
+			},
+			{
+				name: 'Overclock Module',
+				cat: 'mods',
+				rarity: 'rare',
+				img: 'overclock',
+				mats: [{ n: 'Circuit Board', need: 2, have: 2 }, { n: 'Coolant Fluid', need: 4, have: 4 }]
+			},
+			{
+				name: 'Titanium Alloy Plate',
+				cat: 'armor',
+				rarity: 'rare',
+				img: 'titanplate',
+				mats: [{ n: 'Titanium Ore', need: 4, have: 4 }, { n: 'Smelting Flux', need: 2, have: 2 }]
+			},
+			{
+				name: 'Holo Emitter',
+				cat: 'mods',
+				rarity: 'epic',
+				img: 'holoemit',
+				mats: [{ n: 'Optical Lens', need: 3, have: 3 }, { n: 'Prism Crystal', need: 1, have: 0 }, {
+					n: 'Circuit Board',
+					need: 1,
+					have: 1
+				}]
+			},
+			{
+				name: 'Neural Interface v2',
+				cat: 'implants',
+				rarity: 'legendary',
+				img: 'neuralv2',
+				mats: [{ n: 'Quantum Chip', need: 2, have: 0 }, { n: 'Bio-Gel', need: 5, have: 3 }, {
+					n: 'Plasma Core',
+					need: 1,
+					have: 0
+				}]
+			},
+			{
+				name: 'Pulse Grenade x3',
+				cat: 'weapons',
+				rarity: 'common',
+				img: 'pulsegren',
+				mats: [{ n: 'Explosive Compound', need: 3, have: 3 }, { n: 'Copper Wire', need: 2, have: 2 }]
+			},
+		];
+		const friendData = [
+			{ name: 'CHROME_WOLF', color: '#ff003c', lvl: 31, status: 'online', activity: 'In Match — Ranked', lastSeen: '' },
+			{ name: 'NetGhost', color: '#00ff88', lvl: 28, status: 'online', activity: 'In Menu — Store', lastSeen: '' },
+			{
+				name: 'Sylph_99',
+				color: '#bb44ff',
+				lvl: 45,
+				status: 'online',
+				activity: 'In Raid — Core Breach',
+				lastSeen: ''
+			},
+			{ name: 'ZER0_C00L', color: '#ffaa00', lvl: 22, status: 'online', activity: 'In Match — Casual', lastSeen: '' },
+			{ name: 'DataRaider', color: '#4488ff', lvl: 37, status: 'idle', activity: 'Away', lastSeen: '' },
+			{ name: 'GhostHack', color: '#ff6600', lvl: 19, status: 'idle', activity: 'Away', lastSeen: '' },
+			{ name: 'PixelDrift', color: '#00ddcc', lvl: 52, status: 'offline', activity: '', lastSeen: '2 hours ago' },
+			{ name: 'VoidWalker', color: '#cc44aa', lvl: 41, status: 'offline', activity: '', lastSeen: '1 day ago' },
+			{ name: 'IronByte', color: '#88aacc', lvl: 16, status: 'offline', activity: '', lastSeen: '3 days ago' },
+			{ name: 'NeonStrike', color: '#ff4488', lvl: 33, status: 'offline', activity: '', lastSeen: '5 hours ago' },
+			{ name: 'DarkPulse', color: '#44ffcc', lvl: 27, status: 'offline', activity: '', lastSeen: '12 hours ago' },
+			{ name: 'HexFlare', color: '#ddaa44', lvl: 39, status: 'offline', activity: '', lastSeen: '1 week ago' },
+		];
+		const serverData = [
+			{ name: 'Official EU-West #1', mode: 'PvP', map: 'Neo-Tokyo', players: '58/64', ping: 24, full: false },
+			{ name: 'Official EU-West #2', mode: 'PvP', map: 'Neon Wastes', players: '42/64', ping: 26, full: false },
+			{ name: 'Official NA-East #1', mode: 'PvE', map: 'Sector 7', players: '31/32', ping: 89, full: false },
+			{ name: 'Official EU-Central #1', mode: 'Raid', map: 'Core Breach', players: '8/8', ping: 32, full: true },
+			{ name: 'Official Asia #1', mode: 'PvP', map: 'Neo-Tokyo', players: '47/64', ping: 180, full: false },
+			{ name: 'Official EU-West #3', mode: 'PvE', map: 'Undercity', players: '12/32', ping: 22, full: false },
+			{ name: 'Official NA-West #1', mode: 'PvP', map: 'Neon Wastes', players: '64/64', ping: 140, full: true },
+			{ name: 'Official SA #1', mode: 'PvE', map: 'Sector 7', players: '8/32', ping: 195, full: false },
+			{ name: 'Official EU-West #4', mode: 'Raid', map: 'Core Breach', players: '5/8', ping: 28, full: false },
+			{ name: 'Official OCE #1', mode: 'PvP', map: 'Neo-Tokyo', players: '22/64', ping: 210, full: false },
+		];
+		const newsData = [
+			{
+				title: 'Season 4: Digital Abyss Now Live',
+				date: '2026.01.15',
+				type: 'update',
+				content: 'Dive into the new season with 3 story chapters, 12 unique weapons, the Neon Wastes open-world zone, and Raid: Core Breach. Season Pass holders get exclusive Neon Phantom skin line.'
+			},
+			{
+				title: 'Ranked Reset and New Tier: OVERSEER',
+				date: '2026.01.12',
+				type: 'competitive',
+				content: 'All ranked players soft-reset. New top tier OVERSEER added above NETRUNNER. Top 0.1% only — grants holographic weapon effects.'
+			},
+			{
+				title: 'Community Challenge: One Billion Kills',
+				date: '2026.01.10',
+				type: 'event',
+				content: 'Reach one billion total kills in 14 days. Milestone rewards at 250M, 500M, 750M, 1B. Final reward: Legendary Chroma weapon skin.'
+			},
+			{
+				title: 'Patch 0.0.2 — Balance and Bug Fixes',
+				date: '2026.01.08',
+				type: 'patch',
+				content: 'Ion Blade dash -15%. Fixed Stealth Camo persisting through death. Improved netcode for high-latency matches.'
+			},
+			{
+				title: 'Holiday Event Rewards Extended',
+				date: '2026.01.05',
+				type: 'event',
+				content: 'Neon New Year event extended 72 hours. Firework Launcher and Holographic Dragon wings available until January 20th.'
+			},
+		];
+		const chatChannels = [{
+			cat: 'TEXT CHANNELS',
+			chs: [{ id: 'general', name: 'general', icon: 'fa-hashtag', desc: 'General discussion' }, {
+				id: 'trade',
+				name: 'trade',
+				icon: 'fa-hashtag',
+				desc: 'Buy, sell, trade'
+			}, { id: 'lfg', name: 'looking-for-group', icon: 'fa-hashtag', desc: 'Find a squad' }, {
+				id: 'clan',
+				name: 'clan-ops',
+				icon: 'fa-hashtag',
+				desc: 'Clan coordination'
 			}]
-		},
-		{
-			name: 'Overclock Module',
-			cat: 'mods',
-			rarity: 'rare',
-			img: 'overclock',
-			mats: [{n: 'Circuit Board', need: 2, have: 2}, {n: 'Coolant Fluid', need: 4, have: 4}]
-		},
-		{
-			name: 'Titanium Alloy Plate',
-			cat: 'armor',
-			rarity: 'rare',
-			img: 'titanplate',
-			mats: [{n: 'Titanium Ore', need: 4, have: 4}, {n: 'Smelting Flux', need: 2, have: 2}]
-		},
-		{
-			name: 'Holo Emitter',
-			cat: 'mods',
-			rarity: 'epic',
-			img: 'holoemit',
-			mats: [{n: 'Optical Lens', need: 3, have: 3}, {n: 'Prism Crystal', need: 1, have: 0}, {
-				n: 'Circuit Board',
-				need: 1,
-				have: 1
+		}, {
+			cat: 'VOICE',
+			chs: [{ id: 'vc1', name: 'General VC', icon: 'fa-volume-high', desc: '' }, {
+				id: 'vc2',
+				name: 'Raid VC',
+				icon: 'fa-volume-high',
+				desc: ''
 			}]
-		},
-		{
-			name: 'Neural Interface v2',
-			cat: 'implants',
-			rarity: 'legendary',
-			img: 'neuralv2',
-			mats: [{n: 'Quantum Chip', need: 2, have: 0}, {n: 'Bio-Gel', need: 5, have: 3}, {
-				n: 'Plasma Core',
-				need: 1,
-				have: 0
-			}]
-		},
-		{
-			name: 'Pulse Grenade x3',
-			cat: 'weapons',
-			rarity: 'common',
-			img: 'pulsegren',
-			mats: [{n: 'Explosive Compound', need: 3, have: 3}, {n: 'Copper Wire', need: 2, have: 2}]
-		},
-	];
-	const friendData = [
-		{name: 'CHROME_WOLF', color: '#ff003c', lvl: 31, status: 'online', activity: 'In Match — Ranked', lastSeen: ''},
-		{name: 'NetGhost', color: '#00ff88', lvl: 28, status: 'online', activity: 'In Menu — Store', lastSeen: ''},
-		{
+		}];
+		const chatUsers = [{ name: 'VEX-7', color: '#00f0ff', st: 'on' }, {
+			name: 'CHROME_WOLF',
+			color: '#ff003c',
+			st: 'on'
+		}, { name: 'NetGhost', color: '#00ff88', st: 'on' }, {
 			name: 'Sylph_99',
 			color: '#bb44ff',
-			lvl: 45,
-			status: 'online',
-			activity: 'In Raid — Core Breach',
-			lastSeen: ''
-		},
-		{name: 'ZER0_C00L', color: '#ffaa00', lvl: 22, status: 'online', activity: 'In Match — Casual', lastSeen: ''},
-		{name: 'DataRaider', color: '#4488ff', lvl: 37, status: 'idle', activity: 'Away', lastSeen: ''},
-		{name: 'GhostHack', color: '#ff6600', lvl: 19, status: 'idle', activity: 'Away', lastSeen: ''},
-		{name: 'PixelDrift', color: '#00ddcc', lvl: 52, status: 'offline', activity: '', lastSeen: '2 hours ago'},
-		{name: 'VoidWalker', color: '#cc44aa', lvl: 41, status: 'offline', activity: '', lastSeen: '1 day ago'},
-		{name: 'IronByte', color: '#88aacc', lvl: 16, status: 'offline', activity: '', lastSeen: '3 days ago'},
-		{name: 'NeonStrike', color: '#ff4488', lvl: 33, status: 'offline', activity: '', lastSeen: '5 hours ago'},
-		{name: 'DarkPulse', color: '#44ffcc', lvl: 27, status: 'offline', activity: '', lastSeen: '12 hours ago'},
-		{name: 'HexFlare', color: '#ddaa44', lvl: 39, status: 'offline', activity: '', lastSeen: '1 week ago'},
-	];
-	const serverData = [
-		{name: 'Official EU-West #1', mode: 'PvP', map: 'Neo-Tokyo', players: '58/64', ping: 24, full: false},
-		{name: 'Official EU-West #2', mode: 'PvP', map: 'Neon Wastes', players: '42/64', ping: 26, full: false},
-		{name: 'Official NA-East #1', mode: 'PvE', map: 'Sector 7', players: '31/32', ping: 89, full: false},
-		{name: 'Official EU-Central #1', mode: 'Raid', map: 'Core Breach', players: '8/8', ping: 32, full: true},
-		{name: 'Official Asia #1', mode: 'PvP', map: 'Neo-Tokyo', players: '47/64', ping: 180, full: false},
-		{name: 'Official EU-West #3', mode: 'PvE', map: 'Undercity', players: '12/32', ping: 22, full: false},
-		{name: 'Official NA-West #1', mode: 'PvP', map: 'Neon Wastes', players: '64/64', ping: 140, full: true},
-		{name: 'Official SA #1', mode: 'PvE', map: 'Sector 7', players: '8/32', ping: 195, full: false},
-		{name: 'Official EU-West #4', mode: 'Raid', map: 'Core Breach', players: '5/8', ping: 28, full: false},
-		{name: 'Official OCE #1', mode: 'PvP', map: 'Neo-Tokyo', players: '22/64', ping: 210, full: false},
-	];
-	const newsData = [
-		{
-			title: 'Season 4: Digital Abyss Now Live',
-			date: '2026.01.15',
-			type: 'update',
-			content: 'Dive into the new season with 3 story chapters, 12 unique weapons, the Neon Wastes open-world zone, and Raid: Core Breach. Season Pass holders get exclusive Neon Phantom skin line.'
-		},
-		{
-			title: 'Ranked Reset and New Tier: OVERSEER',
-			date: '2026.01.12',
-			type: 'competitive',
-			content: 'All ranked players soft-reset. New top tier OVERSEER added above NETRUNNER. Top 0.1% only — grants holographic weapon effects.'
-		},
-		{
-			title: 'Community Challenge: One Billion Kills',
-			date: '2026.01.10',
-			type: 'event',
-			content: 'Reach one billion total kills in 14 days. Milestone rewards at 250M, 500M, 750M, 1B. Final reward: Legendary Chroma weapon skin.'
-		},
-		{
-			title: 'Patch 0.0.2 — Balance and Bug Fixes',
-			date: '2026.01.08',
-			type: 'patch',
-			content: 'Ion Blade dash -15%. Fixed Stealth Camo persisting through death. Improved netcode for high-latency matches.'
-		},
-		{
-			title: 'Holiday Event Rewards Extended',
-			date: '2026.01.05',
-			type: 'event',
-			content: 'Neon New Year event extended 72 hours. Firework Launcher and Holographic Dragon wings available until January 20th.'
-		},
-	];
-	const chatChannels = [{
-		cat: 'TEXT CHANNELS',
-		chs: [{id: 'general', name: 'general', icon: 'fa-hashtag', desc: 'General discussion'}, {
-			id: 'trade',
-			name: 'trade',
-			icon: 'fa-hashtag',
-			desc: 'Buy, sell, trade'
-		}, {id: 'lfg', name: 'looking-for-group', icon: 'fa-hashtag', desc: 'Find a squad'}, {
-			id: 'clan',
-			name: 'clan-ops',
-			icon: 'fa-hashtag',
-			desc: 'Clan coordination'
-		}]
-	}, {
-		cat: 'VOICE',
-		chs: [{id: 'vc1', name: 'General VC', icon: 'fa-volume-high', desc: ''}, {
-			id: 'vc2',
-			name: 'Raid VC',
-			icon: 'fa-volume-high',
-			desc: ''
-		}]
-	}];
-	const chatUsers = [{name: 'VEX-7', color: '#00f0ff', st: 'on'}, {
-		name: 'CHROME_WOLF',
-		color: '#ff003c',
-		st: 'on'
-	}, {name: 'NetGhost', color: '#00ff88', st: 'on'}, {
-		name: 'Sylph_99',
-		color: '#bb44ff',
-		st: 'on'
-	}, {name: 'ZER0_C00L', color: '#ffaa00', st: 'on'}, {
-		name: 'DataRaider',
-		color: '#4488ff',
-		st: 'idle'
-	}, {name: 'GhostHack', color: '#ff6600', st: 'idle'}, {
-		name: 'PixelDrift',
-		color: '#00ddcc',
-		st: 'off'
-	}, {name: 'VoidWalker', color: '#cc44aa', st: 'off'}];
-	const chatMsgs = {
-		general: [{u: 'CHROME_WOLF', t: 'Anyone else getting frame drops in Sector 7?', tm: '14:22'}, {
-			u: 'NetGhost',
-			t: 'Yeah, try setting bloom to low temporarily.',
-			tm: '14:23'
-		}, {u: 'Sylph_99', t: 'Works fine on my end. What GPU?', tm: '14:24'}, {
-			u: 'CHROME_WOLF',
-			t: 'RTX 3070. Maybe need driver update.',
-			tm: '14:25'
-		}, {
-			u: 'ZER0_C00L',
-			t: 'NVIDIA hotfix fixed it for me yesterday.',
-			tm: '14:26'
-		}, {sys: 'CHROME_WOLF is now away.'}, {
-			u: 'NetGhost',
-			t: 'New raid is insane. 4 hours first clear.',
-			tm: '14:30'
-		}, {u: 'VEX-7', t: 'How many did you run with?', tm: '14:31'}, {
-			u: 'NetGhost',
-			t: 'Full squad of 8. Need dedicated healer and two netrunners for third phase.',
-			tm: '14:32'
-		}],
-		trade: [{u: 'DataRaider', t: 'WTS Quantum Decryptor — 28k credits.', tm: '13:45'}, {
-			u: 'GhostHack',
-			t: 'How much for Reflex Booster bundled with Ion Blade?',
-			tm: '13:47'
-		}, {u: 'ZER0_C00L', t: 'WTB Nano Repair Kits x20. Paying 4k total.', tm: '14:01'}],
-		lfg: [{u: 'Sylph_99', t: 'LF2M Raid: Core Breach. Need healer + netrunner.', tm: '12:30'}, {
-			u: 'GhostHack',
-			t: 'I can heal. What time?',
-			tm: '12:32'
-		}, {u: 'Sylph_99', t: '8pm UTC. Be online 15 min early.', tm: '12:33'}, {
-			u: 'NetGhost',
-			t: 'Count me in as netrunner.',
-			tm: '12:35'
-		}],
-		clan: [{sys: 'Clan wars season starts in 3 days.'}, {
-			u: 'ZER0_C00L',
-			t: 'We need to lock defense lineup. Last season leaked too many points.',
-			tm: '11:00'
-		}, {u: 'VEX-7', t: 'Double netrunner comp for defense.', tm: '11:02'}, {
-			u: 'CHROME_WOLF',
-			t: 'Offense: 3 DPS 1 healer 1 netrunner. Standard rush.',
-			tm: '11:05'
-		}]
-	};
-	const bootLines = ['Initializing kernel', 'Loading core systems', 'Loading rendering pipeline', 'Compiling shader modules (PBR + Deferred)', 'Loading texture assets [256 textures]', 'Loading audio subsystem', 'Initializing network layer', 'Verifying game integrity (SHA-256)', 'Loading world data', 'Pre-caching entity models', 'All systems nominal'];
-	const connLinesArr = ['Resolving DNS', 'Establishing TCP connection', 'Authenticating credentials', 'Retrieving player profile', 'Synchronizing world state', 'Loading map: Neo-Tokyo Sector 7', 'Spawning player entity'];
+			st: 'on'
+		}, { name: 'ZER0_C00L', color: '#ffaa00', st: 'on' }, {
+			name: 'DataRaider',
+			color: '#4488ff',
+			st: 'idle'
+		}, { name: 'GhostHack', color: '#ff6600', st: 'idle' }, {
+			name: 'PixelDrift',
+			color: '#00ddcc',
+			st: 'off'
+		}, { name: 'VoidWalker', color: '#cc44aa', st: 'off' }];
+		const chatMsgs = {
+			general: [{ u: 'CHROME_WOLF', t: 'Anyone else getting frame drops in Sector 7?', tm: '14:22' }, {
+				u: 'NetGhost',
+				t: 'Yeah, try setting bloom to low temporarily.',
+				tm: '14:23'
+			}, { u: 'Sylph_99', t: 'Works fine on my end. What GPU?', tm: '14:24' }, {
+				u: 'CHROME_WOLF',
+				t: 'RTX 3070. Maybe need driver update.',
+				tm: '14:25'
+			}, {
+				u: 'ZER0_C00L',
+				t: 'NVIDIA hotfix fixed it for me yesterday.',
+				tm: '14:26'
+			}, { sys: 'CHROME_WOLF is now away.' }, {
+				u: 'NetGhost',
+				t: 'New raid is insane. 4 hours first clear.',
+				tm: '14:30'
+			}, { u: 'VEX-7', t: 'How many did you run with?', tm: '14:31' }, {
+				u: 'NetGhost',
+				t: 'Full squad of 8. Need dedicated healer and two netrunners for third phase.',
+				tm: '14:32'
+			}],
+			trade: [{ u: 'DataRaider', t: 'WTS Quantum Decryptor — 28k credits.', tm: '13:45' }, {
+				u: 'GhostHack',
+				t: 'How much for Reflex Booster bundled with Ion Blade?',
+				tm: '13:47'
+			}, { u: 'ZER0_C00L', t: 'WTB Nano Repair Kits x20. Paying 4k total.', tm: '14:01' }],
+			lfg: [{ u: 'Sylph_99', t: 'LF2M Raid: Core Breach. Need healer + netrunner.', tm: '12:30' }, {
+				u: 'GhostHack',
+				t: 'I can heal. What time?',
+				tm: '12:32'
+			}, { u: 'Sylph_99', t: '8pm UTC. Be online 15 min early.', tm: '12:33' }, {
+				u: 'NetGhost',
+				t: 'Count me in as netrunner.',
+				tm: '12:35'
+			}],
+			clan: [{ sys: 'Clan wars season starts in 3 days.' }, {
+				u: 'ZER0_C00L',
+				t: 'We need to lock defense lineup. Last season leaked too many points.',
+				tm: '11:00'
+			}, { u: 'VEX-7', t: 'Double netrunner comp for defense.', tm: '11:02' }, {
+				u: 'CHROME_WOLF',
+				t: 'Offense: 3 DPS 1 healer 1 netrunner. Standard rush.',
+				tm: '11:05'
+			}]
+		};
+		const bootLines = ['Initializing kernel', 'Loading core systems', 'Loading rendering pipeline', 'Compiling shader modules (PBR + Deferred)', 'Loading texture assets [256 textures]', 'Loading audio subsystem', 'Initializing network layer', 'Verifying game integrity (SHA-256)', 'Loading world data', 'Pre-caching entity models', 'All systems nominal'];
+		const connLinesArr = ['Resolving DNS', 'Establishing TCP connection', 'Authenticating credentials', 'Retrieving player profile', 'Synchronizing world state', 'Loading map: Neo-Tokyo Sector 7', 'Spawning player entity'];
 
-	/* ═══ STATE ═══ */
-	let curScreen = 'boot', menuIdx = 0, bootDone = false, connecting = false, conOpen = false, cmdHist = [],
-		cmdHistIdx = -1, activeCh = 'general', storeCat = 'all', craftCat = 'weapons', friendFilter = 'all',
-		serverFilter = 'all', playerCredits = 12345;
-	const menuActions = ['continue', 'character', 'store', 'crafting', 'chat', 'friends', 'servers', 'news', 'options', 'quit'];
-	const screens = {
-		main: document.getElementById('screen-main'),
-		character: document.getElementById('screen-character'),
-		store: document.getElementById('screen-store'),
-		crafting: document.getElementById('screen-crafting'),
-		chat: document.getElementById('screen-chat'),
-		friends: document.getElementById('screen-friends'),
-		servers: document.getElementById('screen-servers'),
-		news: document.getElementById('screen-news'),
-		options: document.getElementById('screen-options')
-	};
-	const menuBtns = document.querySelectorAll('.mb');
+		/* ═══ STATE ═══ */
+		let curScreen = 'boot', menuIdx = 0, bootDone = false, connecting = false, conOpen = false, cmdHist = [],
+			cmdHistIdx = -1, activeCh = 'general', storeCat = 'all', craftCat = 'weapons', friendFilter = 'all',
+			serverFilter = 'all', playerCredits = 12345;
+		const menuActions = ['continue', 'character', 'store', 'crafting', 'chat', 'friends', 'servers', 'news', 'options', 'quit'];
+		const screens = {
+			main: document.getElementById('screen-main'),
+			character: document.getElementById('screen-character'),
+			store: document.getElementById('screen-store'),
+			crafting: document.getElementById('screen-crafting'),
+			chat: document.getElementById('screen-chat'),
+			friends: document.getElementById('screen-friends'),
+			servers: document.getElementById('screen-servers'),
+			news: document.getElementById('screen-news'),
+			options: document.getElementById('screen-options')
+		};
+		const menuBtns = document.querySelectorAll('.mb');
 
-	/* ═══ RIPPLE EFFECT ═══ */
-	function addRipple(e, el, red = false) {
-		const r = document.createElement('span');
-		r.className = 'ripple' + (red ? ' ripple-red' : '');
-		const rect = el.getBoundingClientRect();
-		const size = Math.max(rect.width, rect.height) * 1.2;
-		r.style.width = r.style.height = size + 'px';
-		r.style.left = (e.clientX - rect.left - size / 2) + 'px';
-		r.style.top = (e.clientY - rect.top - size / 2) + 'px';
-		el.appendChild(r);
-		setTimeout(() => r.remove(), 600);
-	}
+		/* ═══ RIPPLE EFFECT ═══ */
+		function addRipple(e, el, red = false) {
+			const r = document.createElement('span');
+			r.className = 'ripple' + (red ? ' ripple-red' : '');
+			const rect = el.getBoundingClientRect();
+			const size = Math.max(rect.width, rect.height) * 1.2;
+			r.style.width = r.style.height = size + 'px';
+			r.style.left = (e.clientX - rect.left - size / 2) + 'px';
+			r.style.top = (e.clientY - rect.top - size / 2) + 'px';
+			el.appendChild(r);
+			setTimeout(() => r.remove(), 600);
+		}
 
-	document.addEventListener('click', e => {
-		const rh = e.target.closest('.ripple-host');
-		if (rh) addRipple(e, rh, rh.classList.contains('qb'));
-	});
-
-	/* ═══ AUDIO ═══ */
-	let aCtx = null, mGain = null, analyser = null, musicNodes = null, musicPlaying = false, vizFrame = null;
-
-	function initAudio() {
-		if (aCtx) return;
-		aCtx = new (window.AudioContext || window.webkitAudioContext)();
-		mGain = aCtx.createGain();
-		mGain.gain.value = 0.12;
-		analyser = aCtx.createAnalyser();
-		analyser.fftSize = 64;
-		mGain.connect(analyser);
-		analyser.connect(aCtx.destination);
-	}
-
-	function playTone(freq, endFreq, duration, vol, type) {
-		if (!aCtx) initAudio();
-		if (aCtx.state === 'suspended') aCtx.resume();
-		const osc = aCtx.createOscillator(), g = aCtx.createGain();
-		osc.type = type || 'sine';
-		osc.frequency.setValueAtTime(freq, aCtx.currentTime);
-		if (endFreq !== freq) osc.frequency.exponentialRampToValueAtTime(Math.max(1, endFreq), aCtx.currentTime + duration);
-		g.gain.setValueAtTime(vol, aCtx.currentTime);
-		g.gain.exponentialRampToValueAtTime(0.001, aCtx.currentTime + duration);
-		osc.connect(g);
-		g.connect(aCtx.destination);
-		osc.start();
-		osc.stop(aCtx.currentTime + duration);
-	}
-
-	function playHoverSound() {
-		playTone(800, 1200, 0.06, 0.06, 'sine');
-	}
-
-	function playSelectSound() {
-		playTone(600, 900, 0.08, 0.08, 'sine');
-		setTimeout(() => playTone(900, 1400, 0.06, 0.06, 'sine'), 60);
-	}
-
-	function playBackSound() {
-		playTone(600, 350, 0.1, 0.06, 'sine');
-	}
-
-	function playOpenSound() {
-		playTone(200, 1600, 0.2, 0.05, 'sawtooth');
-	}
-
-	function playClickSnd() {
-		playTone(1800, 600, 0.06, 0.05, 'triangle');
-	}
-
-	function playKeySnd() {
-		playTone(500 + Math.random() * 800, 500, 0.03, 0.03, 'square');
-	}
-
-	function playEnterSnd() {
-		playTone(1100, 700, 0.08, 0.05, 'sine');
-	}
-
-	function startMusic() {
-		if (!aCtx) initAudio();
-		if (aCtx.state === 'suspended') aCtx.resume();
-		if (musicNodes) return;
-		const masterGain = aCtx.createGain();
-		masterGain.gain.setValueAtTime(0, aCtx.currentTime);
-		masterGain.gain.linearRampToValueAtTime(0.12, aCtx.currentTime + 2);
-		const filter = aCtx.createBiquadFilter();
-		filter.type = 'lowpass';
-		filter.frequency.value = 350;
-		filter.Q.value = 2;
-		const lfo = aCtx.createOscillator(), lfoGain = aCtx.createGain();
-		lfo.type = 'sine';
-		lfo.frequency.value = 0.08;
-		lfoGain.gain.value = 150;
-		lfo.connect(lfoGain);
-		lfoGain.connect(filter.frequency);
-		const oscs = [], notes = [55, 82.41, 110, 146.83];
-		notes.forEach((f, i) => {
-			const osc = aCtx.createOscillator();
-			osc.type = i < 2 ? 'sawtooth' : 'triangle';
-			osc.frequency.value = f;
-			osc.detune.value = (Math.random() - 0.5) * 12;
-			const oscGain = aCtx.createGain();
-			oscGain.gain.value = i < 2 ? 0.3 : 0.2;
-			osc.connect(oscGain);
-			oscGain.connect(filter);
-			oscs.push(osc);
+		document.addEventListener('click', e => {
+			const rh = e.target.closest('.ripple-host');
+			if (rh) addRipple(e, rh, rh.classList.contains('qb'));
 		});
-		filter.connect(masterGain);
-		masterGain.connect(mGain);
-		oscs.forEach(o => o.start());
-		lfo.start();
-		musicNodes = {oscs, lfo, lfoGain, filter, masterGain};
-		musicPlaying = true;
-		document.querySelector('#mw-t i').className = 'fas fa-pause';
-		document.getElementById('mw-t').classList.add('playing');
-		drawMusicViz();
-	}
 
-	function stopMusic() {
-		if (!musicNodes) return;
-		const {oscs, lfo, masterGain} = musicNodes, now = aCtx.currentTime;
-		masterGain.gain.linearRampToValueAtTime(0, now + 1);
-		musicNodes = null;
-		musicPlaying = false;
-		document.querySelector('#mw-t i').className = 'fas fa-play';
-		document.getElementById('mw-t').classList.remove('playing');
-		cancelAnimationFrame(vizFrame);
-		vizFrame = null;
-		setTimeout(() => {
-			oscs.forEach(o => {
+		/* ═══ AUDIO ═══ */
+		let aCtx = null, mGain = null, analyser = null, musicNodes = null, musicPlaying = false, vizFrame = null;
+
+		function initAudio() {
+			if (aCtx) return;
+			aCtx = new (window.AudioContext || window.webkitAudioContext)();
+			mGain = aCtx.createGain();
+			mGain.gain.value = 0.12;
+			analyser = aCtx.createAnalyser();
+			analyser.fftSize = 64;
+			mGain.connect(analyser);
+			analyser.connect(aCtx.destination);
+		}
+
+		function playTone(freq, endFreq, duration, vol, type) {
+			if (!aCtx) initAudio();
+			if (aCtx.state === 'suspended') aCtx.resume();
+			const osc = aCtx.createOscillator(), g = aCtx.createGain();
+			osc.type = type || 'sine';
+			osc.frequency.setValueAtTime(freq, aCtx.currentTime);
+			if (endFreq !== freq) osc.frequency.exponentialRampToValueAtTime(Math.max(1, endFreq), aCtx.currentTime + duration);
+			g.gain.setValueAtTime(vol, aCtx.currentTime);
+			g.gain.exponentialRampToValueAtTime(0.001, aCtx.currentTime + duration);
+			osc.connect(g);
+			g.connect(aCtx.destination);
+			osc.start();
+			osc.stop(aCtx.currentTime + duration);
+		}
+
+		function playHoverSound() {
+			playTone(800, 1200, 0.06, 0.06, 'sine');
+		}
+
+		function playSelectSound() {
+			playTone(600, 900, 0.08, 0.08, 'sine');
+			setTimeout(() => playTone(900, 1400, 0.06, 0.06, 'sine'), 60);
+		}
+
+		function playBackSound() {
+			playTone(600, 350, 0.1, 0.06, 'sine');
+		}
+
+		function playOpenSound() {
+			playTone(200, 1600, 0.2, 0.05, 'sawtooth');
+		}
+
+		function playClickSnd() {
+			playTone(1800, 600, 0.06, 0.05, 'triangle');
+		}
+
+		function playKeySnd() {
+			playTone(500 + Math.random() * 800, 500, 0.03, 0.03, 'square');
+		}
+
+		function playEnterSnd() {
+			playTone(1100, 700, 0.08, 0.05, 'sine');
+		}
+
+		function startMusic() {
+			if (!aCtx) initAudio();
+			if (aCtx.state === 'suspended') aCtx.resume();
+			if (musicNodes) return;
+			const masterGain = aCtx.createGain();
+			masterGain.gain.setValueAtTime(0, aCtx.currentTime);
+			masterGain.gain.linearRampToValueAtTime(0.12, aCtx.currentTime + 2);
+			const filter = aCtx.createBiquadFilter();
+			filter.type = 'lowpass';
+			filter.frequency.value = 350;
+			filter.Q.value = 2;
+			const lfo = aCtx.createOscillator(), lfoGain = aCtx.createGain();
+			lfo.type = 'sine';
+			lfo.frequency.value = 0.08;
+			lfoGain.gain.value = 150;
+			lfo.connect(lfoGain);
+			lfoGain.connect(filter.frequency);
+			const oscs = [], notes = [55, 82.41, 110, 146.83];
+			notes.forEach((f, i) => {
+				const osc = aCtx.createOscillator();
+				osc.type = i < 2 ? 'sawtooth' : 'triangle';
+				osc.frequency.value = f;
+				osc.detune.value = (Math.random() - 0.5) * 12;
+				const oscGain = aCtx.createGain();
+				oscGain.gain.value = i < 2 ? 0.3 : 0.2;
+				osc.connect(oscGain);
+				oscGain.connect(filter);
+				oscs.push(osc);
+			});
+			filter.connect(masterGain);
+			masterGain.connect(mGain);
+			oscs.forEach(o => o.start());
+			lfo.start();
+			musicNodes = { oscs, lfo, lfoGain, filter, masterGain };
+			musicPlaying = true;
+			document.querySelector('#mw-t i').className = 'fas fa-pause';
+			document.getElementById('mw-t').classList.add('playing');
+			drawMusicViz();
+		}
+
+		function stopMusic() {
+			if (!musicNodes) return;
+			const { oscs, lfo, masterGain } = musicNodes, now = aCtx.currentTime;
+			masterGain.gain.linearRampToValueAtTime(0, now + 1);
+			musicNodes = null;
+			musicPlaying = false;
+			document.querySelector('#mw-t i').className = 'fas fa-play';
+			document.getElementById('mw-t').classList.remove('playing');
+			cancelAnimationFrame(vizFrame);
+			vizFrame = null;
+			setTimeout(() => {
+				oscs.forEach(o => {
+					try {
+						o.stop();
+					} catch (e) {
+					}
+				});
 				try {
-					o.stop();
+					lfo.stop();
 				} catch (e) {
 				}
+			}, 1100);
+			const viz = document.getElementById('mw-viz'), vizCtx = viz.getContext('2d');
+			vizCtx.clearRect(0, 0, 60, 28);
+		}
+
+		function toggleMusic() {
+			if (!aCtx) initAudio();
+			if (aCtx.state === 'suspended') aCtx.resume();
+			musicPlaying ? stopMusic() : startMusic();
+		}
+
+		document.getElementById('mw-t').addEventListener('click', () => {
+			playClickSnd();
+			toggleMusic();
+		});
+		document.getElementById('mw-v').addEventListener('input', function () {
+			if (!aCtx || !mGain) return;
+			const v = (this.value / 100) * 0.5;
+			if (musicPlaying) {
+				mGain.gain.cancelScheduledValues(aCtx.currentTime);
+				mGain.gain.linearRampToValueAtTime(v, aCtx.currentTime + 0.1);
+			}
+			const om = document.querySelector('[data-setting="musv"]');
+			if (om) {
+				om.value = this.value;
+				om.nextElementSibling.textContent = this.value;
+			}
+		});
+
+		/* ═══ MUSIC VISUALIZER ═══ */
+		function drawMusicViz() {
+			if (!musicPlaying || !analyser) return;
+			const viz = document.getElementById('mw-viz'), vizCtx = viz.getContext('2d'),
+				bufLen = analyser.frequencyBinCount, data = new Uint8Array(bufLen);
+			analyser.getByteFrequencyData(data);
+			vizCtx.clearRect(0, 0, 60, 28);
+			const barW = Math.max(1, 60 / bufLen);
+			for (let i = 0; i < bufLen; i++) {
+				const h = Math.max(1, (data[i] / 255) * 26);
+				vizCtx.fillStyle = `rgba(0,240,255,${0.3 + (data[i] / 255) * 0.7})`;
+				vizCtx.fillRect(i * barW, 28 - h, Math.max(1, barW - 1), h);
+			}
+			vizFrame = requestAnimationFrame(drawMusicViz);
+		}
+
+		/* ═══ NAVIGATION ═══ */
+		function navTo(name) {
+			if (name === curScreen) return;
+			if (conOpen) toggleCon();
+			const tr = document.getElementById('tr-ov');
+			tr.classList.remove('act');
+			void tr.offsetWidth;
+			tr.classList.add('act');
+			setTimeout(() => {
+				Object.values(screens).forEach(s => s.classList.remove('act'));
+				screens[name].classList.add('act');
+				curScreen = name;
+				if (name === 'character') animCharBars();
+				if (name === 'chat') scrollChat();
+				if (name !== 'main') {
+					const b = screens[name].querySelector('.bb');
+					if (b) b.focus();
+				} else updateMF();
+			}, 150);
+		}
+
+		function goBack() {
+			playBackSound();
+			if (conOpen) toggleCon();
+			navTo('main');
+		}
+
+		function activateMenu(a) {
+			playSelectSound();
+			switch (a) {
+				case 'continue':
+					startConn();
+					break;
+				case 'character':
+					navTo('character');
+					break;
+				case 'store':
+					navTo('store');
+					break;
+				case 'crafting':
+					navTo('crafting');
+					break;
+				case 'chat':
+					navTo('chat');
+					break;
+				case 'friends':
+					navTo('friends');
+					break;
+				case 'servers':
+					navTo('servers');
+					break;
+				case 'news':
+					navTo('news');
+					break;
+				case 'options':
+					navTo('options');
+					break;
+				case 'quit':
+					document.getElementById('quit-md').classList.add('act');
+					document.getElementById('qb-can').focus();
+					break;
+			}
+		}
+
+		function updateMF() {
+			menuBtns.forEach((b, i) => {
+				b.classList.toggle('foc', i === menuIdx);
+				b.setAttribute('tabindex', i === menuIdx ? '0' : '-1');
 			});
-			try {
-				lfo.stop();
-			} catch (e) {
+			menuBtns[menuIdx].focus();
+		}
+
+		/* ═══ KEYBOARD ═══ */
+		document.addEventListener('keydown', e => {
+			if (!bootDone) return;
+			if (e.key === '`' && curScreen !== 'boot') {
+				e.preventDefault();
+				toggleCon();
+				return;
 			}
-		}, 1100);
-		const viz = document.getElementById('mw-viz'), vizCtx = viz.getContext('2d');
-		vizCtx.clearRect(0, 0, 60, 28);
-	}
-
-	function toggleMusic() {
-		if (!aCtx) initAudio();
-		if (aCtx.state === 'suspended') aCtx.resume();
-		musicPlaying ? stopMusic() : startMusic();
-	}
-
-	document.getElementById('mw-t').addEventListener('click', () => {
-		playClickSnd();
-		toggleMusic();
-	});
-	document.getElementById('mw-v').addEventListener('input', function () {
-		if (!aCtx || !mGain) return;
-		const v = (this.value / 100) * 0.5;
-		if (musicPlaying) {
-			mGain.gain.cancelScheduledValues(aCtx.currentTime);
-			mGain.gain.linearRampToValueAtTime(v, aCtx.currentTime + 0.1);
-		}
-		const om = document.querySelector('[data-setting="musv"]');
-		if (om) {
-			om.value = this.value;
-			om.nextElementSibling.textContent = this.value;
-		}
-	});
-
-	/* ═══ MUSIC VISUALIZER ═══ */
-	function drawMusicViz() {
-		if (!musicPlaying || !analyser) return;
-		const viz = document.getElementById('mw-viz'), vizCtx = viz.getContext('2d'),
-			bufLen = analyser.frequencyBinCount, data = new Uint8Array(bufLen);
-		analyser.getByteFrequencyData(data);
-		vizCtx.clearRect(0, 0, 60, 28);
-		const barW = Math.max(1, 60 / bufLen);
-		for (let i = 0; i < bufLen; i++) {
-			const h = Math.max(1, (data[i] / 255) * 26);
-			vizCtx.fillStyle = `rgba(0,240,255,${0.3 + (data[i] / 255) * 0.7})`;
-			vizCtx.fillRect(i * barW, 28 - h, Math.max(1, barW - 1), h);
-		}
-		vizFrame = requestAnimationFrame(drawMusicViz);
-	}
-
-	/* ═══ NAVIGATION ═══ */
-	function navTo(name) {
-		if (name === curScreen) return;
-		if (conOpen) toggleCon();
-		const tr = document.getElementById('tr-ov');
-		tr.classList.remove('act');
-		void tr.offsetWidth;
-		tr.classList.add('act');
-		setTimeout(() => {
-			Object.values(screens).forEach(s => s.classList.remove('act'));
-			screens[name].classList.add('act');
-			curScreen = name;
-			if (name === 'character') animCharBars();
-			if (name === 'chat') scrollChat();
-			if (name !== 'main') {
-				const b = screens[name].querySelector('.bb');
-				if (b) b.focus();
-			} else updateMF();
-		}, 150);
-	}
-
-	function goBack() {
-		playBackSound();
-		if (conOpen) toggleCon();
-		navTo('main');
-	}
-
-	function activateMenu(a) {
-		playSelectSound();
-		switch (a) {
-			case'continue':
-				startConn();
-				break;
-			case'character':
-				navTo('character');
-				break;
-			case'store':
-				navTo('store');
-				break;
-			case'crafting':
-				navTo('crafting');
-				break;
-			case'chat':
-				navTo('chat');
-				break;
-			case'friends':
-				navTo('friends');
-				break;
-			case'servers':
-				navTo('servers');
-				break;
-			case'news':
-				navTo('news');
-				break;
-			case'options':
-				navTo('options');
-				break;
-			case'quit':
-				document.getElementById('quit-md').classList.add('act');
-				document.getElementById('qb-can').focus();
-				break;
-		}
-	}
-
-	function updateMF() {
+			if (conOpen) {
+				if (e.key === 'Escape') {
+					toggleCon();
+					return;
+				}
+				if (e.key === 'ArrowUp') {
+					e.preventDefault();
+					if (cmdHist.length) {
+						cmdHistIdx = Math.min(cmdHistIdx + 1, cmdHist.length - 1);
+						document.getElementById('con-in').value = cmdHist[cmdHistIdx];
+					}
+					return;
+				}
+				if (e.key === 'ArrowDown') {
+					e.preventDefault();
+					cmdHistIdx = Math.max(cmdHistIdx - 1, -1);
+					document.getElementById('con-in').value = cmdHistIdx >= 0 ? cmdHist[cmdHistIdx] : '';
+					return;
+				}
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					execCmd();
+					return;
+				}
+				playKeySnd();
+				return;
+			}
+			if (document.getElementById('quit-md').classList.contains('act')) {
+				if (e.key === 'Escape') {
+					document.getElementById('quit-md').classList.remove('act');
+					updateMF();
+					return;
+				}
+				if (e.key === 'Tab') {
+					e.preventDefault();
+					const f = document.activeElement;
+					if (f === document.getElementById('qb-can')) document.getElementById('qb-conf').focus(); else document.getElementById('qb-can').focus();
+					return;
+				}
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					document.activeElement.click();
+				}
+				return;
+			}
+			if (e.key === 'Escape' && curScreen !== 'main') {
+				e.preventDefault();
+				goBack();
+				return;
+			}
+			if (curScreen === 'main') {
+				const k = {
+					ArrowUp: () => {
+						menuIdx = (menuIdx - 1 + menuActions.length) % menuActions.length;
+						updateMF();
+					},
+					ArrowDown: () => {
+						menuIdx = (menuIdx + 1) % menuActions.length;
+						updateMF();
+					},
+					Enter: () => activateMenu(menuActions[menuIdx]),
+					' ': () => activateMenu(menuActions[menuIdx]),
+					c: () => {
+						menuIdx = 1;
+						updateMF();
+						activateMenu('character');
+					},
+					s: () => {
+						menuIdx = 2;
+						updateMF();
+						activateMenu('store');
+					},
+					k: () => {
+						menuIdx = 3;
+						updateMF();
+						activateMenu('crafting');
+					},
+					h: () => {
+						menuIdx = 4;
+						updateMF();
+						activateMenu('chat');
+					},
+					f: () => {
+						menuIdx = 5;
+						updateMF();
+						activateMenu('friends');
+					},
+					v: () => {
+						menuIdx = 6;
+						updateMF();
+						activateMenu('servers');
+					},
+					n: () => {
+						menuIdx = 7;
+						updateMF();
+						activateMenu('news');
+					},
+					o: () => {
+						menuIdx = 8;
+						updateMF();
+						activateMenu('options');
+					},
+					q: () => {
+						menuIdx = 9;
+						updateMF();
+						activateMenu('quit');
+					}
+				};
+				if (k[e.key]) {
+					e.preventDefault();
+					k[e.key]();
+				}
+			}
+		});
 		menuBtns.forEach((b, i) => {
-			b.classList.toggle('foc', i === menuIdx);
-			b.setAttribute('tabindex', i === menuIdx ? '0' : '-1');
+			b.addEventListener('click', () => {
+				menuIdx = i;
+				activateMenu(b.dataset.action);
+			});
+			b.addEventListener('mouseenter', () => {
+				menuBtns.forEach(x => x.classList.remove('focused'));
+				playHoverSound();
+			});
+			b.addEventListener('mouseleave', () => {
+				if (curScreen === 'main') updateMF();
+			});
 		});
-		menuBtns[menuIdx].focus();
-	}
+		document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', goBack));
 
-	/* ═══ KEYBOARD ═══ */
-	document.addEventListener('keydown', e => {
-		if (!bootDone) return;
-		if (e.key === '`' && curScreen !== 'boot') {
-			e.preventDefault();
-			toggleCon();
-			return;
+		/* ═══ BOOT ═══ */
+		async function runBoot() {
+			const cont = document.getElementById('boot-lines'), fill = document.getElementById('boot-pf'),
+				pct = document.getElementById('boot-pt'), pw = document.getElementById('boot-pw'),
+				press = document.getElementById('boot-press');
+			pw.classList.add('vis');
+			for (let i = 0; i < bootLines.length; i++) {
+				const l = document.createElement('div');
+				l.className = 'boot-line';
+				const dots = '.'.repeat(Math.max(5, 35 - bootLines[i].length));
+				l.innerHTML = `${bootLines[i]} ${dots} <span class="ok">OK</span>`;
+				l.querySelector('.ok').style.opacity = '0';
+				cont.appendChild(l);
+				await sleep(70 + Math.random() * 50);
+				l.classList.add('vis');
+				await sleep(180 + Math.random() * 180);
+				l.querySelector('.ok').style.opacity = '1';
+				l.querySelector('.ok').style.transition = 'opacity .12s';
+				fill.style.width = Math.round(((i + 1) / bootLines.length) * 100) + '%';
+				pct.textContent = Math.round(((i + 1) / bootLines.length) * 100) + '%';
+			}
+			await sleep(300);
+			press.classList.add('vis');
+			return new Promise(r => {
+				const h = () => {
+					document.removeEventListener('keydown', h);
+					document.removeEventListener('click', h);
+					r();
+				};
+				document.addEventListener('keydown', h);
+				document.addEventListener('click', h);
+			});
 		}
-		if (conOpen) {
-			if (e.key === 'Escape') {
-				toggleCon();
-				return;
-			}
-			if (e.key === 'ArrowUp') {
-				e.preventDefault();
-				if (cmdHist.length) {
-					cmdHistIdx = Math.min(cmdHistIdx + 1, cmdHist.length - 1);
-					document.getElementById('con-in').value = cmdHist[cmdHistIdx];
-				}
-				return;
-			}
-			if (e.key === 'ArrowDown') {
-				e.preventDefault();
-				cmdHistIdx = Math.max(cmdHistIdx - 1, -1);
-				document.getElementById('con-in').value = cmdHistIdx >= 0 ? cmdHist[cmdHistIdx] : '';
-				return;
-			}
-			if (e.key === 'Enter') {
-				e.preventDefault();
-				execCmd();
-				return;
-			}
-			playKeySnd();
-			return;
-		}
-		if (document.getElementById('quit-md').classList.contains('act')) {
-			if (e.key === 'Escape') {
-				document.getElementById('quit-md').classList.remove('act');
+
+		function finishBoot() {
+			document.getElementById('boot-scr').classList.add('hidden');
+			setTimeout(() => {
+				document.getElementById('boot-scr').style.display = 'none';
+				bootDone = true;
+				curScreen = 'main';
+				screens.main.classList.add('act');
 				updateMF();
-				return;
+			}, 600);
+		}
+
+		function sleep(ms) {
+			return new Promise(r => setTimeout(r, ms));
+		}
+
+		/* ═══ CONNECTING ═══ */
+		async function startConn() {
+			if (connecting) return;
+			connecting = true;
+			const cs = document.getElementById('conn-scr');
+			cs.classList.add('act');
+			const cont = document.getElementById('conn-lines'), fill = document.getElementById('conn-pf'),
+				prog = document.getElementById('conn-pr'), status = document.getElementById('conn-st'),
+				info = document.getElementById('conn-info');
+			cont.innerHTML = '';
+			fill.style.width = '0%';
+			status.classList.remove('vis');
+			status.textContent = '';
+			prog.classList.add('vis');
+			for (let i = 0; i < connLinesArr.length; i++) {
+				const l = document.createElement('div');
+				l.className = 'cn-l';
+				const dots = '.'.repeat(Math.max(5, 35 - connLinesArr[i].length));
+				l.innerHTML = `${connLinesArr[i]} ${dots} <span class="ok">OK</span>`;
+				l.querySelector('.ok').style.opacity = '0';
+				cont.appendChild(l);
+				await sleep(100 + Math.random() * 80);
+				l.classList.add('vis');
+				await sleep(300 + Math.random() * 400);
+				l.querySelector('.ok').style.opacity = '1';
+				l.querySelector('.ok').style.transition = 'opacity .15s';
+				fill.style.width = Math.round(((i + 1) / connLinesArr.length) * 100) + '%';
+				if (i === 2) info.innerHTML = info.innerHTML.replace('Ping: --ms', 'Ping: 24ms');
 			}
-			if (e.key === 'Tab') {
-				e.preventDefault();
-				const f = document.activeElement;
-				if (f === document.getElementById('qb-can')) document.getElementById('qb-conf').focus(); else document.getElementById('qb-can').focus();
-				return;
-			}
-			if (e.key === 'Enter') {
-				e.preventDefault();
-				document.activeElement.click();
-			}
-			return;
+			await sleep(500);
+			status.textContent = 'CONNECTED';
+			status.classList.add('vis');
+			await sleep(800);
+			cs.classList.remove('act');
+			connecting = false;
+			showToast('Connected to EU-West server', 'success');
 		}
-		if (e.key === 'Escape' && curScreen !== 'main') {
-			e.preventDefault();
-			goBack();
-			return;
+
+		/* ═══ CONSOLE ═══ */
+		function toggleCon() {
+			conOpen = !conOpen;
+			document.getElementById('con-ov').classList.toggle('act', conOpen);
+			if (conOpen) {
+				document.getElementById('con-in').value = '';
+				cmdHistIdx = -1;
+				setTimeout(() => document.getElementById('con-in').focus(), 100);
+			} else document.getElementById('con-in').blur();
 		}
-		if (curScreen === 'main') {
-			const k = {
-				ArrowUp: () => {
-					menuIdx = (menuIdx - 1 + menuActions.length) % menuActions.length;
-					updateMF();
-				},
-				ArrowDown: () => {
-					menuIdx = (menuIdx + 1) % menuActions.length;
-					updateMF();
-				},
-				Enter: () => activateMenu(menuActions[menuIdx]),
-				' ': () => activateMenu(menuActions[menuIdx]),
-				c: () => {
-					menuIdx = 1;
-					updateMF();
-					activateMenu('character');
-				},
-				s: () => {
-					menuIdx = 2;
-					updateMF();
-					activateMenu('store');
-				},
-				k: () => {
-					menuIdx = 3;
-					updateMF();
-					activateMenu('crafting');
-				},
-				h: () => {
-					menuIdx = 4;
-					updateMF();
-					activateMenu('chat');
-				},
-				f: () => {
-					menuIdx = 5;
-					updateMF();
-					activateMenu('friends');
-				},
-				v: () => {
-					menuIdx = 6;
-					updateMF();
-					activateMenu('servers');
-				},
-				n: () => {
-					menuIdx = 7;
-					updateMF();
-					activateMenu('news');
-				},
-				o: () => {
-					menuIdx = 8;
-					updateMF();
-					activateMenu('options');
-				},
-				q: () => {
-					menuIdx = 9;
-					updateMF();
-					activateMenu('quit');
-				}
-			};
-			if (k[e.key]) {
-				e.preventDefault();
-				k[e.key]();
-			}
+
+		document.getElementById('con-x').addEventListener('click', toggleCon);
+
+		function cP(t, cls = 'out') {
+			const d = document.createElement('div');
+			d.className = 'cl ' + cls;
+			d.textContent = t;
+			document.getElementById('con-o').appendChild(d);
+			document.getElementById('con-o').scrollTop = 1e6;
 		}
-	});
-	menuBtns.forEach((b, i) => {
-		b.addEventListener('click', () => {
-			menuIdx = i;
-			activateMenu(b.dataset.action);
-		});
-		b.addEventListener('mouseenter', () => {
-			menuBtns.forEach(x => x.classList.remove('focused'));
-			playHoverSound();
-		});
-		b.addEventListener('mouseleave', () => {
-			if (curScreen === 'main') updateMF();
-		});
-	});
-	document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', goBack));
 
-	/* ═══ BOOT ═══ */
-	async function runBoot() {
-		const cont = document.getElementById('boot-lines'), fill = document.getElementById('boot-pf'),
-			pct = document.getElementById('boot-pt'), pw = document.getElementById('boot-pw'),
-			press = document.getElementById('boot-press');
-		pw.classList.add('vis');
-		for (let i = 0; i < bootLines.length; i++) {
-			const l = document.createElement('div');
-			l.className = 'boot-line';
-			const dots = '.'.repeat(Math.max(5, 35 - bootLines[i].length));
-			l.innerHTML = `${bootLines[i]} ${dots} <span class="ok">OK</span>`;
-			l.querySelector('.ok').style.opacity = '0';
-			cont.appendChild(l);
-			await sleep(70 + Math.random() * 50);
-			l.classList.add('vis');
-			await sleep(180 + Math.random() * 180);
-			l.querySelector('.ok').style.opacity = '1';
-			l.querySelector('.ok').style.transition = 'opacity .12s';
-			fill.style.width = Math.round(((i + 1) / bootLines.length) * 100) + '%';
-			pct.textContent = Math.round(((i + 1) / bootLines.length) * 100) + '%';
-		}
-		await sleep(300);
-		press.classList.add('vis');
-		return new Promise(r => {
-			const h = () => {
-				document.removeEventListener('keydown', h);
-				document.removeEventListener('click', h);
-				r();
-			};
-			document.addEventListener('keydown', h);
-			document.addEventListener('click', h);
-		});
-	}
-
-	function finishBoot() {
-		document.getElementById('boot-scr').classList.add('hidden');
-		setTimeout(() => {
-			document.getElementById('boot-scr').style.display = 'none';
-			bootDone = true;
-			curScreen = 'main';
-			screens.main.classList.add('act');
-			updateMF();
-		}, 600);
-	}
-
-	function sleep(ms) {
-		return new Promise(r => setTimeout(r, ms));
-	}
-
-	/* ═══ CONNECTING ═══ */
-	async function startConn() {
-		if (connecting) return;
-		connecting = true;
-		const cs = document.getElementById('conn-scr');
-		cs.classList.add('act');
-		const cont = document.getElementById('conn-lines'), fill = document.getElementById('conn-pf'),
-			prog = document.getElementById('conn-pr'), status = document.getElementById('conn-st'),
-			info = document.getElementById('conn-info');
-		cont.innerHTML = '';
-		fill.style.width = '0%';
-		status.classList.remove('vis');
-		status.textContent = '';
-		prog.classList.add('vis');
-		for (let i = 0; i < connLinesArr.length; i++) {
-			const l = document.createElement('div');
-			l.className = 'cn-l';
-			const dots = '.'.repeat(Math.max(5, 35 - connLinesArr[i].length));
-			l.innerHTML = `${connLinesArr[i]} ${dots} <span class="ok">OK</span>`;
-			l.querySelector('.ok').style.opacity = '0';
-			cont.appendChild(l);
-			await sleep(100 + Math.random() * 80);
-			l.classList.add('vis');
-			await sleep(300 + Math.random() * 400);
-			l.querySelector('.ok').style.opacity = '1';
-			l.querySelector('.ok').style.transition = 'opacity .15s';
-			fill.style.width = Math.round(((i + 1) / connLinesArr.length) * 100) + '%';
-			if (i === 2) info.innerHTML = info.innerHTML.replace('Ping: --ms', 'Ping: 24ms');
-		}
-		await sleep(500);
-		status.textContent = 'CONNECTED';
-		status.classList.add('vis');
-		await sleep(800);
-		cs.classList.remove('act');
-		connecting = false;
-		showToast('Connected to EU-West server', 'success');
-	}
-
-	/* ═══ CONSOLE ═══ */
-	function toggleCon() {
-		conOpen = !conOpen;
-		document.getElementById('con-ov').classList.toggle('act', conOpen);
-		if (conOpen) {
-			document.getElementById('con-in').value = '';
+		function execCmd() {
+			const raw = document.getElementById('con-in').value.trim();
+			if (!raw) return;
+			cmdHist.unshift(raw);
 			cmdHistIdx = -1;
-			setTimeout(() => document.getElementById('con-in').focus(), 100);
-		} else document.getElementById('con-in').blur();
-	}
-
-	document.getElementById('con-x').addEventListener('click', toggleCon);
-
-	function cP(t, cls = 'out') {
-		const d = document.createElement('div');
-		d.className = 'cl ' + cls;
-		d.textContent = t;
-		document.getElementById('con-o').appendChild(d);
-		document.getElementById('con-o').scrollTop = 1e6;
-	}
-
-	function execCmd() {
-		const raw = document.getElementById('con-in').value.trim();
-		if (!raw) return;
-		cmdHist.unshift(raw);
-		cmdHistIdx = -1;
-		cP(raw, 'cmd');
-		document.getElementById('con-in').value = '';
-		playEnterSnd();
-		const p = raw.toLowerCase().split(/\s+/), cmd = p[0], a = p.slice(1);
-		switch (cmd) {
-			case'help':
-				cP('Commands: help clear fps ping version stats teleport spawn god noclip give time weather list exit', 'sys');
-				break;
-			case'clear':
-				document.getElementById('con-o').innerHTML = '';
-				break;
-			case'fps':
-				cP('FPS: 60 (capped) | Frame time: 16.6ms', 'ok');
-				break;
-			case'ping':
-				cP(`Ping: ${18 + Math.floor(Math.random() * 12)}ms (avg ${22}ms)`, 'ok');
-				break;
-			case'version':
-				cP('NEO WARS v0.0.4 build 0004 | release | xxxxxxx', 'out');
-				break;
-			case'stats':
-				cP('Render: 60 FPS | Draw: 342 | Tris: 1.8M\nMemory: 2048/4096 MB | VRAM: 3240/8192 MB\nEntities: 847 | Particles: 2048 | Physics: 12.4ms', 'out');
-				break;
-			case'teleport':
-				a.length < 3 ? cP('Usage: teleport <x> <y> <z>', 'err') : cP(`Teleported to (${a[0]}, ${a[1]}, ${a[2]})`, 'ok');
-				break;
-			case'spawn':
-				!a[0] ? cP('Usage: spawn <entity>', 'err') : cP(`Spawned: ${a[0]} [ID: ${1000 + Math.floor(Math.random() * 9000)}]`, 'ok');
-				break;
-			case'god':
-				cP('God mode ' + (Math.random() > .5 ? 'ENABLED' : 'DISABLED'), 'warn');
-				break;
-			case'noclip':
-				cP('Noclip ' + (Math.random() > .5 ? 'ENABLED' : 'DISABLED'), 'warn');
-				break;
-			case'give':
-				!a[0] ? cP('Usage: give <item>', 'err') : cP(`Added "${a.join(' ')}" to inventory`, 'ok');
-				break;
-			case'time': {
-				const h = parseInt(a[0]);
-				isNaN(h) || h < 0 || h > 23 ? cP('Range: 0-23', 'err') : cP(`Time set to ${String(h).padStart(2, '0')}:00`, 'ok');
-				break;
+			cP(raw, 'cmd');
+			document.getElementById('con-in').value = '';
+			playEnterSnd();
+			const p = raw.toLowerCase().split(/\s+/), cmd = p[0], a = p.slice(1);
+			switch (cmd) {
+				case 'help':
+					cP('Commands: help clear fps ping version stats teleport spawn god noclip give time weather list exit', 'sys');
+					break;
+				case 'clear':
+					document.getElementById('con-o').innerHTML = '';
+					break;
+				case 'fps':
+					cP('FPS: 60 (capped) | Frame time: 16.6ms', 'ok');
+					break;
+				case 'ping':
+					cP(`Ping: ${18 + Math.floor(Math.random() * 12)}ms (avg ${22}ms)`, 'ok');
+					break;
+				case 'version':
+					cP('NEO WARS v0.0.4 build 0004 | release | xxxxxxx', 'out');
+					break;
+				case 'stats':
+					cP('Render: 60 FPS | Draw: 342 | Tris: 1.8M\nMemory: 2048/4096 MB | VRAM: 3240/8192 MB\nEntities: 847 | Particles: 2048 | Physics: 12.4ms', 'out');
+					break;
+				case 'teleport':
+					a.length < 3 ? cP('Usage: teleport <x> <y> <z>', 'err') : cP(`Teleported to (${a[0]}, ${a[1]}, ${a[2]})`, 'ok');
+					break;
+				case 'spawn':
+					!a[0] ? cP('Usage: spawn <entity>', 'err') : cP(`Spawned: ${a[0]} [ID: ${1000 + Math.floor(Math.random() * 9000)}]`, 'ok');
+					break;
+				case 'god':
+					cP('God mode ' + (Math.random() > .5 ? 'ENABLED' : 'DISABLED'), 'warn');
+					break;
+				case 'noclip':
+					cP('Noclip ' + (Math.random() > .5 ? 'ENABLED' : 'DISABLED'), 'warn');
+					break;
+				case 'give':
+					!a[0] ? cP('Usage: give <item>', 'err') : cP(`Added "${a.join(' ')}" to inventory`, 'ok');
+					break;
+				case 'time': {
+					const h = parseInt(a[0]);
+					isNaN(h) || h < 0 || h > 23 ? cP('Range: 0-23', 'err') : cP(`Time set to ${String(h).padStart(2, '0')}:00`, 'ok');
+					break;
+				}
+				case 'weather':
+					!['clear', 'rain', 'fog', 'storm'].includes(a[0]) ? cP('Types: clear rain fog storm', 'err') : cP(`Weather: ${a[0]}`, 'ok');
+					break;
+				case 'list': {
+					if (a[0] === 'players') {
+						cP('Online:', 'sys');
+						chatUsers.filter(u => u.st !== 'off').forEach(u => cP(`  ${u.name} [${u.st}]`, 'out'));
+					} else if (a[0] === 'items') {
+						cP('Items:', 'sys');
+						storeItems.forEach(i => cP(`  ${i.name} (${i.rarity}) — ${i.price}cr`, 'out'));
+					} else if (a[0] === 'entities') cP('Entities: NPC 412 | Prop 298 | Vehicle 67 | Dynamic 70', 'out'); else cP('Types: entities items players', 'err');
+					break;
+				}
+				case 'exit':
+					toggleCon();
+					break;
+				default:
+					cP(`Unknown: "${cmd}". Type "help".`, 'err');
 			}
-			case'weather':
-				!['clear', 'rain', 'fog', 'storm'].includes(a[0]) ? cP('Types: clear rain fog storm', 'err') : cP(`Weather: ${a[0]}`, 'ok');
-				break;
-			case'list': {
-				if (a[0] === 'players') {
-					cP('Online:', 'sys');
-					chatUsers.filter(u => u.st !== 'off').forEach(u => cP(`  ${u.name} [${u.st}]`, 'out'));
-				} else if (a[0] === 'items') {
-					cP('Items:', 'sys');
-					storeItems.forEach(i => cP(`  ${i.name} (${i.rarity}) — ${i.price}cr`, 'out'));
-				} else if (a[0] === 'entities') cP('Entities: NPC 412 | Prop 298 | Vehicle 67 | Dynamic 70', 'out'); else cP('Types: entities items players', 'err');
-				break;
-			}
-			case'exit':
-				toggleCon();
-				break;
-			default:
-				cP(`Unknown: "${cmd}". Type "help".`, 'err');
 		}
-	}
 
-	/* ═══ QUIT MODAL ═══ */
-	document.getElementById('qb-can').addEventListener('click', () => {
-		document.getElementById('quit-md').classList.remove('act');
-		updateMF();
-	});
-	document.getElementById('qb-conf').addEventListener('click', () => {
-		document.getElementById('quit-md').classList.remove('act');
-		showToast('Disconnecting from server...', 'error');
-	});
-	document.getElementById('quit-md').addEventListener('click', e => {
-		if (e.target === document.getElementById('quit-md')) {
+		/* ═══ QUIT MODAL ═══ */
+		document.getElementById('qb-can').addEventListener('click', () => {
 			document.getElementById('quit-md').classList.remove('act');
 			updateMF();
+		});
+		document.getElementById('qb-conf').addEventListener('click', () => {
+			document.getElementById('quit-md').classList.remove('act');
+			showToast('Disconnecting from server...', 'error');
+		});
+		document.getElementById('quit-md').addEventListener('click', e => {
+			if (e.target === document.getElementById('quit-md')) {
+				document.getElementById('quit-md').classList.remove('act');
+				updateMF();
+			}
+		});
+
+		/* ═══ TOAST ═══ */
+		function showToast(msg, type = 'info') {
+			const t = document.createElement('div');
+			t.className = `toast toast-${type}`;
+			const ic = { info: 'fa-circle-info', success: 'fa-circle-check', error: 'fa-circle-xmark' };
+			t.innerHTML = `<i class="fas ${ic[type] || ic.info}"></i> ${msg}`;
+			document.getElementById('toast-c').appendChild(t);
+			requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+			setTimeout(() => {
+				t.classList.remove('show');
+				setTimeout(() => t.remove(), 400);
+			}, 2800);
 		}
-	});
 
-	/* ═══ TOAST ═══ */
-	function showToast(msg, type = 'info') {
-		const t = document.createElement('div');
-		t.className = `toast toast-${type}`;
-		const ic = {info: 'fa-circle-info', success: 'fa-circle-check', error: 'fa-circle-xmark'};
-		t.innerHTML = `<i class="fas ${ic[type] || ic.info}"></i> ${msg}`;
-		document.getElementById('toast-c').appendChild(t);
-		requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
-		setTimeout(() => {
-			t.classList.remove('show');
-			setTimeout(() => t.remove(), 400);
-		}, 2800);
-	}
-
-	/* ═══ CHARACTER ═══ */
-	function buildChar() {
-		const sg = document.getElementById('stat-grid');
-		charStats.forEach(s => {
-			const r = document.createElement('div');
-			r.className = 'sr';
-			r.innerHTML = `<span class="sl">${s.key}</span><div class="sb"><div class="sf ${s.c}" data-width="${(s.val / s.max) * 100}"></div></div><span class="sv">${s.val}</span>`;
-			sg.appendChild(r);
-		});
-		const eg = document.getElementById('eq-grid');
-		equipData.forEach(e => {
-			const s = document.createElement('div');
-			s.className = 'eq-sl';
-			s.innerHTML = `<i class="fas ${e.icon}"></i><span class="eq-sn">${e.name}</span><span class="eq-st">${e.type}</span>`;
-			eg.appendChild(s);
-		});
-	}
-
-	function animCharBars() {
-		const bars = document.querySelectorAll('#screen-character .sf, #screen-character .ch-xf');
-		bars.forEach(f => {
-			f.style.transition = 'none';
-			f.style.width = '0%';
-		});
-		void bars[0]?.offsetWidth;
-		bars.forEach(f => {
-			f.style.transition = 'width 1s cubic-bezier(.4,0,.2,1)';
-			f.style.width = f.dataset.width + '%';
-		});
-	}
-
-	/* ═══ STORE ═══ */
-	function buildStore() {
-		const feat = storeItems.find(i => i.rarity === 'legendary') || storeItems[0];
-		document.getElementById('sto-fe').innerHTML = `<img class="sto-fi" src="https://picsum.photos/seed/${feat.img}feat/220/220.jpg" alt="${feat.name}"><div class="sto-fn"><div class="sto-fl">Featured Item</div><div class="sto-ft">${feat.name}</div><div class="sto-fd">${feat.desc}</div></div><button class="sto-fb ripple-host" onclick="showToast('Purchased ${feat.name}','success')"><i class="fas fa-circle" style="font-size:.45rem;margin-right:3px;opacity:.5"></i>${feat.price.toLocaleString()}</button>`;
-		const cats = ['all', 'weapons', 'armor', 'implants', 'mods', 'consumables'], cl = {
-			all: 'All',
-			weapons: 'Weapons',
-			armor: 'Armor',
-			implants: 'Implants',
-			mods: 'Mods',
-			consumables: 'Consumables'
-		};
-		const cc = document.getElementById('sto-cs');
-		cats.forEach(c => {
-			const b = document.createElement('button');
-			b.className = `sc-b${c === 'all' ? ' act' : ''}`;
-			b.textContent = cl[c];
-			b.addEventListener('click', () => {
-				storeCat = c;
-				cc.querySelectorAll('.sc-b').forEach(x => x.classList.remove('act'));
-				b.classList.add('act');
-				renderStoreGrid();
+		/* ═══ CHARACTER ═══ */
+		function buildChar() {
+			const sg = document.getElementById('stat-grid');
+			charStats.forEach(s => {
+				const r = document.createElement('div');
+				r.className = 'sr';
+				r.innerHTML = `<span class="sl">${s.key}</span><div class="sb"><div class="sf ${s.c}" data-width="${(s.val / s.max) * 100}"></div></div><span class="sv">${s.val}</span>`;
+				sg.appendChild(r);
 			});
-			cc.appendChild(b);
-		});
-		renderStoreGrid();
-	}
-
-	function renderStoreGrid() {
-		const g = document.getElementById('sto-g');
-		g.innerHTML = '';
-		const f = storeCat === 'all' ? storeItems : storeItems.filter(i => i.cat === storeCat);
-		f.forEach(item => {
-			const canAfford = item.price <= playerCredits;
-			const c = document.createElement('div');
-			c.className = 'si ripple-host' + (canAfford ? '' : ' si-unaffordable');
-			c.tabIndex = canAfford ? 0 : -1;
-			c.innerHTML = `<img class="si-th" src="https://picsum.photos/seed/${item.img}/160/160.jpg" alt="${item.name}" loading="lazy"><div class="si-b"><div class="si-n">${item.name}</div><div class="si-d">${item.desc}</div><div class="si-bt"><span class="si-p"><i class="fas fa-circle" style="font-size:.35rem;margin-right:3px;opacity:.4"></i>${item.price.toLocaleString()}</span><span class="rb rb-${item.rarity}">${item.rarity}</span></div></div>`;
-			if (canAfford) c.addEventListener('click', () => showToast(`Purchased ${item.name}`, 'success'));
-			g.appendChild(c);
-		});
-	}
-
-	/* ═══ CRAFTING ═══ */
-	function buildCrafting() {
-		const cats = [{cat: 'Weapons', id: 'weapons'}, {cat: 'Armor', id: 'armor'}, {
-			cat: 'Implants',
-			id: 'implants'
-		}, {cat: 'Mods', id: 'mods'}];
-		const cont = document.getElementById('cr-cats');
-		cats.forEach(c => {
-			cont.innerHTML += `<div class="cr-cat-l">${c.cat}</div>`;
-			craftRecipes.filter(r => r.cat === c.id).forEach(r => {
-				cont.innerHTML += `<div class="cr-ch${r.cat === craftCat ? ' act' : ''}" data-cr="${r.name}"><i class="fas fa-hammer" style="font-size:.6rem"></i><span>${r.name}</span></div>`;
+			const eg = document.getElementById('eq-grid');
+			equipData.forEach(e => {
+				const s = document.createElement('div');
+				s.className = 'eq-sl';
+				s.innerHTML = `<i class="fas ${e.icon}"></i><span class="eq-sn">${e.name}</span><span class="eq-st">${e.type}</span>`;
+				eg.appendChild(s);
 			});
-		});
-		cont.querySelectorAll('.cr-ch').forEach(el => {
-			el.addEventListener('click', () => {
-				cont.querySelectorAll('.cr-ch').forEach(x => x.classList.remove('act'));
-				el.classList.add('act');
-				renderCraftGrid(el.dataset.cr);
-			});
-		});
-		renderCraftGrid();
-	}
-
-	function renderCraftGrid(filter) {
-		const g = document.getElementById('cr-grid');
-		g.innerHTML = '';
-		const f = filter ? craftRecipes.filter(r => r.name === filter) : craftRecipes.filter(r => r.cat === craftCat);
-		f.forEach(r => {
-			const canCraft = r.mats.every(m => m.have >= m.need);
-			const card = document.createElement('div');
-			card.className = 'cr-card ripple-host';
-			card.tabIndex = 0;
-			let matsHTML = '';
-			r.mats.forEach(m => {
-				matsHTML += `<div class="cr-mat ${m.have >= m.need ? 'has' : 'miss'}"><i class="fas fa-cube"></i>${m.n}: ${m.have}/${m.need}</div>`;
-			});
-			card.innerHTML = `<img class="cr-img" src="https://picsum.photos/seed/${r.img}/144/144.jpg" alt="${r.name}" loading="lazy"><div class="cr-body"><div style="display:flex;align-items:center"><span class="cr-name">${r.name}</span><span class="cr-rarity rb rb-${r.rarity}">${r.rarity}</span></div><div class="cr-mats">${matsHTML}</div><button class="cr-btn ripple-host" ${canCraft ? '' : 'disabled'} data-craft="${r.name}">${canCraft ? 'CRAFT' : 'MISSING MATS'}</button></div>`;
-			card.querySelector('.cr-btn').addEventListener('click', e => {
-				e.stopPropagation();
-				if (!canCraft) return;
-				playClickSnd();
-				card.classList.add('cr-crafting');
-				setTimeout(() => {
-					card.classList.remove('cr-crafting');
-					showToast(`Crafted ${r.name}`, 'success');
-				}, 1000);
-			});
-			g.appendChild(card);
-		});
-	}
-
-	/* ═══ FRIENDS ═══ */
-	function buildFriends() {
-		renderFriends();
-	}
-
-	function renderFriends() {
-		const list = document.getElementById('fr-list');
-		list.innerHTML = '';
-		const search = (document.querySelector('.fr-search')?.value || '').toLowerCase();
-		let filtered = friendData;
-		if (friendFilter === 'online') filtered = filtered.filter(f => f.status === 'online' || f.status === 'idle');
-		else if (friendFilter === 'offline') filtered = filtered.filter(f => f.status === 'offline');
-		if (search) filtered = filtered.filter(f => f.name.toLowerCase().includes(search));
-		const online = filtered.filter(f => f.status !== 'offline'),
-			offline = filtered.filter(f => f.status === 'offline');
-		if (online.length) {
-			list.innerHTML += `<div class="fr-sec">Online — ${online.length}</div>`;
-			online.forEach(f => list.appendChild(friendRow(f)));
 		}
-		if (offline.length) {
-			list.innerHTML += `<div class="fr-sec">Offline — ${offline.length}</div>`;
-			offline.forEach(f => list.appendChild(friendRow(f)));
-		}
-	}
 
-	function friendRow(f) {
-		const r = document.createElement('div');
-		r.className = 'fr-row';
-		const borderClr = f.status === 'online' ? f.color : f.status === 'idle' ? 'var(--ac4)' : 'transparent';
-		r.innerHTML = `<div class="fr-av" style="background:${f.color}22;border-color:${borderClr}">${f.name[0]}</div><div class="fr-info"><div class="fr-nm" style="color:${f.status === 'offline' ? 'rgba(216,224,234,.35)' : f.color}">${f.name}</div><div class="fr-meta"><span>LVL ${f.lvl}</span>${f.activity ? `<span>${f.activity}</span>` : ''}${f.lastSeen ? `<span>Last seen: ${f.lastSeen}</span>` : ''}</div></div><div class="fr-acts">${f.status !== 'offline' ? `<button class="fr-ab ripple-host" title="Invite" aria-label="Invite"><i class="fas fa-user-plus"></i></button><button class="fr-ab ripple-host" title="Message" aria-label="Message"><i class="fas fa-message"></i></button>` : ''}<button class="fr-ab remove ripple-host" title="Remove" aria-label="Remove"><i class="fas fa-xmark"></i></button></div>`;
-		r.querySelectorAll('.fr-ab').forEach(btn => {
-			btn.addEventListener('click', e => {
-				e.stopPropagation();
-				playClickSnd();
-				const action = btn.title;
-				showToast(`${action} ${f.name}`, 'success');
+		function animCharBars() {
+			const bars = document.querySelectorAll('#screen-character .sf, #screen-character .ch-xf');
+			bars.forEach(f => {
+				f.style.transition = 'none';
+				f.style.width = '0%';
 			});
-		});
-		return r;
-	}
+			void bars[0]?.offsetWidth;
+			bars.forEach(f => {
+				f.style.transition = 'width 1s cubic-bezier(.4,0,.2,1)';
+				f.style.width = f.dataset.width + '%';
+			});
+		}
 
-	document.querySelectorAll('.fr-fb').forEach(b => {
-		b.addEventListener('click', () => {
-			document.querySelectorAll('.fr-fb').forEach(x => x.classList.remove('act'));
-			b.classList.add('act');
-			friendFilter = b.dataset.ff;
+		/* ═══ STORE ═══ */
+		function buildStore() {
+			const feat = storeItems.find(i => i.rarity === 'legendary') || storeItems[0];
+			document.getElementById('sto-fe').innerHTML = `<img class="sto-fi" src="https://picsum.photos/seed/${feat.img}feat/220/220.jpg" alt="${feat.name}"><div class="sto-fn"><div class="sto-fl">Featured Item</div><div class="sto-ft">${feat.name}</div><div class="sto-fd">${feat.desc}</div></div><button class="sto-fb ripple-host" onclick="showToast('Purchased ${feat.name}','success')"><i class="fas fa-circle" style="font-size:.45rem;margin-right:3px;opacity:.5"></i>${feat.price.toLocaleString()}</button>`;
+			const cats = ['all', 'weapons', 'armor', 'implants', 'mods', 'consumables'], cl = {
+				all: 'All',
+				weapons: 'Weapons',
+				armor: 'Armor',
+				implants: 'Implants',
+				mods: 'Mods',
+				consumables: 'Consumables'
+			};
+			const cc = document.getElementById('sto-cs');
+			cats.forEach(c => {
+				const b = document.createElement('button');
+				b.className = `sc-b${c === 'all' ? ' act' : ''}`;
+				b.textContent = cl[c];
+				b.addEventListener('click', () => {
+					storeCat = c;
+					cc.querySelectorAll('.sc-b').forEach(x => x.classList.remove('act'));
+					b.classList.add('act');
+					renderStoreGrid();
+				});
+				cc.appendChild(b);
+			});
+			renderStoreGrid();
+		}
+
+		function renderStoreGrid() {
+			const g = document.getElementById('sto-g');
+			g.innerHTML = '';
+			const f = storeCat === 'all' ? storeItems : storeItems.filter(i => i.cat === storeCat);
+			f.forEach(item => {
+				const canAfford = item.price <= playerCredits;
+				const c = document.createElement('div');
+				c.className = 'si ripple-host' + (canAfford ? '' : ' si-unaffordable');
+				c.tabIndex = canAfford ? 0 : -1;
+				c.innerHTML = `<img class="si-th" src="https://picsum.photos/seed/${item.img}/160/160.jpg" alt="${item.name}" loading="lazy"><div class="si-b"><div class="si-n">${item.name}</div><div class="si-d">${item.desc}</div><div class="si-bt"><span class="si-p"><i class="fas fa-circle" style="font-size:.35rem;margin-right:3px;opacity:.4"></i>${item.price.toLocaleString()}</span><span class="rb rb-${item.rarity}">${item.rarity}</span></div></div>`;
+				if (canAfford) c.addEventListener('click', () => showToast(`Purchased ${item.name}`, 'success'));
+				g.appendChild(c);
+			});
+		}
+
+		/* ═══ CRAFTING ═══ */
+		function buildCrafting() {
+			const cats = [{ cat: 'Weapons', id: 'weapons' }, { cat: 'Armor', id: 'armor' }, {
+				cat: 'Implants',
+				id: 'implants'
+			}, { cat: 'Mods', id: 'mods' }];
+			const cont = document.getElementById('cr-cats');
+			cats.forEach(c => {
+				cont.innerHTML += `<div class="cr-cat-l">${c.cat}</div>`;
+				craftRecipes.filter(r => r.cat === c.id).forEach(r => {
+					cont.innerHTML += `<div class="cr-ch${r.cat === craftCat ? ' act' : ''}" data-cr="${r.name}"><i class="fas fa-hammer" style="font-size:.6rem"></i><span>${r.name}</span></div>`;
+				});
+			});
+			cont.querySelectorAll('.cr-ch').forEach(el => {
+				el.addEventListener('click', () => {
+					cont.querySelectorAll('.cr-ch').forEach(x => x.classList.remove('act'));
+					el.classList.add('act');
+					renderCraftGrid(el.dataset.cr);
+				});
+			});
+			renderCraftGrid();
+		}
+
+		function renderCraftGrid(filter) {
+			const g = document.getElementById('cr-grid');
+			g.innerHTML = '';
+			const f = filter ? craftRecipes.filter(r => r.name === filter) : craftRecipes.filter(r => r.cat === craftCat);
+			f.forEach(r => {
+				const canCraft = r.mats.every(m => m.have >= m.need);
+				const card = document.createElement('div');
+				card.className = 'cr-card ripple-host';
+				card.tabIndex = 0;
+				let matsHTML = '';
+				r.mats.forEach(m => {
+					matsHTML += `<div class="cr-mat ${m.have >= m.need ? 'has' : 'miss'}"><i class="fas fa-cube"></i>${m.n}: ${m.have}/${m.need}</div>`;
+				});
+				card.innerHTML = `<img class="cr-img" src="https://picsum.photos/seed/${r.img}/144/144.jpg" alt="${r.name}" loading="lazy"><div class="cr-body"><div style="display:flex;align-items:center"><span class="cr-name">${r.name}</span><span class="cr-rarity rb rb-${r.rarity}">${r.rarity}</span></div><div class="cr-mats">${matsHTML}</div><button class="cr-btn ripple-host" ${canCraft ? '' : 'disabled'} data-craft="${r.name}">${canCraft ? 'CRAFT' : 'MISSING MATS'}</button></div>`;
+				card.querySelector('.cr-btn').addEventListener('click', e => {
+					e.stopPropagation();
+					if (!canCraft) return;
+					playClickSnd();
+					card.classList.add('cr-crafting');
+					setTimeout(() => {
+						card.classList.remove('cr-crafting');
+						showToast(`Crafted ${r.name}`, 'success');
+					}, 1000);
+				});
+				g.appendChild(card);
+			});
+		}
+
+		/* ═══ FRIENDS ═══ */
+		function buildFriends() {
 			renderFriends();
-		});
-	});
-	document.querySelector('.fr-search')?.addEventListener('input', renderFriends);
+		}
 
-	/* ═══ SERVERS ═══ */
-	function buildServers() {
-		renderServers();
-	}
+		function renderFriends() {
+			const list = document.getElementById('fr-list');
+			list.innerHTML = '';
+			const search = (document.querySelector('.fr-search')?.value || '').toLowerCase();
+			let filtered = friendData;
+			if (friendFilter === 'online') filtered = filtered.filter(f => f.status === 'online' || f.status === 'idle');
+			else if (friendFilter === 'offline') filtered = filtered.filter(f => f.status === 'offline');
+			if (search) filtered = filtered.filter(f => f.name.toLowerCase().includes(search));
+			const online = filtered.filter(f => f.status !== 'offline'),
+				offline = filtered.filter(f => f.status === 'offline');
+			if (online.length) {
+				list.innerHTML += `<div class="fr-sec">Online — ${online.length}</div>`;
+				online.forEach(f => list.appendChild(friendRow(f)));
+			}
+			if (offline.length) {
+				list.innerHTML += `<div class="fr-sec">Offline — ${offline.length}</div>`;
+				offline.forEach(f => list.appendChild(friendRow(f)));
+			}
+		}
 
-	function renderServers() {
-		const list = document.getElementById('sv-list');
-		list.innerHTML = '';
-		const search = (document.querySelector('.sv-search')?.value || '').toLowerCase();
-		let filtered = serverData;
-		if (serverFilter !== 'all') filtered = filtered.filter(s => s.mode.toLowerCase() === serverFilter);
-		if (search) filtered = filtered.filter(s => s.name.toLowerCase().includes(search) || s.map.toLowerCase().includes(search));
-		filtered.forEach(s => {
+		function friendRow(f) {
 			const r = document.createElement('div');
-			r.className = 'sv-row';
-			r.tabIndex = 0;
-			const pClass = s.full ? 'full' : parseInt(s.players) >= s.players.split('/')[1] * 0.75 ? 'popular' : '';
-			const pingClass = parseInt(s.ping) < 50 ? 'good' : parseInt(s.ping) < 150 ? 'mid' : 'bad';
-			r.innerHTML = `<div class="sv-name">${s.name}</div><div class="sv-mode">${s.mode}</div><div class="sv-map">${s.map}</div><div class="sv-players ${pClass}">${s.players}</div><div class="sv-ping ${pingClass}">${s.ping}ms</div><button class="sv-join ripple-host" ${s.full ? 'disabled' : ''}>${s.full ? 'FULL' : 'JOIN'}</button>`;
-			r.addEventListener('click', () => {
-				if (s.full) return;
-				playClickSnd();
-				startConn();
+			r.className = 'fr-row';
+			const borderClr = f.status === 'online' ? f.color : f.status === 'idle' ? 'var(--ac4)' : 'transparent';
+			r.innerHTML = `<div class="fr-av" style="background:${f.color}22;border-color:${borderClr}">${f.name[0]}</div><div class="fr-info"><div class="fr-nm" style="color:${f.status === 'offline' ? 'rgba(216,224,234,.35)' : f.color}">${f.name}</div><div class="fr-meta"><span>LVL ${f.lvl}</span>${f.activity ? `<span>${f.activity}</span>` : ''}${f.lastSeen ? `<span>Last seen: ${f.lastSeen}</span>` : ''}</div></div><div class="fr-acts">${f.status !== 'offline' ? `<button class="fr-ab ripple-host" title="Invite" aria-label="Invite"><i class="fas fa-user-plus"></i></button><button class="fr-ab ripple-host" title="Message" aria-label="Message"><i class="fas fa-message"></i></button>` : ''}<button class="fr-ab remove ripple-host" title="Remove" aria-label="Remove"><i class="fas fa-xmark"></i></button></div>`;
+			r.querySelectorAll('.fr-ab').forEach(btn => {
+				btn.addEventListener('click', e => {
+					e.stopPropagation();
+					playClickSnd();
+					const action = btn.title;
+					showToast(`${action} ${f.name}`, 'success');
+				});
 			});
-			r.addEventListener('keydown', e => {
-				if (e.key === 'Enter' || e.key === ' ') {
-					e.preventDefault();
+			return r;
+		}
+
+		document.querySelectorAll('.fr-fb').forEach(b => {
+			b.addEventListener('click', () => {
+				document.querySelectorAll('.fr-fb').forEach(x => x.classList.remove('act'));
+				b.classList.add('act');
+				friendFilter = b.dataset.ff;
+				renderFriends();
+			});
+		});
+		document.querySelector('.fr-search')?.addEventListener('input', renderFriends);
+
+		/* ═══ SERVERS ═══ */
+		function buildServers() {
+			renderServers();
+		}
+
+		function renderServers() {
+			const list = document.getElementById('sv-list');
+			list.innerHTML = '';
+			const search = (document.querySelector('.sv-search')?.value || '').toLowerCase();
+			let filtered = serverData;
+			if (serverFilter !== 'all') filtered = filtered.filter(s => s.mode.toLowerCase() === serverFilter);
+			if (search) filtered = filtered.filter(s => s.name.toLowerCase().includes(search) || s.map.toLowerCase().includes(search));
+			filtered.forEach(s => {
+				const r = document.createElement('div');
+				r.className = 'sv-row';
+				r.tabIndex = 0;
+				const pClass = s.full ? 'full' : parseInt(s.players) >= s.players.split('/')[1] * 0.75 ? 'popular' : '';
+				const pingClass = parseInt(s.ping) < 50 ? 'good' : parseInt(s.ping) < 150 ? 'mid' : 'bad';
+				r.innerHTML = `<div class="sv-name">${s.name}</div><div class="sv-mode">${s.mode}</div><div class="sv-map">${s.map}</div><div class="sv-players ${pClass}">${s.players}</div><div class="sv-ping ${pingClass}">${s.ping}ms</div><button class="sv-join ripple-host" ${s.full ? 'disabled' : ''}>${s.full ? 'FULL' : 'JOIN'}</button>`;
+				r.addEventListener('click', () => {
 					if (s.full) return;
 					playClickSnd();
 					startConn();
-				}
+				});
+				r.addEventListener('keydown', e => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						if (s.full) return;
+						playClickSnd();
+						startConn();
+					}
+				});
+				r.querySelector('.sv-join').addEventListener('click', e => {
+					e.stopPropagation();
+					if (s.full) return;
+					playClickSnd();
+					startConn();
+				});
+				list.appendChild(r);
 			});
-			r.querySelector('.sv-join').addEventListener('click', e => {
-				e.stopPropagation();
-				if (s.full) return;
-				playClickSnd();
-				startConn();
-			});
-			list.appendChild(r);
-		});
-	}
+		}
 
-	document.querySelectorAll('.sv-fb').forEach(b => {
-		b.addEventListener('click', () => {
-			document.querySelectorAll('.sv-fb').forEach(x => x.classList.remove('act'));
-			b.classList.add('act');
-			serverFilter = b.dataset.sf;
-			renderServers();
-		});
-	});
-	document.querySelector('.sv-search')?.addEventListener('input', renderServers);
-
-	/* ═══ CHAT ═══ */
-	function buildChat() {
-		const layout = document.getElementById('ct-l');
-		let sb = '<div class="ct-sb">';
-		chatChannels.forEach(cat => {
-			sb += `<div class="ct-cl">${cat.cat}</div>`;
-			cat.chs.forEach(ch => {
-				sb += `<div class="ct-ch${ch.id === activeCh ? ' act' : ''}" data-ch="${ch.id}"><i class="fas ${ch.icon}"></i><span>${ch.name}</span></div>`;
+		document.querySelectorAll('.sv-fb').forEach(b => {
+			b.addEventListener('click', () => {
+				document.querySelectorAll('.sv-fb').forEach(x => x.classList.remove('act'));
+				b.classList.add('act');
+				serverFilter = b.dataset.sf;
+				renderServers();
 			});
 		});
-		sb += '</div>';
-		let mn = `<div class="ct-mn"><div class="ct-hd"><span class="ct-hch"># ${activeCh}</span><span class="ct-hdesc">${chatChannels[0].chs.find(c => c.id === activeCh)?.desc || ''}</span></div><div class="ct-msgs" id="ct-msgs"></div><div class="ct-ia"><input type="text" class="ct-in" id="ct-in" placeholder="Message #${activeCh}..." maxlength="500"><button class="ct-snd ripple-host" id="ct-snd">SEND</button></div></div>`;
-		let us = '<div class="ct-us"><div class="ct-ut">Online — ' + chatUsers.filter(u => u.st === 'on').length + '</div>';
-		chatUsers.forEach(u => {
-			us += `<div class="ct-u ${u.st === 'on' ? 'on' : u.st === 'idle' ? 'idle' : 'off'}"><div class="ct-ud"></div><span style="color:${u.st === 'off' ? 'rgba(216,224,234,.2)' : u.color}">${u.name}</span></div>`;
-		});
-		us += '</div>';
-		layout.innerHTML = sb + mn + us;
-		layout.querySelectorAll('.ct-ch').forEach(el => {
-			el.addEventListener('click', () => {
-				if (el.dataset.ch.startsWith('vc')) return;
-				activeCh = el.dataset.ch;
-				layout.querySelectorAll('.ct-ch').forEach(x => x.classList.remove('act'));
-				el.classList.add('act');
-				layout.querySelector('.ct-hch').textContent = '# ' + activeCh;
-				layout.querySelector('.ct-hdesc').textContent = chatChannels[0].chs.find(c => c.id === activeCh)?.desc || '';
-				layout.querySelector('#ct-in').placeholder = `Message #${activeCh}...`;
-				renderChatMsgs();
+		document.querySelector('.sv-search')?.addEventListener('input', renderServers);
+
+		/* ═══ CHAT ═══ */
+		function buildChat() {
+			const layout = document.getElementById('ct-l');
+			let sb = '<div class="ct-sb">';
+			chatChannels.forEach(cat => {
+				sb += `<div class="ct-cl">${cat.cat}</div>`;
+				cat.chs.forEach(ch => {
+					sb += `<div class="ct-ch${ch.id === activeCh ? ' act' : ''}" data-ch="${ch.id}"><i class="fas ${ch.icon}"></i><span>${ch.name}</span></div>`;
+				});
 			});
-		});
-		renderChatMsgs();
-		layout.querySelector('#ct-snd').addEventListener('click', sendChat);
-		layout.querySelector('#ct-in').addEventListener('keydown', e => {
-			if (e.key === 'Enter') {
-				e.preventDefault();
-				sendChat();
-			}
-		});
-	}
-
-	function renderChatMsgs() {
-		const c = document.getElementById('ct-msgs');
-		if (!c) return;
-		c.innerHTML = '';
-		(chatMsgs[activeCh] || []).forEach(m => {
-			if (m.sys) {
-				const d = document.createElement('div');
-				d.className = 'ct-sys';
-				d.textContent = m.sys;
-				c.appendChild(d);
-				return;
-			}
-			const u = chatUsers.find(x => x.name === m.u) || {color: '#888'};
-			const d = document.createElement('div');
-			d.className = 'ct-msg';
-			d.innerHTML = `<div class="ct-av" style="background:${u.color}22;border:1px solid ${u.color}44">${m.u[0]}</div><div class="ct-mb"><div class="ct-mh"><span class="ct-mn" style="color:${u.color}">${m.u}</span><span class="ct-mt">${m.tm}</span></div><div class="ct-mtx">${m.t}</div></div>`;
-			c.appendChild(d);
-		});
-		scrollChat();
-	}
-
-	function sendChat() {
-		const i = document.getElementById('ct-in');
-		if (!i) return;
-		const t = i.value.trim();
-		if (!t) return;
-		if (!chatMsgs[activeCh]) chatMsgs[activeCh] = [];
-		const now = new Date();
-		chatMsgs[activeCh].push({
-			u: 'VEX-7',
-			t,
-			tm: String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0')
-		});
-		i.value = '';
-		renderChatMsgs();
-	}
-
-	function scrollChat() {
-		const c = document.getElementById('ct-msgs');
-		if (c) c.scrollTop = 1e6;
-	}
-
-	/* ═══ NEWS ═══ */
-	function buildNews() {
-		const list = document.getElementById('nw-list');
-		newsData.forEach(item => {
-			const el = document.createElement('article');
-			el.className = 'nw-i';
-			el.tabIndex = 0;
-			el.innerHTML = `<div class="nw-ih"><span class="nt-b nt-${item.type}">${item.type}</span><span class="nw-d">${item.date}</span></div><div class="nw-tt">${item.title}</div><div class="nw-ex">${item.content}</div>`;
-			el.addEventListener('click', () => el.classList.toggle('exp'));
-			el.addEventListener('keydown', e => {
-				if (e.key === 'Enter' || e.key === ' ') {
+			sb += '</div>';
+			let mn = `<div class="ct-mn"><div class="ct-hd"><span class="ct-hch"># ${activeCh}</span><span class="ct-hdesc">${chatChannels[0].chs.find(c => c.id === activeCh)?.desc || ''}</span></div><div class="ct-msgs" id="ct-msgs"></div><div class="ct-ia"><input type="text" class="ct-in" id="ct-in" placeholder="Message #${activeCh}..." maxlength="500"><button class="ct-snd ripple-host" id="ct-snd">SEND</button></div></div>`;
+			let us = '<div class="ct-us"><div class="ct-ut">Online — ' + chatUsers.filter(u => u.st === 'on').length + '</div>';
+			chatUsers.forEach(u => {
+				us += `<div class="ct-u ${u.st === 'on' ? 'on' : u.st === 'idle' ? 'idle' : 'off'}"><div class="ct-ud"></div><span style="color:${u.st === 'off' ? 'rgba(216,224,234,.2)' : u.color}">${u.name}</span></div>`;
+			});
+			us += '</div>';
+			layout.innerHTML = sb + mn + us;
+			layout.querySelectorAll('.ct-ch').forEach(el => {
+				el.addEventListener('click', () => {
+					if (el.dataset.ch.startsWith('vc')) return;
+					activeCh = el.dataset.ch;
+					layout.querySelectorAll('.ct-ch').forEach(x => x.classList.remove('act'));
+					el.classList.add('act');
+					layout.querySelector('.ct-hch').textContent = '# ' + activeCh;
+					layout.querySelector('.ct-hdesc').textContent = chatChannels[0].chs.find(c => c.id === activeCh)?.desc || '';
+					layout.querySelector('#ct-in').placeholder = `Message #${activeCh}...`;
+					renderChatMsgs();
+				});
+			});
+			renderChatMsgs();
+			layout.querySelector('#ct-snd').addEventListener('click', sendChat);
+			layout.querySelector('#ct-in').addEventListener('keydown', e => {
+				if (e.key === 'Enter') {
 					e.preventDefault();
-					el.classList.toggle('exp');
+					sendChat();
 				}
 			});
-			list.appendChild(el);
-		});
-	}
+		}
 
-	/* ═══ OPTIONS ═══ */
-	document.querySelectorAll('[data-ot]').forEach(tab => {
-		tab.addEventListener('click', () => {
-			document.querySelectorAll('.op-tab').forEach(t => t.classList.remove('act'));
-			document.querySelectorAll('.op-pan').forEach(p => p.classList.remove('act'));
-			tab.classList.add('act');
-			document.getElementById('op-' + tab.dataset.ot).classList.add('act');
+		function renderChatMsgs() {
+			const c = document.getElementById('ct-msgs');
+			if (!c) return;
+			c.innerHTML = '';
+			(chatMsgs[activeCh] || []).forEach(m => {
+				if (m.sys) {
+					const d = document.createElement('div');
+					d.className = 'ct-sys';
+					d.textContent = m.sys;
+					c.appendChild(d);
+					return;
+				}
+				const u = chatUsers.find(x => x.name === m.u) || { color: '#888' };
+				const d = document.createElement('div');
+				d.className = 'ct-msg';
+				d.innerHTML = `<div class="ct-av" style="background:${u.color}22;border:1px solid ${u.color}44">${m.u[0]}</div><div class="ct-mb"><div class="ct-mh"><span class="ct-mn" style="color:${u.color}">${m.u}</span><span class="ct-mt">${m.tm}</span></div><div class="ct-mtx">${m.t}</div></div>`;
+				c.appendChild(d);
+			});
+			scrollChat();
+		}
+
+		function sendChat() {
+			const i = document.getElementById('ct-in');
+			if (!i) return;
+			const t = i.value.trim();
+			if (!t) return;
+			if (!chatMsgs[activeCh]) chatMsgs[activeCh] = [];
+			const now = new Date();
+			chatMsgs[activeCh].push({
+				u: 'VEX-7',
+				t,
+				tm: String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0')
+			});
+			i.value = '';
+			renderChatMsgs();
+		}
+
+		function scrollChat() {
+			const c = document.getElementById('ct-msgs');
+			if (c) c.scrollTop = 1e6;
+		}
+
+		/* ═══ NEWS ═══ */
+		function buildNews() {
+			const list = document.getElementById('nw-list');
+			newsData.forEach(item => {
+				const el = document.createElement('article');
+				el.className = 'nw-i';
+				el.tabIndex = 0;
+				el.innerHTML = `<div class="nw-ih"><span class="nt-b nt-${item.type}">${item.type}</span><span class="nw-d">${item.date}</span></div><div class="nw-tt">${item.title}</div><div class="nw-ex">${item.content}</div>`;
+				el.addEventListener('click', () => el.classList.toggle('exp'));
+				el.addEventListener('keydown', e => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						el.classList.toggle('exp');
+					}
+				});
+				list.appendChild(el);
+			});
+		}
+
+		/* ═══ OPTIONS ═══ */
+		document.querySelectorAll('[data-ot]').forEach(tab => {
+			tab.addEventListener('click', () => {
+				document.querySelectorAll('.op-tab').forEach(t => t.classList.remove('act'));
+				document.querySelectorAll('.op-pan').forEach(p => p.classList.remove('act'));
+				tab.classList.add('act');
+				document.getElementById('op-' + tab.dataset.ot).classList.add('act');
+			});
 		});
-	});
-	document.querySelectorAll('.tgl').forEach(t => {
-		t.addEventListener('click', () => {
-			t.classList.toggle('on');
-			showToast('Setting saved', 'success');
-		});
-		t.addEventListener('keydown', e => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
-				t.click();
-			}
-		});
-	});
-	document.querySelectorAll('.seg').forEach(seg => {
-		seg.querySelectorAll('.sg-b').forEach(btn => {
-			btn.addEventListener('click', () => {
-				seg.querySelectorAll('.sg-b').forEach(b => b.classList.remove('act'));
-				btn.classList.add('act');
+		document.querySelectorAll('.tgl').forEach(t => {
+			t.addEventListener('click', () => {
+				t.classList.toggle('on');
 				showToast('Setting saved', 'success');
 			});
-		});
-	});
-	document.querySelectorAll('.op-pan input[type="range"]').forEach(sl => {
-		const vd = sl.nextElementSibling;
-		sl.addEventListener('input', () => {
-			vd.textContent = sl.value;
-			if (sl.dataset.setting === 'musv') {
-				document.getElementById('mw-v').value = sl.value;
-				if (aCtx && mGain && mPlay) {
-					mGain.gain.cancelScheduledValues(aCtx.currentTime);
-					mGain.gain.linearRampToValueAtTime((sl.value / 100) * 0.5, aCtx.currentTime + 0.1);
+			t.addEventListener('keydown', e => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					t.click();
 				}
-			}
+			});
 		});
-		sl.addEventListener('change', () => showToast('Setting saved', 'success'));
-	});
-
-	/* ═══ BG SLIDESHOW ═══ */
-	let currentSlide = 0;
-	const slides = document.querySelectorAll('.slide');
-
-	function nextSlide() {
-		slides[currentSlide].classList.remove('active');
-		currentSlide = (currentSlide + 1) % slides.length;
-		slides[currentSlide].classList.add('active');
-	}
-
-	setInterval(nextSlide, 7000);
-
-	/* ═══ PARTICLES ═══ */
-	const cv = document.getElementById('p-cv'), cx = cv.getContext('2d');
-	let pts = [];
-
-	function rzCv() {
-		cv.width = innerWidth;
-		cv.height = innerHeight;
-	}
-
-	rzCv();
-	addEventListener('resize', rzCv);
-	for (let i = 0; i < 50; i++) pts.push({
-		x: Math.random() * innerWidth,
-		y: Math.random() * innerHeight,
-		vx: (Math.random() - .5) * .3,
-		vy: (Math.random() - .5) * .3,
-		s: Math.random() * 3 + 1,
-		a: Math.random() * .35 + .15
-	});
-	(function aP() {
-		cx.clearRect(0, 0, cv.width, cv.height);
-		const w = cv.width, h = cv.height;
-		for (let i = 0; i < pts.length; i++) {
-			const p = pts[i];
-			p.x += p.vx;
-			p.y += p.vy;
-			if (p.x < 0) p.x = w;
-			if (p.x > w) p.x = 0;
-			if (p.y < 0) p.y = h;
-			if (p.y > h) p.y = 0;
-			cx.beginPath();
-			cx.arc(p.x, p.y, Math.max(.4, p.s), 0, Math.PI * 2);
-			cx.fillStyle = `rgba(0,240,255,${p.a})`;
-			cx.fill();
-			for (let j = i + 1; j < pts.length; j++) {
-				const q = pts[j], dx = p.x - q.x, dy = p.y - q.y, d = Math.sqrt(dx * dx + dy * dy);
-				if (d < 100) {
-					cx.beginPath();
-					cx.moveTo(p.x, p.y);
-					cx.lineTo(q.x, q.y);
-					cx.strokeStyle = `rgba(0,240,255,${0.03 * (1 - d / 100)})`;
-					cx.lineWidth = .5;
-					cx.stroke();
+		document.querySelectorAll('.seg').forEach(seg => {
+			seg.querySelectorAll('.sg-b').forEach(btn => {
+				btn.addEventListener('click', () => {
+					seg.querySelectorAll('.sg-b').forEach(b => b.classList.remove('act'));
+					btn.classList.add('act');
+					showToast('Setting saved', 'success');
+				});
+			});
+		});
+		document.querySelectorAll('.op-pan input[type="range"]').forEach(sl => {
+			const vd = sl.nextElementSibling;
+			sl.addEventListener('input', () => {
+				vd.textContent = sl.value;
+				if (sl.dataset.setting === 'musv') {
+					document.getElementById('mw-v').value = sl.value;
+					if (aCtx && mGain && mPlay) {
+						mGain.gain.cancelScheduledValues(aCtx.currentTime);
+						mGain.gain.linearRampToValueAtTime((sl.value / 100) * 0.5, aCtx.currentTime + 0.1);
+					}
 				}
-			}
+			});
+			sl.addEventListener('change', () => showToast('Setting saved', 'success'));
+		});
+
+		/* ═══ BG SLIDESHOW ═══ */
+		let currentSlide = 0;
+		const slides = document.querySelectorAll('.slide');
+
+		function nextSlide() {
+			slides[currentSlide].classList.remove('active');
+			currentSlide = (currentSlide + 1) % slides.length;
+			slides[currentSlide].classList.add('active');
 		}
-		requestAnimationFrame(aP);
-	})();
 
-	/* ═══ INIT ═══ */
-	buildChar();
-	buildStore();
-	buildCrafting();
-	buildChat();
-	buildFriends();
-	buildServers();
-	buildNews();
-	cP('NEO WARS Developer Console v0.0.4', 'sys');
-	cP('Type "help" for available commands.', 'sys');
-	(async () => {
-		await runBoot();
-		finishBoot();
+		setInterval(nextSlide, 7000);
 
-		Events.Subscribe("ToggleDevCon", toggleCon);
-	})();
-</script>
+		/* ═══ PARTICLES ═══ */
+		const cv = document.getElementById('p-cv'), cx = cv.getContext('2d');
+		let pts = [];
+
+		function rzCv() {
+			cv.width = innerWidth;
+			cv.height = innerHeight;
+		}
+
+		rzCv();
+		addEventListener('resize', rzCv);
+		for (let i = 0; i < 50; i++) pts.push({
+			x: Math.random() * innerWidth,
+			y: Math.random() * innerHeight,
+			vx: (Math.random() - .5) * .3,
+			vy: (Math.random() - .5) * .3,
+			s: Math.random() * 3 + 1,
+			a: Math.random() * .35 + .15
+		});
+		(function aP() {
+			cx.clearRect(0, 0, cv.width, cv.height);
+			const w = cv.width, h = cv.height;
+			for (let i = 0; i < pts.length; i++) {
+				const p = pts[i];
+				p.x += p.vx;
+				p.y += p.vy;
+				if (p.x < 0) p.x = w;
+				if (p.x > w) p.x = 0;
+				if (p.y < 0) p.y = h;
+				if (p.y > h) p.y = 0;
+				cx.beginPath();
+				cx.arc(p.x, p.y, Math.max(.4, p.s), 0, Math.PI * 2);
+				cx.fillStyle = `rgba(0,240,255,${p.a})`;
+				cx.fill();
+				for (let j = i + 1; j < pts.length; j++) {
+					const q = pts[j], dx = p.x - q.x, dy = p.y - q.y, d = Math.sqrt(dx * dx + dy * dy);
+					if (d < 100) {
+						cx.beginPath();
+						cx.moveTo(p.x, p.y);
+						cx.lineTo(q.x, q.y);
+						cx.strokeStyle = `rgba(0,240,255,${0.03 * (1 - d / 100)})`;
+						cx.lineWidth = .5;
+						cx.stroke();
+					}
+				}
+			}
+			requestAnimationFrame(aP);
+		})();
+
+		/* ═══ INIT ═══ */
+		buildChar();
+		buildStore();
+		buildCrafting();
+		buildChat();
+		buildFriends();
+		buildServers();
+		buildNews();
+		cP('NEO WARS Developer Console v0.0.4', 'sys');
+		cP('Type "help" for available commands.', 'sys');
+		(async () => {
+			await runBoot();
+			finishBoot();
+
+			Events.Subscribe("ToggleDevCon", toggleCon);
+		})();
+	</script>
 </body>
+
 </html>

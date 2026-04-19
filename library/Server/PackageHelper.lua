@@ -12,9 +12,9 @@ local Server_LoadPackage = Server.LoadPackage
 local Server_ReloadPackage = Server.ReloadPackage
 local Server_UnloadPackage = Server.UnloadPackage
 
----@class PackageHelper
 --- Package management utility library for Nanos World.<br>
 --- Provides console commands & functions for loading, unloading, and reloading packages with pattern matching support.
+---@class PackageHelper
 local self = {
 	--- Prefix for pattern matching mode
 	---@type string
@@ -25,7 +25,7 @@ local self = {
 ---@param name string The package name to validate.
 ---@return boolean boolean True if the name is valid, false otherwise.
 local function IsPackageNameValid(name)
-	return name and type(name) == "string" --and string_match(name, "^[%w%-%._]*$")
+	return name and type(name) == "string" --and (string_match(name, "^[%w%-%._]*$")) or false
 end
 
 self.HasValidName = IsPackageNameValid
