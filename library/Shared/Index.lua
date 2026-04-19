@@ -88,7 +88,6 @@ requiref "Shared/@cheatoid" {
 	["@cheatoid/patch/.*"] = false,                          -- skip; patches must be explicitly loaded
 	["/?examples?%.lua$"] = false,                           -- ignore examples
 	["@cheatoid/require_finder/find_requires%.lua$"] = false, -- ignore
-	["@cheatoid/plugin_framework/example_usage%.lua$"] = false, -- ignore
 	["@cheatoid/plugin_framework/hello_plugin%.lua$"] = false, -- ignore
 	["@cheatoid/standard/global%.lua$"] = false,             -- ignore (let consumers explicitly load it)
 }

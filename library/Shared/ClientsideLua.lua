@@ -8,6 +8,7 @@ local ID = "allowcslua"
 local Enabled = false -- disabled by default
 
 local load, pcall, select = load, pcall, select
+local string_format, string_match = string.format, string.match
 local table_concat, table_pack, table_unpack = table.concat, table.pack, table.unpack
 local HASH = "#"
 
@@ -22,19 +23,27 @@ local function RunLua(...) -- TODO: Move to Lua lib (runlua)
 	local code, source
 	-- Detect if input is a file path
 	if file.is_file_path(input) then
-		-- Try to read the file
-		local file_content, err = file.read(input)
-		if file_content then
-			code = file_content
-			source = "@" .. input -- prepend @ prefix for file source
-			Console.Log("[lua] Executing file: %s", input)
-			Console.Log(file_content)
-		else
-			-- File doesn't exist or can't be read, treat as code
-			Console.Warn("[lua] File not found or unreadable: %s (treating as code)", err)
-			code = input
-			source = nil
+		-- Try to read and load the file
+		--local file_content, err = file.read(input)
+		--if file_content then
+		--	code = file_content
+		--	source = "@" .. input -- prepend @ prefix for file source
+		--	Console.Log("[lua] Executing file: " .. input)
+		--	--Console.Log(file_content)
+		--else
+		--	-- File doesn't exist or can't be read, treat as code
+		--	Console.Warn("[lua] File not found or unreadable: %s (treating as code)", err)
+		--	code = input
+		--	source = nil
+		--end
+		-- Use Package.Require force-load (more reliable)
+		input = string.normalize_path(input)
+		if not string_match(input, "%.[Ll][Uu][Aa]$") then
+			input = input .. ".lua"
 		end
+		Console.Log("[lua] Executing file: " .. input)
+		code = string_format("return require(%q, true);", input)
+		source = input
 	else
 		-- Treat as code
 		code = input
