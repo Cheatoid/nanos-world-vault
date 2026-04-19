@@ -583,8 +583,14 @@ vite.config.ts.timestamp-*
 .server/
 Packages/
 
- # Temporary/Downloads
- .temp/
- .tmp/
- .download/
- .downloads/
+# Temporary/Downloads
+.temp/
+.tmp/
+.download/
+.downloads/
+
+# Zed
+.zed/
+
+# not yet
+luavm.lua
