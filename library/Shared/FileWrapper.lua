@@ -13,6 +13,9 @@ local string_gmatch = string.gmatch
 local string_match = string.match
 local string_normalize_path = string.normalize_path
 local string_path_file = string.path_file
+local table = require("@cheatoid/standard/table")
+local table_concat = table.concat
+local table_remove = table.remove
 
 local File = assert(_G.File, "File function is missing")
 
@@ -441,6 +444,170 @@ local function get_full_path(path)
 end
 
 M.get_full_path = get_full_path
+
+----------------------------------------------------------------------
+-- Command-line style directory navigation functions
+----------------------------------------------------------------------
+
+-- Local variable to track current working directory
+local current_working_directory = ""
+
+--- Get the current working directory.<br>
+--- Returns the locally tracked current working directory path.
+---@return string cwd The current working directory path.
+---@usage <br>
+--- ```
+--- print(file.cwd()) -- Current working directory
+--- ```
+local function cwd()
+	return current_working_directory
+end
+
+M.cwd = cwd
+M.pwd = cwd -- alias
+
+--- Change the current working directory.<br>
+--- Updates the locally tracked working directory if the path exists and is a directory.<br>
+--- Returns nil and an error message if the path is invalid or not a directory.
+---@param path string The directory path to change to.
+---@return boolean|nil success True on success, nil on failure.
+---@return string|nil error Error message if the operation failed.
+---@usage <br>
+--- ```
+--- local success, err = file.cd("scripts/")
+--- if success then
+---   print("Changed directory to:", file.cwd())
+--- else
+---   print("Error:", err)
+--- end
+---
+--- -- Go to parent directory
+--- file.cd("..")
+--- ```
+local function cd(path)
+	-- Normalize path
+	path = string_normalize_path(path)
+
+	-- Handle empty path (stay in current directory)
+	if path == "" or path == "." then
+		return true
+	end
+
+	-- Handle package name prefix (e.g., "mypackage:scripts" -> "Packages/mypackage/scripts")
+	local package_name, package_rest = string_match(path, "^([0-9A-Za-z_%.]+):(.+)")
+	if package_name and package_rest then
+		path = "Packages/" .. package_name .. "/" .. package_rest
+	end
+
+	-- Handle parent directory
+	if path == ".." then
+		-- Remove last directory component
+		local parts = {}
+		for part in string_gmatch(current_working_directory, "[^/\\]+") do
+			parts[#parts + 1] = part
+		end
+		if #parts > 0 then
+			table_remove(parts)
+		end
+		current_working_directory = table_concat(parts, "/")
+		return true
+	end
+
+	-- Resolve relative path against current directory
+	local full_path
+	if string_match(path, "^/") then
+		-- Absolute path (Unix-style only - Windows drive letters are treated as package names)
+		full_path = path
+	else
+		-- Relative path (including Windows drive letters treated as package names)
+		if current_working_directory == "" then
+			full_path = path
+		else
+			full_path = current_working_directory .. "/" .. path
+		end
+	end
+
+	-- Normalize the full path to resolve any ../ sequences
+	full_path = string_normalize_path(full_path)
+
+	-- Check if the path tries to escape above root
+	-- If the path starts with ../ after normalization, it's trying to go above root
+	if string_match(full_path, "^%.%./") or full_path == ".." then
+		return nil, "cannot escape above root directory"
+	end
+
+	-- Check if the path exists and is a directory
+	if not is_dir(full_path) then
+		return nil, "not a directory or does not exist: " .. path
+	end
+
+	-- Update current working directory
+	current_working_directory = full_path
+	return true
+end
+
+M.cd = cd
+
+--- List files and directories in the current or specified path.<br>
+--- Combines files and directories into a single list with type indicators.<br>
+--- Returns a table of entries with name and type fields.
+---@param path string|nil The path to list (default: current working directory).
+---@return table[] entries Table of entries with {name, type} fields.
+---@return string|nil error Error message if the operation failed.
+---@usage <br>
+--- ```
+--- -- List current directory
+--- local entries, err = file.ls()
+--- if entries then
+---   for i, entry in next, entries do
+---     print(entry.name, entry.type) -- type is "file" or "directory"
+---   end
+--- else
+---   print("Error:", err)
+--- end
+---
+--- -- List specific directory
+--- local entries = file.ls("scripts/")
+--- ```
+local function ls(path)
+	-- Use current working directory if no path specified
+	if not path or path == "" then
+		path = current_working_directory
+	end
+
+	-- Normalize path
+	path = string_normalize_path(path)
+
+	-- Check if path exists
+	if not exists(path) then
+		return nil, "path does not exist: " .. path
+	end
+
+	local entries = {}
+
+	-- Get files
+	local files = list_files(path, "", 0) -- max_depth 0 for current directory only
+	for i, file_path in next, files do
+		local filename = string_path_file(file_path)
+		if filename and filename ~= "" then
+			entries[#entries + 1] = { name = filename, type = "file" }
+		end
+	end
+
+	-- Get directories
+	local dirs = list_directories(path, 0) -- max_depth 0 for current directory only
+	for i, dir_path in next, dirs do
+		local dirname = string_path_file(dir_path)
+		if dirname and dirname ~= "" then
+			entries[#entries + 1] = { name = dirname, type = "directory" }
+		end
+	end
+
+	return entries
+end
+
+M.ls = ls
+M.dir = ls -- alias
 
 ----------------------------------------------------------------------
 -- Virtual File System (VFS) Module
