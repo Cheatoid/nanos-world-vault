@@ -29,6 +29,8 @@
     - [PluginFramework](#pluginframework)
     - [VM](#vm)
     - [GAIMERS Loader](#gaimers-loader)
+    - [Reflection](#reflection)
+    - [Permission](#permission)
     - [Standalone Utilities](#standalone-utilities)
     - [Benchmark](#benchmark)
     - [Rate Limiter](#rate-limiter)
@@ -1012,6 +1014,73 @@ local s = gaimers.s
 local isolated = s("some_module", true)  -- deep copy environment
 ```
 
+### Reflection
+
+Runtime reflection utilities for inspecting nanos-world's game engine internals. Provides access to registered classes
+and enum tables from the debug registry.
+
+```lua
+local Reflection = require "Reflection"
+
+-- Get all enum tables from the global environment
+-- Returns a table where keys are enum names and values are enum tables
+local enums = Reflection.GetEnums()
+for name, enum in next, enums do
+    print(name) -- Prints enum names like "EColor", "EInputKey", "EControlMode", etc.
+end
+
+-- Get all registered classes from the debug registry
+-- Returns a table mapping numeric IDs to class tables
+local classes = Reflection.GetClasses()
+for id, class in next, classes do
+    print("Class ID:", id, "Name:", class.Name or "Unknown")
+end
+```
+
+### Permission
+
+Modular permission system combining simplicity with performance. Provides a clean API for managing permissions with
+bit-packed storage for efficiency. Supports category-level overrides, multi-registry support, and freeze concept for
+immutable registries.
+
+```lua
+local perm = require "@cheatoid/permission/permission"
+
+-- Define a permission category with permissions
+perm.define_category("chat", {
+    { name = "send", default = true, description = "Send messages" },
+    { name = "read", default = true },
+    "mute"  -- shorthand: name only, default=false
+})
+
+-- Create a permission context for a player
+local ctx = perm.new_context()
+
+-- Grant/deny permissions
+perm.deny(ctx, "chat.mute")
+
+-- Check permissions
+if perm.is_allowed(ctx, "chat.send") then
+    -- allow action
+end
+
+-- Require permission (throws error if not allowed)
+perm.require_permission(ctx, "chat.send")
+
+-- Category operations
+perm.grant_category(ctx, "admin")  -- Grant all admin permissions
+perm.set_category_state(ctx, "chat", perm.STATE_DENY)  -- Override category
+
+-- Serialization for storage/transmission
+local data = perm.to_table(ctx)  -- Human-readable format
+local wire = perm.to_wire(ctx)   -- Compact bit-packed format
+
+-- Multi-registry support
+local reg = perm.new_registry(perm.STATE_DENY)
+perm.define_category_on(reg, "admin", { "kick", "ban" })
+local ctx2 = perm.new_context_on(reg)
+```
+
 ### BigInteger
 
 Arbitrary-precision integer arithmetic for handling numbers that exceed Lua's number precision. Perfect for SteamIDs,
@@ -1198,32 +1267,35 @@ suite:compare()
 
 Various standalone utility modules:
 
-| Module                                                                         | Description                               |
-|--------------------------------------------------------------------------------|-------------------------------------------|
-| [`try`](Shared/@cheatoid/standalone/try.lua)                                   | Exception handling with try/catch/finally |
-| [`type_check`](Shared/@cheatoid/standalone/type_check.lua)                     | Runtime type checking and validation      |
-| [`istype`](Shared/@cheatoid/standalone/istype.lua)                             | Simple type-checking functions            |
-| [`xml`](Shared/@cheatoid/standalone/xml.lua)                                   | XML parsing and serialization             |
-| [`zip`](Shared/@cheatoid/standalone/zip.lua)                                   | ZIP archive handling                      |
-| [`util`](Shared/@cheatoid/standalone/util.lua)                                 | General utilities (coalesce, iff, etc.)   |
-| [`patcher`](Shared/@cheatoid/standalone/patcher.lua)                           | Code patching utilities                   |
-| [`debug_helper`](Shared/@cheatoid/standalone/debug_helper.lua)                 | Debugger and debugging utilities          |
-| [`to_string_literal`](Shared/@cheatoid/standalone/to_string_literal.lua)       | Convert values to string literals         |
-| [`biginteger`](Shared/@cheatoid/standalone/biginteger.lua)                     | Arbitrary precision integers              |
-| [`bits`](Shared/@cheatoid/standalone/bits.lua)                                 | Bit manipulation utilities                |
-| [`base_encoder_decoder`](Shared/@cheatoid/standalone/base_encoder_decoder.lua) | Arbitrary Base encoding/decoding          |
-| [`benchmark`](Shared/@cheatoid/benchmark/init.lua)                             | Performance benchmarking toolkit          |
-| [`cfg_parser`](Shared/@cheatoid/standalone/cfg_parser.lua)                     | Custom CFG file parser                    |
-| [`class`](Shared/@cheatoid/standalone/class.lua)                               | Lightweight class implementation          |
-| [`readonly`](Shared/@cheatoid/standalone/readonly.lua)                         | Read-only table wrapper                   |
-| [`curry`](Shared/@cheatoid/standalone/curry.lua)                               | Function currying utility                 |
-| [`isolated`](Shared/@cheatoid/standalone/isolated.lua)                         | Lua version compatibility & sandboxing    |
-| [`runlua`](Shared/@cheatoid/standalone/runlua.lua)                             | Advanced code execution with sandboxing   |
-| [`pretty_grid`](Shared/@cheatoid/standalone/pretty_grid.lua)                   | Formatted grid/table printing             |
-| [`pretty_hex_dump`](Shared/@cheatoid/standalone/pretty_hex_dump.lua)           | Hex dump with ASCII view                  |
-| [`dump_table`](Shared/@cheatoid/standalone/dump_table.lua)                     | Recursive table dumper                    |
-| [`track_value`](Shared/@cheatoid/standalone/track_value.lua)                   | Value change tracker with callbacks       |
-| [`console`](Shared/@cheatoid/standalone/console.lua)                           | Interactive console with fuzzy completion |
+| Module                                                                         | Description                                  |
+|--------------------------------------------------------------------------------|----------------------------------------------|
+| [`base_encoder_decoder`](Shared/@cheatoid/standalone/base_encoder_decoder.lua) | Arbitrary Base encoding/decoding             |
+| [`benchmark`](Shared/@cheatoid/benchmark/init.lua)                             | Performance benchmarking toolkit             |
+| [`biginteger`](Shared/@cheatoid/standalone/biginteger.lua)                     | Arbitrary precision integers                 |
+| [`bit`](Shared/@cheatoid/standalone/bit.lua)                                   | 32-bit bitwise operations (with folding)     |
+| [`bits`](Shared/@cheatoid/standalone/bits.lua)                                 | Portable 32-bit bitwise operations utilities |
+| [`bitwise`](Shared/@cheatoid/standalone/bitwise.lua)                           | Portable 32-bit bitwise operations (masked)  |
+| [`cfg_parser`](Shared/@cheatoid/standalone/cfg_parser.lua)                     | Custom CFG file parser                       |
+| [`class`](Shared/@cheatoid/standalone/class.lua)                               | Lightweight class implementation             |
+| [`console`](Shared/@cheatoid/standalone/console.lua)                           | Interactive console with fuzzy completion    |
+| [`curry`](Shared/@cheatoid/standalone/curry.lua)                               | Function currying utility                    |
+| [`debug_helper`](Shared/@cheatoid/standalone/debug_helper.lua)                 | Debugger and debugging utilities             |
+| [`dump_table`](Shared/@cheatoid/standalone/dump_table.lua)                     | Recursive table dumper                       |
+| [`fold`](Shared/@cheatoid/standalone/fold.lua)                                 | Generic left-fold utility for vararg         |
+| [`isolated`](Shared/@cheatoid/standalone/isolated.lua)                         | Lua version compatibility & sandboxing       |
+| [`istype`](Shared/@cheatoid/standalone/istype.lua)                             | Simple type-checking functions               |
+| [`patcher`](Shared/@cheatoid/standalone/patcher.lua)                           | Code patching utilities                      |
+| [`pretty_grid`](Shared/@cheatoid/standalone/pretty_grid.lua)                   | Formatted grid/table printing                |
+| [`pretty_hex_dump`](Shared/@cheatoid/standalone/pretty_hex_dump.lua)           | Hex dump with ASCII view                     |
+| [`readonly`](Shared/@cheatoid/standalone/readonly.lua)                         | Read-only table wrapper                      |
+| [`runlua`](Shared/@cheatoid/standalone/runlua.lua)                             | Advanced code execution with sandboxing      |
+| [`to_string_literal`](Shared/@cheatoid/standalone/to_string_literal.lua)       | Convert values to string literals            |
+| [`track_value`](Shared/@cheatoid/standalone/track_value.lua)                   | Value change tracker with callbacks          |
+| [`try`](Shared/@cheatoid/standalone/try.lua)                                   | Exception handling with try/catch/finally    |
+| [`type_check`](Shared/@cheatoid/standalone/type_check.lua)                     | Runtime type checking and validation         |
+| [`util`](Shared/@cheatoid/standalone/util.lua)                                 | General utilities (coalesce, iff, etc.)      |
+| [`xml`](Shared/@cheatoid/standalone/xml.lua)                                   | XML parsing and serialization                |
+| [`zip`](Shared/@cheatoid/standalone/zip.lua)                                   | ZIP archive handling                         |
 
 **Extensions** (modify built-in types):
 
@@ -1234,6 +1306,129 @@ Various standalone utility modules:
 | `extensions/pretty_print_function` | Pretty-print functions with source info                                           |
 
 ```lua
+-- 32-bit bitwise operations (bit32 API compatible)
+local bit = require "@cheatoid/standalone/bit"
+
+-- Core operations (vararg support)
+local result = bit.band(0xFF00FF00, 0x0F0F0F0F) -- 0x00000000
+local result = bit.bor(0xFF00, 0x00FF) -- 0x0000FFFF
+local result = bit.bxor(0xF0, 0xFF) -- 0x0F
+
+-- Shift operations
+local result = bit.lshift(1, 8) -- 0x00000100
+local result = bit.rshift(0x100, 8) -- 1
+local result = bit.arshift(0x80000000, 31) -- 0xFFFFFFFF (sign-extending)
+
+-- Rotate operations
+local result = bit.rol(0x80000000, 1) -- 1
+local result = bit.ror(1, 1) -- 0x80000000
+
+-- Count operations
+local count = bit.popcount(0xFF00FF00) -- 16
+local lz = bit.countlz(0x80000000) -- 0
+local tz = bit.countrz(1) -- 0
+
+-- Byte operations
+local swapped = bit.bswap(0x11223344) -- 0x44332211
+local byte = bit.getbyte(0x11223344, 0) -- 0x44 (LSB)
+local result = bit.setbyte(0x00000000, 0xFF, 0) -- 0x000000FF
+
+-- Hex conversion
+local hex = bit.tohex(0xDEADBEEF) -- "0xDEADBEEF"
+local value = bit.fromhex("DEADBEEF") -- 0xDEADBEEF
+
+-- Binary I/O (little-endian, big-endian)
+local packed = bit.pack_le(0x11223344) -- 4-byte string
+local value = bit.unpack_le(packed) -- 0x11223344
+
+-- Portable 32-bit bitwise operations (auto-detects best implementation)
+local bitwise = require "@cheatoid/standalone/bitwise"
+
+-- Core operations
+local result = bitwise.band(0xFF, 0x0F) -- 0x0F
+local result = bitwise.bor(0xF0, 0x0F) -- 0xFF
+local result = bitwise.bxor(0xF0, 0xFF) -- 0x0F
+local result = bitwise.bnot(0x00) -- 0xFFFFFFFF
+
+-- Shift operations
+local result = bitwise.lshift(1, 8) -- 0x00000100
+local result = bitwise.rshift(0x100, 8) -- 1
+local result = bitwise.arshift(0x80000000, 31) -- 0xFFFFFFFF (sign-extending)
+
+-- Rotate operations
+local result = bitwise.rol(0x80000000, 1) -- 1
+local result = bitwise.ror(1, 1) -- 0x80000000
+
+-- Byte swap
+local result = bitwise.bswap(0x11223344) -- 0x44332211
+
+-- Conversion utilities
+local masked = bitwise.tobit(0x123456789) -- 0x3456789 (masked to 32-bit)
+local signed = bitwise.toint(0xFFFFFFFF) -- -1 (unsigned to signed)
+
+-- Interactive console with fuzzy completion
+local Console = require "@cheatoid/standalone/console"
+
+local console = Console.new({
+  suggestion_limit = 10,
+  history_limit = 100,
+  case_sensitive = false
+})
+
+-- Register commands with typed arguments
+console:register({
+  name = "kick",
+  aliases = { "ban" },
+  desc = "Kick a player from the server",
+  args = {
+    { name = "player", type = "string", desc = "Player name or ID" },
+    { name = "reason", type = "string", optional = true, desc = "Kick reason" }
+  },
+  handler = function(ctx, args)
+    return "Kicked " .. args.player .. (args.reason and (" for " .. args.reason) or "")
+  end
+})
+
+-- Register built-in commands (help, echo)
+console:register_defaults()
+
+-- Parse and execute commands
+local result, err = console:input_line('kick "Player123" "griefing"')
+if err then print("Error:", err) else print(result) end
+
+-- Get fuzzy suggestions for completion
+local suggestions = console:suggest("k", 10)
+for _, s in ipairs(suggestions) do
+  print(s.key, s.desc)
+end
+
+-- Tab completion
+local completion = console:complete("ki") -- returns "kick"
+
+-- History navigation
+local prev = console:history_prev()
+local next = console:history_next()
+
+-- Get help
+print(console:help()) -- List all commands
+print(console:help("kick")) -- Detailed help for kick command
+
+-- Save/load state (for persistence)
+local state = console:save_state()
+-- Later: console:load_state(state)
+
+-- Generic left-fold utility for vararg operations
+local fold = require "@cheatoid/standalone/fold"
+
+-- Sum of multiple values
+local sum = fold(function(a, b) return a + b end, 1, 2, 3, 4) -- 10
+
+-- Product of multiple values
+local product = fold(function(a, b) return a * b end, 2, 3, 4) -- 24
+
+-- Custom reduction
+local concatenated = fold(function(a, b) return a .. b end, "a", "b", "c") -- "abc"
+
 -- Base encoding/decoding (Base16, Base58, Base64, custom)
 local Base = require "@cheatoid/standalone/base_encoder_decoder"
 

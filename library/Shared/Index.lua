@@ -83,13 +83,13 @@ requiref "Shared/@cheatoid" {
 	--[0] = require("FileWrapper").vfs, -- pass VFS instance at index 0
 	"@cheatoid/standard",
 	"@cheatoid/standalone",
-	["%.tests%.lua$"] = false,                               -- skip all files ending in .tests.lua
-	["@cheatoid/extensions/.*"] = false,                     -- skip; extensions must be explicitly loaded because they modify default Lua types
-	["@cheatoid/patch/.*"] = false,                          -- skip; patches must be explicitly loaded
-	["/?examples?%.lua$"] = false,                           -- ignore examples
+	["%.tests%.lua$"] = false,                              -- skip all files ending in .tests.lua
+	["@cheatoid/extensions/.*"] = false,                    -- skip; extensions must be explicitly loaded because they modify default Lua types
+	["@cheatoid/patch/.*"] = false,                         -- skip; patches must be explicitly loaded
+	["/?examples?%.lua$"] = false,                          -- ignore examples
 	["@cheatoid/require_finder/find_requires%.lua$"] = false, -- ignore
 	["@cheatoid/plugin_framework/hello_plugin%.lua$"] = false, -- ignore
-	["@cheatoid/standard/global%.lua$"] = false,             -- ignore (let consumers explicitly load it)
+	["@cheatoid/standard/global%.lua$"] = false,            -- ignore (let consumers explicitly load it)
 }
 
 --dbg.debugger.disable()
@@ -106,6 +106,7 @@ local zip          = require "@cheatoid/standalone/zip"
 local cfg          = require "@cheatoid/standalone/cfg_parser"
 local benchmark    = require "@cheatoid/benchmark/init"
 local collections  = require "@cheatoid/collections/init"
+local permission   = require "@cheatoid/permission/permission"
 local plugins      = require "@cheatoid/plugin_framework/plugin_framework"
 local rate_limiter = require "@cheatoid/rate_limiter/rate_limiter"
 local oop          = require "@cheatoid/oop/oop"
@@ -116,6 +117,7 @@ local file         = require "FileWrapper"
 local vfs          = file.vfs
 local http         = require "HttpWrapper"
 local ConVar       = require "ConVar"
+local Reflection   = require "Reflection"
 require "BroadcastLua"
 require "ClientsideLua"
 --require "@cheatoid/extensions/number"
