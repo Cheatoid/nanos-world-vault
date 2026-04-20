@@ -15,15 +15,54 @@ The main development library is located in the [`library/`](library/) folder.
 **[📖 View Library README, click here](library/README.md)**
 
 For complete documentation on:
-- Console variables (ConVar), Config management, File/HTTP/WebUI wrappers
-- OOP Framework with classes, interfaces, mixins, properties, events
-- Reactive references (Ref) with update/map operations
-- Plugin system with dependency injection and hot-reloading
-- Collections, LINQ, Virtual Machine, and much more
+
+- **Powerful OOP/AOP Framework**: classes, inheritance, interfaces, mixins, enums, properties, events, hooking,
+  promises via coroutines, integrated profiler, builtin collections such as
+  BiMap/CircularBuffer/Deque/LinkedList/PriorityQueue/Set/SlotMap/Stack/ArrayPool, and many utilities such as reference
+  wrapper, try-catch-finally, switch-case, readonly, and more
+- **Bunch of new functions as part of standard Lua libs** (fully documented for LuaLS): math, string, table
+- **Simple Plugin Framework & Custom Script Loader (GAIMERS)**
+- **Monkey-Patcher**: easily hook Lua functions (with fluent API; before/after/around/once/replace)
+- **Permission library**: clean API for managing permissions with bit-packed storage for efficiency
+- **Virtual File System library**: allows in-memory file operations by using a table (as a tree), loading from disk,
+  and flushing to disk
+- **Simple Rate-Limiter library** with builtin strategies (Fixed Window, Sliding Window Log, Token Bucket, and Leaky
+  Bucket)
+- **WebSocket API (client-side)**: connect, send/receive socket messages (bridged via WebUI)
+- **Regex API (client-side)**: true regular expression engine (bridged via WebUI)
+- **Hash API (client-side)**: common hashing functions CRC32/MD5/SHA* (bridged via WebUI)
+- **LINQ library**
+- **Benchmark library**: diagnose performance bottlenecks, measure code performance with statistical analysis,
+  comparison tools, and multiple timing modes
+- **number-type and string-type extensions**: these extend Lua syntax and give you super convenient syntax such as:
+  5.days+3.h for working with size/time numbers as first-class citizen, and "hello"+"world"<<3 for concatenating and
+  rotating strings...
+- **BigInteger**: arbitrary-precision integer and expression evaluator
+- **Zip reader/writer library** with file and in-memory support
+- **XML parser and serializer library**
+- **Custom key-value CFG/config parser library** (interpreter is coming soon)
+- **StackVM (small Lua-C-API-like stack-based VM) & custom Turing-complete virtual machine execution engine**
+  (for low-level enthusiasts)
+- **Convenient HTTP wrapper**: "on success/fail" callback & options-table overloads
+- **ConVar**: Source-engine inspired console variables (includes cvarlist console command)
+- **BroadcastLua/SendLua + ClientsideLua**: allowcslua convar & lua console command (run Lua code directly from
+  console, also supports running script files, just specify package name and .lua file extension)
+- **PackageHelper (server-side)**: reload/unload/load console commands (with pattern matching support)
+- **Simple Lua Lexer**: configurable Lua source code tokenizer (supports LuaJIT/5.1-5.4 syntax)
+- **RequireFinder**: utilizes Lua Lexer to find require() calls
+- **RequireFolder**: convenient utility for loading entire folder of scripts, with priority-list and ignore-list
+  support
+- **Debugger & DebugHelper**: allows debugging scripts (with breakpoints), and various debugging-related utility
+  functions for inspecting stack frame, upvalues, locals, parameters, varargs...
+- **TypeCheck**: the greatest type-checking library ever made
+
+... and more coming soon™
 
 # 🧭 Roadmap
 
 - [ ] Admin mod
+- [ ] Better (dev) console
+- [ ] Package manager
 - [ ] Prop protection mod
 - [ ] Lua/Script debugger
 - [ ] Wire mod
