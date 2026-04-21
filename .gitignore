@@ -1,0 +1,12 @@
+/.idea/
+/.lua/
+/.nanos-world/
+/.nvim-data/
+/.nvim-win64/
+/.packager/
+/.private/
+/.vs/
+/bin/
+/coc/
+/library/
+/publish/
