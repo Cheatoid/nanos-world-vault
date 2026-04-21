@@ -1,0 +1,122 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<script>
+		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
+		// Using 'const' or 'let' would cause a redeclaration error.
+		// noinspection ES6ConvertVarToLetConst
+		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
+		var Events = window.Events;
+
+		// ============================================================
+		// Setup
+		// ============================================================
+
+		let is_ready = false;
+		const on_page_load = () => {
+			if (is_ready) return;
+			is_ready = true;
+			//console.log("EvalAPI ready");
+			Events.Call("EvalReady");
+		};
+
+		document.addEventListener("DOMContentLoaded", on_page_load);
+		window.onload = on_page_load;
+
+		// ============================================================
+		// Eval Implementation
+		// ============================================================
+
+		const EvalAPI = {
+			// Evaluates JavaScript code in a sandboxed environment
+			eval(code, context = {}) {
+				const contextKeys = Object.keys(context);
+				const contextValues = Object.values(context);
+
+				// Using Function constructor instead of eval for slightly better isolation
+				try {
+					const fn = new Function(...contextKeys, `"use strict"; return (${code});`);
+					return fn(...contextValues);
+				} catch (e) {
+					throw new Error(`Eval error: ${e.message}`);
+				}
+			}
+		};
+
+		// ============================================================
+		// Helpers
+		// ============================================================
+
+		const safe_call = (
+			/** @type {function(...any): any} */ fn,
+			/** @type {any[]} */ ...args
+			/** @returns {[boolean, any]} */
+		) => {
+			try {
+				return [true, fn(...args)];
+			} catch (e) {
+				return [false, e.toString()];
+			}
+		};
+
+		const send = (
+			/** @type {number} */ id,
+			/** @type {boolean} */ success,
+			/** @type {any} */ payload
+		) => Events.Call("EvalResult", id, success, payload);
+
+		const reply = (
+			/** @type {number} */ id,
+			/** @type {function(...any): any} */ fn,
+			/** @type {any[]} */ ...args
+		) => {
+			const [ok, out] = safe_call(fn, ...args);
+			return send(id, ok, out);
+		};
+
+		// ============================================================
+		// Event Handlers
+		// ============================================================
+
+		const onDoEval = (
+			/** @type {number} */ id,
+			/** @type {string} */ code
+		) =>
+			reply(id, (
+				/** @type {string} */ code
+			) => EvalAPI.eval(code), code);
+
+		const onDoEvalWithContext = (
+			/** @type {number} */ id,
+			/** @type {string} */ code,
+			/** @type {Object} */ context
+		) =>
+			reply(id, (
+				/** @type {string} */ code,
+				/** @type {Object} */ context
+			) => EvalAPI.eval(code, context), code, context);
+
+		// ============================================================
+		// Subscriptions - Subscribe to events
+		// ============================================================
+
+		const handlers = {
+			DoEval: onDoEval,
+			DoEvalWithContext: onDoEvalWithContext
+		};
+
+		for (const [event, handler] of Object.entries(handlers)) {
+			Events.Subscribe(event, handler);
+		}
+	</script>
+</head>
+
+<body></body>
+
+</html>
