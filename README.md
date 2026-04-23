@@ -24,6 +24,8 @@ For complete documentation on:
 - **Simple Plugin Framework & Custom Script Loader (GAIMERS)**
 - **Monkey-Patcher**: easily hook Lua functions (with fluent API; before/after/around/once/replace)
 - **Permission library**: clean API for managing permissions with bit-packed storage for efficiency
+- **Chat Commander**: command parser and dispatcher for chat commands with autocompletion support, type coercion,
+  flexible validation, permissions, and fluent API
 - **Virtual File System library**: allows in-memory file operations by using a table (as a tree), loading from disk,
   and flushing to disk
 - **Simple Rate-Limiter library** with builtin strategies (Fixed Window, Sliding Window Log, Token Bucket, and Leaky

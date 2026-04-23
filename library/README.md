@@ -11,6 +11,7 @@
 - [Overview](#overview)
 - [Features](#features)
     - [ConVar](#convar)
+    - [Chat Commander](#chat-commander)
     - [Config](#config)
     - [FileWrapper](#filewrapper)
     - [HttpWrapper](#httpwrapper)
@@ -88,6 +89,44 @@ else
     -- On server-side we can fetch player's userinfo value:
     ConVar.GetPlayerInfo(player, "cl_userinfo_cvar")
 end
+```
+
+### Chat Commander
+
+Command parser and dispatcher for in-game chat commands with autocompletion support, type coercion, and flexible
+validation.
+
+See [Chat Commander documentation](Shared/@cheatoid/chat_commander/README.md) for complete details.
+
+```lua
+local chat_commander = require "chat_commander"
+
+-- Standard API
+chat_commander.register_command("teleport", {
+    description = "Teleport to coordinates",
+    args = {
+        { "x", "number" },
+        { "y", type = "number" },
+        { name = "z", type = "number", default = 0 },
+    },
+    handler = function(ctx, args)
+        print("Teleporting to:", args.x, args.y, args.z)
+    end,
+})
+
+local ok, err = chat_commander.handle_line({ player = player }, "/teleport 10 20 30")
+
+-- Fluent API
+chat_commander.register_command("kick")
+    :description("Kick a player")
+    :arg("player", "string")
+    :permission(function(ctx, args)
+        return ctx.player.is_admin, "admin only"
+    end)
+    :handler(function(ctx, args)
+        -- Kick logic
+    end)
+    :register()
 ```
 
 ### Config
@@ -980,9 +1019,11 @@ vm:run()
 
 ### StackVM
 
-Small stack-based VM with a Lua-C-API-like stack surface. Provides a simple stack-based virtual machine with an API similar to Lua's C API. Supports bytecode compilation, execution, and a Lua-like stack manipulation interface.
+Small stack-based VM with a Lua-C-API-like stack surface. Provides a simple stack-based virtual machine with an API
+similar to Lua's C API. Supports bytecode compilation, execution, and a Lua-like stack manipulation interface.
 
-See [StackVM implementation](Shared/@cheatoid/vm/stackvm.lua) and [VM module documentation](Shared/@cheatoid/vm/README.md) for more details.
+See [StackVM implementation](Shared/@cheatoid/vm/stackvm.lua)
+and [VM module documentation](Shared/@cheatoid/vm/README.md) for more details.
 
 ```lua
 local StackVM = require "@cheatoid/vm/stackvm"
