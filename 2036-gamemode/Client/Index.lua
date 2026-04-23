@@ -28,7 +28,7 @@ end)
 
 MainWebUI:Subscribe("Ready", function()
 	print("MainWebUI ready")
-	MainWebUI:OpenDevTools()
+	--MainWebUI:OpenDevTools()
 	MainWebUI:Subscribe("Client.Disconnect", Client.Disconnect)
 	Input.Register("DevCon", "F2", "Toggle DevCon")
 	Input.Bind("DevCon", InputEvent.Pressed, function()
