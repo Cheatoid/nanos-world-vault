@@ -18,11 +18,11 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.34",
-	timestamp = "2026-04-23 03:53:29",
-	commit_count = 204,
+	timestamp = "2026-04-23 04:15:35",
+	commit_count = 205,
 	tag_count = 31,
 	branch_name = "develop",
-	prev_hash = "59c67708f2d66603eeb013d49c4fa0254e95aea3",
+	prev_hash = "a360c4de78c41ce3524afb736f9b916bf5b44338",
 	tag = "v0.0.35",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
@@ -52,7 +52,7 @@ return {
 		["Shared/FileWrapper.lua"] = "025618ee75c8fed01a49e33ff38e0bf9b79f78b25c19fc660d52652cb453fc5b",
 		["Shared/HttpWrapper.lua"] = "f4de58a1b12f9fa6f179cf9f9f4d1316b734343a1122c423f9e386db9ded820b",
 		["Shared/Index.lua"] = "47de5f17ff43d80d331a2a4f7f9d3d5190058c1ed285c9f0dfa4b8d8f236bd1a",
-		["Shared/Reflection.lua"] = "f526c3f80d25580da076f556b64fda0a90f034991a7c346cc3ef7a370b17e5eb",
+		["Shared/Reflection.lua"] = "c0da24fa888024388833de462977e7089db22ef0530f774090dd5b332bb105e7",
 		["Shared/RequireFolder.lua"] = "72b7f5ce9f1cd26a10da7de71fd23c67714d4b037c55afbd0c4bb8c585f92712",
 		["Shared/Version.lua"] = "d5cb1de272a9912159292d6178fa7a918841a0bb3de86f7e409abe403c45aef4",
 		["Shared/@cheatoid/LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
