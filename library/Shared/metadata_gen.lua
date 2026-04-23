@@ -18,11 +18,11 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.34",
-	timestamp = "2026-04-23 03:17:08",
-	commit_count = 201,
+	timestamp = "2026-04-23 03:21:03",
+	commit_count = 202,
 	tag_count = 31,
 	branch_name = "develop",
-	prev_hash = "b60076cb7e3c85ccdd1b0e3a4a9fc07e9b221554",
+	prev_hash = "cf5ef6735f6da3d68aa0e8cc502a3b4ee1be1ade",
 	tag = "v0.0.35",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
@@ -31,7 +31,7 @@ return {
 	files_hash = {
 		["LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
 		["Package.toml"] = "de5ef1ff850d11c4f42cd96b40fed5d4912e9d2edab17c4663c526f36c0e1cf2",
-		["README.md"] = "5d5abe5cd216ef2c8b443c6ea9186474af446757c96cea36289711e067a81344",
+		["README.md"] = "0a523b769790aa0603adf6328e6a40d36c80c0b53f3b6c2b0d0b2d1e3413dda5",
 		["Client/EvalAPI.lua"] = "f367fc580ed2d85227dbe9e90c35f7142a0f4c0ea5452d20517b22bca6d8f639",
 		["Client/HashAPI.lua"] = "2670c2e4519cc4cbca630b45d8474a04a667965e905f50a00dbd2ba8d674454b",
 		["Client/Index.lua"] = "321c3f6e412d6261aaff9fd0082354be27f4bd40bd82466ebe03c0c485d7a4c1",
@@ -159,7 +159,7 @@ return {
 		["Shared/@cheatoid/standard/table.d.lua"] = "da5ff75a801e26992e3e99fcf351c193d6ea3d6557c2b32a0feaa8e1dcf265b5",
 		["Shared/@cheatoid/standard/table.lua"] = "8f8028d7a289d116a9f77aee94b677c14f8d0826fc0bffa3525f6df6ad450b99",
 		["Shared/@cheatoid/vm/README.md"] = "10df7361210da1f435d0f3d603d199d5b86f8f63d3cf292b50ace5644b4e3886",
-		["Shared/@cheatoid/vm/stackvm.lua"] = "87d97712ff08ebf443287db50ecdfc4b3f71a464b14e19aa03f48d383ad6e327",
+		["Shared/@cheatoid/vm/stackvm.lua"] = "d321e1262619e41af756e5ea1e157a926213c708a238c33358233fb6bc39daa7",
 		["Shared/@cheatoid/vm/vm.lua"] = "eda7931a758e46fd3e7c1b7836d92b24f767da0dd8d563cce70c850f8da35c0c",
 		["Shared/@cheatoid/vm/vm.tests.lua"] = "775e4f2e9223fba1b0eabb1cb8d689049da98fe4efe15c82a503d18642889fe5"
 	},

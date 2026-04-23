@@ -28,6 +28,7 @@
     - [RequireFinder](#requirefinder)
     - [PluginFramework](#pluginframework)
     - [VM](#vm)
+    - [StackVM](#stackvm)
     - [GAIMERS Loader](#gaimers-loader)
     - [Reflection](#reflection)
     - [Permission](#permission)
@@ -975,6 +976,44 @@ HALT
 
 vm:load_asm(assembly)
 vm:run()
+```
+
+### StackVM
+
+Small stack-based VM with a Lua-C-API-like stack surface. Provides a simple stack-based virtual machine with an API similar to Lua's C API. Supports bytecode compilation, execution, and a Lua-like stack manipulation interface.
+
+See [StackVM implementation](Shared/@cheatoid/vm/stackvm.lua) and [VM module documentation](Shared/@cheatoid/vm/README.md) for more details.
+
+```lua
+local StackVM = require "@cheatoid/vm/stackvm"
+
+-- Create a new VM state with max stack size
+local L = StackVM.new(256)
+
+-- Push values onto the stack
+L:pushnumber(42)
+L:pushstring("hello")
+L:pushboolean(true)
+
+-- Get stack top
+print(L:gettop()) -- 3
+
+-- Pop values
+L:pop(2)
+print(L:gettop()) -- 1
+
+-- Compile and run bytecode
+local chunk = {
+    code = {
+        { op = "PUSHK", 1 },  -- Push constant at index 1
+        { op = "PUSHK", 2 },  -- Push constant at index 2
+        { op = "ADD" },       -- Add top two values
+    },
+    k = { 10, 20 }  -- Constants
+}
+
+local proto = StackVM.compile(chunk)
+StackVM.run(L, proto)
 ```
 
 ### GAIMERS Loader
