@@ -30,6 +30,7 @@ For complete documentation on:
   and flushing to disk
 - **Simple Rate-Limiter library** with builtin strategies (Fixed Window, Sliding Window Log, Token Bucket, and Leaky
   Bucket)
+- **WebAudio API (client-side)**: audio playback and spatial audio with listener transform, gain control, and filter effects (bridged via WebUI)
 - **WebSocket API (client-side)**: connect, send/receive socket messages (bridged via WebUI)
 - **Regex API (client-side)**: true regular expression engine (bridged via WebUI)
 - **Hash API (client-side)**: common hashing functions CRC32/MD5/SHA* (bridged via WebUI)

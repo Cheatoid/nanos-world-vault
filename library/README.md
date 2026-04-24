@@ -405,7 +405,7 @@ print("Error range:", http.is_client_error(400))     -- true
 
 ### WebUI Wrappers
 
-Client-side WebUI-bridged APIs for Hash, Regex and WebSocket functionality.
+Client-side WebUI-bridged APIs for Hash, Regex, WebSocket, and WebAudio functionality.
 
 ```lua
 -- HashAPI (bridged via WebUI for hashing/checksums)
@@ -508,6 +508,44 @@ WebSocketAPI.Connect("ws://localhost:8080", nil, function(success, result)
         -- end)
     else
         print("Failed to connect:", result.error)
+    end
+end)
+
+-- WebAudioAPI (bridged via WebUI for audio playback and spatial audio)
+local WebAudioAPI = require "Client/WebAudioAPI"
+
+-- Initialize the Web Audio engine
+WebAudioAPI.Init(function(success, result)
+    if success then
+        print("WebAudio engine initialized")
+    end
+end)
+
+-- Set listener (player) transform for spatial audio
+WebAudioAPI.SetListenerTransform(0, 0, 0, 0, 0, -1, 0, 1, 0, function(success, result)
+    if success then
+        print("Listener transform set")
+    end
+end)
+
+-- Set master volume
+WebAudioAPI.SetMainGain(1.0, function(success, result)
+    if success then
+        print("Master gain set")
+    end
+end)
+
+-- Set ambience volume
+WebAudioAPI.SetAmbienceGain(0.5, function(success, result)
+    if success then
+        print("Ambience gain set")
+    end
+end)
+
+-- Set lowpass filter for underwater/muffled effects
+WebAudioAPI.SetLowpassFilter(20000, function(success, result)
+    if success then
+        print("Lowpass filter set")
     end
 end)
 ```
