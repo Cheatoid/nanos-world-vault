@@ -1,0 +1,855 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<script>
+		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
+		// Using 'const' or 'let' would cause a redeclaration error.
+		// noinspection ES6ConvertVarToLetConst
+		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
+		var Events = window.Events;
+
+		// ============================================================
+		// Web Audio 3D Engine
+		// ============================================================
+
+		class WAEngine {
+			constructor() {
+				this.ctx = null;
+				this.listener = null;
+
+				this.mainGain = null;
+				this.ambienceGain = null;
+				this.lowpass = null;
+
+				this.instances = new Map();      // id -> WASoundInstance
+				this.soundCache = new Map();     // url -> AudioBuffer
+				this.reverbIRCache = new Map();  // name -> AudioBuffer
+
+				// Voice management
+				this.maxVoices = 64;             // global polyphony limit
+				this.voiceList = [];             // active instances (for stealing)
+
+				// Virtualization
+				this.virtualizationDistance = 200.0; // beyond this, we virtualize (skip real playback)
+
+				this.acousticSpaces = this._buildAcousticSpaces();
+			}
+
+			async init() {
+				if (this.ctx) return;
+				this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+				this.listener = this.ctx.listener;
+
+				// Master graph
+				this.mainGain = this.ctx.createGain();
+				this.mainGain.gain.value = 1.0;
+
+				this.ambienceGain = this.ctx.createGain();
+				this.ambienceGain.gain.value = 0.5;
+
+				this.lowpass = this.ctx.createBiquadFilter();
+				this.lowpass.type = "lowpass";
+				this.lowpass.frequency.value = 20000;
+
+				this.mainGain.connect(this.lowpass);
+				this.lowpass.connect(this.ctx.destination);
+
+				this.ambienceGain.connect(this.ctx.destination);
+			}
+
+			// ---------- Listener / player ----------
+
+			setListenerTransform(px, py, pz, fx, fy, fz, ux, uy, uz) {
+				if (!this.ctx) return;
+
+				this.listener.positionX.value = px;
+				this.listener.positionY.value = py;
+				this.listener.positionZ.value = pz;
+
+				this.listener.forwardX.value = fx;
+				this.listener.forwardY.value = fy;
+				this.listener.forwardZ.value = fz;
+
+				this.listener.upX.value = ux;
+				this.listener.upY.value = uy;
+				this.listener.upZ.value = uz;
+			}
+
+			// ---------- Global controls ----------
+
+			setMainGain(value) {
+				if (!this.mainGain) return;
+				this.mainGain.gain.value = value;
+			}
+
+			setAmbienceGain(value) {
+				if (!this.ambienceGain) return;
+				this.ambienceGain.gain.value = value;
+			}
+
+			setLowpassCutoff(freqHz) {
+				if (!this.lowpass) return;
+				this.lowpass.frequency.value = freqHz;
+			}
+
+			setMaxVoices(count) {
+				this.maxVoices = Math.max(1, count | 0);
+			}
+
+			setVirtualizationDistance(dist) {
+				this.virtualizationDistance = Math.max(0, dist);
+			}
+
+			// ---------- Caching ----------
+
+			async loadSoundToCache(url) {
+				if (!this.ctx) await this.init();
+				if (this.soundCache.has(url)) {
+					return this.soundCache.get(url);
+				}
+				const res = await fetch(url);
+				const buf = await res.arrayBuffer();
+				const audioBuf = await this.ctx.decodeAudioData(buf);
+				this.soundCache.set(url, audioBuf);
+				return audioBuf;
+			}
+
+			// ---------- Instances ----------
+
+			async createSoundInstance(id, url, options = {}) {
+				if (!this.ctx) await this.init();
+
+				const buffer = await this.loadSoundToCache(url);
+
+				// Virtualization: if initial position is far, we can mark as virtual
+				const initialPos = options.position || {x: 0, y: 0, z: 0};
+				const dist = Math.hypot(initialPos.x, initialPos.y, initialPos.z);
+				const isVirtual = dist > this.virtualizationDistance;
+
+				const instance = new WASoundInstance(this, id, buffer, options, isVirtual);
+				this.instances.set(id, instance);
+				return instance;
+			}
+
+			getInstance(id) {
+				return this.instances.get(id) || null;
+			}
+
+			destroyInstance(id) {
+				const inst = this.instances.get(id);
+				if (!inst) return;
+				inst.stop();
+				this.instances.delete(id);
+			}
+
+			// ---------- Voice management ----------
+
+			_registerVoice(instance) {
+				this.voiceList.push(instance);
+				if (this.voiceList.length > this.maxVoices) {
+					this._stealVoice();
+				}
+			}
+
+			_unregisterVoice(instance) {
+				const idx = this.voiceList.indexOf(instance);
+				if (idx >= 0) this.voiceList.splice(idx, 1);
+			}
+
+			_stealVoice() {
+				// Simple strategy: stop the oldest instance
+				if (this.voiceList.length === 0) return;
+				const victim = this.voiceList[0];
+				victim.stop();
+			}
+
+			// ---------- Reverb / acoustic spaces ----------
+
+			_buildAcousticSpaces() {
+				const baseUrl =
+					"https://github.com/GoogleChromeLabs/web-audio-samples/raw/main/src/sounds/impulse-responses/";
+				return {
+					"Binaural": {
+						irUrl: baseUrl + "binaural-s3_r4_bd.wav"
+					},
+					"Warehouse_Cardiod_35_10_spread": {
+						irUrl: baseUrl + "/cardiod-35-10-spread.wav"
+					},
+					"Warehouse_Cardiod_rear_35_10": {
+						irUrl: baseUrl + "/cardiod-rear-35-10.wav"
+					},
+					"Warehouse_Super_ceiling_35_10": {
+						irUrl: baseUrl + "/super-ceiling-35-10.wav"
+					},
+					"Warehouse_Omni_35_10": {
+						irUrl: baseUrl + "/omni-35-10.wav"
+					},
+					"Warehouse_TrueStereo_15_8": {
+						irUrl: baseUrl + "/cardiod-true-stereo-15-8.wav"
+					}
+				};
+			}
+
+			async loadIR(name) {
+				if (!this.acousticSpaces[name]) {
+					console.warn("Unknown acoustic space:", name);
+					return null;
+				}
+				if (this.reverbIRCache.has(name)) {
+					return this.reverbIRCache.get(name);
+				}
+				const {irUrl} = this.acousticSpaces[name];
+				const res = await fetch(irUrl);
+				const buf = await res.arrayBuffer();
+				const audioBuf = await this.ctx.decodeAudioData(buf);
+				this.reverbIRCache.set(name, audioBuf);
+				return audioBuf;
+			}
+		}
+
+		// Sound Instance
+		class WASoundInstance {
+			constructor(engine, id, buffer, options, isVirtual) {
+				this.engine = engine;
+				this.id = id;
+				this.buffer = buffer;
+
+				this.source = null;
+
+				this.position = {x: 0, y: 0, z: 0};
+				if (options.position) {
+					this.position.x = options.position.x || 0;
+					this.position.y = options.position.y || 0;
+					this.position.z = options.position.z || 0;
+				}
+
+				this.velocity = {x: 0, y: 0, z: 0}; // for Doppler
+
+				this.loop = options.loop ?? false;
+				this.pitch = options.pitch ?? 1.0;
+				this.basePitch = this.pitch;
+
+				this.distanceModel = options.distanceModel || "inverse";
+				this.refDistance = options.refDistance || 1.0;
+				this.maxDistance = options.maxDistance || 100.0;
+				this.rolloffFactor = options.rolloffFactor || 1.0;
+
+				this.spatialBlend = options.spatialBlend ?? 1.0; // 0 = 2D, 1 = 3D
+
+				this.isVirtual = isVirtual;
+
+				// Nodes
+				const ctx = engine.ctx;
+
+				this.panner = ctx.createPanner();
+				this.panner.panningModel = "HRTF";
+				this.panner.distanceModel = this.distanceModel;
+				this.panner.refDistance = this.refDistance;
+				this.panner.maxDistance = this.maxDistance;
+				this.panner.rolloffFactor = this.rolloffFactor;
+
+				this.gain3D = ctx.createGain(); // 3D path
+				this.gain2D = ctx.createGain(); // 2D path
+				this.gain3D.gain.value = this.spatialBlend;
+				this.gain2D.gain.value = 1.0 - this.spatialBlend;
+
+				this.mainGain = ctx.createGain();
+				this.mainGain.gain.value = options.gain ?? 1.0;
+
+				// Occlusion filter (per-sound)
+				this.occlusionFilter = ctx.createBiquadFilter();
+				this.occlusionFilter.type = "lowpass";
+				this.occlusionFilter.frequency.value = 20000;
+
+				// Echo
+				this.echoDelay = ctx.createDelay(5.0);
+				this.echoDelay.delayTime.value = 0.0;
+				this.echoGain = ctx.createGain();
+				this.echoGain.gain.value = 0.0;
+
+				// Reverb
+				this.reverbConvolver = ctx.createConvolver();
+				this.reverbConvolver.buffer = null;
+				this.reverbGain = ctx.createGain();
+				this.reverbGain.gain.value = 0.0;
+
+				// Routing:
+				// source -> panner -> gain3D -> mainGain -> occlusionFilter -> engine.mainGain
+				// source -> gain2D -> mainGain -> occlusionFilter -> engine.mainGain
+				// mainGain -> echoDelay -> echoGain -> engine.mainGain
+				// mainGain -> reverbConvolver -> reverbGain -> engine.ambienceGain
+
+				this.panner.connect(this.gain3D);
+				this.gain3D.connect(this.mainGain);
+
+				this.gain2D.connect(this.mainGain);
+
+				this.mainGain.connect(this.occlusionFilter);
+				this.occlusionFilter.connect(engine.mainGain);
+
+				this.mainGain.connect(this.echoDelay);
+				this.echoDelay.connect(this.echoGain);
+				this.echoGain.connect(engine.mainGain);
+
+				this.mainGain.connect(this.reverbConvolver);
+				this.reverbConvolver.connect(this.reverbGain);
+				this.reverbGain.connect(engine.ambienceGain);
+
+				// Initial position
+				this._applyPositionToPanner();
+
+				// Doppler config
+				this.dopplerFactor = 1.0;
+				this.speedOfSound = 343.0; // m/s
+			}
+
+			// ---------- Playback ----------
+
+			play() {
+				if (this.isVirtual) {
+					// Virtualized: don't actually create source
+					return;
+				}
+
+				const ctx = this.engine.ctx;
+				this.source = ctx.createBufferSource();
+				this.source.buffer = this.buffer;
+				this.source.loop = this.loop;
+				this.source.playbackRate.value = this.pitch;
+
+				// Connect both 2D and 3D paths
+				this.source.connect(this.panner);
+				this.source.connect(this.gain2D);
+
+				this.source.start();
+				this.engine._registerVoice(this);
+			}
+
+			stop() {
+				if (this.source) {
+					try {
+						this.source.stop();
+					} catch {
+					}
+					this.source.disconnect();
+					this.source = null;
+				}
+				this.engine._unregisterVoice(this);
+			}
+
+			// ---------- Position / velocity / virtualization ----------
+
+			setPosition(x, y, z) {
+				this.position.x = x;
+				this.position.y = y;
+				this.position.z = z;
+
+				const dist = Math.hypot(x, y, z);
+				const wasVirtual = this.isVirtual;
+				this.isVirtual = dist > this.engine.virtualizationDistance;
+
+				if (!this.isVirtual && wasVirtual && !this.source) {
+					// Came into range: start real playback
+					this.play();
+				}
+
+				if (!this.isVirtual) {
+					this._applyPositionToPanner();
+				}
+			}
+
+			_applyPositionToPanner() {
+				this.panner.positionX.value = this.position.x;
+				this.panner.positionY.value = this.position.y;
+				this.panner.positionZ.value = this.position.z;
+			}
+
+			setVelocity(vx, vy, vz) {
+				this.velocity.x = vx;
+				this.velocity.y = vy;
+				this.velocity.z = vz;
+				this._updateDoppler();
+			}
+
+			_updateDoppler() {
+				if (!this.source) return;
+
+				// Simple Doppler: radial velocity along listener->source vector
+				const lx = this.engine.listener.positionX.value;
+				const ly = this.engine.listener.positionY.value;
+				const lz = this.engine.listener.positionZ.value;
+
+				const dx = this.position.x - lx;
+				const dy = this.position.y - ly;
+				const dz = this.position.z - lz;
+
+				const dist = Math.hypot(dx, dy, dz) || 0.0001;
+				const nx = dx / dist;
+				const ny = dy / dist;
+				const nz = dz / dist;
+
+				const rv = this.velocity.x * nx + this.velocity.y * ny + this.velocity.z * nz;
+
+				const c = this.speedOfSound;
+				const df = this.dopplerFactor;
+
+				const factor = c / (c - df * rv);
+				const newPitch = this.basePitch * factor;
+
+				this.pitch = newPitch;
+				this.source.playbackRate.value = newPitch;
+			}
+
+			// ---------- Parameters ----------
+
+			setGain(value) {
+				this.mainGain.gain.value = value;
+			}
+
+			setPitch(value) {
+				this.basePitch = value;
+				this.pitch = value;
+				if (this.source) {
+					this.source.playbackRate.value = value;
+				}
+			}
+
+			setDistanceModel(model) {
+				this.distanceModel = model;
+				this.panner.distanceModel = model;
+			}
+
+			setRolloff(refDistance, maxDistance, rolloffFactor) {
+				if (refDistance != null) {
+					this.refDistance = refDistance;
+					this.panner.refDistance = refDistance;
+				}
+				if (maxDistance != null) {
+					this.maxDistance = maxDistance;
+					this.panner.maxDistance = maxDistance;
+				}
+				if (rolloffFactor != null) {
+					this.rolloffFactor = rolloffFactor;
+					this.panner.rolloffFactor = rolloffFactor;
+				}
+			}
+
+			setSpatialBlend(value) {
+				this.spatialBlend = Math.min(1, Math.max(0, value));
+				this.gain3D.gain.value = this.spatialBlend;
+				this.gain2D.gain.value = 1.0 - this.spatialBlend;
+			}
+
+			// ---------- Echo ----------
+
+			setEcho(delaySeconds, feedbackGain) {
+				this.echoDelay.delayTime.value = delaySeconds;
+				this.echoGain.gain.value = feedbackGain;
+			}
+
+			// ---------- Reverb / acoustic space ----------
+
+			async setAcousticSpace(name) {
+				const ir = await this.engine.loadIR(name);
+				if (!ir) return;
+				this.reverbConvolver.buffer = ir;
+			}
+
+			setReverbLevel(value) {
+				this.reverbGain.gain.value = value;
+			}
+
+			// ---------- Occlusion / obstruction ----------
+
+			// occlusion: 0 = no occlusion, 1 = fully occluded
+			setOcclusion(occlusion) {
+				const o = Math.min(1, Math.max(0, occlusion));
+				const minFreq = 500;
+				const maxFreq = 20000;
+				const freq = maxFreq - o * (maxFreq - minFreq);
+				this.occlusionFilter.frequency.value = freq;
+			}
+		}
+
+		// Expose singleton
+		window.WAEngine = new WAEngine();
+
+		// ============================================================
+		// Setup
+		// ============================================================
+
+		let is_ready = false;
+		const on_page_load = () => {
+			if (is_ready) return;
+			is_ready = true;
+			//console.log("WebAudioAPI ready");
+			Events.Call("WebAudioReady");
+		};
+
+		document.addEventListener("DOMContentLoaded", on_page_load);
+		window.onload = on_page_load;
+
+		// ============================================================
+		// Helpers
+		// ============================================================
+
+		const safe_call = (
+			/** @type {function(...any): any} */ fn,
+			/** @type {any[]} */ ...args
+			/** @returns {[boolean, any]} */
+		) => {
+			try {
+				return [true, fn(...args)];
+			} catch (e) {
+				return [false, e.toString()];
+			}
+		};
+
+		const send = (
+			/** @type {number} */ id,
+			/** @type {boolean} */ success,
+			/** @type {any} */ payload
+		) => Events.Call("WebAudioResult", id, success, payload);
+
+		const reply = (
+			/** @type {number} */ id,
+			/** @type {function(...any): any} */ fn,
+			/** @type {any[]} */ ...args
+		) => {
+			const [ok, out] = safe_call(fn, ...args);
+			return send(id, ok, out);
+		};
+
+		// ============================================================
+		// Event Handlers - Engine
+		// ============================================================
+
+		const onDoInit = async (
+			/** @type {number} */ id
+		) =>
+			reply(id, async () => {
+				await window.WAEngine.init();
+				return true;
+			});
+
+		const onDoSetListenerTransform = (
+			/** @type {number} */ id,
+			/** @type {number} */ px,
+			/** @type {number} */ py,
+			/** @type {number} */ pz,
+			/** @type {number} */ fx,
+			/** @type {number} */ fy,
+			/** @type {number} */ fz,
+			/** @type {number} */ ux,
+			/** @type {number} */ uy,
+			/** @type {number} */ uz
+		) =>
+			reply(id, () => {
+				window.WAEngine.setListenerTransform(px, py, pz, fx, fy, fz, ux, uy, uz);
+				return true;
+			});
+
+		const onDoSetMainGain = (
+			/** @type {number} */ id,
+			/** @type {number} */ value
+		) =>
+			reply(id, () => {
+				window.WAEngine.setMainGain(value);
+				return true;
+			});
+
+		const onDoSetAmbienceGain = (
+			/** @type {number} */ id,
+			/** @type {number} */ value
+		) =>
+			reply(id, () => {
+				window.WAEngine.setAmbienceGain(value);
+				return true;
+			});
+
+		const onDoSetLowpassCutoff = (
+			/** @type {number} */ id,
+			/** @type {number} */ freqHz
+		) =>
+			reply(id, () => {
+				window.WAEngine.setLowpassCutoff(freqHz);
+				return true;
+			});
+
+		const onDoSetMaxVoices = (
+			/** @type {number} */ id,
+			/** @type {number} */ count
+		) =>
+			reply(id, () => {
+				window.WAEngine.setMaxVoices(count);
+				return true;
+			});
+
+		const onDoSetVirtualizationDistance = (
+			/** @type {number} */ id,
+			/** @type {number} */ dist
+		) =>
+			reply(id, () => {
+				window.WAEngine.setVirtualizationDistance(dist);
+				return true;
+			});
+
+		const onDoLoadSoundToCache = async (
+			/** @type {number} */ id,
+			/** @type {string} */ url
+		) =>
+			reply(id, async () => {
+				await window.WAEngine.loadSoundToCache(url);
+				return true;
+			});
+
+		const onDoCreateSoundInstance = async (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {string} */ url,
+			/** @type {object} */ options
+		) =>
+			reply(id, async () => {
+				await window.WAEngine.createSoundInstance(instanceId, url, options);
+				return true;
+			});
+
+		const onDoGetInstance = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				return inst !== null;
+			});
+
+		const onDoDestroyInstance = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId
+		) =>
+			reply(id, () => {
+				window.WAEngine.destroyInstance(instanceId);
+				return true;
+			});
+
+		const onDoLoadIR = async (
+			/** @type {number} */ id,
+			/** @type {string} */ name
+		) =>
+			reply(id, async () => {
+				await window.WAEngine.loadIR(name);
+				return true;
+			});
+
+		// ============================================================
+		// Event Handlers - Instance
+		// ============================================================
+
+		const onDoInstancePlay = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.play();
+				return true;
+			});
+
+		const onDoInstanceStop = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.stop();
+				return true;
+			});
+
+		const onDoInstanceSetPosition = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ x,
+			/** @type {number} */ y,
+			/** @type {number} */ z
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setPosition(x, y, z);
+				return true;
+			});
+
+		const onDoInstanceSetVelocity = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ vx,
+			/** @type {number} */ vy,
+			/** @type {number} */ vz
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setVelocity(vx, vy, vz);
+				return true;
+			});
+
+		const onDoInstanceSetGain = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ value
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setGain(value);
+				return true;
+			});
+
+		const onDoInstanceSetPitch = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ value
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setPitch(value);
+				return true;
+			});
+
+		const onDoInstanceSetDistanceModel = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {string} */ model
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setDistanceModel(model);
+				return true;
+			});
+
+		const onDoInstanceSetRolloff = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ refDistance,
+			/** @type {number} */ maxDistance,
+			/** @type {number} */ rolloffFactor
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setRolloff(refDistance, maxDistance, rolloffFactor);
+				return true;
+			});
+
+		const onDoInstanceSetSpatialBlend = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ value
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setSpatialBlend(value);
+				return true;
+			});
+
+		const onDoInstanceSetEcho = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ delaySeconds,
+			/** @type {number} */ feedbackGain
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setEcho(delaySeconds, feedbackGain);
+				return true;
+			});
+
+		const onDoInstanceSetAcousticSpace = async (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {string} */ name
+		) =>
+			reply(id, async () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				await inst.setAcousticSpace(name);
+				return true;
+			});
+
+		const onDoInstanceSetReverbLevel = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ value
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setReverbLevel(value);
+				return true;
+			});
+
+		const onDoInstanceSetOcclusion = (
+			/** @type {number} */ id,
+			/** @type {string} */ instanceId,
+			/** @type {number} */ occlusion
+		) =>
+			reply(id, () => {
+				const inst = window.WAEngine.getInstance(instanceId);
+				if (!inst) return false;
+				inst.setOcclusion(occlusion);
+				return true;
+			});
+
+		// ============================================================
+		// Subscriptions - Subscribe to events
+		// ============================================================
+
+		const handlers = {
+			DoInit: onDoInit,
+			DoSetListenerTransform: onDoSetListenerTransform,
+			DoSetMainGain: onDoSetMainGain,
+			DoSetAmbienceGain: onDoSetAmbienceGain,
+			DoSetLowpassCutoff: onDoSetLowpassCutoff,
+			DoSetMaxVoices: onDoSetMaxVoices,
+			DoSetVirtualizationDistance: onDoSetVirtualizationDistance,
+			DoLoadSoundToCache: onDoLoadSoundToCache,
+			DoCreateSoundInstance: onDoCreateSoundInstance,
+			DoGetInstance: onDoGetInstance,
+			DoDestroyInstance: onDoDestroyInstance,
+			DoLoadIR: onDoLoadIR,
+			DoInstancePlay: onDoInstancePlay,
+			DoInstanceStop: onDoInstanceStop,
+			DoInstanceSetPosition: onDoInstanceSetPosition,
+			DoInstanceSetVelocity: onDoInstanceSetVelocity,
+			DoInstanceSetGain: onDoInstanceSetGain,
+			DoInstanceSetPitch: onDoInstanceSetPitch,
+			DoInstanceSetDistanceModel: onDoInstanceSetDistanceModel,
+			DoInstanceSetRolloff: onDoInstanceSetRolloff,
+			DoInstanceSetSpatialBlend: onDoInstanceSetSpatialBlend,
+			DoInstanceSetEcho: onDoInstanceSetEcho,
+			DoInstanceSetAcousticSpace: onDoInstanceSetAcousticSpace,
+			DoInstanceSetReverbLevel: onDoInstanceSetReverbLevel,
+			DoInstanceSetOcclusion: onDoInstanceSetOcclusion
+		};
+
+		for (const [event, handler] of Object.entries(handlers)) {
+			Events.Subscribe(event, handler);
+		}
+	</script>
+</head>
+
+<body></body>
+
+</html>
