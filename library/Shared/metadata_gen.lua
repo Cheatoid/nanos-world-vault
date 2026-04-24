@@ -18,11 +18,11 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.36",
-	timestamp = "2026-04-24 10:49:52",
-	commit_count = 218,
+	timestamp = "2026-04-24 18:42:49",
+	commit_count = 220,
 	tag_count = 33,
 	branch_name = "main",
-	prev_hash = "3575282084f17b255a4404823b8276e4e33ec4ad",
+	prev_hash = "273a2a57d3124326d0b768f339d5babe047217f9",
 	tag = "v0.0.37",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
@@ -46,7 +46,7 @@ return {
 		["Client/UI/WebSocketAPI.html"] = "fabf7f79319606a8fae80cc5fedaadf62a049ec25045e7f876597fd5d2f31a71",
 		["Server/Index.lua"] = "d2bd79efdaecbab1f54d304d7c62fcfb5bac1cccc4e3d5ec7887b153c4fac0cb",
 		["Server/PackageHelper.lua"] = "83859279a6445c011690a2895831dc9d3b6addb84d242d73bfe16bff579ddbec",
-		["Shared/AutoUpdater.lua"] = "8a2a5715f2c241004862fd84fb234d9527b955c10800873f6000b62892b7f5d4",
+		["Shared/AutoUpdater.lua"] = "3290cb5cf1ab3d0574c7c02e75017eeb5c0f3e38515ec0b0e1c214f2144abe3a",
 		["Shared/BroadcastLua.lua"] = "23473a8cd39eed6b65e3e2dbf2a9617eab6160b5cab03767081ba56b59c12988",
 		["Shared/ClientsideLua.lua"] = "87c9eaebb60780b6ef5496be85812ea9ca7c88e4297253bbc072f75ac27c7317",
 		["Shared/ConVar.lua"] = "ffada774eb89f21d32d746b14d028549ec45256d2a5bb77cac6c69b60126eb6d",

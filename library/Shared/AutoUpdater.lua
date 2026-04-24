@@ -428,7 +428,7 @@ end
 ---@usage <br>
 --- ```
 --- if updater:isPreviewVersion() then
----     Console.Warn("Running preview version")
+---   Console.Warn("Running preview version")
 --- end
 --- ```
 ---@return boolean is_preview True if running a preview version
