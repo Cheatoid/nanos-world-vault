@@ -12,7 +12,7 @@ local WebBrowser = {}
 local ChromeWebUI = WebUI(
 	Package.GetName() .. ":webbrowser.chrome",
 	"file://UI/WebBrowser.html",
-	WidgetVisibility.Hidden, false, false
+	WidgetVisibility.Hidden, true, false
 )
 
 -- Tab management
