@@ -1,0 +1,2329 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Basic NeoUI</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+	<style>
+		:root {
+			--nui-bg: #0b0d10;
+			--nui-surface: #13161b;
+			--nui-surface-elevated: #1a1e25;
+			--nui-border: rgba(255, 255, 255, 0.06);
+			--nui-border-active: rgba(255, 255, 255, 0.12);
+			--nui-text: #e1e4e8;
+			--nui-text-dim: #7a818c;
+			--nui-text-muted: #484f58;
+			--nui-primary-btn-text: #1a1e25;
+			--nui-accent: #00ffa3;
+			--nui-accent-dim: rgba(0, 255, 163, 0.15);
+			--nui-accent-glow: rgba(0, 255, 163, 0.4);
+			--nui-blue: #58a6ff;
+			--nui-orange: #f0883e;
+			--nui-red: #f85149;
+			--nui-purple: #bc8cff;
+			--nui-font-mono: 'JetBrains Mono', monospace;
+			--nui-font-sans: 'Inter', sans-serif;
+			--nui-radius: 6px;
+			--nui-transition-speed: 0.2s;
+		}
+
+		*, *::before, *::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: var(--nui-font-sans);
+			background: var(--nui-bg);
+			color: var(--nui-text);
+			height: 100vh;
+			overflow-y: auto;
+			transition: background var(--nui-transition-speed), color var(--nui-transition-speed);
+			-webkit-font-smoothing: antialiased;
+		}
+
+		#app-root {
+			max-width: 1000px;
+			margin: 0 auto;
+			padding: 40px 20px;
+		}
+
+		.nui-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 40px;
+			border-bottom: 1px solid var(--nui-border);
+			padding-bottom: 20px;
+		}
+
+		.nui-title {
+			font-size: 24px;
+			font-weight: 700;
+			letter-spacing: -0.5px;
+		}
+
+		.nui-subtitle {
+			font-size: 12px;
+			color: var(--nui-text-dim);
+			font-family: var(--nui-font-mono);
+			margin-top: 4px;
+		}
+
+		.nui-row {
+			display: flex;
+			gap: 20px;
+			margin-bottom: 30px;
+			align-items: flex-start;
+			flex-wrap: wrap;
+		}
+
+		.nui-col {
+			flex: 1;
+			min-width: 280px;
+			background: var(--nui-surface);
+			border: 1px solid var(--nui-border);
+			border-radius: var(--nui-radius);
+			padding: 20px;
+			transition: background var(--nui-transition-speed), border-color var(--nui-transition-speed);
+		}
+
+		.nui-col-title {
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: 1.2px;
+			color: var(--nui-text-muted);
+			margin-bottom: 16px;
+			font-weight: 600;
+			user-select: none;
+		}
+
+		.nui-control-group {
+			margin-bottom: 16px;
+		}
+
+		.nui-control-group:last-child {
+			margin-bottom: 0;
+		}
+
+		.nui-label {
+			display: block;
+			font-size: 11px;
+			color: var(--nui-text-dim);
+			margin-bottom: 6px;
+			font-weight: 500;
+			user-select: none;
+		}
+
+		/* --- Controls CSS --- */
+		.nui-textbox {
+			width: 100%;
+			background: var(--nui-bg);
+			border: 1px solid var(--nui-border);
+			color: var(--nui-text);
+			padding: 8px 12px;
+			border-radius: var(--nui-radius);
+			font-family: var(--nui-font-mono);
+			font-size: 12px;
+			outline: none;
+			transition: all var(--nui-transition-speed) ease;
+		}
+
+		.nui-textbox::placeholder {
+			color: var(--nui-text-muted);
+		}
+
+		.nui-textbox:focus {
+			border-color: var(--nui-accent);
+			box-shadow: 0 0 0 3px var(--nui-accent-dim), 0 0 12px var(--nui-accent-glow);
+		}
+
+		.nui-btn {
+			position: relative;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			padding: 8px 16px;
+			font-size: 12px;
+			font-weight: 500;
+			font-family: var(--nui-font-sans);
+			border-radius: var(--nui-radius);
+			cursor: pointer;
+			border: 1px solid transparent;
+			overflow: hidden;
+			transition: all var(--nui-transition-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			outline: none;
+			user-select: none;
+		}
+
+		.nui-btn:active {
+			transform: scale(0.95);
+		}
+
+		.nui-btn-primary {
+			background: var(--nui-accent);
+			color: var(--nui-primary-btn-text);
+			box-shadow: 0 2px 8px var(--nui-accent-dim);
+		}
+
+		.nui-btn-primary:hover {
+			box-shadow: 0 4px 16px var(--nui-accent-glow);
+		}
+
+		.nui-btn-outline {
+			background: transparent;
+			border-color: var(--nui-border-active);
+			color: var(--nui-text-dim);
+		}
+
+		.nui-btn-outline:hover {
+			border-color: var(--nui-accent);
+			color: var(--nui-accent);
+			background: var(--nui-accent-dim);
+		}
+
+		.nui-btn-glow {
+			background: transparent;
+			border-color: var(--nui-accent);
+			color: var(--nui-accent);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.nui-btn-glow::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, var(--nui-accent-glow), transparent);
+			animation: nui-btn-glow 3s infinite linear;
+		}
+
+		.nui-btn-glow::after {
+			content: '';
+			position: absolute;
+			inset: -2px;
+			background: linear-gradient(45deg, var(--nui-accent), transparent, var(--nui-accent));
+			border-radius: inherit;
+			z-index: -1;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		.nui-btn-glow:hover::after {
+			opacity: 0.5;
+			animation: nui-btn-glow-pulse 2s infinite;
+		}
+
+		@keyframes nui-btn-glow {
+			0% {
+				left: -100%;
+			}
+			100% {
+				left: 100%;
+			}
+		}
+
+		@keyframes nui-btn-glow-pulse {
+			0%, 100% {
+				opacity: 0.3;
+			}
+			50% {
+				opacity: 0.6;
+			}
+		}
+
+		.nui-btn-glow:hover {
+			background: var(--nui-accent-dim);
+			box-shadow: 0 0 20px var(--nui-accent-glow);
+		}
+
+		.nui-checkbox-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+			user-select: none;
+		}
+
+		.nui-checkbox {
+			width: 16px;
+			height: 16px;
+			background: var(--nui-bg);
+			border: 1px solid var(--nui-border-active);
+			border-radius: 4px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all var(--nui-transition-speed) ease;
+			flex-shrink: 0;
+		}
+
+		.nui-checkbox svg {
+			width: 10px;
+			height: 10px;
+			fill: none;
+			stroke: #000;
+			stroke-width: 2;
+			stroke-linecap: round;
+			stroke-linejoin: round;
+			stroke-dasharray: 14;
+			stroke-dashoffset: 14;
+			transition: stroke-dashoffset var(--nui-transition-speed) ease;
+		}
+
+		.nui-checkbox-input {
+			display: none;
+		}
+
+		.nui-checkbox-input:checked + .nui-checkbox {
+			background: var(--nui-accent);
+			border-color: var(--nui-accent);
+			box-shadow: 0 0 8px var(--nui-accent-dim);
+		}
+
+		.nui-checkbox-input:checked + .nui-checkbox svg {
+			stroke-dashoffset: 0;
+		}
+
+		/* Toggle Switch */
+		.nui-toggle-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			cursor: pointer;
+			user-select: none;
+		}
+
+		.nui-toggle-track {
+			width: 36px;
+			height: 20px;
+			background: var(--nui-border-active);
+			border-radius: 10px;
+			position: relative;
+			transition: background var(--nui-transition-speed);
+		}
+
+		.nui-toggle-thumb {
+			width: 16px;
+			height: 16px;
+			background: var(--nui-text-dim);
+			border-radius: 50%;
+			position: absolute;
+			top: 2px;
+			left: 2px;
+			transition: all var(--nui-transition-speed) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		}
+
+		.nui-toggle-input {
+			display: none;
+		}
+
+		.nui-toggle-input:checked + .nui-toggle-track {
+			background: var(--nui-accent-dim);
+		}
+
+		.nui-toggle-input:checked + .nui-toggle-track .nui-toggle-thumb {
+			left: 18px;
+			background: var(--nui-accent);
+			box-shadow: 0 0 8px var(--nui-accent-glow);
+		}
+
+		.nui-toggle-label {
+			font-size: 12px;
+			color: var(--nui-text-dim);
+		}
+
+		/* Radio */
+		.nui-radio-group {
+			display: flex;
+			gap: 12px;
+		}
+
+		.nui-radio-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+			user-select: none;
+		}
+
+		.nui-radio {
+			width: 16px;
+			height: 16px;
+			border: 1px solid var(--nui-border-active);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all var(--nui-transition-speed);
+		}
+
+		.nui-radio-inner {
+			width: 8px;
+			height: 8px;
+			background: var(--nui-accent);
+			border-radius: 50%;
+			transform: scale(0);
+			transition: transform var(--nui-transition-speed) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		}
+
+		.nui-radio-input {
+			display: none;
+		}
+
+		.nui-radio-input:checked + .nui-radio {
+			border-color: var(--nui-accent);
+		}
+
+		.nui-radio-input:checked + .nui-radio .nui-radio-inner {
+			transform: scale(1);
+		}
+
+		.nui-radio-label {
+			font-size: 12px;
+			color: var(--nui-text-dim);
+		}
+
+		/* Badge */
+		.nui-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 4px 10px;
+			border-radius: 12px;
+			font-size: 11px;
+			font-weight: 600;
+			border: 1px solid transparent;
+			transition: all var(--nui-transition-speed);
+			user-select: none;
+		}
+
+		.nui-badge-default {
+			background: var(--nui-accent-dim);
+			color: var(--nui-accent);
+			border-color: var(--nui-accent);
+		}
+
+		.nui-badge-warn {
+			background: rgba(240, 136, 62, 0.15);
+			color: var(--nui-orange);
+			border-color: var(--nui-orange);
+		}
+
+		.nui-badge-error {
+			background: rgba(248, 81, 73, 0.15);
+			color: var(--nui-red);
+			border-color: var(--nui-red);
+		}
+
+		/* Slider */
+		.nui-slider-container {
+			position: relative;
+			width: 100%;
+			padding: 12px 0;
+			user-select: none;
+		}
+
+		.nui-slider-track {
+			width: 100%;
+			height: 4px;
+			background: var(--nui-border-active);
+			border-radius: 2px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.nui-slider-fill {
+			height: 100%;
+			background: var(--nui-accent);
+			border-radius: 2px;
+			pointer-events: none;
+		}
+
+		.nui-slider-thumb {
+			width: 14px;
+			height: 14px;
+			background: var(--nui-text);
+			border-radius: 50%;
+			position: absolute;
+			top: 5px;
+			transform: translateX(-50%);
+			box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+			transition: box-shadow var(--nui-transition-speed), transform 0.1s ease, background 0.1s ease;
+			pointer-events: auto;
+		}
+
+		.nui-slider-thumb:hover, .nui-slider-thumb.dragging {
+			box-shadow: 0 0 12px var(--nui-accent-glow);
+			background: var(--nui-accent);
+			transform: translateX(-50%) scale(1.2);
+		}
+
+		.nui-slider-value {
+			position: absolute;
+			right: 0;
+			top: -2px;
+			font-size: 10px;
+			font-family: var(--nui-font-mono);
+			color: var(--nui-text-muted);
+			pointer-events: none;
+		}
+
+		/* Window */
+		.nui-window {
+			position: fixed;
+			background: var(--nui-bg);
+			border: 1px solid var(--nui-border);
+			border-radius: var(--nui-radius);
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+			display: flex;
+			flex-direction: column;
+			min-width: 200px;
+			min-height: 100px;
+			user-select: none;
+			z-index: 100;
+		}
+
+		.nui-window.compact {
+			min-height: 0 !important;
+			height: auto !important;
+			max-height: none !important;
+		}
+
+		.nui-window-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 10px 14px;
+			background: var(--nui-surface-elevated);
+			border-bottom: 1px solid var(--nui-border-active);
+			border-radius: var(--nui-radius) var(--nui-radius) 0 0;
+			cursor: grab;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+		}
+
+		.nui-window-header:active {
+			cursor: grabbing;
+		}
+
+		.nui-window-title {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--nui-text);
+		}
+
+		.nui-window-controls {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+		.nui-window-btn {
+			width: 24px;
+			height: 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: transparent;
+			border: none;
+			border-radius: 4px;
+			color: var(--nui-text-dim);
+			cursor: pointer;
+			transition: all var(--nui-transition-speed);
+		}
+
+		.nui-window-btn:hover {
+			background: var(--nui-border);
+			color: var(--nui-text);
+		}
+
+		.nui-window-btn.close:hover {
+			background: var(--nui-red);
+			color: white;
+		}
+
+		.nui-window-body {
+			flex: 1;
+			padding: 14px;
+			overflow-y: auto;
+			overflow-x: hidden;
+		}
+
+		.nui-window-body::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.nui-window-body::-webkit-scrollbar-track {
+			background: var(--nui-border);
+			border-radius: 3px;
+		}
+
+		.nui-window-body::-webkit-scrollbar-thumb {
+			background: var(--nui-accent-dim);
+			border-radius: 3px;
+			border: 1px solid var(--nui-accent);
+		}
+
+		.nui-window-body::-webkit-scrollbar-thumb:hover {
+			background: var(--nui-accent);
+		}
+
+		.nui-window-resize {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			width: 16px;
+			height: 16px;
+			cursor: nwse-resize;
+		}
+
+		.nui-window-resize::after {
+			content: '';
+			position: absolute;
+			bottom: 4px;
+			right: 4px;
+			width: 8px;
+			height: 8px;
+			border-right: 2px solid var(--nui-border);
+			border-bottom: 2px solid var(--nui-border);
+		}
+
+		.nui-window.compact .nui-window-body {
+			max-height: 0;
+			padding-top: 0;
+			padding-bottom: 0;
+			opacity: 0;
+		}
+
+		.nui-window-body {
+			flex: 1;
+			padding: 14px;
+			overflow-y: auto;
+			overflow-x: hidden;
+			max-height: 1000px;
+			transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+		}
+
+		.nui-window.compact .nui-window-resize {
+			display: none;
+		}
+
+		/* Range Slider */
+		.nui-range-slider-container {
+			position: relative;
+			width: 100%;
+			padding: 12px 0;
+			user-select: none;
+		}
+
+		.nui-range-slider-track {
+			width: 100%;
+			height: 4px;
+			background: var(--nui-border-active);
+			border-radius: 2px;
+			position: relative;
+			user-select: none;
+		}
+
+		.nui-range-slider-fill {
+			position: absolute;
+			top: 0;
+			height: 4px;
+			background: var(--nui-accent);
+			border-radius: 2px;
+			pointer-events: none;
+		}
+
+		.nui-range-slider-thumb {
+			width: 14px;
+			height: 14px;
+			background: var(--nui-text);
+			border-radius: 50%;
+			position: absolute;
+			top: 5px;
+			transform: translateX(-50%);
+			box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+			transition: box-shadow var(--nui-transition-speed), background 0.1s ease;
+			pointer-events: auto;
+		}
+
+		.nui-range-slider-thumb:hover, .nui-range-slider-thumb.dragging {
+			box-shadow: 0 0 12px var(--nui-accent-glow);
+			background: var(--nui-accent);
+		}
+
+		.nui-range-slider-values {
+			position: absolute;
+			right: 0;
+			top: -2px;
+			font-size: 10px;
+			font-family: var(--nui-font-mono);
+			color: var(--nui-text-muted);
+			pointer-events: none;
+		}
+
+		/* Progress Bar */
+		.nui-progress {
+			width: 100%;
+			height: 6px;
+			background: var(--nui-border-active);
+			border-radius: 3px;
+			overflow: hidden;
+			position: relative;
+		}
+
+		.nui-progress-fill {
+			height: 100%;
+			background: linear-gradient(90deg, var(--nui-accent), var(--nui-blue));
+			border-radius: 3px;
+		}
+
+		.nui-progress-shine {
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+			animation: nui-shine 2s infinite linear;
+			will-change: transform;
+			pointer-events: none;
+			z-index: 1;
+		}
+
+		@keyframes nui-shine {
+			0% {
+				transform: translateX(-100%);
+			}
+			100% {
+				transform: translateX(100%);
+			}
+		}
+
+		/* ComboBox */
+		.nui-combobox {
+			position: relative;
+			width: 100%;
+		}
+
+		.nui-combobox-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 8px 12px;
+			background: var(--nui-bg);
+			border: 1px solid var(--nui-border);
+			border-radius: var(--nui-radius);
+			cursor: pointer;
+			transition: all var(--nui-transition-speed);
+			user-select: none;
+		}
+
+		.nui-combobox-header:hover {
+			border-color: var(--nui-border-active);
+		}
+
+		.nui-combobox.open .nui-combobox-header {
+			border-color: var(--nui-accent);
+			box-shadow: 0 0 0 3px var(--nui-accent-dim);
+		}
+
+		.nui-combobox-arrow {
+			font-size: 10px;
+			color: var(--nui-text-muted);
+			transition: transform 0.2s;
+		}
+
+		.nui-combobox.open .nui-combobox-arrow {
+			transform: rotate(180deg);
+		}
+
+		.nui-combobox-list {
+			position: absolute;
+			top: calc(100% + 4px);
+			left: 0;
+			right: 0;
+			background: var(--nui-surface-elevated);
+			border: 1px solid var(--nui-border-active);
+			border-radius: var(--nui-radius);
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+			z-index: 100;
+			display: none;
+			overflow: hidden;
+		}
+
+		.nui-combobox.open .nui-combobox-list {
+			display: block;
+			animation: nui-fadeIn 0.15s ease;
+		}
+
+		.nui-combobox-item {
+			padding: 8px 12px;
+			font-size: 12px;
+			cursor: pointer;
+			color: var(--nui-text-dim);
+			transition: all 0.1s;
+		}
+
+		.nui-combobox-item:hover {
+			background: var(--nui-accent-dim);
+			color: var(--nui-accent);
+		}
+
+		.nui-combobox-item.selected {
+			background: var(--nui-accent-dim);
+			color: var(--nui-accent);
+			font-weight: 600;
+		}
+
+		/* Tabs */
+		.nui-tabs-header {
+			display: flex;
+			border-bottom: 1px solid var(--nui-border);
+			margin-bottom: 16px;
+			gap: 4px;
+		}
+
+		.nui-tab {
+			padding: 8px 16px;
+			font-size: 12px;
+			color: var(--nui-text-muted);
+			cursor: pointer;
+			border-bottom: 2px solid transparent;
+			margin-bottom: -1px;
+			transition: color 0.25s ease, border-bottom-color 0.25s ease;
+			user-select: none;
+		}
+
+		.nui-tab:hover {
+			color: var(--nui-text-dim);
+		}
+
+		.nui-tab.active {
+			color: var(--nui-accent);
+			border-bottom-color: var(--nui-accent);
+		}
+
+		.nui-tab-content {
+			opacity: 0;
+			transform: translateY(8px);
+			transition: opacity 0.25s ease, transform 0.25s ease;
+		}
+
+		.nui-tab-content.visible {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		/* Panel */
+		.nui-panel {
+			border: 1px solid var(--nui-border);
+			border-radius: var(--nui-radius);
+			background: var(--nui-surface);
+			overflow: hidden;
+			margin-bottom: 12px;
+		}
+
+		.nui-panel-header {
+			padding: 10px 14px;
+			background: var(--nui-surface-elevated);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			cursor: pointer;
+			user-select: none;
+			transition: background 0.1s;
+		}
+
+		.nui-panel-header:hover {
+			background: rgba(255, 255, 255, 0.03);
+		}
+
+		.nui-panel-title {
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--nui-text-dim);
+		}
+
+		.nui-panel-chevron {
+			font-size: 10px;
+			color: var(--nui-text-muted);
+			transition: transform 0.2s;
+		}
+
+		.nui-panel.collapsed .nui-panel-chevron {
+			transform: rotate(-90deg);
+		}
+
+		.nui-panel-body {
+			padding: 14px;
+			border-top: 1px solid var(--nui-border);
+			transition: all 0.2s;
+		}
+
+		.nui-panel.collapsed .nui-panel-body {
+			display: none;
+		}
+
+		/* ScrollView */
+		.nui-scrollview {
+			height: 150px;
+			overflow-y: auto;
+			padding-right: 8px;
+		}
+
+		.nui-scrollview::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.nui-scrollview::-webkit-scrollbar-track {
+			background: var(--nui-border);
+			border-radius: 3px;
+		}
+
+		.nui-scrollview::-webkit-scrollbar-thumb {
+			background: var(--nui-accent-dim);
+			border-radius: 3px;
+			border: 1px solid var(--nui-accent);
+		}
+
+		.nui-scrollview::-webkit-scrollbar-thumb:hover {
+			background: var(--nui-accent);
+		}
+
+		@keyframes nui-fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(-4px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		::selection {
+			background: var(--nui-accent-dim);
+			color: var(--nui-accent);
+		}
+
+		::-moz-selection {
+			background: var(--nui-accent-dim);
+			color: var(--nui-accent);
+		}
+
+		/* Context Menu */
+		.nui-context-menu {
+			position: fixed;
+			background: var(--nui-surface);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid var(--nui-border-active);
+			border-radius: var(--nui-radius);
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+			min-width: 180px;
+			padding: 4px;
+			z-index: 1000;
+			display: none;
+		}
+
+		.nui-context-menu.open {
+			display: block;
+			animation: nui-fadeIn 0.1s ease;
+		}
+
+		.nui-context-menu-item {
+			padding: 8px 12px;
+			font-size: 12px;
+			color: var(--nui-text-dim);
+			cursor: pointer;
+			border-radius: 4px;
+			transition: all 0.1s;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.nui-context-menu-item:hover {
+			background: var(--nui-accent-dim);
+			color: var(--nui-accent);
+		}
+
+		.nui-context-menu-item.danger {
+			color: var(--nui-red);
+		}
+
+		.nui-context-menu-item.danger:hover {
+			background: rgba(248, 81, 73, 0.15);
+			color: var(--nui-red);
+		}
+
+		.nui-context-menu-divider {
+			height: 1px;
+			background: var(--nui-border);
+			margin: 4px 0;
+		}
+	</style>
+</head>
+<body>
+
+<div id="app-root"></div>
+
+<script>
+	const NUI = (() => {
+		'use strict';
+		const is = {obj: (v) => v && typeof v === 'object' && !Array.isArray(v)};
+
+		/* Theming API */
+		const ThemeManager = {
+			themes: {}, active: 'neo_dark',
+			register(name, vars) {
+				this.themes[name] = vars;
+			},
+			apply(name) {
+				if (!this.themes[name]) return;
+				this.active = name;
+				const root = document.documentElement;
+				Object.entries(this.themes[name]).forEach(([k, v]) => root.style.setProperty(k, v));
+				CursorManager.applyTheme(); // Update cursors to match new theme
+			}
+		};
+
+		/* Cursor API */
+		const CursorManager = {
+			cursors: {},
+			styleEl: null,
+			enabled: true,
+			currentStyle: 'default',
+
+			register(name, svgBuilder) {
+				this.cursors[name] = svgBuilder;
+			},
+
+			setStyle(style) {
+				this.currentStyle = style;
+				this.applyTheme();
+			},
+
+			setEnabled(enabled) {
+				this.enabled = enabled;
+				if (enabled) {
+					this.applyTheme();
+				} else if (this.styleEl) {
+					this.styleEl.innerHTML = '';
+				}
+			},
+
+			applyTheme() {
+				if (!this.enabled) return;
+
+				if (!this.styleEl) {
+					this.styleEl = document.createElement('style');
+					document.head.appendChild(this.styleEl);
+				}
+
+				// Read current theme colors
+				const styles = getComputedStyle(document.documentElement);
+				const accent = styles.getPropertyValue('--nui-accent').trim();
+				const bg = styles.getPropertyValue('--nui-bg').trim();
+				const text = styles.getPropertyValue('--nui-text').trim();
+				const dim = styles.getPropertyValue('--nui-text-muted').trim();
+
+				const enc = (svg) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+
+				// Use current style for all cursors
+				const cursor = this.cursors[this.currentStyle] || this.cursors.default;
+
+				// Get appropriate hotspot based on cursor style
+				const getHotspot = (style) => {
+					switch (style) {
+						case 'default':
+							return '2 2'; // 16x16 arrow tip
+						case 'pointer':
+							return '4 4'; // 20x20 arrow tip
+						case 'text':
+							return '6 10'; // 12x20 I-beam center
+						case 'move':
+							return '10 10'; // 20x20 center
+						case 'move-h':
+							return '10 10'; // 20x20 center
+						default:
+							return '4 4';
+					}
+				};
+
+				const hotspot = getHotspot(this.currentStyle);
+
+				// Generate CSS rules
+				const moveHCursor = this.cursors['move-h'] || cursor;
+				const textCursor = this.cursors.text;
+				let css = `
+        #app-root { cursor: ${enc(cursor(accent, bg))} ${hotspot}, auto !important; }
+        #app-root .nui-btn { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
+        #app-root .nui-combobox-header, #app-root .nui-tab,
+        #app-root .nui-panel-header, #app-root .nui-checkbox-wrapper, #app-root .nui-toggle-wrapper,
+        #app-root .nui-radio-wrapper, #app-root .nui-label { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
+        #app-root .nui-window-header { cursor: ${enc(cursor(accent, bg))} ${hotspot}, grab !important; }
+        #app-root .nui-window-btn { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
+        #app-root .nui-textbox { cursor: ${enc(textCursor(text, bg))} 6 10, text !important; }
+        #app-root .nui-slider-container, #app-root .nui-slider-track { cursor: ${enc(moveHCursor(accent, bg))} 10 10, move !important; }
+      `;
+
+				this.styleEl.innerHTML = css;
+			}
+		};
+
+		/* DOM Builder */
+		const h = (tag, attrs, ...children) => {
+			const el = document.createElement(tag);
+			if (attrs === null || attrs === undefined) attrs = {};
+			else if (typeof attrs !== 'object' || Array.isArray(attrs)) {
+				children.unshift(attrs);
+				attrs = {};
+			}
+			for (let [key, val] of Object.entries(attrs)) {
+				if (key === 'className') el.className = val;
+				else if (key === 'style' && is.obj(val)) Object.assign(el.style, val);
+				else if (key.startsWith('on')) el.addEventListener(key.slice(2).toLowerCase(), val);
+				else if (key === 'dataset') Object.entries(val).forEach(([dk, dv]) => el.dataset[dk] = dv);
+				else if (key === 'ref' && typeof val === 'function') val(el);
+				else el.setAttribute(key, val);
+			}
+			const flatten = (arr) => arr.flat(Infinity).forEach(c => {
+				if (c == null || c === false) return;
+				if (c instanceof HTMLElement || c instanceof Text) el.appendChild(c);
+				else el.appendChild(document.createTextNode(String(c)));
+			});
+			flatten(children);
+			return el;
+		};
+
+		/* Store */
+		class Store {
+			constructor(initial = {}) {
+				this._state = initial;
+				this._listeners = new Map();
+				this._id = 0;
+			}
+
+			get(key) {
+				return this._state[key];
+			}
+
+			set(key, value) {
+				if (this._state[key] !== value) {
+					const old = this._state[key];
+					this._state[key] = value;
+					this._notify(key, value, old);
+				}
+			}
+
+			subscribe(key, callback) {
+				const id = this._id++;
+				if (!this._listeners.has(key)) this._listeners.set(key, new Map());
+				this._listeners.get(key).set(id, callback);
+				return () => this._listeners.get(key)?.delete(id);
+			}
+
+			_notify(key, value, old) {
+				this._listeners.get(key)?.forEach(cb => cb(value, old));
+			}
+		}
+
+		/* Base Component */
+		class Component {
+			constructor(props = {}) {
+				this.props = props;
+				this.el = null;
+			}
+
+			render() {
+				if (!this.el) {
+					this.el = this.createEl();
+				}
+				return this.el;
+			}
+
+			mount(parent) {
+				parent.appendChild(this.render());
+				this.onMount?.();
+				return this;
+			}
+
+			createEl() {
+				return h('div');
+			}
+		}
+
+		/* Controls */
+		class TextBox extends Component {
+			createEl() {
+				return h('input', {
+					type: this.props.type || 'text',
+					className: 'nui-textbox',
+					placeholder: this.props.placeholder || '',
+					onInput: (e) => this.props.onChange?.(e.target.value)
+				});
+			}
+		}
+
+		class Button extends Component {
+			createEl() {
+				const v = this.props.variant ? `nui-btn-${this.props.variant}` : 'nui-btn-primary';
+				return h('button', {
+					className: `nui-btn ${v}`,
+					onClick: this.props.onClick
+				}, this.props.icon ? h('span', null, this.props.icon) : null, this.props.label);
+			}
+
+			setVariant(v) {
+				if (this.el) this.el.className = `nui-btn nui-btn-${v}`;
+			}
+		}
+
+		class Checkbox extends Component {
+			createEl() {
+				const id = `nui-cb-${Math.random().toString(36).substr(2, 9)}`;
+				return h('label', {className: 'nui-checkbox-wrapper', htmlFor: id}, h('input', {
+					type: 'checkbox',
+					className: 'nui-checkbox-input',
+					id: id,
+					checked: this.props.checked || false,
+					onChange: (e) => this.props.onChange?.(e.target.checked)
+				}), h('div', {className: 'nui-checkbox'}, h('svg', {viewBox: '0 0 12 12'}, h('polyline', {points: '2 6 5 9 10 3'}))), h('span', {className: 'nui-checkbox-label'}, this.props.label));
+			}
+		}
+
+		class Toggle extends Component {
+			createEl() {
+				const id = `nui-tg-${Math.random().toString(36).substr(2, 9)}`;
+				return h('label', {className: 'nui-toggle-wrapper', htmlFor: id},
+					h('input', {
+						type: 'checkbox',
+						className: 'nui-toggle-input',
+						id: id,
+						checked: this.props.checked || false,
+						onChange: (e) => this.props.onChange?.(e.target.checked)
+					}),
+					h('div', {className: 'nui-toggle-track'}, h('div', {className: 'nui-toggle-thumb'})),
+					h('span', {className: 'nui-toggle-label'}, this.props.label)
+				);
+			}
+		}
+
+		class RadioGroup extends Component {
+			constructor(props) {
+				super(props);
+				this.selected = props.value || props.options?.[0]?.value;
+			}
+
+			createEl() {
+				this.rootEl = h('div', {className: 'nui-radio-group'});
+				this.props.options.forEach(opt => {
+					const id = `nui-rd-${Math.random().toString(36).substr(2, 9)}`;
+					this.rootEl.appendChild(
+						h('label', {className: 'nui-radio-wrapper', htmlFor: id},
+							h('input', {
+								type: 'radio',
+								name: this.props.name,
+								className: 'nui-radio-input',
+								id: id,
+								value: opt.value,
+								checked: opt.value === this.selected,
+								onChange: () => this.selectItem(opt.value)
+							}),
+							h('div', {className: 'nui-radio'}, h('div', {className: 'nui-radio-inner'})),
+							h('span', {className: 'nui-radio-label'}, opt.label)
+						)
+					);
+				});
+				return this.rootEl;
+			}
+
+			selectItem(val) {
+				this.selected = val;
+				this.props.onChange?.(val);
+				this.renderOptions();
+			}
+
+			renderOptions() {
+				this.rootEl.querySelectorAll('.nui-radio-input').forEach(inp => {
+					inp.checked = (inp.value === String(this.selected));
+				});
+			}
+		}
+
+		class Badge extends Component {
+			createEl() {
+				return h('span', {className: `nui-badge nui-badge-${this.props.variant || 'default'}`}, this.props.label);
+			}
+		}
+
+		class Slider extends Component {
+			constructor(props) {
+				super(props);
+				this.isDragging = false;
+				this.value = props.value || 0;
+				this.containerEl = null;
+				this.trackEl = null;
+				this.thumbEl = null;
+				this.fillEl = null;
+				this.valueEl = null;
+			}
+
+			createEl() {
+				const pct = this.getPercentage();
+				this.fillEl = h('div', {className: 'nui-slider-fill', style: {width: `${pct}%`}});
+				this.thumbEl = h('div', {className: 'nui-slider-thumb', style: {left: `${pct}%`}});
+				this.trackEl = h('div', {className: 'nui-slider-track'}, this.fillEl, this.thumbEl);
+				this.valueEl = h('div', {className: 'nui-slider-value'}, Math.round(this.value));
+				this.containerEl = h('div', {className: 'nui-slider-container'}, this.trackEl, this.valueEl);
+				this.bindEvents();
+				return this.containerEl;
+			}
+
+			bindEvents() {
+				const mm = (e) => {
+					if (!this.isDragging) return;
+					this.updateValue(e.clientX);
+				};
+				const mu = () => {
+					if (this.isDragging) {
+						this.isDragging = false;
+						this.thumbEl.classList.remove('dragging');
+						document.removeEventListener('mousemove', mm);
+						document.removeEventListener('mouseup', mu);
+					}
+				};
+				this.containerEl.addEventListener('mousedown', (e) => {
+					this.isDragging = true;
+					this.thumbEl.classList.add('dragging');
+					document.addEventListener('mousemove', mm);
+					document.addEventListener('mouseup', mu);
+					this.updateValue(e.clientX);
+				});
+				this.containerEl.addEventListener('wheel', (e) => {
+					e.preventDefault();
+					const step = this.props.step || 1;
+					this.setValue(this.value + (e.deltaY > 0 ? -step : step));
+				}, {passive: false});
+			}
+
+			updateValue(clientX) {
+				const rect = this.trackEl.getBoundingClientRect();
+				let pct = (clientX - rect.left) / rect.width;
+				pct = Math.max(0, Math.min(1, pct));
+				const min = this.props.min || 0;
+				const max = this.props.max || 100;
+				this.setValue(min + pct * (max - min));
+			}
+
+			setValue(val) {
+				const min = this.props.min || 0;
+				const max = this.props.max || 100;
+				const step = this.props.step || 1;
+				val = Math.max(min, Math.min(max, val));
+				val = Math.round(val / step) * step;
+				if (this.value !== val) {
+					this.value = val;
+					this.props.onChange?.(val);
+					this.updateVisuals();
+				}
+			}
+
+			getPercentage() {
+				const min = this.props.min || 0;
+				const max = this.props.max || 100;
+				return ((this.value - min) / (max - min)) * 100;
+			}
+
+			updateVisuals() {
+				const pct = this.getPercentage();
+				if (this.fillEl) this.fillEl.style.width = `${pct}%`;
+				if (this.thumbEl) this.thumbEl.style.left = `${pct}%`;
+				if (this.valueEl) this.valueEl.textContent = Math.round(this.value);
+			}
+		}
+
+		class ProgressBar extends Component {
+			createEl() {
+				this.fillEl = h('div', {className: 'nui-progress-fill'});
+				this.shineEl = h('div', {className: 'nui-progress-shine'});
+				this.el = h('div', {className: 'nui-progress'}, this.fillEl, this.shineEl);
+				this.setValue(this.props.value || 0);
+				return this.el;
+			}
+
+			setValue(val) {
+				const pct = Math.min(100, (val / (this.props.max || 100)) * 100);
+				if (this.fillEl) this.fillEl.style.width = `${pct}%`;
+			}
+		}
+
+		class RangeSlider extends Component {
+			constructor(props) {
+				super(props);
+				this.isDraggingMin = false;
+				this.isDraggingMax = false;
+				this.minValue = props.minValue || props.min || 0;
+				this.maxValue = props.maxValue || props.max || 100;
+				this.containerEl = null;
+				this.trackEl = null;
+				this.fillEl = null;
+				this.minThumbEl = null;
+				this.maxThumbEl = null;
+				this.valuesEl = null;
+			}
+
+			createEl() {
+				const minPct = this.getPercentage(this.minValue);
+				const maxPct = this.getPercentage(this.maxValue);
+				this.fillEl = h('div', {
+					className: 'nui-range-slider-fill',
+					style: {left: `${minPct}%`, width: `${maxPct - minPct}%`}
+				});
+				this.minThumbEl = h('div', {className: 'nui-range-slider-thumb', style: {left: `${minPct}%`}});
+				this.maxThumbEl = h('div', {className: 'nui-range-slider-thumb', style: {left: `${maxPct}%`}});
+				this.trackEl = h('div', {className: 'nui-range-slider-track'}, this.fillEl, this.minThumbEl, this.maxThumbEl);
+				this.valuesEl = h('div', {className: 'nui-range-slider-values'}, `${Math.round(this.minValue)} - ${Math.round(this.maxValue)}`);
+				this.containerEl = h('div', {className: 'nui-range-slider-container'}, this.trackEl, this.valuesEl);
+				this.bindEvents();
+				return this.containerEl;
+			}
+
+			bindEvents() {
+				const mm = (e) => {
+					if (this.isDraggingMin) {
+						this.updateValue(e.clientX, 'min');
+					} else if (this.isDraggingMax) {
+						this.updateValue(e.clientX, 'max');
+					}
+				};
+				const mu = () => {
+					if (this.isDraggingMin || this.isDraggingMax) {
+						this.isDraggingMin = false;
+						this.isDraggingMax = false;
+						this.minThumbEl.classList.remove('dragging');
+						this.maxThumbEl.classList.remove('dragging');
+						document.removeEventListener('mousemove', mm);
+						document.removeEventListener('mouseup', mu);
+					}
+				};
+
+				// Min thumb drag
+				this.minThumbEl.addEventListener('mousedown', (e) => {
+					e.stopPropagation();
+					e.preventDefault();
+					this.isDraggingMin = true;
+					this.minThumbEl.classList.add('dragging');
+					document.addEventListener('mousemove', mm);
+					document.addEventListener('mouseup', mu);
+				});
+
+				// Max thumb drag
+				this.maxThumbEl.addEventListener('mousedown', (e) => {
+					e.stopPropagation();
+					e.preventDefault();
+					this.isDraggingMax = true;
+					this.maxThumbEl.classList.add('dragging');
+					document.addEventListener('mousemove', mm);
+					document.addEventListener('mouseup', mu);
+				});
+				this.containerEl.addEventListener('wheel', (e) => {
+					e.preventDefault();
+					const step = this.props.step || 1;
+					const delta = e.deltaY > 0 ? -step : step;
+					const min = this.props.min || 0;
+					const max = this.props.max || 100;
+
+					// Prevent scrolling when both thumbs are at the same boundary
+					if (this.minValue === min && this.maxValue === min && delta < 0) return;
+					if (this.minValue === max && this.maxValue === max && delta > 0) return;
+
+					// If thumbs are together, separate them
+					if (this.minValue === this.maxValue) {
+						if (delta < 0) {
+							// Scrolling up (increasing), move max up
+							this.maxValue = Math.min(max, this.maxValue + delta);
+						} else {
+							// Scrolling down (decreasing), move min down
+							this.minValue = Math.max(min, this.minValue + delta);
+						}
+					} else {
+						// Move both thumbs together
+						this.minValue = Math.max(min, this.minValue + delta);
+						this.maxValue = Math.min(max, this.maxValue + delta);
+					}
+
+					// Ensure min doesn't exceed max
+					if (this.minValue > this.maxValue) {
+						this.minValue = this.maxValue;
+					}
+					// Ensure values stay within bounds
+					this.minValue = Math.max(min, this.minValue);
+					this.maxValue = Math.min(max, this.maxValue);
+					// Final check to prevent both at same boundary
+					if (this.minValue === min && this.maxValue === min) {
+						this.maxValue = Math.min(max, this.maxValue + step);
+					}
+					if (this.minValue === max && this.maxValue === max) {
+						this.minValue = Math.max(min, this.minValue - step);
+					}
+					this.updateVisuals();
+					this.props.onChange?.(this.minValue, this.maxValue);
+				}, {passive: false});
+			}
+
+			updateValue(clientX, thumb) {
+				const rect = this.trackEl.getBoundingClientRect();
+				let pct = (clientX - rect.left) / rect.width;
+				pct = Math.max(0, Math.min(1, pct));
+				const min = this.props.min || 0;
+				const max = this.props.max || 100;
+				const step = this.props.step || 1;
+				let val = min + pct * (max - min);
+				val = Math.max(min, Math.min(max, val));
+				val = Math.round(val / step) * step;
+
+				if (thumb === 'min') {
+					this.minValue = Math.min(val, this.maxValue - step);
+					this.minValue = Math.max(min, this.minValue);
+				} else {
+					this.maxValue = Math.max(val, this.minValue + step);
+					this.maxValue = Math.min(max, this.maxValue);
+				}
+				this.updateVisuals();
+				this.props.onChange?.(this.minValue, this.maxValue);
+			}
+
+			getPercentage(val) {
+				const min = this.props.min || 0;
+				const max = this.props.max || 100;
+				return ((val - min) / (max - min)) * 100;
+			}
+
+			updateVisuals() {
+				const minPct = this.getPercentage(this.minValue);
+				const maxPct = this.getPercentage(this.maxValue);
+				if (this.fillEl) {
+					this.fillEl.style.left = `${minPct}%`;
+					this.fillEl.style.width = `${maxPct - minPct}%`;
+				}
+				if (this.minThumbEl) this.minThumbEl.style.left = `${minPct}%`;
+				if (this.maxThumbEl) this.maxThumbEl.style.left = `${maxPct}%`;
+				if (this.valuesEl) this.valuesEl.textContent = `${Math.round(this.minValue)} - ${Math.round(this.maxValue)}`;
+			}
+		}
+
+		class Window extends Component {
+			constructor(props) {
+				super(props);
+				this.title = props.title || 'Window';
+				this.width = props.width || 400;
+				this.height = props.height || 300;
+				this.x = props.x || 100;
+				this.y = props.y || 100;
+				this.minWidth = props.minWidth || 200;
+				this.minHeight = props.minHeight || 100;
+				this.resizable = props.resizable !== false;
+				this.draggable = props.draggable !== false;
+				this.showClose = props.showClose !== false;
+				this.showMinimize = props.showMinimize || false;
+				this.showMaximize = props.showMaximize || false;
+				this.showCompact = props.showCompact || false;
+				this.icon = props.icon || null;
+				this.isCompact = false;
+				this.isMaximized = false;
+				this.savedState = null;
+				this.headerEl = null;
+				this.bodyEl = null;
+				this.resizeEl = null;
+			}
+
+			createEl() {
+				const titleContent = this.icon
+					? h('span', null, this.icon, h('span', null, this.title))
+					: h('span', null, this.title);
+
+				const controls = [];
+				if (this.showCompact) {
+					controls.push(h('button', {className: 'nui-window-btn', 'data-action': 'compact'},
+						h('i', {className: 'fas fa-chevron-up'})));
+				}
+				if (this.showMinimize) {
+					controls.push(h('button', {className: 'nui-window-btn', 'data-action': 'minimize'},
+						h('i', {className: 'fas fa-minus'})));
+				}
+				if (this.showMaximize) {
+					controls.push(h('button', {className: 'nui-window-btn', 'data-action': 'maximize'},
+						h('i', {className: 'fas fa-expand'})));
+				}
+				if (this.showClose) {
+					controls.push(h('button', {className: 'nui-window-btn close', 'data-action': 'close'},
+						h('i', {className: 'fas fa-xmark'})));
+				}
+
+				this.headerEl = h('div', {className: 'nui-window-header'},
+					h('div', {className: 'nui-window-title'}, titleContent),
+					h('div', {className: 'nui-window-controls'}, ...controls)
+				);
+
+				this.bodyEl = h('div', {className: 'nui-window-body'}, this.props.children || []);
+
+				const children = [this.headerEl, this.bodyEl];
+				if (this.resizable) {
+					this.resizeEl = h('div', {className: 'nui-window-resize'});
+					children.push(this.resizeEl);
+				}
+
+				this.el = h('div', {
+					className: 'nui-window', style: {
+						width: `${this.width}px`,
+						height: `${this.height}px`,
+						left: `${this.x}px`,
+						top: `${this.y}px`
+					}
+				}, ...children);
+
+				this.bindEvents();
+				return this.el;
+			}
+
+			bindEvents() {
+				if (this.draggable) {
+					this.setupDrag();
+				}
+				if (this.resizable) {
+					this.setupResize();
+				}
+				this.setupControls();
+			}
+
+			setupDrag() {
+				let isDragging = false;
+				let startX, startY, origX, origY;
+
+				this.headerEl.addEventListener('mousedown', (e) => {
+					if (e.target.closest('.nui-window-btn')) return;
+					isDragging = true;
+					startX = e.clientX;
+					startY = e.clientY;
+					const rect = this.el.getBoundingClientRect();
+					origX = rect.left;
+					origY = rect.top;
+					e.preventDefault();
+				});
+
+				document.addEventListener('mousemove', (e) => {
+					if (!isDragging) return;
+					const dx = e.clientX - startX;
+					const dy = e.clientY - startY;
+					const newLeft = origX + dx;
+					const newTop = origY + dy;
+					const maxLeft = window.innerWidth - this.el.offsetWidth;
+					const maxTop = window.innerHeight - this.el.offsetHeight;
+					this.el.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+					this.el.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+				});
+
+				document.addEventListener('mouseup', () => {
+					isDragging = false;
+				});
+			}
+
+			setupResize() {
+				let isResizing = false;
+				let startX, startY, origW, origH;
+
+				this.resizeEl.addEventListener('mousedown', (e) => {
+					isResizing = true;
+					startX = e.clientX;
+					startY = e.clientY;
+					origW = this.el.offsetWidth;
+					origH = this.el.offsetHeight;
+					e.preventDefault();
+					e.stopPropagation();
+				});
+
+				document.addEventListener('mousemove', (e) => {
+					if (!isResizing) return;
+					const dx = e.clientX - startX;
+					const dy = e.clientY - startY;
+					const newW = Math.max(this.minWidth, origW + dx);
+					const newH = Math.max(this.minHeight, origH + dy);
+					this.el.style.width = newW + 'px';
+					this.el.style.height = newH + 'px';
+				});
+
+				document.addEventListener('mouseup', () => {
+					isResizing = false;
+				});
+			}
+
+			setupControls() {
+				this.headerEl.addEventListener('click', (e) => {
+					const btn = e.target.closest('.nui-window-btn');
+					if (!btn) return;
+					const action = btn.dataset.action;
+					if (action === 'close') {
+						this.close();
+						this.props.onClose?.();
+					} else if (action === 'minimize') {
+						this.minimize();
+						this.props.onMinimize?.();
+					} else if (action === 'maximize') {
+						this.toggleMaximize();
+						this.props.onMaximize?.(this.isMaximized);
+					} else if (action === 'compact') {
+						this.toggleCompact();
+					}
+				});
+			}
+
+			toggleMaximize() {
+				if (this.isMaximized) {
+					this.restore();
+				} else {
+					this.maximize();
+				}
+			}
+
+			maximize() {
+				this.savedState = {
+					width: this.el.offsetWidth,
+					height: this.el.offsetHeight,
+					left: this.el.offsetLeft,
+					top: this.el.offsetTop
+				};
+				this.isMaximized = true;
+				this.el.style.width = '100vw';
+				this.el.style.height = '100vh';
+				this.el.style.left = '0';
+				this.el.style.top = '0';
+				this.el.style.borderRadius = '0';
+				if (this.resizeEl) this.resizeEl.style.display = 'none';
+				const icon = this.headerEl.querySelector('[data-action="maximize"] i');
+				if (icon) icon.className = 'fas fa-window-restore';
+			}
+
+			restore() {
+				if (!this.savedState) return;
+				this.isMaximized = false;
+				this.el.style.width = this.savedState.width + 'px';
+				this.el.style.height = this.savedState.height + 'px';
+				this.el.style.left = this.savedState.left + 'px';
+				this.el.style.top = this.savedState.top + 'px';
+				this.el.style.borderRadius = '';
+				if (this.resizeEl) this.resizeEl.style.display = '';
+				const icon = this.headerEl.querySelector('[data-action="maximize"] i');
+				if (icon) icon.className = 'fas fa-expand';
+			}
+
+			minimize() {
+				this.el.style.display = 'none';
+			}
+
+			toggleCompact() {
+				this.isCompact = !this.isCompact;
+				this.el.classList.toggle('compact', this.isCompact);
+				const icon = this.headerEl.querySelector('[data-action="compact"] i');
+				if (icon) {
+					icon.className = this.isCompact ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+				}
+			}
+
+			setTitle(title) {
+				this.title = title;
+				const titleEl = this.headerEl.querySelector('.nui-window-title span:last-child');
+				if (titleEl) titleEl.textContent = title;
+			}
+
+			setContent(content) {
+				this.bodyEl.innerHTML = '';
+				if (Array.isArray(content)) {
+					content.forEach(child => this.bodyEl.appendChild(child));
+				} else {
+					this.bodyEl.appendChild(content);
+				}
+			}
+
+			close() {
+				this.el.remove();
+			}
+		}
+
+		class ComboBox extends Component {
+			constructor(props) {
+				super(props);
+				this.isOpen = false;
+				this.selected = props.selected || props.options?.[0];
+			}
+
+			createEl() {
+				this.headerTextEl = h('span', null, this.selected);
+				this.headerArrowEl = h('span', {className: 'nui-combobox-arrow'}, '▼');
+				this.headerEl = h('div', {className: 'nui-combobox-header'}, this.headerTextEl, this.headerArrowEl);
+				this.listEl = h('div', {className: 'nui-combobox-list'});
+				this.renderOptions();
+				this.rootEl = h('div', {className: 'nui-combobox'}, this.headerEl, this.listEl);
+				this.headerEl.addEventListener('click', (e) => {
+					e.stopPropagation();
+					this.toggle();
+				});
+				document.addEventListener('click', (e) => {
+					if (this.rootEl && !this.rootEl.contains(e.target) && this.isOpen) {
+						this.isOpen = false;
+						this.rootEl.classList.remove('open');
+					}
+				});
+				return this.rootEl;
+			}
+
+			renderOptions() {
+				this.listEl.innerHTML = '';
+				this.props.options.forEach(opt => {
+					this.listEl.appendChild(h('div', {
+						className: `nui-combobox-item ${opt === this.selected ? 'selected' : ''}`,
+						onClick: (e) => {
+							e.stopPropagation();
+							this.selectItem(opt);
+						}
+					}, opt));
+				});
+			}
+
+			toggle() {
+				this.isOpen = !this.isOpen;
+				this.rootEl.classList.toggle('open', this.isOpen);
+			}
+
+			selectItem(opt) {
+				this.selected = opt;
+				this.isOpen = false;
+				this.headerTextEl.textContent = opt;
+				this.rootEl.classList.remove('open');
+				this.renderOptions();
+				this.props.onChange?.(opt);
+			}
+		}
+
+		class Tabs extends Component {
+			constructor(props) {
+				super(props);
+				this.activeTab = props.tabs?.[0]?.id;
+			}
+
+			createEl() {
+				this.headerEl = h('div', {className: 'nui-tabs-header'});
+				this.contentEl = h('div', {className: 'nui-tab-content'});
+				this.renderTabs();
+				return h('div', null, this.headerEl, this.contentEl);
+			}
+
+			renderTabs() {
+				this.headerEl.innerHTML = '';
+				const activeContent = this.props.tabs.find(t => t.id === this.activeTab)?.content || null;
+				this.props.tabs.forEach(tab => {
+					this.headerEl.appendChild(h('div', {
+						className: `nui-tab ${tab.id === this.activeTab ? 'active' : ''}`,
+						onClick: () => this.setActive(tab.id)
+					}, tab.label));
+				});
+
+				const hasContent = this.contentEl.children.length > 0;
+
+				if (hasContent) {
+					this.contentEl.classList.remove('visible');
+					setTimeout(() => {
+						this.contentEl.innerHTML = '';
+						if (activeContent) {
+							this.contentEl.appendChild(activeContent);
+							requestAnimationFrame(() => {
+								this.contentEl.classList.add('visible');
+							});
+						}
+					}, 250);
+				} else {
+					if (activeContent) {
+						this.contentEl.appendChild(activeContent);
+						requestAnimationFrame(() => {
+							this.contentEl.classList.add('visible');
+						});
+					}
+				}
+			}
+
+			setActive(id) {
+				if (this.activeTab === id) return;
+				this.activeTab = id;
+				this.renderTabs();
+			}
+		}
+
+		class Panel extends Component {
+			constructor(props) {
+				super(props);
+				this.collapsed = props.collapsed || false;
+			}
+
+			createEl() {
+				this.chevronEl = h('span', {className: 'nui-panel-chevron'}, '▼');
+				this.bodyEl = h('div', {className: 'nui-panel-body'}, ...(this.props.children || []));
+				this.rootEl = h('div', {className: `nui-panel ${this.collapsed ? 'collapsed' : ''}`},
+					h('div', {className: 'nui-panel-header', onClick: () => this.toggle()},
+						h('span', {className: 'nui-panel-title'}, this.props.title), this.chevronEl
+					), this.bodyEl
+				);
+				return this.rootEl;
+			}
+
+			toggle() {
+				this.collapsed = !this.collapsed;
+				this.rootEl.classList.toggle('collapsed', this.collapsed);
+			}
+		}
+
+		class ScrollView extends Component {
+			createEl() {
+				return h('div', {className: 'nui-scrollview'}, ...(this.props.children || []));
+			}
+		}
+
+		class ContextMenu extends Component {
+			constructor(props) {
+				super(props);
+				this.isOpen = false;
+			}
+
+			createEl() {
+				this.rootEl = h('div', {className: 'nui-context-menu'});
+				this.renderItems();
+				this.bindEvents();
+				return this.rootEl;
+			}
+
+			renderItems() {
+				this.rootEl.innerHTML = '';
+				this.props.items.forEach(item => {
+					if (item === 'divider') {
+						this.rootEl.appendChild(h('div', {className: 'nui-context-menu-divider'}));
+					} else {
+						this.rootEl.appendChild(h('div', {
+							className: `nui-context-menu-item ${item.danger ? 'danger' : ''}`,
+							onClick: () => {
+								item.onClick?.();
+								this.close();
+							}
+						}, item.icon || null, item.label));
+					}
+				});
+			}
+
+			bindEvents() {
+				document.addEventListener('mousedown', (e) => {
+					if (this.isOpen && !this.rootEl.contains(e.target)) {
+						this.close();
+					}
+				}, true);
+			}
+
+			show(x, y) {
+				this.isOpen = true;
+				this.rootEl.style.left = `${x}px`;
+				this.rootEl.style.top = `${y}px`;
+				this.rootEl.classList.add('open');
+
+				// Adjust position if menu would go off screen
+				const rect = this.rootEl.getBoundingClientRect();
+				const winWidth = window.innerWidth;
+				const winHeight = window.innerHeight;
+
+				if (x + rect.width > winWidth) {
+					this.rootEl.style.left = `${x - rect.width}px`;
+				}
+				if (y + rect.height > winHeight) {
+					this.rootEl.style.top = `${y - rect.height}px`;
+				}
+			}
+
+			close() {
+				this.isOpen = false;
+				this.rootEl.classList.remove('open');
+			}
+		}
+
+		return {
+			h, Store, Component, ThemeManager, CursorManager,
+			Controls: {
+				TextBox,
+				Button,
+				Checkbox,
+				Toggle,
+				RadioGroup,
+				Badge,
+				Slider,
+				ProgressBar,
+				ComboBox,
+				Tabs,
+				Panel,
+				ScrollView,
+				ContextMenu,
+				RangeSlider,
+				Window
+			},
+			mount: (component, parent) => component.mount(parent),
+		};
+	})();
+
+
+	/* Custom SVG Cursors */
+	NUI.CursorManager.register('default', (accent, bg) => `
+  <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'>
+    <path d='M1 1L6 15L8.5 8.5L15 6Z' fill='${accent}' stroke='${bg}' stroke-width='1.5'/>
+  </svg>
+`);
+
+	NUI.CursorManager.register('pointer', (accent, bg) => `
+  <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
+    <path d='M4 1L4 14L8 10L13 18L16 16L11 8L17 8Z' fill='${accent}' stroke='${bg}' stroke-width='1.5'/>
+  </svg>
+`);
+
+	NUI.CursorManager.register('text', (text, bg) => `
+  <svg xmlns='http://www.w3.org/2000/svg' width='12' height='20' viewBox='0 0 12 20'>
+    <path d='M2 2H10M6 2V18M4 18H8' stroke='${text}' stroke-width='1.5' fill='none'/>
+  </svg>
+`);
+
+	NUI.CursorManager.register('move', (accent, bg) => `
+  <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
+    <path d='M10 0L13 4H11V8H15V6L19 10L15 14V12H11V16H13L10 20L7 16H9V12H5V14L1 10L5 6V8H9V4H7Z' fill='${accent}' stroke='${bg}' stroke-width='0.5'/>
+  </svg>
+`);
+
+	NUI.CursorManager.register('hand', (accent, bg) => `
+  <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
+    <path d='M5 2V7H3V2C3 1.4 3.4 1 4 1C4.6 1 5 1.4 5 2ZM9 1V7H7V1C7 0.4 7.4 0 8 0C8.6 0 9 0.4 9 1ZM13 2V7H11V2C11 1.4 11.4 1 12 1C12.6 1 13 1.4 13 2ZM15 8V17C15 18.1 14.1 19 13 19H7C5.9 19 5 18.1 5 17V8C5 6.9 5.9 6 7 6H13C14.1 6 15 6.9 15 8Z' fill='${accent}' stroke='${bg}' stroke-width='0.5'/>
+  </svg>
+`);
+
+	NUI.CursorManager.register('move-h', (accent, bg) => `
+  <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
+    <path d='M2 10L6 6V8H14V6L18 10L14 14V12H6V14L2 10Z' fill='${accent}' stroke='${bg}' stroke-width='1'/>
+  </svg>
+`);
+
+
+	/* Themes */
+	NUI.ThemeManager.register('neo_dark', {
+		'--nui-bg': '#0b0d10',
+		'--nui-surface': '#13161b',
+		'--nui-surface-elevated': '#1a1e25',
+		'--nui-border': 'rgba(255, 255, 255, 0.06)',
+		'--nui-border-active': 'rgba(255, 255, 255, 0.12)',
+		'--nui-text': '#e1e4e8',
+		'--nui-text-dim': '#7a818c',
+		'--nui-text-muted': '#484f58',
+		'--nui-primary-btn-text': '#1a1e25',
+		'--nui-accent': '#00ffa3',
+		'--nui-accent-dim': 'rgba(0, 255, 163, 0.15)',
+		'--nui-accent-glow': 'rgba(0, 255, 163, 0.4)',
+		'--nui-blue': '#58a6ff',
+		'--nui-orange': '#f0883e',
+		'--nui-red': '#f85149',
+		'--nui-purple': '#bc8cff',
+	});
+
+	NUI.ThemeManager.register('neo_light', {
+		'--nui-bg': '#f6f8fa',
+		'--nui-surface': '#ffffff',
+		'--nui-surface-elevated': '#ffffff',
+		'--nui-border': 'rgba(0, 0, 0, 0.08)',
+		'--nui-border-active': 'rgba(0, 0, 0, 0.15)',
+		'--nui-text': '#24292f',
+		'--nui-text-dim': '#57606a',
+		'--nui-text-muted': '#8b949e',
+		'--nui-primary-btn-text': '#ffffff',
+		'--nui-accent': '#0066ff',
+		'--nui-accent-dim': 'rgba(0, 102, 255, 0.12)',
+		'--nui-accent-glow': 'rgba(0, 102, 255, 0.3)',
+		'--nui-blue': '#0550ae',
+		'--nui-orange': '#bc4c00',
+		'--nui-red': '#cf222e',
+		'--nui-purple': '#8250df',
+	});
+
+	NUI.ThemeManager.register('neo_cyber', {
+		'--nui-bg': '#0c0c14',
+		'--nui-surface': '#12121e',
+		'--nui-surface-elevated': '#1a1a2e',
+		'--nui-border': 'rgba(255, 0, 100, 0.15)',
+		'--nui-border-active': 'rgba(255, 0, 100, 0.3)',
+		'--nui-text': '#e0e0ff',
+		'--nui-text-dim': '#8888aa',
+		'--nui-text-muted': '#555577',
+		'--nui-primary-btn-text': '#1a1a2e',
+		'--nui-accent': '#ff0066',
+		'--nui-accent-dim': 'rgba(255, 0, 102, 0.15)',
+		'--nui-accent-glow': 'rgba(255, 0, 102, 0.5)',
+		'--nui-blue': '#00ffff',
+		'--nui-orange': '#ff9900',
+		'--nui-red': '#ff3300',
+		'--nui-purple': '#cc00ff',
+	});
+
+	NUI.ThemeManager.apply('neo_dark'); // Applies theme & cursors
+
+
+	/* ═══════════════════════════════════════════════════════════════
+	 *  DEMO SHOWCASE APPLICATION
+	 * ═══════════════════════════════════════════════════════════════ */
+
+	const appStore = new NUI.Store({progress: 45, themeName: 'neo_dark'});
+
+	class ShowcaseApp extends NUI.Component {
+		constructor() {
+			super();
+			const C = NUI.Controls;
+			const h = NUI.h;
+
+			this.textBox = new C.TextBox({placeholder: 'Type something...'});
+			this.comboBox = new C.ComboBox({
+				options: ['default', 'pointer', 'text', 'move', 'hand'],
+				selected: 'default',
+				onChange: (value) => NUI.CursorManager.setStyle(value)
+			});
+			this.checkBox1 = new C.Checkbox({label: 'Enable Shadows', checked: true});
+			this.checkBox2 = new C.Checkbox({label: 'V-Sync'});
+			this.toggle = new C.Toggle({label: 'Post Processing', checked: true});
+			this.radio = new C.RadioGroup({
+				name: 'quality',
+				options: [{label: 'Low', value: 'low'}, {label: 'Med', value: 'med'}, {label: 'High', value: 'high'}],
+				value: 'high'
+			});
+
+			this.badgeDefault = new C.Badge({label: 'Stable', variant: 'default'});
+			this.badgeWarn = new C.Badge({label: 'Deprecated', variant: 'warn'});
+			this.badgeError = new C.Badge({label: 'Critical', variant: 'error'});
+
+			this.btnPrimary = new C.Button({label: 'Primary', variant: 'primary'});
+			this.btnOutline = new C.Button({label: 'Outline', variant: 'outline'});
+			this.btnGlow = new C.Button({label: 'Glow', variant: 'glow'});
+
+			this.mainSlider = new C.Slider({min: 0, max: 100, value: 75, step: 1});
+			this.rangeSlider = new C.RangeSlider({min: 0, max: 100, minValue: 25, maxValue: 75, step: 1});
+			this.progressBar = new C.ProgressBar({value: 0, max: 100});
+
+			this.panel1 = new C.Panel({
+				title: 'Project Files', children: [
+					h('div', {
+							style: {
+								fontFamily: 'var(--nui-font-mono)',
+								fontSize: '11px',
+								color: 'var(--nui-text-dim)',
+								lineHeight: '1.6'
+							}
+						},
+						'src/', h('br'), '├── index.js', h('br'), '├── App.js', h('br'), '└── styles.css')
+				]
+			});
+
+			this.panel2 = new C.Panel({
+				title: 'Configuration', collapsed: true, children: [
+					new C.TextBox({placeholder: 'Config URL...'}).render()
+				]
+			});
+
+			this.scrollView = new C.ScrollView({
+				children: Array.from({length: 20}, (_, i) =>
+					h('div', {
+						style: {
+							padding: '6px 0',
+							borderBottom: '1px solid var(--nui-border)',
+							fontSize: '12px',
+							color: 'var(--nui-text-dim)'
+						}
+					}, `Log Entry ${i + 1}: System check passed [OK]`)
+				)
+			});
+
+			this.tabs = new C.Tabs({
+				tabs: [
+					{
+						id: 'tab1',
+						label: 'Display',
+						content: h('div', null, h('p', {
+							style: {
+								fontSize: '12px',
+								color: 'var(--nui-text-dim)',
+								lineHeight: '1.6',
+								marginBottom: '12px'
+							}
+						}, 'Select graphics quality and resolution. Custom cursors are active on this page. Try hovering over controls!'), this.radio.render())
+					},
+					{
+						id: 'tab2',
+						label: 'Audio',
+						content: h('div', null, new C.Slider({min: 0, max: 100, value: 80, step: 1}).render())
+					},
+					{
+						id: 'tab3',
+						label: 'Network',
+						content: h('div', null, new C.ComboBox({
+							options: ['EU-West', 'US-East', 'Asia-Pacific'],
+							selected: 'US-East'
+						}).render())
+					}
+				]
+			});
+
+			this.themeButtons = [
+				new C.Button({label: 'DARK', variant: 'primary', onClick: () => this.setTheme('neo_dark')}),
+				new C.Button({label: 'LIGHT', variant: 'outline', onClick: () => this.setTheme('neo_light')}),
+				new C.Button({label: 'CYBER', variant: 'outline', onClick: () => this.setTheme('neo_cyber')})
+			];
+
+			this.contextMenu = new C.ContextMenu({
+				items: [
+					{label: 'Refresh', icon: '↻', onClick: () => console.log('Refresh clicked')},
+					{label: 'Copy', icon: '⎘', onClick: () => console.log('Copy clicked')},
+					'divider',
+					{label: 'Settings', icon: '⚙', onClick: () => console.log('Settings clicked')},
+					{label: 'Delete', icon: '✕', danger: true, onClick: () => console.log('Delete clicked')}
+				]
+			});
+
+			this.demoWindow = new C.Window({
+				title: 'Demo Window',
+				width: 350,
+				height: 250,
+				x: 150,
+				y: 150,
+				icon: '◈',
+				showCompact: true,
+				showMinimize: true,
+				showMaximize: true,
+				onClose: () => console.log('Window closed'),
+				children: [
+					h('p', {style: {fontSize: '12px', color: 'var(--nui-text-dim)', marginBottom: '12px'}},
+						'This is a draggable and resizable window widget.'),
+					h('div', {style: {display: 'flex', gap: '8px', marginBottom: '12px'}},
+						new C.Button({label: 'OK', variant: 'primary'}).render(),
+						new C.Button({label: 'Cancel', variant: 'outline'}).render()
+					),
+					new C.TextBox({placeholder: 'Enter text...'}).render()
+				]
+			});
+		}
+
+		setTheme(name) {
+			NUI.ThemeManager.apply(name);
+			appStore.set('themeName', name);
+			this.themeButtons.forEach(btn => {
+				const isActive = btn.props.label.toLowerCase() === name.replace('neo_', '');
+				btn.setVariant(isActive ? 'primary' : 'outline');
+			});
+		}
+
+		createEl() {
+			const C = NUI.Controls;
+			const h = NUI.h;
+			return h('div', {id: 'app-root'},
+				h('div', {className: 'nui-header'},
+					h('div', null, h('div', {className: 'nui-title'}, 'Basic NeoUI'), h('div', {className: 'nui-subtitle'}, 'Web UI Framework by Cheatoid')),
+					h('div', {style: {display: 'flex', gap: '8px'}}, ...this.themeButtons.map(b => b.render()))
+				),
+				h('div', {className: 'nui-row'},
+					h('div', {className: 'nui-col'},
+						h('div', {className: 'nui-col-title'}, 'Inputs & Selection'),
+						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Glow TextBox'), this.textBox.render()),
+						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'ComboBox (Custom Dropdown)'), this.comboBox.render()),
+						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Checkboxes & Toggle'),
+							h('div', {
+								style: {
+									display: 'flex',
+									gap: '16px',
+									alignItems: 'center',
+									marginBottom: '8px'
+								}
+							}, this.checkBox1.render(), this.checkBox2.render(), this.toggle.render())
+						)
+					),
+					h('div', {className: 'nui-col'},
+						h('div', {className: 'nui-col-title'}, 'Actions & Status'),
+						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Animated Buttons'), h('div', {
+							style: {
+								display: 'flex',
+								gap: '8px'
+							}
+						}, this.btnPrimary.render(), this.btnOutline.render(), this.btnGlow.render())),
+						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Badges'), h('div', {
+							style: {
+								display: 'flex',
+								gap: '8px'
+							}
+						}, this.badgeDefault.render(), this.badgeWarn.render(), this.badgeError.render())),
+						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Slider (Wheel Supported)'), this.mainSlider.render()),
+						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Range Slider (Min/Max)'), this.rangeSlider.render()),
+						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Dynamic Progress Bar'), this.progressBar.render())
+					)
+				),
+				h('div', {className: 'nui-row'},
+					h('div', {className: 'nui-col'},
+						h('div', {className: 'nui-col-title'}, 'Panels & Tabs'),
+						this.panel1.render(), this.panel2.render(),
+						this.tabs.render()
+					),
+					h('div', {className: 'nui-col'},
+						h('div', {className: 'nui-col-title'}, 'Scroll View (Custom Scrollbar)'),
+						this.scrollView.render()
+					)
+				),
+				this.demoWindow.render()
+			);
+		}
+
+		onMount() {
+			this.progressInterval = setInterval(() => {
+				let p = appStore.get('progress') + Math.random() * 3;
+				if (p > 100) p = 0;
+				appStore.set('progress', p);
+				this.progressBar.setValue(p);
+			}, 400);
+
+			// Mount context menu to body
+			this.contextMenu.mount(document.body);
+
+			// Attach right-click event listener
+			document.addEventListener('contextmenu', (e) => {
+				e.preventDefault();
+				this.contextMenu.show(e.clientX, e.clientY);
+			});
+		}
+	}
+
+	const app = new ShowcaseApp();
+	app.mount(document.getElementById('app-root'));
+
+</script>
+</body>
+</html>
