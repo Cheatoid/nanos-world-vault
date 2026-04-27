@@ -35,6 +35,7 @@
     - [GAIMERS Loader](#gaimers-loader)
     - [Reflection](#reflection)
     - [Permission](#permission)
+    - [Autocompleter](#autocompleter)
     - [Standalone Utilities](#standalone-utilities)
     - [Benchmark](#benchmark)
     - [Rate Limiter](#rate-limiter)
@@ -1272,6 +1273,42 @@ perm.define_category_on(reg, "admin", { "kick", "ban" })
 local ctx2 = perm.new_context_on(reg)
 ```
 
+### Autocompleter
+
+Smart autocompletion algorithm with prefix, shorthand, substring, and fuzzy matching using Trie data structure. Ideal for text editors and command completion systems.
+
+[For example usage see here](https://github.com/Cheatoid/Lua.Scripts/blob/develop/autocompleter/example.lua).
+
+[Readme is here](https://github.com/Cheatoid/Lua.Scripts/blob/develop/autocompleter/README.md).
+
+Module file: [Shared/@cheatoid/autocompleter/autocompleter.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/autocompleter/autocompleter.lua)
+
+```lua
+local autocompleter = require "@cheatoid/autocompleter/autocompleter"
+
+local ac = autocompleter.new()
+ac:insert("apple")
+ac:insert("application")
+ac:insert("WriteLine")
+ac:insert("ReadLine")
+
+-- Prefix matching (default)
+local completions = ac:get_completions("ap")
+-- Returns: {"apple", "application"}
+
+-- Shorthand matching
+local completions = ac:get_completions("WL", { shorthand = true, prefix = false })
+-- Returns: {"WriteLine"}
+
+-- Substring matching
+local completions = ac:get_completions("Line", { substring = true, prefix = false })
+-- Returns: {"WriteLine", "ReadLine"}
+
+-- Fuzzy matching (typo tolerance)
+local completions = ac:get_completions("aple", { fuzzy = true, max_edit_distance = 1, prefix = false })
+-- Returns: {"apple"}
+```
+
 ### BigInteger
 
 Arbitrary-precision integer arithmetic for handling numbers that exceed Lua's number precision. Perfect for SteamIDs,
@@ -1462,43 +1499,43 @@ suite:compare()
 
 Various standalone utility modules:
 
-| Module                                                                         | Description                                  |
-|--------------------------------------------------------------------------------|----------------------------------------------|
-| [`base_encoder_decoder`](Shared/@cheatoid/standalone/base_encoder_decoder.lua) | Arbitrary Base encoding/decoding             |
-| [`benchmark`](Shared/@cheatoid/benchmark/init.lua)                             | Performance benchmarking toolkit             |
-| [`biginteger`](Shared/@cheatoid/standalone/biginteger.lua)                     | Arbitrary precision integers                 |
-| [`bit`](Shared/@cheatoid/standalone/bit.lua)                                   | 32-bit bitwise operations (with folding)     |
-| [`bits`](Shared/@cheatoid/standalone/bits.lua)                                 | Portable 32-bit bitwise operations utilities |
-| [`bitwise`](Shared/@cheatoid/standalone/bitwise.lua)                           | Portable 32-bit bitwise operations (masked)  |
-| [`cfg_parser`](Shared/@cheatoid/standalone/cfg_parser.lua)                     | Custom CFG file parser                       |
-| [`class`](Shared/@cheatoid/standalone/class.lua)                               | Lightweight class implementation             |
-| [`console`](Shared/@cheatoid/standalone/console.lua)                           | Interactive console with fuzzy completion    |
-| [`curry`](Shared/@cheatoid/standalone/curry.lua)                               | Function currying utility                    |
-| [`debug_helper`](Shared/@cheatoid/standalone/debug_helper.lua)                 | Debugger and debugging utilities             |
-| [`dump_table`](Shared/@cheatoid/standalone/dump_table.lua)                     | Recursive table dumper                       |
-| [`fold`](Shared/@cheatoid/standalone/fold.lua)                                 | Generic left-fold utility for vararg         |
-| [`isolated`](Shared/@cheatoid/standalone/isolated.lua)                         | Lua version compatibility & sandboxing       |
-| [`istype`](Shared/@cheatoid/standalone/istype.lua)                             | Simple type-checking functions               |
-| [`patcher`](Shared/@cheatoid/standalone/patcher.lua)                           | Code patching utilities                      |
-| [`pretty_grid`](Shared/@cheatoid/standalone/pretty_grid.lua)                   | Formatted grid/table printing                |
-| [`pretty_hex_dump`](Shared/@cheatoid/standalone/pretty_hex_dump.lua)           | Hex dump with ASCII view                     |
-| [`readonly`](Shared/@cheatoid/standalone/readonly.lua)                         | Read-only table wrapper                      |
-| [`runlua`](Shared/@cheatoid/standalone/runlua.lua)                             | Advanced code execution with sandboxing      |
-| [`to_string_literal`](Shared/@cheatoid/standalone/to_string_literal.lua)       | Convert values to string literals            |
-| [`track_value`](Shared/@cheatoid/standalone/track_value.lua)                   | Value change tracker with callbacks          |
-| [`try`](Shared/@cheatoid/standalone/try.lua)                                   | Exception handling with try/catch/finally    |
-| [`type_check`](Shared/@cheatoid/standalone/type_check.lua)                     | Runtime type checking and validation         |
-| [`util`](Shared/@cheatoid/standalone/util.lua)                                 | General utilities (coalesce, iff, etc.)      |
-| [`xml`](Shared/@cheatoid/standalone/xml.lua)                                   | XML parsing and serialization                |
-| [`zip`](Shared/@cheatoid/standalone/zip.lua)                                   | ZIP archive handling                         |
+| Module                                                                                                             | Description                                  |
+|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| [`base_encoder_decoder`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/base_encoder_decoder.lua) | Arbitrary Base encoding/decoding             |
+| [`benchmark`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/benchmark/init.lua)                             | Performance benchmarking toolkit             |
+| [`biginteger`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/biginteger.lua)                     | Arbitrary precision integers                 |
+| [`bit`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/bit.lua)                                   | 32-bit bitwise operations (with folding)     |
+| [`bits`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/bits.lua)                                 | Portable 32-bit bitwise operations utilities |
+| [`bitwise`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/bitwise.lua)                           | Portable 32-bit bitwise operations (masked)  |
+| [`cfg_parser`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/cfg_parser.lua)                     | Custom CFG file parser                       |
+| [`class`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/class.lua)                               | Lightweight class implementation             |
+| [`console`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/console.lua)                           | Interactive console with fuzzy completion    |
+| [`curry`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/curry.lua)                               | Function currying utility                    |
+| [`debug_helper`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/debug_helper.lua)                 | Debugger and debugging utilities             |
+| [`dump_table`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/dump_table.lua)                     | Recursive table dumper                       |
+| [`fold`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/fold.lua)                                 | Generic left-fold utility for vararg         |
+| [`isolated`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/isolated.lua)                         | Lua version compatibility & sandboxing       |
+| [`istype`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/istype.lua)                             | Simple type-checking functions               |
+| [`patcher`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/patcher.lua)                           | Code patching utilities                      |
+| [`pretty_grid`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/pretty_grid.lua)                   | Formatted grid/table printing                |
+| [`pretty_hex_dump`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/pretty_hex_dump.lua)           | Hex dump with ASCII view                     |
+| [`readonly`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/readonly.lua)                         | Read-only table wrapper                      |
+| [`runlua`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/runlua.lua)                             | Advanced code execution with sandboxing      |
+| [`to_string_literal`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/to_string_literal.lua)       | Convert values to string literals            |
+| [`track_value`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/track_value.lua)                   | Value change tracker with callbacks          |
+| [`try`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/try.lua)                                   | Exception handling with try/catch/finally    |
+| [`type_check`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/type_check.lua)                     | Runtime type checking and validation         |
+| [`util`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/util.lua)                                 | General utilities (coalesce, iff, etc.)      |
+| [`xml`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/xml.lua)                                   | XML parsing and serialization                |
+| [`zip`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/zip.lua)                                   | ZIP archive handling                         |
 
-**Extensions** (modify built-in types):
+**Extensions** (globally modify built-in types, extends Lua syntax):
 
-| Module                             | Description                                                                       |
-|------------------------------------|-----------------------------------------------------------------------------------|
-| `extensions/number`                | Adds time units, data sizes, duration objects to numbers                          |
-| `extensions/string`                | Adds `+` for concatenation, `*` for repetition, `<<`/`>>` for rotation to strings |
-| `extensions/pretty_print_function` | Pretty-print functions with source info                                           |
+| Module                                                                                                                          | Description                                                                       |
+|---------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`extensions/number`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/extensions/number.lua)                               | Adds time units, data sizes, duration objects to numbers                          |
+| [`extensions/string`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/extensions/string.lua)                               | Adds `+` for concatenation, `*` for repetition, `<<`/`>>` for rotation to strings |
+| [`extensions/pretty_print_function`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/extensions/pretty_print_function.lua) | Pretty-print functions with source info                                           |
 
 ```lua
 -- 32-bit bitwise operations (bit32 API compatible)
