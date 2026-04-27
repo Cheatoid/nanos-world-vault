@@ -18,11 +18,11 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.39",
-	timestamp = "2026-04-27 09:50:44",
-	commit_count = 236,
+	timestamp = "2026-04-27 10:08:14",
+	commit_count = 238,
 	tag_count = 36,
 	branch_name = "main",
-	prev_hash = "c5805f6d086c74b26fe4b1aefdcbefe9d764fd98",
+	prev_hash = "72aad758ed0a9becbb82328de5cd871dff5dbb75",
 	tag = "v0.0.40",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
@@ -48,7 +48,7 @@ return {
 		["Client/UI/Fake3D.html"] = "56dc6c81cf1b4057495c78ae3e0b24259b159db26a4568495ed8b53cd160821e",
 		["Client/UI/HashAPI.html"] = "bc72bea4faa9949df900649e3017c2018cd148dd6862dfc718d6435cf8bc1820",
 		["Client/UI/NUI.html"] = "c7e5ab005de2b6ea170991e1db9e735d96a56621eca492177e7113681361a25f",
-		["Client/UI/NewTabPage.html"] = "cf91164adb00d534fb3eba7afe5a9d1f17e512d2628355f71d8ad5467e738251",
+		["Client/UI/NewTabPage.html"] = "679f6ecf0a91afe9b32afc7fac6d6cf5f3d5ced837d34de7d36c5412100ddbf2",
 		["Client/UI/RegexAPI.html"] = "e5668cf755adbe80de9c1531b47eddf068350d65f999c5046e36a613f7aec481",
 		["Client/UI/Transparent.html"] = "a04b61709eb9c7025981a30022a23aecc09fd2a6b5e6c633d00112f17d095490",
 		["Client/UI/WebAudioAPI.html"] = "90fbdc96cde9d77b6f6b72d1bf5a6f27e5156665edf0c117df7d379546ae29b0",

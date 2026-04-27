@@ -323,6 +323,44 @@ License: MIT
 			border: none;
 		}
 
+		.bg-type-selector {
+			display: flex;
+			gap: 15px;
+			margin-bottom: 15px;
+		}
+
+		.bg-type-option {
+			flex: 1;
+			padding: 10px;
+			background: rgba(255, 255, 255, 0.1);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 10px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			text-align: center;
+		}
+
+		.bg-type-option:hover {
+			background: rgba(255, 255, 255, 0.15);
+		}
+
+		.bg-type-option.active {
+			background: rgba(255, 31, 90, 0.3);
+			border-color: #ff1f5a;
+		}
+
+		.bg-type-option input {
+			display: none;
+		}
+
+		.image-url-input {
+			display: none;
+		}
+
+		.image-url-input.active {
+			display: block;
+		}
+
 		.close-btn {
 			position: absolute;
 			top: 15px;
@@ -514,20 +552,39 @@ License: MIT
 	</button>
 	<h2>Settings</h2>
 	<div class="settings-group">
-		<label>Background Color 1</label>
-		<input type="color" id="bgColor1" value="#1a1a2e">
+		<label>Background Type</label>
+		<div class="bg-type-selector">
+			<label class="bg-type-option active" id="gradientOption">
+				<input type="radio" name="bgType" value="gradient" checked>
+				Gradient
+			</label>
+			<label class="bg-type-option" id="imageOption">
+				<input type="radio" name="bgType" value="image">
+				Image
+			</label>
+		</div>
 	</div>
-	<div class="settings-group">
-		<label>Background Color 2</label>
-		<input type="color" id="bgColor2" value="#16213e">
+	<div id="gradientSettings">
+		<div class="settings-group">
+			<label>Background Color 1</label>
+			<input type="color" id="bgColor1" value="#1a1a2e">
+		</div>
+		<div class="settings-group">
+			<label>Background Color 2</label>
+			<input type="color" id="bgColor2" value="#16213e">
+		</div>
+		<div class="settings-group">
+			<label>Background Color 3</label>
+			<input type="color" id="bgColor3" value="#0f3460">
+		</div>
+		<div class="settings-group">
+			<label>Gradient Angle: <span id="angleValue">135</span>°</label>
+			<input type="range" id="gradientAngle" min="0" max="360" value="135">
+		</div>
 	</div>
-	<div class="settings-group">
-		<label>Background Color 3</label>
-		<input type="color" id="bgColor3" value="#0f3460">
-	</div>
-	<div class="settings-group">
-		<label>Gradient Angle: <span id="angleValue">135</span>°</label>
-		<input type="range" id="gradientAngle" min="0" max="360" value="135">
+	<div class="settings-group image-url-input" id="imageSettings">
+		<label>Background Image URL</label>
+		<input type="text" id="bgImageUrl" placeholder="https://example.com/image.jpg">
 	</div>
 	<div class="settings-group">
 		<label>Accent Color</label>
@@ -612,10 +669,12 @@ License: MIT
 
 	// Default settings
 	const defaultSettings = {
+		bgType: 'gradient',
 		bgColor1: '#1a1a2e',
 		bgColor2: '#16213e',
 		bgColor3: '#0f3460',
 		gradientAngle: 135,
+		bgImageUrl: '',
 		accentColor: '#ff1f5a'
 	};
 
@@ -626,14 +685,32 @@ License: MIT
 	const bgColor2 = document.getElementById('bgColor2');
 	const bgColor3 = document.getElementById('bgColor3');
 	const accentColor = document.getElementById('accentColor');
+	const bgImageUrl = document.getElementById('bgImageUrl');
+	const gradientOption = document.getElementById('gradientOption');
+	const imageOption = document.getElementById('imageOption');
+	const gradientSettings = document.getElementById('gradientSettings');
+	const imageSettings = document.getElementById('imageSettings');
+
+	// Background type selection
+	let currentBgType = 'gradient';
 
 	// Function to update background in real-time
 	function updateBackground() {
-		const angle = gradientAngle.value;
-		const bg1 = bgColor1.value;
-		const bg2 = bgColor2.value;
-		const bg3 = bgColor3.value;
-		document.body.style.background = `linear-gradient(${angle}deg, ${bg1} 0%, ${bg2} 50%, ${bg3} 100%)`;
+		if (currentBgType === 'gradient') {
+			const angle = gradientAngle.value;
+			const bg1 = bgColor1.value;
+			const bg2 = bgColor2.value;
+			const bg3 = bgColor3.value;
+			document.body.style.background = `linear-gradient(${angle}deg, ${bg1} 0%, ${bg2} 50%, ${bg3} 100%)`;
+		} else if (currentBgType === 'image') {
+			const url = bgImageUrl.value.trim();
+			if (url) {
+				document.body.style.background = `url('${url}') center center / cover no-repeat fixed`;
+			} else {
+				// Fallback to default gradient if no URL provided
+				document.body.style.background = `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`;
+			}
+		}
 	}
 
 	// Real-time preview for gradient angle
@@ -642,12 +719,41 @@ License: MIT
 		updateBackground();
 	});
 
+	// Background type switching
+	gradientOption.addEventListener('click', () => {
+		currentBgType = 'gradient';
+		gradientOption.classList.add('active');
+		imageOption.classList.remove('active');
+		gradientSettings.style.display = 'block';
+		imageSettings.classList.remove('active');
+		updateBackground();
+	});
+
+	imageOption.addEventListener('click', () => {
+		currentBgType = 'image';
+		imageOption.classList.add('active');
+		gradientOption.classList.remove('active');
+		gradientSettings.style.display = 'none';
+		imageSettings.classList.add('active');
+		updateBackground();
+	});
+
+	// Real-time preview for background image URL
+	bgImageUrl.addEventListener('input', () => {
+		if (currentBgType === 'image') {
+			updateBackground();
+		}
+	});
+
 	// Prevent click propagation on inputs to avoid modal closing
 	bgColor1.addEventListener('click', (e) => e.stopPropagation());
 	bgColor2.addEventListener('click', (e) => e.stopPropagation());
 	bgColor3.addEventListener('click', (e) => e.stopPropagation());
 	gradientAngle.addEventListener('click', (e) => e.stopPropagation());
 	accentColor.addEventListener('click', (e) => e.stopPropagation());
+	bgImageUrl.addEventListener('click', (e) => e.stopPropagation());
+	gradientOption.addEventListener('click', (e) => e.stopPropagation());
+	imageOption.addEventListener('click', (e) => e.stopPropagation());
 
 	// Prevent click propagation on buttons
 	saveSettings.addEventListener('click', (e) => e.stopPropagation());
@@ -679,13 +785,34 @@ License: MIT
 	const savedSettings = localStorage.getItem('newTabSettings');
 	if (savedSettings) {
 		const settings = JSON.parse(savedSettings);
-		const angle = settings.gradientAngle || 135;
-		document.body.style.background = `linear-gradient(${angle}deg, ${settings.bgColor1} 0%, ${settings.bgColor2} 50%, ${settings.bgColor3} 100%)`;
-		document.getElementById('bgColor1').value = settings.bgColor1;
-		document.getElementById('bgColor2').value = settings.bgColor2;
-		document.getElementById('bgColor3').value = settings.bgColor3;
-		document.getElementById('gradientAngle').value = angle;
-		document.getElementById('angleValue').textContent = angle;
+		currentBgType = settings.bgType || 'gradient';
+
+		// Update UI based on background type
+		if (currentBgType === 'gradient') {
+			gradientOption.classList.add('active');
+			imageOption.classList.remove('active');
+			gradientSettings.style.display = 'block';
+			imageSettings.classList.remove('active');
+			const angle = settings.gradientAngle || 135;
+			document.body.style.background = `linear-gradient(${angle}deg, ${settings.bgColor1} 0%, ${settings.bgColor2} 50%, ${settings.bgColor3} 100%)`;
+			document.getElementById('bgColor1').value = settings.bgColor1;
+			document.getElementById('bgColor2').value = settings.bgColor2;
+			document.getElementById('bgColor3').value = settings.bgColor3;
+			document.getElementById('gradientAngle').value = angle;
+			document.getElementById('angleValue').textContent = angle;
+		} else if (currentBgType === 'image') {
+			imageOption.classList.add('active');
+			gradientOption.classList.remove('active');
+			gradientSettings.style.display = 'none';
+			imageSettings.classList.add('active');
+			const url = settings.bgImageUrl || '';
+			if (url) {
+				document.body.style.background = `url('${url}') center center / cover no-repeat fixed`;
+			} else {
+				document.body.style.background = `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`;
+			}
+			document.getElementById('bgImageUrl').value = url;
+		}
 		document.getElementById('accentColor').value = settings.accentColor;
 
 		// Apply accent color
@@ -720,10 +847,12 @@ License: MIT
 	settingsBtn.addEventListener('click', () => {
 		// Store original values before opening modal
 		window.originalSettings = {
+			bgType: currentBgType,
 			bgColor1: bgColor1.value,
 			bgColor2: bgColor2.value,
 			bgColor3: bgColor3.value,
 			gradientAngle: gradientAngle.value,
+			bgImageUrl: bgImageUrl.value,
 			accentColor: accentColor.value
 		};
 		settingsModal.classList.add('active');
@@ -736,12 +865,27 @@ License: MIT
 	closeSettings.addEventListener('click', () => {
 		// Restore original values
 		if (window.originalSettings) {
+			currentBgType = window.originalSettings.bgType;
 			bgColor1.value = window.originalSettings.bgColor1;
 			bgColor2.value = window.originalSettings.bgColor2;
 			bgColor3.value = window.originalSettings.bgColor3;
 			gradientAngle.value = window.originalSettings.gradientAngle;
 			angleValue.textContent = window.originalSettings.gradientAngle;
+			bgImageUrl.value = window.originalSettings.bgImageUrl;
 			accentColor.value = window.originalSettings.accentColor;
+
+			// Restore UI state
+			if (currentBgType === 'gradient') {
+				gradientOption.classList.add('active');
+				imageOption.classList.remove('active');
+				gradientSettings.style.display = 'block';
+				imageSettings.classList.remove('active');
+			} else {
+				imageOption.classList.add('active');
+				gradientOption.classList.remove('active');
+				gradientSettings.style.display = 'none';
+				imageSettings.classList.add('active');
+			}
 
 			// Apply original settings
 			updateBackground();
@@ -754,15 +898,17 @@ License: MIT
 
 	saveSettings.addEventListener('click', () => {
 		const settings = {
+			bgType: currentBgType,
 			bgColor1: document.getElementById('bgColor1').value,
 			bgColor2: document.getElementById('bgColor2').value,
 			bgColor3: document.getElementById('bgColor3').value,
 			gradientAngle: document.getElementById('gradientAngle').value,
+			bgImageUrl: document.getElementById('bgImageUrl').value,
 			accentColor: document.getElementById('accentColor').value
 		};
 
 		localStorage.setItem('newTabSettings', JSON.stringify(settings));
-		document.body.style.background = `linear-gradient(${settings.gradientAngle}deg, ${settings.bgColor1} 0%, ${settings.bgColor2} 50%, ${settings.bgColor3} 100%)`;
+		updateBackground();
 
 		// Apply accent color
 		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
@@ -776,12 +922,20 @@ License: MIT
 	});
 
 	resetSettings.addEventListener('click', () => {
+		// Reset to default gradient
+		currentBgType = defaultSettings.bgType;
+		gradientOption.classList.add('active');
+		imageOption.classList.remove('active');
+		gradientSettings.style.display = 'block';
+		imageSettings.classList.remove('active');
+
 		// Reset color inputs to defaults
 		document.getElementById('bgColor1').value = defaultSettings.bgColor1;
 		document.getElementById('bgColor2').value = defaultSettings.bgColor2;
 		document.getElementById('bgColor3').value = defaultSettings.bgColor3;
 		document.getElementById('gradientAngle').value = defaultSettings.gradientAngle;
 		document.getElementById('angleValue').textContent = defaultSettings.gradientAngle;
+		document.getElementById('bgImageUrl').value = defaultSettings.bgImageUrl;
 		document.getElementById('accentColor').value = defaultSettings.accentColor;
 
 		// Apply default colors
@@ -799,12 +953,27 @@ License: MIT
 		if (e.target === settingsModal) {
 			// Restore original values before closing
 			if (window.originalSettings) {
+				currentBgType = window.originalSettings.bgType;
 				bgColor1.value = window.originalSettings.bgColor1;
 				bgColor2.value = window.originalSettings.bgColor2;
 				bgColor3.value = window.originalSettings.bgColor3;
 				gradientAngle.value = window.originalSettings.gradientAngle;
 				angleValue.textContent = window.originalSettings.gradientAngle;
+				bgImageUrl.value = window.originalSettings.bgImageUrl;
 				accentColor.value = window.originalSettings.accentColor;
+
+				// Restore UI state
+				if (currentBgType === 'gradient') {
+					gradientOption.classList.add('active');
+					imageOption.classList.remove('active');
+					gradientSettings.style.display = 'block';
+					imageSettings.classList.remove('active');
+				} else {
+					imageOption.classList.add('active');
+					gradientOption.classList.remove('active');
+					gradientSettings.style.display = 'none';
+					imageSettings.classList.add('active');
+				}
 
 				// Apply original settings
 				updateBackground();
