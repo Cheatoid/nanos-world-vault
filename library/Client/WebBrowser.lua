@@ -12,7 +12,7 @@ local WebBrowser = {}
 local ChromeWebUI = WebUI(
 	Package.GetName() .. ":webbrowser.chrome",
 	"file://UI/WebBrowser.html",
-	WidgetVisibility.Hidden, true, true
+	WidgetVisibility.Hidden, false, false
 )
 
 -- Tab management
@@ -656,9 +656,9 @@ function WebBrowser.Close()
 		saveTabs()
 	end
 
-	-- Restore input to previous state
-	Input.SetInputEnabled(savedInputEnabled)
-	Input.SetMouseEnabled(savedMouseEnabled)
+	-- Restore input to gameplay state (input enabled, mouse disabled for camera control)
+	Input.SetInputEnabled(true)
+	Input.SetMouseEnabled(false)
 
 	ChromeWebUI:SetVisibility(WidgetVisibility.Hidden)
 
