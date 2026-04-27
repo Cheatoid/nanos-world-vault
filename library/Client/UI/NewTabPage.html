@@ -1,0 +1,821 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>New Tab</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		html, body {
+			height: 100%;
+			overflow: auto;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
+
+		body {
+			background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+			color: #e0e0e0;
+			min-height: 100vh;
+			padding: 40px;
+		}
+
+		.container {
+			max-width: 1200px;
+			width: 100%;
+			text-align: center;
+			margin: 0 auto;
+		}
+
+		.clock {
+			font-size: 72px;
+			font-weight: 300;
+			margin-bottom: 10px;
+			text-shadow: 0 0 20px rgba(255, 31, 90, 0.5);
+		}
+
+		.date {
+			font-size: 24px;
+			color: #a0a0a0;
+			margin-bottom: 40px;
+		}
+
+		.analog-clock {
+			width: 150px;
+			height: 150px;
+			border: 4px solid rgba(255, 255, 255, 0.3);
+			border-radius: 50%;
+			position: relative;
+			margin: 0 auto 40px;
+			background: rgba(255, 255, 255, 0.1);
+			backdrop-filter: blur(10px);
+		}
+
+		.analog-clock::before {
+			content: '';
+			position: absolute;
+			width: 10px;
+			height: 10px;
+			background: white;
+			border-radius: 50%;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: 10;
+		}
+
+		.hand {
+			position: absolute;
+			bottom: 50%;
+			left: 50%;
+			transform-origin: bottom center;
+			background: white;
+			border-radius: 4px;
+		}
+
+		.hour-hand {
+			width: 4px;
+			height: 40px;
+			margin-left: -2px;
+		}
+
+		.minute-hand {
+			width: 3px;
+			height: 55px;
+			margin-left: -1.5px;
+		}
+
+		.second-hand {
+			width: 2px;
+			height: 60px;
+			margin-left: -1px;
+			background: #ff1f5a;
+		}
+
+		.clock-container {
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			text-align: right;
+			z-index: 1;
+		}
+
+		.clock-container .analog-clock {
+			margin: 0 0 10px auto;
+		}
+
+		.clock-container .clock {
+			font-size: 48px;
+			margin-bottom: 5px;
+		}
+
+		.clock-container .date {
+			font-size: 18px;
+			margin-bottom: 0;
+		}
+
+		.search-container {
+			margin-bottom: 50px;
+		}
+
+		.search-box {
+			display: flex;
+			align-items: center;
+			background: rgba(255, 255, 255, 0.1);
+			border-radius: 30px;
+			padding: 15px 25px;
+			max-width: 600px;
+			margin: 0 auto;
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			transition: all 0.3s ease;
+		}
+
+		.search-box:focus-within {
+			background: rgba(255, 255, 255, 0.15);
+			border-color: rgba(255, 31, 90, 0.5);
+			box-shadow: 0 0 20px rgba(255, 31, 90, 0.3);
+		}
+
+		.search-box input {
+			flex: 1;
+			background: transparent;
+			border: none;
+			outline: none;
+			font-size: 18px;
+			color: #e0e0e0;
+			padding: 5px;
+		}
+
+		.search-box input::placeholder {
+			color: #a0a0a0;
+		}
+
+		.search-box button {
+			background: transparent;
+			border: none;
+			color: #ff1f5a;
+			font-size: 20px;
+			cursor: pointer;
+			padding: 5px 10px;
+			transition: transform 0.2s ease;
+		}
+
+		.search-box button:hover {
+			transform: scale(1.1);
+		}
+
+		.quick-links {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+			gap: 20px;
+			max-width: 800px;
+			margin: 0 auto;
+		}
+
+		.quick-link {
+			background: rgba(255, 255, 255, 0.1);
+			border-radius: 15px;
+			padding: 20px;
+			text-decoration: none;
+			color: #e0e0e0;
+			transition: all 0.3s ease;
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.quick-link:hover {
+			background: rgba(255, 255, 255, 0.15);
+			transform: translateY(-5px);
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+			border-color: rgba(255, 31, 90, 0.5);
+		}
+
+		.quick-link i {
+			font-size: 32px;
+			color: #ff1f5a;
+		}
+
+		.quick-link span {
+			font-size: 14px;
+			font-weight: 500;
+		}
+
+		.settings-btn {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			background: rgba(255, 255, 255, 0.1);
+			border: none;
+			color: #e0e0e0;
+			font-size: 24px;
+			padding: 15px;
+			border-radius: 50%;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.settings-btn:hover {
+			background: rgba(255, 255, 255, 0.15);
+			transform: rotate(90deg);
+		}
+
+		.settings-modal {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(0.9);
+			background: rgba(26, 26, 46, 0.95);
+			border-radius: 20px;
+			padding: 30px;
+			max-width: 500px;
+			width: 90%;
+			opacity: 0;
+			visibility: hidden;
+			transition: all 0.3s ease;
+			backdrop-filter: blur(20px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			z-index: 999999;
+		}
+
+		.settings-modal.active {
+			opacity: 1;
+			visibility: visible;
+			transform: translate(-50%, -50%) scale(1);
+		}
+
+		.settings-modal h2 {
+			margin-bottom: 20px;
+			color: #ff1f5a;
+		}
+
+		.settings-group {
+			margin-bottom: 20px;
+		}
+
+		.settings-group label {
+			display: block;
+			margin-bottom: 10px;
+			font-weight: 500;
+		}
+
+		.settings-group input[type="text"],
+		.settings-group select {
+			width: 100%;
+			padding: 10px;
+			background: rgba(255, 255, 255, 0.1);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 10px;
+			color: #e0e0e0;
+			font-size: 14px;
+		}
+
+		.settings-group input[type="color"] {
+			width: 100%;
+			height: 40px;
+			border: none;
+			border-radius: 10px;
+			cursor: pointer;
+		}
+
+		.settings-group input[type="range"] {
+			width: 100%;
+			height: 40px;
+			border: none;
+			border-radius: 10px;
+			cursor: pointer;
+			-webkit-appearance: none;
+			background: rgba(255, 255, 255, 0.1);
+		}
+
+		.settings-group input[type="range"]::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #ff1f5a;
+			cursor: pointer;
+		}
+
+		.settings-group input[type="range"]::-moz-range-thumb {
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #ff1f5a;
+			cursor: pointer;
+			border: none;
+		}
+
+		.close-btn {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background: transparent;
+			border: none;
+			color: #e0e0e0;
+			font-size: 24px;
+			cursor: pointer;
+			transition: transform 0.2s ease;
+		}
+
+		.close-btn:hover {
+			transform: rotate(90deg);
+		}
+
+		.settings-buttons {
+			display: flex;
+			gap: 10px;
+			justify-content: flex-end;
+			margin-top: 20px;
+		}
+
+		.reset-btn {
+			background: rgba(255, 255, 255, 0.1);
+			color: #e0e0e0;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			padding: 12px 20px;
+			border-radius: 25px;
+			font-size: 16px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.reset-btn:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+
+		.save-btn {
+			background: #ff1f5a;
+			color: white;
+			border: none;
+			padding: 12px 30px;
+			border-radius: 25px;
+			font-size: 16px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.save-btn:hover {
+			background: #ff1f5a;
+			transform: scale(1.05);
+			box-shadow: 0 5px 20px rgba(255, 31, 90, 0.4);
+		}
+	</style>
+</head>
+<body>
+<button class="settings-btn" id="settingsBtn">
+	<i class="fas fa-cog"></i>
+</button>
+
+<div class="container">
+	<div class="search-container">
+		<div class="search-box">
+			<input type="text" id="searchInput" placeholder="Search the web...">
+			<button id="searchBtn">
+				<i class="fas fa-search"></i>
+			</button>
+		</div>
+	</div>
+
+	<div class="quick-links" id="quickLinks">
+		<a href="https://cheatoid.github.io/nanos-world-vault/2036/bootstrapper.html" class="quick-link">
+			<i class="fas fa-gamepad"></i>
+			<span>Neo Wars<br>(WIP)</span>
+		</a>
+		<a href="file://UI/ConsoleEngine.html" class="quick-link">
+			<i class="fas fa-terminal"></i>
+			<span>Console (WIP)</span>
+		</a>
+		<a href="file://UI/Constellation.html" class="quick-link">
+			<i class="fas fa-star"></i>
+			<span>Constellation</span>
+		</a>
+		<a href="file://UI/Fake3D.html" class="quick-link">
+			<i class="fas fa-cube"></i>
+			<span>Fake3D</span>
+		</a>
+		<a href="file://UI/Transparent.html" class="quick-link">
+			<span>Transparent</span>
+		</a>
+		<a href="https://docs.nanos-world.com" class="quick-link">
+			<i class="fas fa-book"></i>
+			<span>nanos-world Docs</span>
+		</a>
+		<a href="https://feedback.nanos-world.com" class="quick-link">
+			<i class="fas fa-comments"></i>
+			<!--<i class="fas fa-comment-dots"></i>-->
+			<span>nanos-world Feedback</span>
+		</a>
+		<a href="https://discord.gg/nanos-world" class="quick-link">
+			<i class="fab fa-discord"></i>
+			<span>nanos-world Discord</span>
+		</a>
+		<a href="https://openrouter.ai/chat" class="quick-link">
+			<i class="fas fa-microchip"></i>
+			<span>OpenRouter<br>AI playground</span>
+		</a>
+		<a href="https://cloud.siliconflow.com/me/playground/chat" class="quick-link">
+			<i class="fas fa-microchip"></i>
+			<span>SiliconFlow</span>
+		</a>
+		<a href="https://chat.z.ai" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Z.ai GLM</span>
+		</a>
+		<a href="https://chatgpt.com" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>ChatGPT</span>
+		</a>
+		<a href="https://gemini.google.com/app" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Gemini</span>
+		</a>
+		<a href="https://copilot.microsoft.com" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Microsoft Copilot</span>
+		</a>
+		<a href="https://www.kimi.com/?chat_enter_method=new_chat" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Kimi</span>
+		</a>
+		<a href="https://chat.deepseek.com" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>DeepSeek</span>
+		</a>
+		<a href="https://chat.mistral.ai/chat" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Mistral AI</span>
+		</a>
+		<a href="https://www.perplexity.ai" class="quick-link">
+			<i class="fas fa-brain"></i>
+			<span>Perplexity</span>
+		</a>
+		<a href="https://www.google.com" class="quick-link">
+			<i class="fab fa-google"></i>
+			<span>Google</span>
+		</a>
+		<a href="https://www.youtube.com" class="quick-link">
+			<i class="fab fa-youtube"></i>
+			<span>YouTube</span>
+		</a>
+		<a href="https://www.twitch.tv" class="quick-link">
+			<i class="fab fa-twitch"></i>
+			<span>Twitch</span>
+		</a>
+		<a href="https://github.com" class="quick-link">
+			<i class="fab fa-github"></i>
+			<span>GitHub</span>
+		</a>
+		<a href="https://www.reddit.com" class="quick-link">
+			<i class="fab fa-reddit"></i>
+			<span>Reddit</span>
+		</a>
+		<a href="https://x.com" class="quick-link">
+			<i class="fab fa-twitter"></i>
+			<span>X (Twitter)</span>
+		</a>
+	</div>
+</div>
+
+<div class="clock-container">
+	<div class="analog-clock">
+		<div class="hand hour-hand" id="hourHand"></div>
+		<div class="hand minute-hand" id="minuteHand"></div>
+		<div class="hand second-hand" id="secondHand"></div>
+	</div>
+	<div class="clock" id="clock">00:00:00</div>
+	<div class="date" id="date">Loading...</div>
+</div>
+
+<div class="settings-modal" id="settingsModal">
+	<button class="close-btn" id="closeSettings">
+		<i class="fas fa-times"></i>
+	</button>
+	<h2>Settings</h2>
+	<div class="settings-group">
+		<label>Background Color 1</label>
+		<input type="color" id="bgColor1" value="#1a1a2e">
+	</div>
+	<div class="settings-group">
+		<label>Background Color 2</label>
+		<input type="color" id="bgColor2" value="#16213e">
+	</div>
+	<div class="settings-group">
+		<label>Background Color 3</label>
+		<input type="color" id="bgColor3" value="#0f3460">
+	</div>
+	<div class="settings-group">
+		<label>Gradient Angle: <span id="angleValue">135</span>°</label>
+		<input type="range" id="gradientAngle" min="0" max="360" value="135">
+	</div>
+	<div class="settings-group">
+		<label>Accent Color</label>
+		<input type="color" id="accentColor" value="#ff1f5a">
+	</div>
+	<div class="settings-buttons">
+		<button class="reset-btn" id="resetSettings">Reset to Default</button>
+		<button class="save-btn" id="saveSettings">Save Settings</button>
+	</div>
+</div>
+
+<script>
+	// Clock
+	function updateClock() {
+		const now = new Date();
+		const hours = String(now.getHours()).padStart(2, '0');
+		const minutes = String(now.getMinutes()).padStart(2, '0');
+		const seconds = String(now.getSeconds()).padStart(2, '0');
+		document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+
+		const options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
+		document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+
+		// Update analog clock
+		const hourDeg = (now.getHours() % 12) * 30 + now.getMinutes() * 0.5;
+		const minuteDeg = now.getMinutes() * 6 + now.getSeconds() * 0.1;
+		const secondDeg = now.getSeconds() * 6;
+
+		document.getElementById('hourHand').style.transform = `rotate(${hourDeg}deg)`;
+		document.getElementById('minuteHand').style.transform = `rotate(${minuteDeg}deg)`;
+		document.getElementById('secondHand').style.transform = `rotate(${secondDeg}deg)`;
+	}
+
+	updateClock();
+	setInterval(updateClock, 1000);
+
+	// Search
+	const searchInput = document.getElementById('searchInput');
+	const searchBtn = document.getElementById('searchBtn');
+
+	function performSearch() {
+		const query = searchInput.value.trim();
+		if (query) {
+			// Check if it's a valid URL, otherwise use DuckDuckGo search
+			let url;
+			if (query.startsWith('http://') || query.startsWith('https://') || query.includes('://')) {
+				url = query;
+			} else if ((query.includes('.') || query.includes('/')) && !query.includes(' ')) {
+				url = `https://${query}`;
+			} else {
+				// Use DuckDuckGo search
+				url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+			}
+			if (typeof Events !== 'undefined') {
+				Events.Call('Navigate', url);
+			}
+		}
+	}
+
+	searchBtn.addEventListener('click', performSearch);
+	searchInput.addEventListener('keypress', (e) => {
+		if (e.key === 'Enter') performSearch();
+	});
+
+	// Quick links
+	document.querySelectorAll('.quick-link').forEach(link => {
+		link.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation(); // Prevent injected JS from handling this click
+			if (typeof Events !== 'undefined') {
+				Events.Call('Navigate', link.href);
+			}
+		});
+	});
+
+	// Settings
+	const settingsBtn = document.getElementById('settingsBtn');
+	const settingsModal = document.getElementById('settingsModal');
+	const closeSettings = document.getElementById('closeSettings');
+	const saveSettings = document.getElementById('saveSettings');
+	const resetSettings = document.getElementById('resetSettings');
+
+	// Default settings
+	const defaultSettings = {
+		bgColor1: '#1a1a2e',
+		bgColor2: '#16213e',
+		bgColor3: '#0f3460',
+		gradientAngle: 135,
+		accentColor: '#ff1f5a'
+	};
+
+	// Gradient angle slider
+	const gradientAngle = document.getElementById('gradientAngle');
+	const angleValue = document.getElementById('angleValue');
+	const bgColor1 = document.getElementById('bgColor1');
+	const bgColor2 = document.getElementById('bgColor2');
+	const bgColor3 = document.getElementById('bgColor3');
+	const accentColor = document.getElementById('accentColor');
+
+	// Function to update background in real-time
+	function updateBackground() {
+		const angle = gradientAngle.value;
+		const bg1 = bgColor1.value;
+		const bg2 = bgColor2.value;
+		const bg3 = bgColor3.value;
+		document.body.style.background = `linear-gradient(${angle}deg, ${bg1} 0%, ${bg2} 50%, ${bg3} 100%)`;
+	}
+
+	// Real-time preview for gradient angle
+	gradientAngle.addEventListener('input', () => {
+		angleValue.textContent = gradientAngle.value;
+		updateBackground();
+	});
+
+	// Prevent click propagation on inputs to avoid modal closing
+	bgColor1.addEventListener('click', (e) => e.stopPropagation());
+	bgColor2.addEventListener('click', (e) => e.stopPropagation());
+	bgColor3.addEventListener('click', (e) => e.stopPropagation());
+	gradientAngle.addEventListener('click', (e) => e.stopPropagation());
+	accentColor.addEventListener('click', (e) => e.stopPropagation());
+
+	// Prevent click propagation on buttons
+	saveSettings.addEventListener('click', (e) => e.stopPropagation());
+	resetSettings.addEventListener('click', (e) => e.stopPropagation());
+	closeSettings.addEventListener('click', (e) => e.stopPropagation());
+
+	// Prevent click propagation on modal content
+	document.querySelectorAll('.settings-group, .settings-buttons, h2').forEach(el => {
+		el.addEventListener('click', (e) => e.stopPropagation());
+	});
+
+	// Real-time preview for background colors
+	bgColor1.addEventListener('input', updateBackground);
+	bgColor2.addEventListener('input', updateBackground);
+	bgColor3.addEventListener('input', updateBackground);
+
+	// Real-time preview for accent color
+	accentColor.addEventListener('input', () => {
+		const accent = accentColor.value;
+		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+			el.style.color = accent;
+		});
+		// Also save to chrome theme localStorage
+		localStorage.setItem('webbrowser_theme', accent);
+		console.log('Theme updated:', accent);
+	});
+
+	// Load saved settings
+	const savedSettings = localStorage.getItem('newTabSettings');
+	if (savedSettings) {
+		const settings = JSON.parse(savedSettings);
+		const angle = settings.gradientAngle || 135;
+		document.body.style.background = `linear-gradient(${angle}deg, ${settings.bgColor1} 0%, ${settings.bgColor2} 50%, ${settings.bgColor3} 100%)`;
+		document.getElementById('bgColor1').value = settings.bgColor1;
+		document.getElementById('bgColor2').value = settings.bgColor2;
+		document.getElementById('bgColor3').value = settings.bgColor3;
+		document.getElementById('gradientAngle').value = angle;
+		document.getElementById('angleValue').textContent = angle;
+		document.getElementById('accentColor').value = settings.accentColor;
+
+		// Apply accent color
+		document.documentElement.style.setProperty('--accent-color', settings.accentColor);
+		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+			el.style.color = settings.accentColor;
+		});
+	} else {
+		// If no saved settings, load chrome theme as accent color
+		const chromeTheme = localStorage.getItem('webbrowser_theme');
+		if (chromeTheme) {
+			document.getElementById('accentColor').value = chromeTheme;
+			document.documentElement.style.setProperty('--accent-color', chromeTheme);
+			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+				el.style.color = chromeTheme;
+			});
+		}
+	}
+
+	// Listen for theme changes from other tabs
+	window.addEventListener('storage', (e) => {
+		if (e.key === 'webbrowser_theme' && e.newValue) {
+			document.getElementById('accentColor').value = e.newValue;
+			document.documentElement.style.setProperty('--accent-color', e.newValue);
+			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+				el.style.color = e.newValue;
+			});
+			console.log('Theme updated from storage:', e.newValue);
+		}
+	});
+
+	settingsBtn.addEventListener('click', () => {
+		// Store original values before opening modal
+		window.originalSettings = {
+			bgColor1: bgColor1.value,
+			bgColor2: bgColor2.value,
+			bgColor3: bgColor3.value,
+			gradientAngle: gradientAngle.value,
+			accentColor: accentColor.value
+		};
+		settingsModal.classList.add('active');
+		// Notify Lua to bring this WebUI to front
+		if (typeof Events !== 'undefined') {
+			Events.Call('BringTabToFront');
+		}
+	});
+
+	closeSettings.addEventListener('click', () => {
+		// Restore original values
+		if (window.originalSettings) {
+			bgColor1.value = window.originalSettings.bgColor1;
+			bgColor2.value = window.originalSettings.bgColor2;
+			bgColor3.value = window.originalSettings.bgColor3;
+			gradientAngle.value = window.originalSettings.gradientAngle;
+			angleValue.textContent = window.originalSettings.gradientAngle;
+			accentColor.value = window.originalSettings.accentColor;
+
+			// Apply original settings
+			updateBackground();
+			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+				el.style.color = window.originalSettings.accentColor;
+			});
+		}
+		settingsModal.classList.remove('active');
+	});
+
+	saveSettings.addEventListener('click', () => {
+		const settings = {
+			bgColor1: document.getElementById('bgColor1').value,
+			bgColor2: document.getElementById('bgColor2').value,
+			bgColor3: document.getElementById('bgColor3').value,
+			gradientAngle: document.getElementById('gradientAngle').value,
+			accentColor: document.getElementById('accentColor').value
+		};
+
+		localStorage.setItem('newTabSettings', JSON.stringify(settings));
+		document.body.style.background = `linear-gradient(${settings.gradientAngle}deg, ${settings.bgColor1} 0%, ${settings.bgColor2} 50%, ${settings.bgColor3} 100%)`;
+
+		// Apply accent color
+		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+			el.style.color = settings.accentColor;
+		});
+
+		// Save accent color to chrome theme
+		localStorage.setItem('webbrowser_theme', settings.accentColor);
+
+		settingsModal.classList.remove('active');
+	});
+
+	resetSettings.addEventListener('click', () => {
+		// Reset color inputs to defaults
+		document.getElementById('bgColor1').value = defaultSettings.bgColor1;
+		document.getElementById('bgColor2').value = defaultSettings.bgColor2;
+		document.getElementById('bgColor3').value = defaultSettings.bgColor3;
+		document.getElementById('gradientAngle').value = defaultSettings.gradientAngle;
+		document.getElementById('angleValue').textContent = defaultSettings.gradientAngle;
+		document.getElementById('accentColor').value = defaultSettings.accentColor;
+
+		// Apply default colors
+		document.body.style.background = `linear-gradient(${defaultSettings.gradientAngle}deg, ${defaultSettings.bgColor1} 0%, ${defaultSettings.bgColor2} 50%, ${defaultSettings.bgColor3} 100%)`;
+		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+			el.style.color = defaultSettings.accentColor;
+		});
+
+		// Clear saved settings
+		localStorage.removeItem('newTabSettings');
+	});
+
+	// Close modal on outside click
+	settingsModal.addEventListener('click', (e) => {
+		if (e.target === settingsModal) {
+			// Restore original values before closing
+			if (window.originalSettings) {
+				bgColor1.value = window.originalSettings.bgColor1;
+				bgColor2.value = window.originalSettings.bgColor2;
+				bgColor3.value = window.originalSettings.bgColor3;
+				gradientAngle.value = window.originalSettings.gradientAngle;
+				angleValue.textContent = window.originalSettings.gradientAngle;
+				accentColor.value = window.originalSettings.accentColor;
+
+				// Apply original settings
+				updateBackground();
+				document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+					el.style.color = window.originalSettings.accentColor;
+				});
+			}
+			settingsModal.classList.remove('active');
+		}
+	});
+
+	// Tab ready
+	if (typeof Events !== 'undefined') {
+		Events.Call('TabReady');
+	}
+</script>
+</body>
+</html>

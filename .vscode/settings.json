@@ -4,20 +4,18 @@
 	"Lua.workspace.library": [
 		"${workspaceFolder}/.nanos-world/annotations",
 		"${workspaceFolder}/library/Shared",
-		"${workspaceFolder}/library/Shared/@cheatoid/standard"
+		"${workspaceFolder}/library/Shared/@cheatoid/standard",
 	],
 	"Lua.diagnostics.globals": [],
-	"Lua.diagnostics.disable": [
-		"different-requires"
-	],
+	"Lua.diagnostics.disable": ["different-requires"],
 	"Lua.runtime.version": "Lua 5.4",
 	"Lua.format.enable": true,
 	"Lua.format.defaultConfig": {
 		"indent_style": "tab",
-		"indent_size": "2"
+		"indent_size": "2",
 	},
 	"[lua]": {
-		"editor.defaultFormatter": "sumneko.lua"
+		"editor.defaultFormatter": "sumneko.lua",
 	},
 	"Lua.hint.setType": true,
 	"Lua.hint.enable": true,
@@ -35,7 +33,7 @@
 		"**/obj/**": true,
 		"**/node_modules/**": true,
 		"coc": true,
-		"publish/**": true
+		"publish/**": true,
 	},
 	"files.watcherExclude": {
 		"**/.git/**": true,
@@ -48,7 +46,7 @@
 		"**/obj/**": true,
 		"**/node_modules/**": true,
 		"coc": true,
-		"publish/**": true
+		"publish/**": true,
 	},
 	"search.exclude": {
 		"**/.git/**": true,
@@ -58,6 +56,6 @@
 		"**/bin/**": true,
 		"**/obj/**": true,
 		"**/node_modules/**": true,
-		"publish/**": true
-	}
+		"publish/**": true,
+	},
 }

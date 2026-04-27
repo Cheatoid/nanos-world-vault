@@ -1,0 +1,1268 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link
+		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+	<style>
+		/* ========== CSS Variables / Theme System ========== */
+		:root {
+			--console-font: 'JetBrains Mono', monospace;
+			--title-font: 'Orbitron', sans-serif;
+			--transition-speed: 0.35s;
+			--console-radius: 8px;
+			--scrollbar-width: 6px;
+		}
+
+		/* Theme: Amber (default) */
+		[data-theme="amber"] {
+			--bg-primary: #0a0a08;
+			--bg-secondary: #141410;
+			--bg-tertiary: #1e1e16;
+			--bg-input: #12120e;
+			--border-color: #3d3520;
+			--border-glow: #d4a01740;
+			--text-primary: #e8dcc8;
+			--text-secondary: #9a8e78;
+			--text-muted: #5c5444;
+			--accent: #d4a017;
+			--accent-dim: #d4a01730;
+			--accent-bright: #f0c040;
+			--log-color: #c8bca8;
+			--info-color: #7eb8da;
+			--warn-color: #d4a017;
+			--error-color: #e05252;
+			--debug-color: #8a8a7a;
+			--success-color: #5cb85c;
+			--cmd-color: #d4a017;
+			--scrollbar-thumb: #3d3520;
+			--scrollbar-track: #0a0a08;
+			--glow-color: #d4a01715;
+			--badge-bg: #d4a01720;
+			--overlay-bg: #0a0a08e0;
+			--header-bg: linear-gradient(180deg, #1a1a12 0%, #0f0f0a 100%);
+			--particle-color: #d4a017;
+		}
+
+		/* Theme: Arctic */
+		[data-theme="arctic"] {
+			--bg-primary: #f0f4f8;
+			--bg-secondary: #e4eaf0;
+			--bg-tertiary: #d8e0e8;
+			--bg-input: #ffffff;
+			--border-color: #b0c0d0;
+			--border-glow: #0891b240;
+			--text-primary: #1a2a3a;
+			--text-secondary: #506878;
+			--text-muted: #90a0b0;
+			--accent: #0891b2;
+			--accent-dim: #0891b218;
+			--accent-bright: #06b6d4;
+			--log-color: #3a4a5a;
+			--info-color: #0369a1;
+			--warn-color: #b45309;
+			--error-color: #dc2626;
+			--debug-color: #8090a0;
+			--success-color: #16a34a;
+			--cmd-color: #0891b2;
+			--scrollbar-thumb: #b0c0d0;
+			--scrollbar-track: #e4eaf0;
+			--glow-color: #0891b208;
+			--badge-bg: #0891b212;
+			--overlay-bg: #f0f4f8e0;
+			--header-bg: linear-gradient(180deg, #e4eaf0 0%, #f0f4f8 100%);
+			--particle-color: #0891b2;
+		}
+
+		/* Theme: Aurora */
+		[data-theme="aurora"] {
+			--bg-primary: #0f1419;
+			--bg-secondary: #131c24;
+			--bg-tertiary: #1a2630;
+			--bg-input: #111820;
+			--border-color: #1e2d3a;
+			--border-glow: #00d4aa30;
+			--text-primary: #e3e8ef;
+			--text-secondary: #7a8b9a;
+			--text-muted: #4a5a6a;
+			--accent: #00d4aa;
+			--accent-dim: #00d4aa20;
+			--accent-bright: #00ffe0;
+			--log-color: #a0aeb8;
+			--info-color: #64d2ff;
+			--warn-color: #ffb74d;
+			--error-color: #ff6b6b;
+			--debug-color: #607080;
+			--success-color: #69f0ae;
+			--cmd-color: #00d4aa;
+			--scrollbar-thumb: #1e2d3a;
+			--scrollbar-track: #0f1419;
+			--glow-color: #00d4aa15;
+			--badge-bg: #00d4aa20;
+			--overlay-bg: #0f1419e0;
+			--header-bg: linear-gradient(180deg, #162230 0%, #0f1419 100%);
+			--particle-color: #00d4aa;
+		}
+
+		/* Theme: Blood Moon */
+		[data-theme="bloodmoon"] {
+			--bg-primary: #0a0404;
+			--bg-secondary: #140808;
+			--bg-tertiary: #1e0c0c;
+			--bg-input: #100606;
+			--border-color: #3d1515;
+			--border-glow: #ff202040;
+			--text-primary: #e8cccc;
+			--text-secondary: #9a7070;
+			--text-muted: #5c4040;
+			--accent: #ff2020;
+			--accent-dim: #ff202025;
+			--accent-bright: #ff5050;
+			--log-color: #c8a8a8;
+			--info-color: #7090c0;
+			--warn-color: #e0a030;
+			--error-color: #ff2020;
+			--debug-color: #8a6a6a;
+			--success-color: #40b040;
+			--cmd-color: #ff2020;
+			--scrollbar-thumb: #3d1515;
+			--scrollbar-track: #0a0404;
+			--glow-color: #ff2008;
+			--badge-bg: #ff202018;
+			--overlay-bg: #0a0404e0;
+			--header-bg: linear-gradient(180deg, #1a0a0a 0%, #0a0404 100%);
+			--particle-color: #ff2020;
+		}
+
+		/* Theme: Cyberpunk */
+		[data-theme="cyberpunk"] {
+			--bg-primary: #08080f;
+			--bg-secondary: #0e0e1a;
+			--bg-tertiary: #161628;
+			--bg-input: #0a0a14;
+			--border-color: #2a1a3d;
+			--border-glow: #e040fb40;
+			--text-primary: #e0e0f0;
+			--text-secondary: #8888aa;
+			--text-muted: #4a4a6a;
+			--accent: #e040fb;
+			--accent-dim: #e040fb25;
+			--accent-bright: #ff70ff;
+			--log-color: #b0b0cc;
+			--info-color: #40c4ff;
+			--warn-color: #ffab40;
+			--error-color: #ff5252;
+			--debug-color: #7a7a9a;
+			--success-color: #69f0ae;
+			--cmd-color: #e040fb;
+			--scrollbar-thumb: #2a1a3d;
+			--scrollbar-track: #08080f;
+			--glow-color: #e040fb10;
+			--badge-bg: #e040fb20;
+			--overlay-bg: #08080fe0;
+			--header-bg: linear-gradient(180deg, #14142a 0%, #08080f 100%);
+			--particle-color: #e040fb;
+		}
+
+		/* Theme: Matrix */
+		[data-theme="matrix"] {
+			--bg-primary: #000a00;
+			--bg-secondary: #001200;
+			--bg-tertiary: #001a00;
+			--bg-input: #000e00;
+			--border-color: #003a00;
+			--border-glow: #00ff4140;
+			--text-primary: #c0f0c0;
+			--text-secondary: #5a9a5a;
+			--text-muted: #2a5a2a;
+			--accent: #00ff41;
+			--accent-dim: #00ff4120;
+			--accent-bright: #40ff70;
+			--log-color: #80c080;
+			--info-color: #40c0ff;
+			--warn-color: #c0c040;
+			--error-color: #ff4040;
+			--debug-color: #407040;
+			--success-color: #00ff41;
+			--cmd-color: #00ff41;
+			--scrollbar-thumb: #003a00;
+			--scrollbar-track: #000a00;
+			--glow-color: #00ff4108;
+			--badge-bg: #00ff4118;
+			--overlay-bg: #000a00e0;
+			--header-bg: linear-gradient(180deg, #001a00 0%, #000a00 100%);
+			--particle-color: #00ff41;
+		}
+
+		/* Theme: Midnight */
+		[data-theme="midnight"] {
+			--bg-primary: #121315;
+			--bg-secondary: #16181a;
+			--bg-tertiary: #1a1c1f;
+			--bg-input: #1e2023;
+			--border-color: #252629;
+			--border-glow: #007acc40;
+			--text-primary: #d4d4d4;
+			--text-secondary: #a0a0a0;
+			--text-muted: #808080;
+			--accent: #007acc;
+			--accent-dim: #007acc30;
+			--accent-bright: #4fc1ff;
+			--log-color: #cccccc;
+			--info-color: #4fc1ff;
+			--warn-color: #dcdcaa;
+			--error-color: #f44747;
+			--debug-color: #646464;
+			--success-color: #89d185;
+			--cmd-color: #007acc;
+			--scrollbar-thumb: #2a2c2f;
+			--scrollbar-track: #121315;
+			--glow-color: #4fc1ff12;
+			--badge-bg: #007acc25;
+			--overlay-bg: #121315e0;
+			--header-bg: linear-gradient(180deg, #1a1c20 0%, #121315 100%);
+			--particle-color: #4fc1ff;
+		}
+
+		/* ========== Reset & Base ========== */
+		*, *::before, *::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+			background: transparent !important;
+			font-family: var(--console-font);
+			color: var(--text-primary);
+			transition: background var(--transition-speed), color var(--transition-speed);
+		}
+
+		/* ========== Scrollbar ========== */
+		::-webkit-scrollbar {
+			width: var(--scrollbar-width);
+		}
+
+		::-webkit-scrollbar-track {
+			background: var(--scrollbar-track);
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: var(--scrollbar-thumb);
+			border-radius: 3px;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			background: var(--accent);
+		}
+
+		/* ========== Background Canvas ========== */
+		#bgCanvas {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 0;
+			pointer-events: none;
+			opacity: 0.4;
+			background: transparent !important;
+		}
+
+		/* ========== Toggle Button ========== */
+		.console-toggle {
+			position: fixed;
+			bottom: 24px;
+			right: 24px;
+			z-index: 1000;
+			width: 52px;
+			height: 52px;
+			border: 1px solid var(--border-color);
+			border-radius: 50%;
+			background: var(--bg-secondary);
+			color: var(--accent);
+			font-size: 20px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all var(--transition-speed);
+			box-shadow: 0 0 20px var(--glow-color), 0 4px 12px rgba(0, 0, 0, 0.4);
+		}
+
+		.console-toggle:hover {
+			background: var(--accent-dim);
+			border-color: var(--accent);
+			transform: scale(1.08);
+			box-shadow: 0 0 30px var(--border-glow), 0 4px 16px rgba(0, 0, 0, 0.5);
+		}
+
+		.console-toggle .badge {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			background: var(--error-color);
+			color: #fff;
+			font-size: 10px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transform: scale(0);
+			transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		}
+
+		.console-toggle .badge.visible {
+			opacity: 1;
+			transform: scale(1);
+		}
+
+		/* ========== Console Container ========== */
+		.console-container {
+			position: fixed;
+			bottom: 0;
+			left: 50%;
+			transform: translateX(-50%) translateY(100%);
+			width: min(96vw, 1100px);
+			height: 70vh;
+			min-height: 400px;
+			max-height: 85vh;
+			z-index: 999;
+			display: flex;
+			flex-direction: column;
+			border: 1px solid var(--border-color);
+			border-bottom: none;
+			border-radius: var(--console-radius) var(--console-radius) 0 0;
+			background: var(--bg-primary);
+			box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6), 0 0 60px var(--glow-color), inset 0 1px 0 var(--border-glow);
+			transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+			opacity: 0;
+			overflow: hidden;
+		}
+
+		.console-container.open {
+			transform: translateX(-50%) translateY(0);
+			opacity: 1;
+		}
+
+		.console-container.maximized {
+			width: 100vw;
+			height: 100vh;
+			max-height: 100vh;
+			border-radius: 0;
+		}
+
+		/* ========== Header ========== */
+		.console-header {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 10px 16px;
+			background: var(--header-bg);
+			border-bottom: 1px solid var(--border-color);
+			flex-shrink: 0;
+			user-select: none;
+		}
+
+		.console-title {
+			font-family: var(--title-font);
+			font-size: 13px;
+			font-weight: 700;
+			letter-spacing: 2px;
+			color: var(--accent);
+			text-transform: uppercase;
+			white-space: nowrap;
+		}
+
+		.console-title .dot {
+			display: inline-block;
+			width: 7px;
+			height: 7px;
+			border-radius: 50%;
+			background: var(--accent);
+			margin-right: 8px;
+			box-shadow: 0 0 8px var(--accent);
+			animation: pulse-dot 2s ease-in-out infinite;
+		}
+
+		@keyframes pulse-dot {
+			0%, 100% {
+				opacity: 1;
+				box-shadow: 0 0 8px var(--accent);
+			}
+			50% {
+				opacity: 0.5;
+				box-shadow: 0 0 3px var(--accent);
+			}
+		}
+
+		.header-stats {
+			display: flex;
+			gap: 10px;
+			margin-left: auto;
+			font-size: 11px;
+			color: var(--text-muted);
+		}
+
+		.stat-item {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			padding: 2px 8px;
+			border-radius: 4px;
+			background: var(--bg-tertiary);
+			border: 1px solid transparent;
+			cursor: default;
+			transition: all 0.2s;
+		}
+
+		.stat-item:hover {
+			border-color: var(--border-color);
+		}
+
+		.stat-item .count {
+			font-weight: 600;
+			color: var(--text-secondary);
+		}
+
+		.stat-item.error-stat .count {
+			color: var(--error-color);
+		}
+
+		.stat-item.warn-stat .count {
+			color: var(--warn-color);
+		}
+
+		.header-actions {
+			display: flex;
+			gap: 4px;
+			flex-shrink: 0;
+		}
+
+		.header-btn {
+			width: 30px;
+			height: 30px;
+			border: 1px solid transparent;
+			border-radius: 4px;
+			background: transparent;
+			color: var(--text-muted);
+			font-size: 13px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+		}
+
+		.header-btn:hover {
+			color: var(--text-primary);
+			background: var(--bg-tertiary);
+			border-color: var(--border-color);
+		}
+
+		.header-btn.close-btn:hover {
+			color: var(--error-color);
+			background: #ff202015;
+			border-color: #ff202030;
+		}
+
+		/* ========== Toolbar ========== */
+		.console-toolbar {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 16px;
+			border-bottom: 1px solid var(--border-color);
+			background: var(--bg-secondary);
+			flex-shrink: 0;
+			flex-wrap: wrap;
+		}
+
+		.filter-chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 3px 10px;
+			border-radius: 12px;
+			font-size: 11px;
+			font-weight: 500;
+			cursor: pointer;
+			border: 1px solid var(--border-color);
+			background: var(--bg-primary);
+			color: var(--text-secondary);
+			transition: all 0.2s;
+			user-select: none;
+			white-space: nowrap;
+		}
+
+		.filter-chip:hover {
+			border-color: var(--text-muted);
+		}
+
+		.filter-chip.active {
+			border-color: var(--accent);
+			color: var(--accent);
+			background: var(--accent-dim);
+		}
+
+		.filter-chip .chip-dot {
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		.search-box {
+			flex: 1;
+			min-width: 140px;
+			position: relative;
+		}
+
+		.search-box i {
+			position: absolute;
+			left: 10px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: var(--text-muted);
+			font-size: 12px;
+			pointer-events: none;
+			transition: color 0.2s;
+		}
+
+		.search-box input {
+			width: 100%;
+			padding: 5px 10px 5px 30px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-input);
+			color: var(--text-primary);
+			font-family: var(--console-font);
+			font-size: 12px;
+			outline: none;
+			transition: all 0.2s;
+		}
+
+		.search-box input::placeholder {
+			color: var(--text-muted);
+		}
+
+		.search-box input:focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px var(--accent-dim);
+		}
+
+		.search-box input:focus + i,
+		.search-box input:focus ~ i {
+			color: var(--accent);
+		}
+
+		.toolbar-sep {
+			width: 1px;
+			height: 20px;
+			background: var(--border-color);
+			flex-shrink: 0;
+		}
+
+		.theme-selector {
+			position: relative;
+		}
+
+		.theme-btn {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			padding: 4px 10px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-primary);
+			color: var(--text-secondary);
+			font-family: var(--console-font);
+			font-size: 11px;
+			cursor: pointer;
+			transition: all 0.2s;
+			white-space: nowrap;
+		}
+
+		.theme-btn:hover {
+			border-color: var(--accent);
+			color: var(--accent);
+		}
+
+		.theme-swatch {
+			width: 12px;
+			height: 12px;
+			border-radius: 50%;
+			border: 1px solid var(--border-color);
+		}
+
+		.theme-dropdown {
+			position: absolute;
+			top: calc(100% + 6px);
+			right: 0;
+			min-width: 170px;
+			border: 1px solid var(--border-color);
+			border-radius: 6px;
+			background: var(--bg-secondary);
+			box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+			z-index: 100;
+			opacity: 0;
+			transform: translateY(-6px);
+			pointer-events: none;
+			transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+			overflow: hidden;
+		}
+
+		.theme-dropdown.open {
+			opacity: 1;
+			transform: translateY(0);
+			pointer-events: all;
+		}
+
+		.theme-option {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 8px 14px;
+			font-size: 12px;
+			color: var(--text-secondary);
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+
+		.theme-option:hover {
+			background: var(--accent-dim);
+			color: var(--text-primary);
+		}
+
+		.theme-option.active {
+			color: var(--accent);
+		}
+
+		.theme-option .swatch {
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			border: 2px solid var(--border-color);
+			flex-shrink: 0;
+		}
+
+		.auto-scroll-toggle {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			padding: 4px 10px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-primary);
+			color: var(--text-muted);
+			font-size: 11px;
+			cursor: pointer;
+			transition: all 0.2s;
+			white-space: nowrap;
+			user-select: none;
+		}
+
+		.auto-scroll-toggle.active {
+			color: var(--accent);
+			border-color: var(--accent);
+			background: var(--accent-dim);
+		}
+
+		/* ========== Output Area ========== */
+		.console-output {
+			flex: 1;
+			overflow-y: auto;
+			overflow-x: hidden;
+			padding: 8px 0;
+			scroll-behavior: smooth;
+		}
+
+		/* ========== Message Entry ========== */
+		.msg-entry {
+			display: flex;
+			align-items: flex-start;
+			padding: 3px 16px;
+			font-size: 12px;
+			line-height: 1.6;
+			gap: 8px;
+			transition: background 0.15s;
+			animation: msg-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+			position: relative;
+		}
+
+		.msg-entry:hover {
+			background: var(--glow-color);
+		}
+
+		.msg-entry.hidden {
+			display: none;
+		}
+
+		@keyframes msg-slide-in {
+			from {
+				opacity: 0;
+				transform: translateX(-8px);
+			}
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		.msg-timestamp {
+			color: var(--text-muted);
+			font-size: 11px;
+			flex-shrink: 0;
+			min-width: 72px;
+			padding-top: 1px;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.msg-badge {
+			display: inline-flex;
+			align-items: center;
+			padding: 0 6px;
+			border-radius: 3px;
+			font-size: 10px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			flex-shrink: 0;
+			min-width: 46px;
+			justify-content: center;
+			line-height: 1.7;
+		}
+
+		.msg-badge.log {
+			background: var(--bg-tertiary);
+			color: var(--log-color);
+		}
+
+		.msg-badge.info {
+			background: #40c4ff15;
+			color: var(--info-color);
+		}
+
+		.msg-badge.warn {
+			background: #d4a01715;
+			color: var(--warn-color);
+		}
+
+		.msg-badge.error {
+			background: #e0525215;
+			color: var(--error-color);
+		}
+
+		.msg-badge.debug {
+			background: var(--bg-tertiary);
+			color: var(--debug-color);
+		}
+
+		.msg-badge.success {
+			background: #5cb85c15;
+			color: var(--success-color);
+		}
+
+		.msg-badge.cmd {
+			background: var(--accent-dim);
+			color: var(--cmd-color);
+		}
+
+		.msg-text {
+			flex: 1;
+			word-break: break-word;
+			color: var(--log-color);
+		}
+
+		.msg-text.warn-text {
+			color: var(--warn-color);
+		}
+
+		.msg-text.error-text {
+			color: var(--error-color);
+		}
+
+		.msg-text.info-text {
+			color: var(--info-color);
+		}
+
+		.msg-text.debug-text {
+			color: var(--debug-color);
+		}
+
+		.msg-text.success-text {
+			color: var(--success-color);
+		}
+
+		.msg-text.cmd-text {
+			color: var(--cmd-color);
+		}
+
+		.msg-text .highlight {
+			background: var(--accent-dim);
+			color: var(--accent-bright);
+			border-radius: 2px;
+			padding: 0 2px;
+		}
+
+		.msg-actions {
+			display: flex;
+			gap: 2px;
+			opacity: 0;
+			transition: opacity 0.15s;
+			flex-shrink: 0;
+		}
+
+		.msg-entry:hover .msg-actions {
+			opacity: 1;
+		}
+
+		.msg-action-btn {
+			width: 22px;
+			height: 22px;
+			border: none;
+			border-radius: 3px;
+			background: transparent;
+			color: var(--text-muted);
+			font-size: 10px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.15s;
+		}
+
+		.msg-action-btn:hover {
+			background: var(--bg-tertiary);
+			color: var(--text-primary);
+		}
+
+		/* ========== Input Area ========== */
+		.console-input-area {
+			display: flex;
+			align-items: center;
+			gap: 0;
+			padding: 8px 16px 12px;
+			border-top: 1px solid var(--border-color);
+			background: var(--bg-secondary);
+			flex-shrink: 0;
+		}
+
+		.input-prompt {
+			color: var(--accent);
+			font-weight: 600;
+			font-size: 13px;
+			margin-right: 8px;
+			flex-shrink: 0;
+			text-shadow: 0 0 8px var(--border-glow);
+		}
+
+		.input-wrapper {
+			flex: 1;
+			position: relative;
+		}
+
+		.console-input {
+			width: 100%;
+			padding: 6px 12px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-input);
+			color: var(--text-primary);
+			font-family: var(--console-font);
+			font-size: 13px;
+			outline: none;
+			transition: all 0.2s;
+		}
+
+		.console-input::placeholder {
+			color: var(--text-muted);
+			font-size: 12px;
+		}
+
+		.console-input:focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px var(--accent-dim), 0 0 16px var(--glow-color);
+		}
+
+		/* Autocomplete */
+		.autocomplete {
+			position: absolute;
+			bottom: calc(100% + 4px);
+			left: 0;
+			min-width: 240px;
+			max-width: 400px;
+			max-height: 180px;
+			overflow-y: auto;
+			border: 1px solid var(--border-color);
+			border-radius: 6px;
+			background: var(--bg-secondary);
+			box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+			z-index: 50;
+			opacity: 0;
+			transform: translateY(4px);
+			pointer-events: none;
+			transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+
+		.autocomplete.visible {
+			opacity: 1;
+			transform: translateY(0);
+			pointer-events: all;
+		}
+
+		.autocomplete-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 6px 12px;
+			font-size: 12px;
+			cursor: pointer;
+			transition: background 0.1s;
+			gap: 12px;
+		}
+
+		.autocomplete-item:hover,
+		.autocomplete-item.selected {
+			background: var(--accent-dim);
+		}
+
+		.autocomplete-item .cmd-name {
+			color: var(--accent);
+			font-weight: 500;
+		}
+
+		.autocomplete-item .cmd-hint {
+			color: var(--text-muted);
+			font-size: 11px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		/* ========== Toast ========== */
+		.toast-container {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			z-index: 2000;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.toast {
+			padding: 10px 16px;
+			border-radius: 6px;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border-color);
+			color: var(--text-primary);
+			font-family: var(--console-font);
+			font-size: 12px;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+			animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.toast.removing {
+			animation: toast-out 0.25s ease-in both;
+		}
+
+		@keyframes toast-in {
+			from {
+				opacity: 0;
+				transform: translateX(30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		@keyframes toast-out {
+			to {
+				opacity: 0;
+				transform: translateX(30px);
+			}
+		}
+
+		/* ========== Welcome Banner ========== */
+		.welcome-banner {
+			padding: 16px;
+			margin: 4px 16px 8px;
+			border: 1px solid var(--border-color);
+			border-radius: 6px;
+			background: var(--bg-secondary);
+			animation: msg-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+		}
+
+		.welcome-banner h2 {
+			font-family: var(--title-font);
+			font-size: 14px;
+			font-weight: 700;
+			color: var(--accent);
+			letter-spacing: 2px;
+			margin-bottom: 8px;
+		}
+
+		.welcome-banner p {
+			font-size: 11px;
+			color: var(--text-secondary);
+			line-height: 1.7;
+		}
+
+		.welcome-banner kbd {
+			display: inline-block;
+			padding: 1px 6px;
+			border: 1px solid var(--border-color);
+			border-radius: 3px;
+			background: var(--bg-tertiary);
+			font-family: var(--console-font);
+			font-size: 10px;
+			color: var(--text-primary);
+		}
+
+		.welcome-close {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+			width: 24px;
+			height: 24px;
+			border: none;
+			background: transparent;
+			color: var(--text-secondary);
+			font-size: 18px;
+			line-height: 1;
+			cursor: pointer;
+			border-radius: 4px;
+			transition: all 0.2s;
+		}
+
+		.welcome-close:hover {
+			background: var(--bg-tertiary);
+			color: var(--text-primary);
+		}
+
+		/* ========== Empty State ========== */
+		.empty-state {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 40px 20px;
+			color: var(--text-muted);
+			font-size: 13px;
+			gap: 8px;
+		}
+
+		.empty-state i {
+			font-size: 28px;
+			opacity: 0.4;
+		}
+
+		/* ========== Reduced Motion ========== */
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after {
+				animation-duration: 0.01ms !important;
+				transition-duration: 0.01ms !important;
+			}
+		}
+
+		/* ========== Responsive ========== */
+		@media (max-width: 640px) {
+			.console-container {
+				width: 100vw;
+				height: 80vh;
+				border-radius: 0;
+			}
+
+			.header-stats {
+				display: none;
+			}
+
+			.console-toolbar {
+				padding: 6px 10px;
+				gap: 4px;
+			}
+
+			.filter-chip {
+				padding: 2px 7px;
+				font-size: 10px;
+			}
+
+			.search-box {
+				min-width: 100px;
+			}
+
+			.msg-entry {
+				padding: 3px 10px;
+				font-size: 11px;
+			}
+
+			.msg-timestamp {
+				min-width: 60px;
+				font-size: 10px;
+			}
+
+			.msg-badge {
+				min-width: 38px;
+				font-size: 9px;
+				padding: 0 4px;
+			}
+		}
+	</style>
+</head>
+<body data-theme="amber">
+
+<!-- Background particle canvas -->
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+<!-- Toggle button -->
+<button class="console-toggle" id="toggleBtn" aria-label="Toggle console">
+	<i class="fas fa-terminal"></i>
+	<span class="badge" id="errorBadge">0</span>
+</button>
+
+<!-- Console Container -->
+<div class="console-container" id="consoleContainer" role="log" aria-label="Game Console">
+	<!-- Header -->
+	<header class="console-header">
+		<span class="console-title"><span class="dot"></span>Console</span>
+		<div class="header-stats" id="headerStats">
+			<div class="stat-item" title="Total messages">
+				<i class="fas fa-bars-staggered" style="font-size:10px"></i>
+				<span class="count" id="statTotal">0</span>
+			</div>
+			<div class="stat-item warn-stat" title="Warnings">
+				<i class="fas fa-triangle-exclamation" style="font-size:10px"></i>
+				<span class="count" id="statWarn">0</span>
+			</div>
+			<div class="stat-item error-stat" title="Errors">
+				<i class="fas fa-circle-xmark" style="font-size:10px"></i>
+				<span class="count" id="statError">0</span>
+			</div>
+		</div>
+		<div class="header-actions">
+			<button class="header-btn" id="copyAllBtn" title="Copy all logs" aria-label="Copy all logs">
+				<i class="fas fa-copy"></i>
+			</button>
+			<button class="header-btn" id="maximizeBtn" title="Maximize" aria-label="Toggle maximize">
+				<i class="fas fa-expand"></i>
+			</button>
+			<button class="header-btn close-btn" id="closeBtn" title="Close" aria-label="Close console">
+				<i class="fas fa-xmark"></i>
+			</button>
+		</div>
+	</header>
+
+	<!-- Toolbar -->
+	<nav class="console-toolbar" aria-label="Console filters">
+		<button class="filter-chip active" data-filter="all">All</button>
+		<button class="filter-chip" data-filter="log"><span class="chip-dot" style="background:var(--log-color)"></span>Log
+		</button>
+		<button class="filter-chip" data-filter="info"><span class="chip-dot"
+		                                                     style="background:var(--info-color)"></span>Info
+		</button>
+		<button class="filter-chip" data-filter="warn"><span class="chip-dot"
+		                                                     style="background:var(--warn-color)"></span>Warn
+		</button>
+		<button class="filter-chip" data-filter="error"><span class="chip-dot"
+		                                                      style="background:var(--error-color)"></span>Error
+		</button>
+		<button class="filter-chip" data-filter="debug"><span class="chip-dot"
+		                                                      style="background:var(--debug-color)"></span>Debug
+		</button>
+		<button class="filter-chip" data-filter="success"><span class="chip-dot"
+		                                                        style="background:var(--success-color)"></span>Success
+		</button>
+		<button class="filter-chip" data-filter="cmd"><span class="chip-dot" style="background:var(--cmd-color)"></span>CMD
+		</button>
+
+		<div class="toolbar-sep"></div>
+
+		<div class="search-box">
+			<input type="text" id="searchInput" placeholder="Search logs..." aria-label="Search logs">
+			<i class="fas fa-search"></i>
+		</div>
+
+		<div class="toolbar-sep"></div>
+
+		<button class="auto-scroll-toggle active" id="autoScrollBtn" aria-label="Toggle auto-scroll">
+			<i class="fas fa-arrow-down" style="font-size:10px"></i>
+			Auto-scroll
+		</button>
+
+		<div class="theme-selector">
+			<button class="theme-btn" id="themeToggleBtn" aria-label="Select theme" aria-haspopup="true"
+			        aria-expanded="false">
+				<span class="theme-swatch" id="currentSwatch" style="background:#d4a017"></span>
+				Theme
+				<i class="fas fa-chevron-up" style="font-size:9px"></i>
+			</button>
+			<div class="theme-dropdown" id="themeDropdown" role="menu">
+				<div class="theme-option active" data-theme="amber" role="menuitem">
+					<span class="swatch" style="background:#d4a017"></span> Amber
+				</div>
+				<div class="theme-option" data-theme="arctic" role="menuitem">
+					<span class="swatch" style="background:#0891b2"></span> Arctic
+				</div>
+				<div class="theme-option" data-theme="aurora" role="menuitem">
+					<span class="swatch" style="background:#00d4aa"></span> Aurora
+				</div>
+				<div class="theme-option" data-theme="bloodmoon" role="menuitem">
+					<span class="swatch" style="background:#ff2020"></span> Blood Moon
+				</div>
+				<div class="theme-option" data-theme="cyberpunk" role="menuitem">
+					<span class="swatch" style="background:#e040fb"></span> Cyberpunk
+				</div>
+				<div class="theme-option" data-theme="matrix" role="menuitem">
+					<span class="swatch" style="background:#00ff41"></span> Matrix
+				</div>
+				<div class="theme-option" data-theme="midnight" role="menuitem">
+					<span class="swatch" style="background:#4fc1ff"></span> Midnight
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Output -->
+	<main class="console-output" id="consoleOutput" aria-live="polite"></main>
+
+	<!-- Input -->
+	<div class="console-input-area">
+		<span class="input-prompt">&gt;</span>
+		<div class="input-wrapper">
+			<input type="text" class="console-input" id="consoleInput" placeholder="Type a command..."
+			       autocomplete="off" spellcheck="false" aria-label="Command input">
+			<div class="autocomplete" id="autocomplete" role="listbox"></div>
+		</div>
+	</div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+
+<script src="js/ConsoleEngine.js"></script>
+</body>
+</html>

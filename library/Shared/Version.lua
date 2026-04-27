@@ -86,5 +86,5 @@ function Version.isUpdateAvailable(remote_version)
 	return Version.getCurrent():isOlderThan(remote_version)
 end
 
--- Export
+-- Export the API to be accessed by other packages
 return Version

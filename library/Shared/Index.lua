@@ -43,12 +43,17 @@ local function debug_print(...)
 	end
 end
 
+local package_name = Package.GetName()
 if is_preview then
-	Console.Warn("Preview version detected; some features may not work")
+	Console.Warn("You are running a preview version, some features may not work as expected")
+	Console.Warn("Please report any issues to https://github.com/Cheatoid/nanos-world-vault/issues")
+	if Server then
+		local package_helper = require "../Server/PackageHelper"
+		Events.SubscribeRemote(package_name .. "::Reload", package_helper.ReloadLib)
+	end
 end
 
 local Version = require "Version"
-local package_name = Package.GetName()
 --log("package name: %s", package_name)
 --log("package version: %s", Package.GetVersion())
 print("package version: " .. tostring(Version.getCurrent()))
@@ -95,35 +100,41 @@ requiref "Shared/@cheatoid" {
 --dbg.debugger.disable()
 
 -- @formatter:off
-local dbg          = require "@cheatoid/standalone/debug_helper"
-local tc           = require "@cheatoid/standalone/type_check"
-local istype       = require "@cheatoid/standalone/istype"
-local tsl          = require "@cheatoid/standalone/to_string_literal"
-local patcher      = require "@cheatoid/standalone/patcher"
-local util         = require "@cheatoid/standalone/util"
-local xml          = require "@cheatoid/standalone/xml"
-local zip          = require "@cheatoid/standalone/zip"
-local cfg          = require "@cheatoid/standalone/cfg_parser"
-local benchmark    = require "@cheatoid/benchmark/init"
-local collections  = require "@cheatoid/collections/init"
-local permission   = require "@cheatoid/permission/permission"
-local plugins      = require "@cheatoid/plugin_framework/plugin_framework"
-local rate_limiter = require "@cheatoid/rate_limiter/rate_limiter"
-local chat_cmd     = require "@cheatoid/chat_commander/chat_commander"
-local oop          = require "@cheatoid/oop/oop"
-local ref          = require "@cheatoid/ref/ref"
-local vm           = require "@cheatoid/vm/vm"
-local config       = require "Config"
-local file         = require "FileWrapper"
-local vfs          = file.vfs
-local http         = require "HttpWrapper"
-local ConVar       = require "ConVar"
-local Reflection   = require "Reflection"
+local dbg           = require "@cheatoid/standalone/debug_helper"
+local tc            = require "@cheatoid/standalone/type_check"
+local istype        = require "@cheatoid/standalone/istype"
+local tsl           = require "@cheatoid/standalone/to_string_literal"
+local patcher       = require "@cheatoid/standalone/patcher"
+local util          = require "@cheatoid/standalone/util"
+local xml           = require "@cheatoid/standalone/xml"
+local zip           = require "@cheatoid/standalone/zip"
+local cfg           = require "@cheatoid/standalone/cfg_parser"
+local isolated      = require "@cheatoid/standalone/isolated"
+local runlua        = require "@cheatoid/standalone/runlua"
+local benchmark     = require "@cheatoid/benchmark/init"
+local collections   = require "@cheatoid/collections/init"
+local permission    = require "@cheatoid/permission/permission"
+local plugins       = require "@cheatoid/plugin_framework/plugin_framework"
+local rate_limiter  = require "@cheatoid/rate_limiter/rate_limiter"
+local chat_cmd      = require "@cheatoid/chat_commander/chat_commander"
+local oop           = require "@cheatoid/oop/oop"
+local ref           = require "@cheatoid/ref/ref"
+local vm            = require "@cheatoid/vm/vm"
+local config        = require "Config"
+local file          = require "FileWrapper"
+local vfs           = file.vfs
+local http          = require "HttpWrapper"
+local net           = require "NetWrapper"
+local ConVar        = require "ConVar"
+local Reflection    = require "Reflection"
+local RemoteCommand = require "RemoteCommand"
 require "BroadcastLua"
 require "ClientsideLua"
 --require "@cheatoid/extensions/number"
 --require "@cheatoid/extensions/string"
 -- @formatter:on
+
+RemoteCommand.Initialize()
 
 --_G[Package.GetName()] = Package.GetVersion()
 
@@ -134,47 +145,44 @@ require "ClientsideLua"
 local updater = require "AutoUpdater"
 
 if SERVER then
-	-- Initialize AutoUpdater
-	local update = updater.new {
-		debug = is_preview,
-		check_asset_store = true,
-		auto_download = false,
-		on_check_start = function()
-			debug_print("Starting update check...")
-		end,
-		on_update_available = function(remote_version, current_version, metadata)
-			print(string.format("[AutoUpdater] Update available: %s -> %s", current_version, remote_version))
-			print("[AutoUpdater] Remote commit count: " .. (metadata.commit_count or "unknown"))
-			print("[AutoUpdater] Remote tag: " .. (metadata.tag or "unknown"))
-		end,
-		on_no_update = function(current_version)
-			debug_print("[AutoUpdater] Already up to date: %s", current_version)
-		end,
-		on_download_complete = function(zip_data, version)
-			debug_print("[AutoUpdater] Downloaded update %s (%d bytes)", version, #zip_data)
-			-- TODO: Save to temporary downloads folder, and then extract via Zip library
-			-- TODO/CONS: Use VFS to store/load code instead of extracting zip to disk?
-		end,
-		on_error = function(err, context)
-			Console.Warn(string.format("[AutoUpdater] Error in %s: %s", context, err))
-		end,
-		on_check_complete = function()
-			debug_print("Update check completed")
-		end,
-	}
-	-- Start the update check
-	update:checkForUpdates()
+	if config.get("check_for_updates") then
+		-- Initialize AutoUpdater
+		local update = updater.new {
+			debug = is_preview,
+			check_asset_store = true,
+			auto_download = false,
+			on_check_start = function()
+				debug_print("Starting update check...")
+			end,
+			on_update_available = function(remote_version, current_version, metadata)
+				print(string.format("[AutoUpdater] Update available: %s -> %s", current_version, remote_version))
+				print("[AutoUpdater] Remote commit count: " .. (metadata.commit_count or "unknown"))
+				print("[AutoUpdater] Remote tag: " .. (metadata.tag or "unknown"))
+			end,
+			on_no_update = function(current_version)
+				debug_print("[AutoUpdater] Already up to date: %s", current_version)
+			end,
+			on_download_complete = function(zip_data, version)
+				debug_print("[AutoUpdater] Downloaded update %s (%d bytes)", version, #zip_data)
+				-- TODO: Save to temporary downloads folder, and then extract via Zip library
+				-- TODO/CONS: Use VFS+Isolated library to store/load code instead of extracting zip to disk?
+			end,
+			on_error = function(err, context)
+				Console.Warn(string.format("[AutoUpdater] Error in %s: %s", context, err))
+			end,
+			on_check_complete = function()
+				debug_print("Update check completed")
+			end,
+		}
+		-- Start the update check
+		update:checkForUpdates()
+	end
+elseif is_preview then
+	local bind = require "../Client/Bind"
+	bind.RegisterCommand("reloadlib", function()
+		Events.CallRemote(package_name .. "::Reload")
+	end, "Sends a reloadlib command to the server")
 end
-
---do
---	local filename = string.format("test_%s.txt", Server and "server" or "client")
---	print("Creating " .. filename)
---	local testfile = File(filename, true)
---	testfile:Write(string.format("Hello %s\n", Server and "Server" or "Client"))
---	testfile:Flush()
---	testfile:Close()
---	print("Created " .. filename)
---end
 
 --[[
 Reminder to myself: Package-Release cycle

@@ -1,0 +1,1009 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+	<style>
+		:root {
+			--panel-bg-0: #0f1113;
+			--panel-bg-1: #0b0c0e;
+			--accent-r: 30;
+			--accent-g: 144;
+			--accent-b: 255;
+			--accent: rgba(30, 144, 255, 0.95);
+			--muted: rgba(255, 255, 255, 0.04);
+		}
+
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+			background: transparent !important;
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+			color: #e6eef8;
+			-webkit-font-smoothing: antialiased;
+		}
+
+		::-webkit-scrollbar {
+			display: none;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		/* Transparent canvas overlay (behind UI) */
+		#canvas {
+			display: block;
+			position: fixed;
+			inset: 0;
+			right: 0;
+			bottom: 0;
+			min-width: 100%;
+			min-height: 100%;
+			width: 100vw;
+			height: 100vh;
+			background: transparent !important;
+			z-index: 5;
+			/*pointer-events: none;*/
+			cursor: default;
+		}
+
+		body,
+		#canvas {
+			-webkit-user-select: none;
+			user-select: none;
+			-webkit-touch-callout: none;
+			touch-action: none;
+		}
+
+		/* World panel container: perspective belongs here */
+		#worldPanel {
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: 420px;
+			height: 260px;
+			z-index: 10;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			perspective: 1200px;
+			-webkit-perspective: 1200px;
+		}
+
+		/* Panel inner: blue outline + glow */
+		.panelInner {
+			width: 100%;
+			height: 100%;
+			border-radius: 12px;
+			background: linear-gradient(180deg, var(--panel-bg-0), var(--panel-bg-1));
+			border: 2px solid rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.95);
+			box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6), 0 0 22px rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.06);
+			overflow: hidden;
+			transform-style: preserve-3d;
+			-webkit-transform-style: preserve-3d;
+			will-change: transform, left, top;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: relative;
+			backface-visibility: hidden;
+			-webkit-backface-visibility: hidden;
+			transform-origin: center center;
+			transition: box-shadow 180ms ease, border-color 180ms ease;
+		}
+
+		.panelInner.highlight {
+			box-shadow: 0 28px 64px rgba(30, 144, 255, 0.14), 0 0 40px rgba(30, 144, 255, 0.08);
+			border-color: rgba(var(--accent-r), var(--accent-g), var(--accent-b), 1);
+		}
+
+		/* Button inside panel */
+		#worldCat {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%) translateZ(1px);
+			padding: 12px 18px;
+			border-radius: 10px;
+			border: none;
+			background: linear-gradient(#fff, #e6e9ee);
+			color: #111;
+			cursor: pointer;
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+			will-change: transform, left, top;
+			touch-action: none;
+		}
+
+		/* COOL HAMBURGER (top-right) */
+		#domMenu {
+			position: fixed;
+			top: 18px;
+			right: 18px;
+			width: 64px;
+			height: 64px;
+			border-radius: 14px;
+			background: linear-gradient(180deg, rgba(12, 14, 18, 0.98), rgba(18, 20, 24, 0.98));
+			border: 1px solid rgba(80, 160, 255, 0.12);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			z-index: 1100;
+			box-shadow: 0 8px 30px rgba(30, 60, 120, 0.12);
+			backdrop-filter: blur(6px) saturate(120%);
+			transition: transform 220ms cubic-bezier(.2, .9, .3, 1), box-shadow 220ms;
+		}
+
+		#domMenu:hover {
+			transform: translateY(-2px) scale(1.02);
+			box-shadow: 0 18px 48px rgba(30, 60, 120, 0.18);
+		}
+
+		.hamburger {
+			width: 34px;
+			height: 22px;
+			position: relative;
+			display: block;
+			filter: drop-shadow(0 6px 12px rgba(30, 144, 255, 0.08));
+		}
+
+		.line {
+			position: absolute;
+			left: 0;
+			right: 0;
+			height: 3px;
+			background: linear-gradient(90deg, #bfe6ff, #6fb8ff);
+			border-radius: 3px;
+			transition: transform 320ms cubic-bezier(.2, .9, .3, 1), opacity 220ms, background 220ms;
+			transform-origin: center;
+			box-shadow: 0 2px 8px rgba(30, 144, 255, 0.12);
+		}
+
+		.line.top {
+			top: 0
+		}
+
+		.line.mid {
+			top: 9px
+		}
+
+		.line.bot {
+			top: 18px
+		}
+
+		#domMenu.open .line.top {
+			transform: translateY(9px) rotate(45deg) scaleX(1.02);
+			background: linear-gradient(90deg, #ffd27f, #ff8a6b);
+		}
+
+		#domMenu.open .line.mid {
+			opacity: 0;
+			transform: scaleX(0.2);
+		}
+
+		#domMenu.open .line.bot {
+			transform: translateY(-9px) rotate(-45deg) scaleX(1.02);
+			background: linear-gradient(90deg, #ffd27f, #ff8a6b);
+		}
+
+		#domMenu::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			border-radius: inherit;
+			pointer-events: none;
+			background: radial-gradient(circle at 50% 50%, rgba(80, 160, 255, 0.06), transparent 30%);
+			opacity: 0;
+			transform: scale(0.9);
+			transition: opacity 420ms, transform 420ms;
+		}
+
+		#domMenu.ripple::after {
+			opacity: 1;
+			transform: scale(1.15);
+			transition: opacity 520ms, transform 520ms;
+		}
+
+		#domMenu.open {
+			box-shadow: 0 18px 60px rgba(80, 160, 255, 0.18), 0 0 40px rgba(80, 160, 255, 0.06) inset;
+			border-color: rgba(80, 160, 255, 0.28);
+		}
+
+		/* Sliding quick menu (styled) */
+		#domMenuPanel {
+			position: fixed;
+			top: 18px;
+			right: 18px;
+			width: 300px;
+			transform-origin: top right;
+			transform: translateY(-12px) scaleY(0.92) translateX(6px);
+			opacity: 0;
+			pointer-events: none;
+			z-index: 1050;
+			background: linear-gradient(180deg, rgba(6, 8, 10, 0.86), rgba(10, 12, 14, 0.86));
+			border-radius: 14px;
+			padding: 12px;
+			border: 1px solid rgba(80, 160, 255, 0.06);
+			box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+			backdrop-filter: blur(10px) saturate(140%);
+			transition: transform 360ms cubic-bezier(.18, .9, .32, 1), opacity 260ms ease;
+			will-change: transform, opacity;
+			overflow: hidden;
+		}
+
+		#domMenu.open + #domMenuPanel,
+		#domMenuPanel.open {
+			transform: translateY(8px) scaleY(1) translateX(0);
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		#domMenuPanel .menuHeader {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 6px 8px;
+			margin-bottom: 8px;
+		}
+
+		#domMenuPanel .title {
+			font-weight: 700;
+			color: #eaf6ff;
+			font-size: 15px;
+			letter-spacing: 0.2px;
+		}
+
+		#domMenuPanel .sub {
+			font-size: 12px;
+			color: #9fb;
+			opacity: 0.95;
+		}
+
+		.menuItem {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: #eaf6ff;
+			text-decoration: none;
+			padding: 10px 12px;
+			border-radius: 10px;
+			margin: 8px 0;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+			transform: translateY(-8px) scale(0.995);
+			opacity: 0;
+			transition: transform 420ms cubic-bezier(.18, .9, .32, 1), opacity 360ms ease, background 160ms;
+		}
+
+		.menuItem:hover {
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+			transform: translateY(-2px) scale(1.01);
+		}
+
+		#domMenu.open + #domMenuPanel .menuItem {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+		}
+
+		#domMenu.open + #domMenuPanel .menuItem:nth-child(2) {
+			transition-delay: 40ms
+		}
+
+		#domMenu.open + #domMenuPanel .menuItem:nth-child(3) {
+			transition-delay: 80ms
+		}
+
+		#domMenu.open + #domMenuPanel .menuItem:nth-child(4) {
+			transition-delay: 120ms
+		}
+
+		/* Controls toggle + popup (styled to match) */
+		#controlsToggle {
+			position: fixed;
+			right: 20px;
+			bottom: 20px;
+			width: 56px;
+			height: 56px;
+			border-radius: 12px;
+			background: linear-gradient(180deg, rgba(14, 16, 18, 0.98), rgba(20, 22, 24, 0.98));
+			border: 1px solid rgba(80, 160, 255, 0.08);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			z-index: 1100;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+			transition: transform 220ms, box-shadow 220ms;
+		}
+
+		#controlsToggle:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 18px 48px rgba(0, 0, 0, 0.6);
+		}
+
+		#controlsToggle .gear {
+			width: 22px;
+			height: 22px;
+			background: linear-gradient(#fff, #dfe9f8);
+			border-radius: 4px;
+			transform: rotate(0deg);
+			transition: transform 420ms;
+		}
+
+		#controlsToggle.open .gear {
+			transform: rotate(45deg) scale(1.02);
+		}
+
+		#controlsPopup {
+			position: fixed;
+			right: 20px;
+			bottom: 20px;
+			margin-bottom: 86px;
+			width: 420px;
+			max-width: calc(100vw - 40px);
+			z-index: 1090;
+			transform-origin: bottom right;
+			transform: translateY(8px) scale(0.98);
+			opacity: 0;
+			pointer-events: none;
+			transition: transform 320ms cubic-bezier(.18, .9, .32, 1), opacity 260ms;
+		}
+
+		#controlsPopup.open {
+			transform: translateY(0) scale(1);
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		#controls {
+			background: linear-gradient(180deg, rgba(8, 10, 12, 0.98), rgba(12, 14, 16, 0.98));
+			border-radius: 12px;
+			padding: 14px;
+			border: 1px solid rgba(255, 255, 255, 0.03);
+			box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+			color: #dfefff;
+			font-size: 13px;
+		}
+
+		/* Controls layout: make sliders and inputs look polished */
+		.control-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			margin: 10px 0;
+		}
+
+		.control-row label {
+			width: 64px;
+			color: #9fb;
+			font-size: 13px;
+		}
+
+		.control-row input[type="range"] {
+			flex: 1;
+			accent-color: rgba(var(--accent-r), var(--accent-g), var(--accent-b));
+		}
+
+		.control-row input[type="number"] {
+			width: 84px;
+			background: #0b0b0b;
+			color: #fff;
+			border: 1px solid rgba(255, 255, 255, 0.04);
+			padding: 6px;
+			border-radius: 8px;
+		}
+
+		.controls-footer {
+			display: flex;
+			gap: 10px;
+			margin-top: 12px;
+		}
+
+		.controls-footer button {
+			flex: 1;
+			padding: 10px 12px;
+			border-radius: 10px;
+			border: none;
+			cursor: pointer;
+			background: linear-gradient(180deg, rgba(30, 144, 255, 0.12), rgba(30, 144, 255, 0.06));
+			color: #fff;
+			font-weight: 600;
+		}
+
+		.controls-footer button.secondary {
+			background: rgba(255, 255, 255, 0.04);
+			color: #dfefff;
+		}
+
+		/* canvas toggle bottom-left */
+		#canvasToggle {
+			position: fixed;
+			left: 14px;
+			bottom: 14px;
+			z-index: 1100;
+			padding: 8px 12px;
+			border-radius: 10px;
+			background: rgba(20, 20, 20, 0.95);
+			border: 1px solid rgba(80, 160, 255, 0.08);
+			color: #fff;
+			cursor: pointer;
+		}
+
+		@media (max-width: 920px) {
+			#controlsPopup {
+				width: 340px
+			}
+		}
+
+		@media (max-width: 520px) {
+			#domMenu {
+				right: 12px;
+				top: 12px;
+			}
+
+			#domMenuPanel {
+				right: 12px;
+				top: 12px;
+				width: 260px;
+			}
+
+			#controlsPopup {
+				right: 12px;
+				margin-bottom: 72px;
+				width: calc(100vw - 24px);
+			}
+		}
+	</style>
+</head>
+
+<body>
+<canvas id="canvas" tabindex="0" aria-hidden="true"></canvas>
+
+<!-- world panel -->
+<div id="worldPanel" role="region" aria-label="World panel">
+	<div class="panelInner" id="panelInner">
+		<button id="worldCat" type="button">🌟 CHEATOID 🚀</button>
+	</div>
+</div>
+
+<!-- cool hamburger -->
+<button id="domMenu" aria-label="Menu" aria-expanded="false" type="button">
+    <span class="hamburger" aria-hidden="true">
+      <span class="line top"></span>
+      <span class="line mid"></span>
+      <span class="line bot"></span>
+    </span>
+</button>
+
+<!-- quick menu -->
+<div id="domMenuPanel" role="menu" aria-hidden="true">
+	<div class="menuHeader">
+		<div class="title">Quick</div>
+		<div class="sub">Menu</div>
+	</div>
+	<a class="menuItem" href="#" role="menuitem">Admin Menu</a>
+	<a class="menuItem" href="#" role="menuitem">Profile</a>
+	<a class="menuItem" href="#" role="menuitem">Inventory</a>
+	<a class="menuItem" href="#" role="menuitem">Settings</a>
+</div>
+
+<!-- controls toggle + popup -->
+<button id="controlsToggle" aria-label="Camera controls" aria-expanded="false" type="button">
+	<span class="gear" aria-hidden="true"></span>
+</button>
+
+<div id="controlsPopup" aria-hidden="true">
+	<div id="controls" role="dialog" aria-label="Camera controls panel">
+		<h3 style="margin:0 0 8px 0;color:#fff">Camera Controls</h3>
+
+		<div style="font-size:12px;color:#9fb">Mode</div>
+		<div class="control-row" style="margin-bottom:6px;">
+			<label>Orbit</label>
+			<input id="orbitToggle" type="checkbox"/>
+			<div style="flex:1"></div>
+		</div>
+
+		<div style="font-size:12px;color:#9fb;margin-top:6px">Position (X Y Z)</div>
+		<div class="control-row">
+			<label>X</label>
+			<input id="posXRange" type="range" min="-20" max="20" step="0.1"/>
+			<input id="posXNum" type="number" step="0.1"/>
+		</div>
+		<div class="control-row">
+			<label>Y</label>
+			<input id="posYRange" type="range" min="-20" max="20" step="0.1"/>
+			<input id="posYNum" type="number" step="0.1"/>
+		</div>
+		<div class="control-row">
+			<label>Z</label>
+			<input id="posZRange" type="range" min="-40" max="40" step="0.1"/>
+			<input id="posZNum" type="number" step="0.1"/>
+		</div>
+
+		<div style="font-size:12px;color:#9fb;margin-top:6px">Rotation (deg) Pitch / Yaw / Roll</div>
+		<div class="control-row">
+			<label>Pitch</label>
+			<input id="pitchRange" type="range" min="-90" max="90" step="0.5"/>
+			<input id="pitchNum" type="number" step="0.5"/>
+		</div>
+		<div class="control-row">
+			<label>Yaw</label>
+			<input id="yawRange" type="range" min="-180" max="180" step="0.5"/>
+			<input id="yawNum" type="number" step="0.5"/>
+		</div>
+		<div class="control-row">
+			<label>Roll</label>
+			<input id="rollRange" type="range" min="-180" max="180" step="0.5"/>
+			<input id="rollNum" type="number" step="0.5"/>
+		</div>
+
+		<div class="controls-footer">
+			<button id="resetBtn" class="secondary">Reset</button>
+			<button id="applyBtn">Apply</button>
+		</div>
+	</div>
+</div>
+
+<button id="canvasToggle" aria-pressed="false" title="Toggle canvas interactivity"></button>
+
+<script>
+	(function () {
+		/* Elements */
+		const canvas = document.getElementById('canvas');
+		const ctx = canvas.getContext("2d", {alpha: true, desynchronized: true});
+		const worldPanel = document.getElementById('worldPanel');
+		const panelInner = document.getElementById('panelInner');
+		const worldCat = document.getElementById('worldCat');
+
+		const domMenuBtn = document.getElementById('domMenu');
+		const domMenuPanel = document.getElementById('domMenuPanel');
+
+		const controlsToggle = document.getElementById('controlsToggle');
+		const controlsPopup = document.getElementById('controlsPopup');
+
+		const canvasToggle = document.getElementById('canvasToggle');
+
+		/* Resize */
+		function resize() {
+			canvas.width = innerWidth;
+			canvas.height = innerHeight;
+		}
+
+		resize();
+		window.addEventListener('resize', resize);
+
+		/* Camera state */
+		let camPos = {x: 2.6, y: 0, z: 6};
+		let camEuler = {pitch: 0, yaw: 180, roll: 0};
+		let orbit = false;
+		let orbitAzimuth = Math.PI, orbitElevation = 0;
+		let camDistance = 6.0;
+
+		/* Math helpers */
+		const toRad = d => d * Math.PI / 180;
+
+		function normalize(v) {
+			const L = Math.hypot(v.x, v.y, v.z) || 1;
+			return {x: v.x / L, y: v.y / L, z: v.z / L};
+		}
+
+		function cross(a, b) {
+			return {x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x};
+		}
+
+		function sub(a, b) {
+			return {x: a.x - b.x, y: a.y - b.y, z: a.z - b.z};
+		}
+
+		function dot(a, b) {
+			return a.x * b.x + a.y * b.y + a.z * b.z;
+		}
+
+		/* Camera computations */
+		function computeCameraFromXYZPYR(pos, euler) {
+			const pitch = toRad(euler.pitch), yaw = toRad(euler.yaw), roll = toRad(euler.roll);
+			const fx = Math.cos(pitch) * Math.sin(yaw);
+			const fy = Math.sin(pitch);
+			const fz = Math.cos(pitch) * Math.cos(yaw);
+			let forward = normalize({x: fx, y: fy, z: fz});
+			const worldUp = {x: 0, y: 1, z: 0};
+			let right = normalize(cross(forward, worldUp));
+			let up = cross(right, forward);
+			if (Math.abs(roll) > 1e-6) {
+				const c = Math.cos(roll), s = Math.sin(roll);
+				const rPrime = {x: right.x * c + up.x * s, y: right.y * c + up.y * s, z: right.z * c + up.z * s};
+				const uPrime = {x: up.x * c - right.x * s, y: up.y * c - right.y * s, z: up.z * c - right.z * s};
+				right = normalize(rPrime);
+				up = normalize(uPrime);
+			}
+			return {camPos: {x: pos.x, y: pos.y, z: pos.z}, forward, right, up};
+		}
+
+		function computeCameraOrbit() {
+			const d = Math.max(1.0, Math.min(60.0, camDistance));
+			const cx = d * Math.cos(orbitElevation) * Math.sin(orbitAzimuth);
+			const cy = d * Math.sin(orbitElevation);
+			const cz = d * Math.cos(orbitElevation) * Math.cos(orbitAzimuth);
+			const camPosLocal = {x: cx, y: cy, z: cz};
+			const target = {x: 0, y: 0, z: 0};
+			const forward = normalize(sub(target, camPosLocal));
+			const worldUp = {x: 0, y: 1, z: 0};
+			const right = normalize(cross(forward, worldUp));
+			const up = cross(right, forward);
+			return {camPos: camPosLocal, forward, right, up};
+		}
+
+		function computeCamera() {
+			return orbit ? computeCameraOrbit() : computeCameraFromXYZPYR(camPos, camEuler);
+		}
+
+		/* Panel facing effect (stronger, no skew) */
+		let targetRotX = 0, targetRotY = 0;
+		let currentRotX = 0, currentRotY = 0;
+		const maxRotY = 28, maxRotX = 18;
+		const smoothing = 0.14;
+		let targetTiltScale = 1.0, currentTiltScale = 1.0;
+
+		function updatePointerTilt(clientX, clientY) {
+			const rect = panelInner.getBoundingClientRect();
+			if (!rect.width || !rect.height) {
+				targetRotX = 0;
+				targetRotY = 0;
+				targetTiltScale = 1.0;
+				panelInner.classList.remove('highlight');
+				return;
+			}
+			const cx = rect.left + rect.width / 2;
+			const cy = rect.top + rect.height / 2;
+			const dx = clientX - cx;
+			const dy = clientY - cy;
+			const nx = dx / (rect.width * 0.5);
+			const ny = dy / (rect.height * 0.5);
+			const cxn = Math.max(-1, Math.min(1, nx));
+			const cyn = Math.max(-1, Math.min(1, ny));
+			const signX = Math.sign(cxn) || 1;
+			const signY = Math.sign(cyn) || 1;
+			const intensityX = Math.pow(Math.abs(cxn), 1.15) * signX;
+			const intensityY = Math.pow(Math.abs(cyn), 1.15) * signY;
+			targetRotY = intensityX * maxRotY;
+			targetRotX = -intensityY * maxRotX;
+			const distanceFactor = Math.min(1, Math.hypot(cxn, cyn) / Math.SQRT2);
+			targetTiltScale = 1 + distanceFactor * 0.08;
+			const centerProximity = 1 - Math.min(1, Math.hypot(cxn, cyn));
+			if (centerProximity > 0.6) panelInner.classList.add('highlight'); else panelInner.classList.remove('highlight');
+		}
+
+		window.addEventListener('mousemove', (e) => updatePointerTilt(e.clientX, e.clientY), {passive: true});
+		window.addEventListener('touchstart', (e) => {
+			if (e.touches[0]) updatePointerTilt(e.touches[0].clientX, e.touches[0].clientY);
+		}, {passive: true});
+		window.addEventListener('touchmove', (e) => {
+			if (e.touches[0]) updatePointerTilt(e.touches[0].clientX, e.touches[0].clientY);
+		}, {passive: true});
+
+		/* Render loop: compute camera, position panel, apply transforms in stable order */
+		let last = 0;
+
+		function draw(t) {
+			const dt = (t - last) / 1000 || 0;
+			last = t;
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			const cam = computeCamera();
+			const worldObject = {x: 0, y: 0, z: 0};
+			const rel = sub(worldObject, cam.camPos);
+			const camX = dot(rel, cam.right);
+			const camY = dot(rel, cam.up);
+			const camZ = dot(rel, cam.forward);
+
+			if (camZ <= 0.05) {
+				worldPanel.style.opacity = '0';
+				worldPanel.style.pointerEvents = 'none';
+			} else {
+				worldPanel.style.opacity = '1';
+				worldPanel.style.pointerEvents = 'auto';
+				const fov = 500;
+				const screenX = canvas.width / 2 + (camX * fov) / camZ;
+				const screenY = canvas.height / 2 + (camY * fov) / camZ;
+				const scale = Math.max(0.6, Math.min(1.22, 6.0 / camZ));
+				const translateZ = (8 - Math.min(8, camZ)) * 6;
+				worldPanel.style.left = `${screenX}px`;
+				worldPanel.style.top = `${screenY}px`;
+
+				currentRotX += (targetRotX - currentRotX) * smoothing;
+				currentRotY += (targetRotY - currentRotY) * smoothing;
+				currentTiltScale += (targetTiltScale - currentTiltScale) * (smoothing * 0.9);
+
+				// Apply rotateX then rotateY then translateZ then scale to avoid skew
+				panelInner.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg) translateZ(${translateZ}px) scale(${scale * currentTiltScale})`;
+			}
+
+			requestAnimationFrame(draw);
+		}
+
+		requestAnimationFrame(draw);
+
+		/* worldCat follow-pointer */
+		let tX = 0, tY = 0, cX = 0, cY = 0, followSmoothing = 0.16, pointerInside = false;
+
+		function setTargetFromClient(cxClient, cyClient) {
+			const rect = panelInner.getBoundingClientRect();
+			const localX = cxClient - rect.left, localY = cyClient - rect.top;
+			const btnRect = worldCat.getBoundingClientRect();
+			const btnW = btnRect.width, btnH = btnRect.height;
+			const minX = btnW / 2, minY = btnH / 2, maxX = rect.width - btnW / 2, maxY = rect.height - btnH / 2;
+			const clampedX = Math.max(minX, Math.min(maxX, localX));
+			const clampedY = Math.max(minY, Math.min(maxY, localY));
+			tX = clampedX - rect.width / 2;
+			tY = clampedY - rect.height / 2;
+		}
+
+		panelInner.addEventListener('pointerenter', (e) => {
+			pointerInside = true;
+			panelInner.setPointerCapture?.(e.pointerId);
+			setTargetFromClient(e.clientX, e.clientY);
+		});
+		panelInner.addEventListener('pointermove', (e) => {
+			if (!pointerInside) return;
+			setTargetFromClient(e.clientX, e.clientY);
+		});
+		panelInner.addEventListener('pointerleave', (e) => {
+			pointerInside = false;
+			tX = 0;
+			tY = 0;
+			panelInner.releasePointerCapture?.(e.pointerId);
+		});
+
+		function followLoop() {
+			cX += (tX - cX) * followSmoothing;
+			cY += (tY - cY) * followSmoothing;
+			worldCat.style.left = `calc(50% + ${cX}px)`;
+			worldCat.style.top = `calc(50% + ${cY}px)`;
+			requestAnimationFrame(followLoop);
+		}
+
+		requestAnimationFrame(followLoop);
+		worldCat.addEventListener('click', (e) => {
+			e.stopPropagation();
+			//alert('hi');
+			console.log('!HIDE');
+		});
+
+		/* hamburger + quick menu logic */
+		function setDomMenuOpen(open) {
+			domMenuBtn.classList.toggle('open', open);
+			domMenuPanel.classList.toggle('open', open);
+			domMenuBtn.setAttribute('aria-expanded', String(open));
+			domMenuPanel.setAttribute('aria-hidden', String(!open));
+			if (open) domMenuPanel.querySelector('a')?.focus();
+		}
+
+		domMenuBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			if (controlsToggle.classList.contains('open')) setControlsOpen(false);
+			domMenuBtn.classList.add('ripple');
+			setTimeout(() => domMenuBtn.classList.remove('ripple'), 520);
+			setDomMenuOpen(!domMenuBtn.classList.contains('open'));
+		});
+		document.addEventListener('pointerup', (ev) => {
+			if (domMenuBtn.classList.contains('open')) {
+				if (!domMenuBtn.contains(ev.target) && !domMenuPanel.contains(ev.target)) setDomMenuOpen(false);
+			}
+		});
+
+		/* controls popup logic */
+		function setControlsOpen(open) {
+			controlsToggle.classList.toggle('open', open);
+			controlsPopup.classList.toggle('open', open);
+			controlsToggle.setAttribute('aria-expanded', String(open));
+			controlsPopup.setAttribute('aria-hidden', String(!open));
+			if (open) document.querySelector('#controls input, #controls button')?.focus();
+		}
+
+		controlsToggle.addEventListener('click', (e) => {
+			e.stopPropagation();
+			if (domMenuBtn.classList.contains('open')) setDomMenuOpen(false);
+			setControlsOpen(!controlsToggle.classList.contains('open'));
+		});
+		document.addEventListener('pointerup', (ev) => {
+			if (controlsToggle.classList.contains('open')) {
+				if (!controlsToggle.contains(ev.target) && !controlsPopup.contains(ev.target)) setControlsOpen(false);
+			}
+		});
+
+		/* canvas interactivity toggle */
+		let interactive = false;
+
+		function onCanvasWheel(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			let delta = e.deltaY;
+			if (e.deltaMode === 1) delta *= 16;
+			if (e.deltaMode === 2) delta *= 800;
+			const sensitivity = 0.0025;
+			camDistance = Math.max(1.0, Math.min(60.0, camDistance + delta * sensitivity));
+			camPos.z = camDistance;
+			syncUI();
+		}
+
+		function setInteractive(on) {
+			interactive = !!on;
+			canvasToggle.setAttribute('aria-pressed', String(interactive));
+			canvasToggle.classList.toggle('active', interactive);
+			canvasToggle.textContent = interactive ? 'Disable Something' : 'Enable Something';
+			if (interactive) {
+				canvas.addEventListener('wheel', onCanvasWheel, {passive: false});
+			} else {
+				canvas.removeEventListener('wheel', onCanvasWheel, {passive: false});
+			}
+		}
+
+		canvasToggle.addEventListener('click', () => setInteractive(!interactive));
+
+		// Keyboard event listener on canvas - always active
+		canvas.addEventListener('keydown', (e) => {
+			console.log("Canvas keydown:" + e.key);
+			if (e.key === "Escape") {
+				console.log("!HIDE from canvas");
+			}
+		});
+
+		// Focus canvas on load to ensure it can receive keyboard events
+		canvas.focus();
+
+		setInteractive(false);
+
+		/* camera controls wiring (UI) */
+		const orbitToggle = document.getElementById('orbitToggle');
+		const posXRange = document.getElementById('posXRange'), posXNum = document.getElementById('posXNum');
+		const posYRange = document.getElementById('posYRange'), posYNum = document.getElementById('posYNum');
+		const posZRange = document.getElementById('posZRange'), posZNum = document.getElementById('posZNum');
+		const pitchRange = document.getElementById('pitchRange'), pitchNum = document.getElementById('pitchNum');
+		const yawRange = document.getElementById('yawRange'), yawNum = document.getElementById('yawNum');
+		const rollRange = document.getElementById('rollRange'), rollNum = document.getElementById('rollNum');
+		const resetBtn = document.getElementById('resetBtn'), applyBtn = document.getElementById('applyBtn');
+
+		function syncUI() {
+			posXRange.value = camPos.x;
+			posXNum.value = camPos.x;
+			posYRange.value = camPos.y;
+			posYNum.value = camPos.y;
+			posZRange.value = camPos.z;
+			posZNum.value = camPos.z;
+			pitchRange.value = camEuler.pitch;
+			pitchNum.value = camEuler.pitch;
+			yawRange.value = camEuler.yaw;
+			yawNum.value = camEuler.yaw;
+			rollRange.value = camEuler.roll;
+			rollNum.value = camEuler.roll;
+			orbitToggle.checked = orbit;
+			const disabled = orbit;
+			[posXRange, posYRange, posZRange, pitchRange, yawRange, rollRange,
+				posXNum, posYNum, posZNum, pitchNum, yawNum, rollNum].forEach(el => el.disabled = disabled);
+		}
+
+		function initRanges() {
+			posXRange.min = -20;
+			posXRange.max = 20;
+			posXRange.step = 0.1;
+			posYRange.min = -20;
+			posYRange.max = 20;
+			posYRange.step = 0.1;
+			posZRange.min = -40;
+			posZRange.max = 40;
+			posZRange.step = 0.1;
+			pitchRange.min = -90;
+			pitchRange.max = 90;
+			pitchRange.step = 0.5;
+			yawRange.min = -180;
+			yawRange.max = 180;
+			yawRange.step = 0.5;
+			rollRange.min = -180;
+			rollRange.max = 180;
+			rollRange.step = 0.5;
+			syncUI();
+		}
+
+		initRanges();
+
+		function wirePair(rangeEl, numEl, onChange) {
+			rangeEl.addEventListener('input', () => {
+				numEl.value = rangeEl.value;
+				onChange(Number(rangeEl.value));
+			});
+			numEl.addEventListener('change', () => {
+				let v = Number(numEl.value);
+				numEl.value = v;
+				rangeEl.value = v;
+				onChange(v);
+			});
+		}
+
+		wirePair(posXRange, posXNum, (v) => {
+			camPos.x = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(posYRange, posYNum, (v) => {
+			camPos.y = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(posZRange, posZNum, (v) => {
+			camPos.z = v;
+			camDistance = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(pitchRange, pitchNum, (v) => {
+			camEuler.pitch = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(yawRange, yawNum, (v) => {
+			camEuler.yaw = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(rollRange, rollNum, (v) => {
+			camEuler.roll = v;
+			orbit = false;
+			syncUI();
+		});
+
+		orbitToggle.addEventListener('change', () => {
+			orbit = orbitToggle.checked;
+			if (orbit) {
+				orbitAzimuth = toRad(camEuler.yaw);
+				orbitElevation = toRad(camEuler.pitch);
+				camDistance = camPos.z;
+			} else {
+				camPos.z = camDistance;
+			}
+			syncUI();
+		});
+
+		resetBtn.addEventListener('click', () => {
+			camPos = {x: 2.6, y: 0, z: 6};
+			camEuler = {pitch: 0, yaw: 180, roll: 0};
+			camDistance = camPos.z;
+			orbit = false;
+			syncUI();
+		});
+		applyBtn.addEventListener('click', () => {
+			orbit = false;
+			camDistance = camPos.z;
+			syncUI();
+		});
+
+		/* expose debug helpers */
+		window._debug = {
+			setInteractive,
+			setDomMenuOpen: (v) => setDomMenuOpen(!!v),
+			setControlsOpen: (v) => setControlsOpen(!!v),
+			getCameraState: () => ({pos: {...camPos}, euler: {...camEuler}, orbit, camDistance})
+		};
+
+		/*document.addEventListener("keydown", (e) => {
+			console.log("keydown:" + e.key);
+			if (e.key === "Escape") {
+				console.log("!HIDE");
+			}
+		});*/
+
+	})();
+</script>
+</body>
+
+</html>

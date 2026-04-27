@@ -10,7 +10,7 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-File",
-				"${workspaceFolder}/.tools/remove_utf8_bom.ps1"
+				"${workspaceFolder}/.tools/remove_utf8_bom.ps1",
 			],
 			"problemMatcher": [],
 			"group": "build",
@@ -18,26 +18,22 @@
 				"echo": true,
 				"reveal": "always",
 				"focus": false,
-				"panel": "shared"
-			}
+				"panel": "shared",
+			},
 		},
 		{
 			"label": "Run Packager (generate packages into publish folder)",
 			"type": "shell",
 			"command": "dotnet",
-			"args": [
-				"run",
-				"--project",
-				"${workspaceFolder}/.packager/packager.csproj"
-			],
+			"args": ["run", "--project", "${workspaceFolder}/.packager/packager.csproj"],
 			"problemMatcher": [],
 			"group": "build",
 			"presentation": {
 				"echo": true,
 				"reveal": "always",
 				"focus": false,
-				"panel": "shared"
-			}
+				"panel": "shared",
+			},
 		},
 		{
 			"label": "Upload packages to local server",
@@ -50,7 +46,7 @@
 				"--",
 				"--upload-packages",
 				"--cli",
-				"${workspaceFolder}/.."
+				"${workspaceFolder}/..",
 				// assume NanosWorldServer is 1 level above
 			],
 			"problemMatcher": [],
@@ -59,8 +55,8 @@
 				"echo": true,
 				"reveal": "always",
 				"focus": false,
-				"panel": "shared"
-			}
+				"panel": "shared",
+			},
 		},
 		{
 			"label": "Upload packages to local server + store",
@@ -74,7 +70,7 @@
 				"--release",
 				"--upload-packages",
 				"--cli",
-				"${workspaceFolder}/.."
+				"${workspaceFolder}/..",
 				// assume NanosWorldServer is 1 level above
 			],
 			"problemMatcher": [],
@@ -83,47 +79,36 @@
 				"echo": true,
 				"reveal": "always",
 				"focus": false,
-				"panel": "shared"
-			}
+				"panel": "shared",
+			},
 		},
 		{
 			"label": "Download+Generate+Build Lua 5.4.8 binaries (CMake)",
 			"type": "shell",
 			"command": "cmd",
-			"args": [
-				"/c",
-				"${workspaceFolder}/.lua/make.cmd",
-				"5.4.8",
-				"--download"
-			],
+			"args": ["/c", "${workspaceFolder}/.lua/make.cmd", "5.4.8", "--download"],
 			"problemMatcher": [],
 			"group": "build",
 			"presentation": {
 				"echo": true,
 				"reveal": "always",
 				"focus": false,
-				"panel": "shared"
-			}
+				"panel": "shared",
+			},
 		},
 		{
 			"label": "Download+Generate+Build Lua 5.4.8 binaries (Premake5)",
 			"type": "shell",
 			"command": "cmd",
-			"args": [
-				"/c",
-				"${workspaceFolder}/.lua/make.cmd",
-				"5.4.8",
-				"--download",
-				"--premake"
-			],
+			"args": ["/c", "${workspaceFolder}/.lua/make.cmd", "5.4.8", "--download", "--premake"],
 			"problemMatcher": [],
 			"group": "build",
 			"presentation": {
 				"echo": true,
 				"reveal": "always",
 				"focus": false,
-				"panel": "shared"
-			}
-		}
-	]
+				"panel": "shared",
+			},
+		},
+	],
 }

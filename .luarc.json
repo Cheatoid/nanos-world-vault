@@ -1,0 +1,28 @@
+{
+	"$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+	"workspace": {
+		"library": ["./"],
+		"ignoreDir": [".git", "node_modules", "bin", "publish"]
+	},
+	"workspace.checkThirdParty": "Disable",
+	"workspace.ignoreSubmodules": false,
+	"workspace.library": [
+		"./",
+		"${workspaceFolder}/.nanos-world/annotations",
+		"${workspaceFolder}/library/Shared",
+		"${workspaceFolder}/library/Shared/@cheatoid/standard"
+	],
+	"diagnostics.globals": [],
+	"diagnostics.disable": ["different-requires"],
+	"runtime.path": ["?.lua", "Shared/?.lua", "Client/?.lua", "Server/?.lua"],
+	"runtime.version": "Lua 5.4",
+	"format.enable": true,
+	"format.defaultConfig": {
+		"indent_style": "tab",
+		"indent_size": "2"
+	},
+	"hint.setType": true,
+	"hint.enable": false,
+	"workspace.preloadFileSize": 1000,
+	"workspace.maxPreload": 1000
+}

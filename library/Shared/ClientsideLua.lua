@@ -1,7 +1,7 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
--- A shared module implementing `lua` console command for executing Lua code via console.
+-- A shared module implementing `lua` console command for executing Lua code/script via console.
 -- Provides server-side `allowcslua` convar to enable client-side Lua console command.
 
 local ID = "allowcslua"
@@ -101,6 +101,7 @@ if Server then
 	--end)
 
 	-- When the server stops / shutdown
+	-- TODO/FIXME: This does not belong here
 	Server.Subscribe("Stop", function()
 		Config.write()
 		--print("Server stopped")
@@ -169,9 +170,9 @@ if Server then
 			Console.Warn(
 				"Invalid or no argument, expected: 0 to disable, or 1 to enable client-side Lua console command")
 		end
-	end, "enable or disable client-side Lua console command", { "0/1" })
+	end, "Enable or disable client-side Lua console command", { "0/1" })
 
-	Console.RegisterCommand("lua", RunLua, "run Lua", { "code string -or- file path" })
+	Console.RegisterCommand("lua", RunLua, "Run Lua", { "code string -or- file path" })
 else
 	Enabled = Client.GetValue(ID, Enabled)
 
@@ -193,5 +194,5 @@ else
 		if Enabled then
 			RunLua(...)
 		end
-	end, "run Lua (" .. ID .. " must be enabled on server-side)", { "code string -or- file path" })
+	end, "Run Lua (" .. ID .. " must be enabled on server-side)", { "code string -or- file path" })
 end

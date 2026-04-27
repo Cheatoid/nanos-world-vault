@@ -96,7 +96,7 @@ end
 Command parser and dispatcher for in-game chat commands with autocompletion support, type coercion, and flexible
 validation.
 
-See [Chat Commander documentation](Shared/@cheatoid/chat_commander/README.md) for complete details.
+See [Chat Commander documentation](https://github.com/Cheatoid/Lua.Scripts/tree/develop/chat_commander) for complete details.
 
 ```lua
 local chat_commander = require "chat_commander"

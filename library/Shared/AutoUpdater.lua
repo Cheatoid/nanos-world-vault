@@ -454,4 +454,5 @@ function AutoUpdater.check(options, callback)
 	updater:checkForUpdates(callback)
 end
 
+-- Export the API to be accessed by other packages
 return AutoUpdater

@@ -79,6 +79,7 @@ M.is_file_path = is_file_path
 --- end
 --- ```
 local function is_file(path)
+	--path = string_normalize_path(path)
 	return File_IsRegularFile(path)
 end
 
@@ -95,6 +96,7 @@ M.is_file = is_file
 --- end
 --- ```
 local function is_dir(path)
+	--path = string_normalize_path(path)
 	return File_IsDirectory(path)
 end
 
@@ -111,6 +113,8 @@ M.is_dir = is_dir
 --- end
 --- ```
 local function exists(path)
+	-- Normalize path
+	path = string_normalize_path(path)
 	return File_Exists(path)
 end
 
@@ -128,6 +132,8 @@ M.exists = exists
 --- end
 --- ```
 local function file_time(path)
+	-- Normalize path
+	path = string_normalize_path(path)
 	return File_Time(path)
 end
 
@@ -149,7 +155,8 @@ M.time = file_time
 --- end
 --- ```
 local function read_file(path)
-	-- TODO: Import @cheatoid standard string library and automatically normalize path string
+	-- Normalize path
+	path = string_normalize_path(path)
 	-- Try to open and read the file
 	local file = File(path)
 	if not (file and file:IsGood()) then
@@ -182,6 +189,8 @@ M.read = read_file
 --- end
 --- ```
 local function write_file(path, content)
+	-- Normalize path
+	path = string_normalize_path(path)
 	-- Try to open and write to the file
 	local file = File(path)
 	if not (file and file:IsGood()) then
@@ -216,6 +225,8 @@ M.write = write_file
 --- end
 --- ```
 local function append_file(path, content)
+	-- Normalize path
+	path = string_normalize_path(path)
 	-- Read existing content if file exists
 	local existing_content, err = read_file(path)
 	if existing_content then
@@ -241,6 +252,8 @@ M.append = append_file
 --- print("Deleted", count, "files")
 --- ```
 local function remove_file(path)
+	-- Normalize path
+	path = string_normalize_path(path)
 	return File_Remove(path)
 end
 
@@ -989,6 +1002,49 @@ local function vfs_flush(vfs, base_path)
 	return true
 end
 
+--- Create a VFS from a tree-formatted table.<br>
+--- Converts a nested table structure into a VFS format.<br>
+--- String values become files, table values become directories.
+---@param tree table The tree-formatted table (e.g., { scripts = { ["main.lua"] = "print('Hello')" } })
+---@return table vfs The VFS instance populated from the tree
+---@usage <br>
+--- ```
+--- local tree = {
+---   scripts = {
+---     ["main.lua"] = "print('Hello')",
+---     utils = {
+---       ["helper.lua"] = "return {}"
+---     }
+---   },
+---   config = "key=value"
+--- }
+--- local vfs = file.vfs.from_tree(tree)
+--- file.vfs.flush(vfs, "output_package")
+--- ```
+local function vfs_from_tree(tree)
+	local vfs = {}
+	local visited = {}
+	local function walk(node, current)
+		-- Prevent infinite loops from circular references (just in case)
+		if visited[node] then
+			return
+		end
+		visited[node] = true
+		for name, value in next, node do
+			if type(value) == "string" then
+				-- It's a file
+				current[name] = value
+			elseif type(value) == "table" then
+				-- It's a directory
+				current[name] = {}
+				walk(value, current[name])
+			end
+		end
+	end
+	walk(tree, vfs)
+	return vfs
+end
+
 --- Load a VFS from a real filesystem path.<br>
 --- Reads files and directories from disk and populates a VFS structure.<br>
 --- Uses the existing file API functions to recursively load the directory structure.
@@ -1061,6 +1117,7 @@ end
 -- VFS API
 M.vfs = {
 	create = vfs_create,
+	from_tree = vfs_from_tree,
 	write_file = vfs_write_file,
 	write_directory = vfs_write_directory,
 	flush = vfs_flush,

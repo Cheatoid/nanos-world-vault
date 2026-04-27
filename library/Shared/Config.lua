@@ -7,8 +7,7 @@
 
 local oop = require "@cheatoid/oop/oop"
 local try = require("@cheatoid/standalone/try").try
-local ref = require "@cheatoid/ref/ref"
-	.new -- TODO: use this for managing config state externally (+ auto-save on field write)
+local ref = require "@cheatoid/ref/ref".new
 
 local File = File
 local StringifyJSON = JSON.stringify
@@ -40,6 +39,11 @@ local FieldType = oop.enum("FieldType", {
 
 ---@type cheatoidlib.config.schema
 local SCHEMA = {
+	check_for_updates = {
+		type = "boolean",
+		default = true,
+		required = false,
+	},
 	enable_cslua = {
 		type = "boolean",
 		default = false,
@@ -69,13 +73,48 @@ local DEFAULTS = {
 	debug_mode = false,
 	max_cache_size = 100,
 }
-local FILE_NAME = "config.json"
-
 -- Module state
 local is_dirty = false
 local is_initialized = false
 local config_data ---@type cheatoidlib.config|nil
 local file_handle ---@type File|nil
+local file_name = Package.GetName() .. ".json"
+
+--- Gets the current config filename
+---@return string filename The current configuration filename
+local function getFileName()
+	return file_name
+end
+
+--- Sets the config filename (closes any open file handle)
+---@param filename string The new configuration filename
+---@return boolean success Whether the filename was set successfully
+---@return string|nil error Error message if failed
+local function setFileName(filename)
+	if type(filename) ~= "string" or filename == "" then
+		return false, "Filename must be a non-empty string"
+	end
+
+	-- Close any open file handle before changing filename
+	if file_handle then
+		local success, err = pcall(function()
+			file_handle:Close()
+		end)
+		if not success then
+			return false, "Failed to close existing file handle: " .. tostring(err)
+		end
+		file_handle = nil
+	end
+
+	file_name = filename
+
+	-- Reset initialization to force reload from new file
+	is_initialized = false
+	config_data = nil
+	is_dirty = false
+
+	return true
+end
 
 --- Validates a value against a field schema
 ---@param key string
@@ -162,7 +201,7 @@ local function apply_defaults(data)
 	return result
 end
 
-local init, read, get, set, update, write, reset, isDirty, getSchema, getDefaults, registerField
+local init, read, get, set, update, write, reset, isDirty, getSchema, getDefaults, registerField, getFileName, setFileName
 
 --- Initializes the config module
 ---@return boolean success
@@ -174,11 +213,11 @@ function init()
 
 	local success, err = pcall(function()
 		-- Check if config file exists
-		if not File.Exists(FILE_NAME) then
+		if not File.Exists(file_name) then
 			-- Create a default config file
 			config_data = apply_defaults()
 			local json_str = StringifyJSON(config_data)
-			local file = File(FILE_NAME, true)
+			local file = File(file_name, true)
 			file:Write(json_str)
 			file:Flush()
 			file:Close()
@@ -188,9 +227,11 @@ function init()
 		end
 
 		-- Read the existing config
-		file_handle = File(FILE_NAME)
+		file_handle = File(file_name)
 		if not file_handle:IsGood() then
-			return error("Failed to open config file", 2)
+			file_handle:Close()
+			file_handle = nil
+			return error("Failed to open config file: " .. file_name, 2)
 		end
 
 		local content = file_handle:Read(0) -- Read whole file
@@ -334,9 +375,10 @@ function write(force)
 
 	local success, err = pcall(function()
 		local json_str = StringifyJSON(config_data or DEFAULTS)
-		local file = File(FILE_NAME, true)
+		local file = File(file_name, true)
 		if not file:IsGood() then
-			return error("Failed to open config file for writing", 2)
+			file:Close()
+			return error("Failed to open config file for writing: " .. file_name, 2)
 		end
 		file:Write(json_str)
 		file:Flush()
@@ -360,7 +402,7 @@ function reset(delete_file)
 	end
 
 	if delete_file then
-		File.Remove(FILE_NAME)
+		File.Remove(file_name)
 	end
 
 	config_data = apply_defaults()
@@ -427,4 +469,6 @@ return {
 	getSchema = getSchema,
 	getDefaults = getDefaults,
 	registerField = registerField,
+	getFileName = getFileName,
+	setFileName = setFileName,
 }

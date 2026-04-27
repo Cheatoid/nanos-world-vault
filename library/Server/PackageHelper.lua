@@ -1,7 +1,10 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
+-- Localized global functions for better performance
+local next = next
 local pcall = pcall
+local select = select
 local type = type
 local string_find = string.find
 --local string_match = string.match
@@ -170,13 +173,25 @@ end
 
 self.Unload = UnloadPack
 
+local PackageName = Package.GetName()
+
+--- Reload the cheatoid-library package itself.<br>
+--- Useful for development to quickly reload changes during development.
+local function ReloadLib()
+	Server_ReloadPackage(PackageName)
+end
+
+self.ReloadLib = ReloadLib
+
 -- Register console commands
+Console.RegisterCommand("reloadlib", ReloadLib,
+	"Reload " .. PackageName)
 Console.RegisterCommand("reload", ReloadPack,
-	"reload a specific package or all, use colon (:) prefix for pattern-matching mode")
+	"Reload a specific package or all, use colon (:) prefix for pattern-matching mode")
 Console.RegisterCommand("load", LoadPack,
-	"load a specific package or all, use colon (:) prefix for pattern-matching mode")
+	"Load a specific package or all, use colon (:) prefix for pattern-matching mode")
 Console.RegisterCommand("unload", UnloadPack,
-	"unload a specific package or all, use colon (:) prefix for pattern-matching mode")
+	"Unload a specific package or all, use colon (:) prefix for pattern-matching mode")
 
 -- Export the API to be accessed by other packages
 return self

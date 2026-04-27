@@ -6,11 +6,16 @@
 -- Consumers will receive the cached values.
 -- Consumers should use GAIMERS or Package.Export to expose them globally.
 
+local Bind = require "Bind"
 local EvalAPI = require "EvalAPI"
 local HashAPI = require "HashAPI"
 local RegexAPI = require "RegexAPI"
 local WebAudioAPI = require "WebAudioAPI"
 local WebSocketAPI = require "WebSocketAPI"
+local WebBrowser = require "WebBrowser"
+local ConsoleEngine = require "ConsoleEngine"
+
+Bind.Initialize()
 
 --include "WebSocketTest.lua" -- call using original 'require'
 
