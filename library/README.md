@@ -1,4 +1,4 @@
-<a href="https://api.nanos-world.com/store/packages/cheatoid-library"><h1 align="center"><img align="center" src="../.resources/cheatoid-library.png" width="400" height="250" alt="Library API"></h1></a>
+<h1 align="center"><a href="https://api.nanos-world.com/store/packages/cheatoid-library"><img align="center" src="../.resources/cheatoid-library.webp" width="400" height="250" alt="Library API"></a></h1>
 <p align="center">A comprehensive development toolkit of handy libraries designed to supercharge your scripting workflow and let you focus on building great nanos-world gameplay... 🚀</p>
 
 > [!NOTE]
@@ -10,6 +10,8 @@
 
 - [Overview](#overview)
 - [Features](#features)
+    - [WebBrowser](#webbrowser)
+    - [Bind](#bind)
     - [ConVar](#convar)
     - [Chat Commander](#chat-commander)
     - [Config](#config)
@@ -48,11 +50,51 @@ configuration management, file I/O with virtual file system support, HTTP wrappe
 
 ## Features
 
+### WebBrowser
+
+A *functional* client-side multi-tab Chrome web browser for all your internet surfing needs while playing nanos world.  
+Open it by entering `browser_open` console command.  
+Alternatively, you can make a keybind: `bind F9 browser_open` and then simply press <kbd>F9</kbd>.  
+To open developer tools for the current tab, you can run `browser_devtools` console command (or bind it to key).  
+Enjoy a beautiful New Tab experience, you can customize the background gradient, or use an image and much more...
+
+Module file: [Client/WebBrowser.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/WebBrowser.lua)
+
+### Bind
+
+You can bind a console command to a key by using `bind` console command.  
+For example, to bind <kbd>F7</kbd> to `disconnect` console command, you would enter `bind F7 disconnect` into console.
+
+Module file: [Client/Bind.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/Bind.lua)
+
+Programatically, you can use the `Bind` library to register an action (a specific function to be executed). For example,
+
+```lua
+local Bind = require "Bind"
+
+Bind.RegisterAction("do_something", function()
+    print("Doing something!")
+end)
+-- Now you can execute this action by entering `action do_something` into console
+```
+
+But, typically, you want to register a command + action at the same time, like this:
+
+```lua
+Bind.RegisterCommand("do_other_thing", function()
+    print("Doing something else!")
+end, "Command description...")
+-- Now you can execute this action by entering `action do_other_thing`
+-- and also through keybind: `bind F6 do_other_thing` into console and then press F6
+```
+
 ### ConVar
 
 Allows for creating console variables (Source-engine style).  
 By default, it creates `cvarlist` command to dump created convars, adds `sv_cheats` (placeholder convar), and also adds
 `sv_password` used for changing server's password (on server-side).
+
+Module file: [Shared/ConVar.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/ConVar.lua)
 
 **How to change convars:**
 
@@ -96,7 +138,8 @@ end
 Command parser and dispatcher for in-game chat commands with autocompletion support, type coercion, and flexible
 validation.
 
-See [Chat Commander documentation](https://github.com/Cheatoid/Lua.Scripts/tree/develop/chat_commander) for complete details.
+See [Chat Commander documentation](https://github.com/Cheatoid/Lua.Scripts/tree/develop/chat_commander) for complete
+details.
 
 ```lua
 local chat_commander = require "chat_commander"
@@ -134,10 +177,12 @@ chat_commander.register_command("kick")
 Type-safe configuration management with schema validation. Supports JSON-based config files with automatic validation
 and default values.
 
+Module file: [Shared/Config.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/Config.lua)
+
 ```lua
 local Config = require "Config"
 
--- Initialize config (loads from config.json with built-in schema)
+-- Initialize config (loads from <package-name>.json with built-in schema)
 local ok, err = Config.init()
 if not ok then
     print("Config init failed:", err)
@@ -165,12 +210,14 @@ Config.update({
     max_cache_size = 150
 }, false) -- false = don't overwrite unspecified fields
 
--- Note: Config automatically persists to config.json when values change
+-- Note: Config automatically persists to <package-name>.json when values change
 ```
 
 ### FileWrapper
 
 Convenience file I/O wrapper with virtual file system (VFS) support.
+
+Module file: [Shared/FileWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/FileWrapper.lua)
 
 ```lua
 local file = require "FileWrapper"
@@ -322,6 +369,8 @@ end
 
 Simplified HTTP requests with callback support and utility functions for status code checking.
 
+Module file: [Shared/HttpWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/HttpWrapper.lua)
+
 ```lua
 local http = require "HttpWrapper"
 
@@ -405,7 +454,11 @@ print("Error range:", http.is_client_error(400))     -- true
 
 ### WebUI Wrappers
 
-Client-side WebUI-bridged APIs for Hash, Regex, WebSocket, and WebAudio functionality.
+Client-side WebUI-bridged APIs for 
+[Hash](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/HashAPI.lua), 
+[Regex](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/RegexAPI.lua), 
+[WebSocket](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/WebSocketAPI.lua), 
+and [WebAudio](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/WebAudioAPI.lua) functionality.
 
 ```lua
 -- HashAPI (bridged via WebUI for hashing/checksums)
@@ -554,6 +607,8 @@ end)
 
 Semantic versioning utility for comparing package versions.
 
+Module file: [Shared/Version.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/Version.lua)
+
 ```lua
 local Version = require "Version"
 
@@ -582,6 +637,8 @@ print("Current:", tostring(Version.getCurrent()))
 
 Execute Lua code on clients from the server.
 
+Module file: [Shared/BroadcastLua.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/BroadcastLua.lua)
+
 ```lua
 -- Server-side
 local broadcast = require "BroadcastLua"
@@ -595,8 +652,11 @@ broadcast.SendLua(player, "Chat.AddMessage('Hello!')")
 
 ### ClientsideLua
 
-Provides the `lua` console command for executing Lua code via console. Server-side `allowcslua` convar enables
-client-side Lua execution.
+Provides the `lua` console command for executing Lua code (or script) via console.  
+But, server-side must enable `allowcslua` convar to allow client-side Lua execution (it is disabled by default).  
+Enter `allowcslua 1` into server console if you are server operator and want to allow client-side `lua` console command.
+
+Module file: [Shared/ClientsideLua.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/ClientsideLua.lua)
 
 ```lua
 -- In console (when allowcslua is enabled):
@@ -604,12 +664,14 @@ client-side Lua execution.
 -- lua for _, ply in next, Player.GetAll() do print(ply) end -- prints all players
 
 -- Execute a Lua script file (must end in .lua)
--- lua scripts/test.lua
+-- lua @cheatoid/plugin_framework/example.lua
 ```
 
 ### RequireFolder
 
 Convenient utility for batch loading scripts from a directory.
+
+Module file: [Shared/RequireFolder.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/RequireFolder.lua)
 
 ```lua
 local requiref = require "RequireFolder"
@@ -638,6 +700,8 @@ requiref "Shared/Extensions" {
 
 Object-oriented programming utilities including classes, inheritance, interfaces, mixins, properties, events, enums,
 promises, and integrated profiler.
+
+Module file: [Shared/@cheatoid/oop/oop.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/oop/oop.lua)
 
 ```lua
 local oop = require "@cheatoid/oop/oop"
@@ -740,22 +804,22 @@ local result = fetchData("http://example.com"):await()
 
 ### Collections
 
-[View all collections](Shared/@cheatoid/collections)
+[View all collections](https://github.com/Cheatoid/Lua.Scripts/tree/develop/collections)
 
 Data structures:
 
-- [(OOP) ArrayPool](Shared/@cheatoid/oop/collections/ArrayPool.lua)
-- [BiMap](Shared/@cheatoid/collections/BiMap.lua)
-- [CircularBuffer](Shared/@cheatoid/collections/CircularBuffer.lua)
-- [Deque](Shared/@cheatoid/collections/Deque.lua)
-- [Heap](Shared/@cheatoid/collections/Heap.lua)
-- [LinkedList](Shared/@cheatoid/collections/LinkedList.lua)
-- [PriorityQueue](Shared/@cheatoid/collections/PriorityQueue.lua)
-- [Queue](Shared/@cheatoid/collections/Queue.lua)
-- [Set](Shared/@cheatoid/collections/Set.lua)
-- [SlotMap](Shared/@cheatoid/collections/SlotMap.lua)
-- [SparseArray](Shared/@cheatoid/collections/SparseArray.lua)
-- [Stack](Shared/@cheatoid/collections/Stack.lua)
+- [(OOP) ArrayPool](https://github.com/Cheatoid/Lua.Scripts/blob/develop/oop/collections/ArrayPool.lua)
+- [BiMap](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/BiMap.lua)
+- [CircularBuffer](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/CircularBuffer.lua)
+- [Deque](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/Deque.lua)
+- [Heap](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/Heap.lua)
+- [LinkedList](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/LinkedList.lua)
+- [PriorityQueue](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/PriorityQueue.lua)
+- [Queue](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/Queue.lua)
+- [Set](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/Set.lua)
+- [SlotMap](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/SlotMap.lua)
+- [SparseArray](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/SparseArray.lua)
+- [Stack](https://github.com/Cheatoid/Lua.Scripts/blob/develop/collections/Stack.lua)
 
 ```lua
 local Stack = require "@cheatoid/collections/Stack"
@@ -791,8 +855,10 @@ pool:release(arr) -- Return to pool for reuse
 ### Standard Library Extensions
 
 Enhanced
-builtin [string](library/Shared/@cheatoid/standard/string.lua), [table](library/Shared/@cheatoid/standard/table.lua),
-and [math](library/Shared/@cheatoid/standard/math.lua) libraries with additional functions.
+builtin [string](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standard/string.lua),
+[table](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standard/table.lua),
+and [math](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standard/math.lua) libraries with additional functions.  
+And they are also fully documented (see .d.lua files in the same directory for LuaDoc annotations).
 
 ```lua
 local string = require "@cheatoid/standard/string"
@@ -822,7 +888,7 @@ if math.inrange(x, 1, 10) then print("In range!") end
 
 Language-Integrated Query for Lua collections. Three versions are available with different API styles:
 
-**[linq (v1)](Shared/@cheatoid/linq/linq.lua)** - PascalCase methods:
+**[linq (v1)](https://github.com/Cheatoid/Lua.Scripts/blob/develop/linq/linq.lua)** - PascalCase methods:
 
 ```lua
 local linq = require "@cheatoid/linq/linq"
@@ -834,7 +900,7 @@ local result = linq.From({1, 2, 3, 4, 5})
 -- result: {6, 8, 10}
 ```
 
-**[linq2 (v2)](Shared/@cheatoid/linq/linq2.lua)** - Alternative implementation with PascalCase:
+**[linq2 (v2)](https://github.com/Cheatoid/Lua.Scripts/blob/develop/linq/linq2.lua)** - Alternative implementation with PascalCase:
 
 ```lua
 local linq = require "@cheatoid/linq/linq2"
@@ -845,7 +911,7 @@ local result = linq({1, 2, 3, 4, 5})
     :ToArray()
 ```
 
-**[linq3 (v3)](Shared/@cheatoid/linq/linq3.lua)** - camelCase methods:
+**[linq3 (v3)](https://github.com/Cheatoid/Lua.Scripts/blob/develop/linq/linq3.lua)** - camelCase methods:
 
 ```lua
 local Enumerable = require "@cheatoid/linq/linq3"
@@ -861,7 +927,8 @@ local result = Enumerable.from({1, 2, 3, 4, 5})
 Reference wrapper with advanced features: scalar operator overloading, readonly refs, weak refs, table-proxy mode, and
 safe semantics.
 
-See [Ref module documentation](Shared/@cheatoid/ref/README.md) for more details.
+See [Ref module documentation](https://github.com/Cheatoid/Lua.Scripts/tree/develop/ref#ref-module---a-powerful-reference-wrapper-for-lua)
+for more details.
 
 ```lua
 local Ref = require "@cheatoid/ref/ref"
@@ -917,7 +984,8 @@ print(total:get()) -- 30 (10 + 5 = 15, then 15 * 2 = 30)
 Utility for finding `require()` expressions in Lua source code using tokenization. Supports relative, absolute, and
 library module detection.
 
-See [RequireFinder module documentation](Shared/@cheatoid/require_finder/README.md) for more details.
+See [RequireFinder module documentation](https://github.com/Cheatoid/Lua.Scripts/tree/develop/require_finder#require-finder-utility)
+for more details.
 
 ```lua
 local RequireFinder = require "@cheatoid/require_finder/require_finder"
@@ -945,8 +1013,8 @@ print(RequireFinder.formatResults(withContext))
 Complete plugin system with dependency injection, lifecycle management (init/start/stop), event system, and service
 registration.
 
-See [PluginFramework module documentation](Shared/@cheatoid/plugin_framework/README.md) for complete documentation
-including API reference and examples.
+See [PluginFramework module documentation](https://github.com/Cheatoid/Lua.Scripts/tree/develop/plugin_framework#plugin-framework)
+for complete documentation including API reference and examples.
 
 ```lua
 local PluginFramework = require "@cheatoid/plugin_framework/plugin_framework"
@@ -1033,8 +1101,8 @@ Cheatoid Virtual Machine (CVM) - A Turing-complete, feature-rich, object-oriente
 a robust platform for code execution with 16 general-purpose registers, 256KB addressable memory, 70+ opcodes,
 floating-point support, SIMD operations, and an interactive debugger.
 
-See [VM module documentation](Shared/@cheatoid/vm/README.md) for complete documentation including architecture, opcode
-reference, assembly language, and examples.
+See [VM module documentation](https://github.com/Cheatoid/Lua.Scripts/tree/develop/vm#cheatoid-virtual-machine-cvm) for
+complete documentation including architecture, opcode reference, assembly language, and examples.
 
 ```lua
 local VM = require "@cheatoid/vm/vm"
@@ -1060,8 +1128,7 @@ vm:run()
 Small stack-based VM with a Lua-C-API-like stack surface. Provides a simple stack-based virtual machine with an API
 similar to Lua's C API. Supports bytecode compilation, execution, and a Lua-like stack manipulation interface.
 
-See [StackVM implementation](Shared/@cheatoid/vm/stackvm.lua)
-and [VM module documentation](Shared/@cheatoid/vm/README.md) for more details.
+See [StackVM implementation](https://github.com/Cheatoid/Lua.Scripts/blob/develop/vm/stackvm.lua) for more details.
 
 ```lua
 local StackVM = require "@cheatoid/vm/stackvm"
@@ -1098,6 +1165,8 @@ StackVM.run(L, proto)
 ### GAIMERS Loader
 
 Custom module loader (codename: GAIMERS) providing utility functions for module loading and global exports.
+
+Module file: [Shared/@cheatoid/loader/gaimers.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/loader/gaimers.lua)
 
 ```lua
 local gaimers = require "@cheatoid/loader/gaimers"
@@ -1137,6 +1206,8 @@ local isolated = s("some_module", true)  -- deep copy environment
 Runtime reflection utilities for inspecting nanos-world's game engine internals. Provides access to registered classes
 and enum tables from the debug registry.
 
+Module file: [Shared/Reflection.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/Reflection.lua)
+
 ```lua
 local Reflection = require "Reflection"
 
@@ -1160,6 +1231,8 @@ end
 Modular permission system combining simplicity with performance. Provides a clean API for managing permissions with
 bit-packed storage for efficiency. Supports category-level overrides, multi-registry support, and freeze concept for
 immutable registries.
+
+Module file: [Shared/@cheatoid/permission/permission.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/permission/permission.lua)
 
 ```lua
 local perm = require "@cheatoid/permission/permission"
@@ -1203,6 +1276,8 @@ local ctx2 = perm.new_context_on(reg)
 
 Arbitrary-precision integer arithmetic for handling numbers that exceed Lua's number precision. Perfect for SteamIDs,
 large database IDs, and cryptographic calculations.
+
+Module file: [Shared/@cheatoid/standalone/biginteger.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/biginteger.lua)
 
 ```lua
 local BigInteger = require "@cheatoid/standalone/biginteger"
@@ -1248,6 +1323,8 @@ local one = BigInteger.one
 
 Interactive command console with fuzzy completion, history tracking, and IntelliSense. Perfect for admin panels, debug
 interfaces, or in-game command systems.
+
+Module file: [Shared/@cheatoid/standalone/console.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/console.lua)
 
 ```lua
 local Console = require "@cheatoid/standalone/console"
@@ -1331,7 +1408,7 @@ local state = console:save_state()
 Benchmarking toolkit for measuring code performance with statistical analysis, comparison tools, and multiple timing
 modes (with high-precision timer on LuaJIT)...
 
-See [Benchmark example](Shared/@cheatoid/benchmark/example.lua) for complete usage examples.
+See [Benchmark example](https://github.com/Cheatoid/Lua.Scripts/blob/develop/benchmark/example.lua) for complete usage examples.
 
 ```lua
 local bench = require "@cheatoid/benchmark/init"
@@ -1943,7 +2020,7 @@ print("hello" >> 2)        -- "lohel" (rotate right)
 Simple rate limiting primitives supporting multiple strategies (Fixed Window, Sliding Window Log, Token Bucket, and
 Leaky Bucket).
 
-Source: [Shared/@cheatoid/rate_limiter/rate_limiter.lua](Shared/@cheatoid/rate_limiter/rate_limiter.lua)
+Doumentation: [Shared/@cheatoid/rate_limiter](https://github.com/Cheatoid/Lua.Scripts/tree/develop/rate_limiter)
 
 ```lua
 local RateLimiter = require "@cheatoid/rate_limiter/rate_limiter"
@@ -1968,7 +2045,7 @@ end
 
 Utilities for distributing work across backends (load balancing) and building matchmaking queues/strategies.
 
-Examples: [Shared/@cheatoid/load_balancer/examples.lua](Shared/@cheatoid/load_balancer/examples.lua)
+Examples: [Shared/@cheatoid/load_balancer/examples.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/load_balancer/examples.lua)
 
 ## Installation
 

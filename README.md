@@ -1,12 +1,14 @@
 [<img src="https://capsule-render.vercel.app/api?type=waving&color=0:00f7ff,100:ff00e6&height=150&section=header&text=🌟+𝒗𝒂𝒖𝒍𝒕+✨&fontSize=40&fontColor=ffffff" width="100%" />](https://github.com/Cheatoid/nanos-world-vault)
 <div align="center">
 
-[![Stars](https://img.shields.io/github/stars/Cheatoid/nanos-world-vault?style=flat-square&color=00f0ff&labelColor=001f2b)](https://github.com/Cheatoid/nanos-world-vault/stargazers) 
-[![Issues](https://img.shields.io/github/issues/Cheatoid/nanos-world-vault?style=flat-square&color=397f14&labelColor=002b00)](https://github.com/Cheatoid/nanos-world-vault/issues) 
-[![License](https://img.shields.io/github/license/Cheatoid/nanos-world-vault?style=flat-square&color=ff00e6&labelColor=2b001f)](https://github.com/Cheatoid/nanos-world-vault/blob/main/LICENSE) 
-[![vault](https://readme-typing-svg.herokuapp.com?size=32&duration=6000&color=00F7FF&center=true&vCenter=true&width=800&lines=hello,+stranger;welcome+to+my+open-source+vault;made+with+%E2%9D%A4%EF%B8%8F+by+Cheatoid)](https://github.com/Cheatoid/nanos-world-vault) 
+[![Stars](https://img.shields.io/github/stars/Cheatoid/nanos-world-vault?style=flat-square&color=00f0ff&labelColor=001f2b)](https://github.com/Cheatoid/nanos-world-vault/stargazers)
+[![Issues](https://img.shields.io/github/issues/Cheatoid/nanos-world-vault?style=flat-square&color=397f14&labelColor=002b00)](https://github.com/Cheatoid/nanos-world-vault/issues)
+[![License](https://img.shields.io/github/license/Cheatoid/nanos-world-vault?style=flat-square&color=ff00e6&labelColor=2b001f)](https://github.com/Cheatoid/nanos-world-vault/blob/main/LICENSE)
+[![vault](https://readme-typing-svg.herokuapp.com?size=32&duration=6000&color=00F7FF&center=true&vCenter=true&width=800&lines=hello,+stranger;welcome+to+my+open-source+vault;made+with+%E2%9D%A4%EF%B8%8F+by+Cheatoid)](https://github.com/Cheatoid/nanos-world-vault)
 [<img src="https://raw.github.com/Cheatoid/gh_assets/_/images/rainbow-separator.png" width="100%" />](https://github.com/Cheatoid/nanos-world-vault)
 </div>
+
+<h1 align="center"><a href="https://api.nanos-world.com/store/packages/cheatoid-library"><img align="center" src=".resources/cheatoid-library.png" width="400" height="250" alt="Library API"></a></h1>
 
 # 📚 Library Documentation
 
@@ -30,10 +32,14 @@ For complete documentation on:
   and flushing to disk
 - **Simple Rate-Limiter library** with builtin strategies (Fixed Window, Sliding Window Log, Token Bucket, and Leaky
   Bucket)
-- **WebAudio API (client-side)**: audio playback and spatial audio with listener transform, gain control, and filter effects (bridged via WebUI)
+- **Chrome Web Browser (client-side): play Neo Wars, check out various demos such as NeoUI and Console, chat with your
+  favorite AI, or simply browse the internet (use `browser_open` console command)**
+- **WebAudio API (client-side)**: audio playback and spatial audio with listener transform, gain control, and filter
+  effects (bridged via WebUI)
 - **WebSocket API (client-side)**: connect, send/receive socket messages (bridged via WebUI)
 - **Regex API (client-side)**: true regular expression engine (bridged via WebUI)
 - **Hash API (client-side)**: common hashing functions CRC32/MD5/SHA* (bridged via WebUI)
+- **Bind library (client-side): Source-engine inspired bind system for console commands (e.g. `bind F9 browser_open`)**
 - **LINQ library**
 - **Benchmark library**: diagnose performance bottlenecks, measure code performance with statistical analysis,
   comparison tools, and multiple timing modes
