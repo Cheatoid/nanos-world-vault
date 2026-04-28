@@ -18,37 +18,6 @@
 	* Command categories with configurable defaults
 	* Player context for permission checks
 	* Command help system with auto-generated documentation
-
-	Usage:
-	```lua
-	local cmd = require "RemoteCommand"
-
-	-- Initialize the command system (required)
-	cmd.Initialize()
-
-	-- Define a simple broadcast command (all players see it)
-	cmd.Register("say", {
-		permission = "chat.say",
-		description = "Broadcast a message to all players",
-		args = { "message" },
-		handler = function(ply, ...)
-			local msg = table.concat({ ... }, " ")
-			Chat.BroadcastMessage(string.format("%s: %s", ply:GetName(), msg))
-		end
-	})
-
-	-- Define a client-side command that calls server
-	cmd.Register("emote", {
-		permission = "player.emote",
-		description = "Play an emote animation",
-		args = { "emote_name" },
-		client_only = true,
-		handler = function(ply, emote)
-			-- Server validates and broadcasts to all clients
-			return string.format("%s plays emote: %s", ply:GetName(), emote)
-		end
-	})
-	```
 ]]
 
 -- Localized global functions for better performance
@@ -143,7 +112,7 @@ end
 -- Permission system setup
 ----------------------------------------------------------------------
 
-local function SetupPermissions()
+local function SetupPermissions(extras)
 	--local result = cfg_parser.parse(file.read("permissions.cfg"))
 	--if result.ok then
 	--	-- Get nested blocks
@@ -165,23 +134,19 @@ local function SetupPermissions()
 		end
 	})
 
-	perm_registry = permission.new_registry(STATE_DENY)
+	perm_registry = perm_registry or permission.new_registry(STATE_DENY)
 
 	-- Define command category (core)
 	permission.define_category_on(perm_registry, "cmd", {
 		{ name = "execute",   default = true,  description = "Execute remote commands" },
 		{ name = "help",      default = true,  description = "View command help" },
-		{ name = "reloadlib", default = false, description = "Reload the cheatoid-library package itself" },
 	})
 
-	-- Define chat category (gameplay)
-	permission.define_category_on(perm_registry, "chat", {
-		{ name = "say",     default = true,  description = "Broadcast messages" },
-		{ name = "me",      default = true,  description = "Perform roleplay actions" },
-		{ name = "whisper", default = true,  description = "Send private messages" },
-		{ name = "shout",   default = false, description = "Shout to all players" },
-		{ name = "pm",      default = true,  description = "Send player messages" },
-	})
+	if extras then
+		for name, def in next, extras do
+			permission.define_category_on(perm_registry, name, def)
+		end
+	end
 
 	return permissions
 end
@@ -539,6 +504,8 @@ local function console_callback(...)
 	else
 		-- NOTE: nanos world engine will inject the local player as the first argument
 		Events.CallRemote(ID, ...)
+		-- Also execute on client
+		M.HandleCommand(cmd_str, Client.GetLocalPlayer())
 	end
 end
 
@@ -546,9 +513,13 @@ end
 -- Initialization
 ----------------------------------------------------------------------
 
-function M.Initialize()
+function M.Initialize(include_commands)
 	-- Initialize permission system
-	M.SetupPermissions()
+	M.SetupPermissions(include_commands and {
+		cmd = {
+			{ name = "reloadlib", default = false, description = "Reload the cheatoid-library package itself" },
+		}
+	} or false)
 
 	-- Subscribe to remote events
 	Events.SubscribeRemote(ID, Server and server_handler or client_handler)
@@ -563,56 +534,19 @@ function M.Initialize()
 		args = { "[command]" },
 		local_only = true,
 		handler = function(ply, name)
-			return M.GetHelp(name)
+			print(M.GetHelp(name))
 		end
 	})
 
-	-- Example command: Reload cheatoid-library package
+	if not include_commands then return end
+
+	-- Reload cheatoid-library package
 	M.Register("reloadlib", {
 		permission = "cmd.reloadlib",
 		description = "Reload the cheatoid-library package itself",
+		server_only = true,
 		handler = function(ply)
-			if Server then
-				require("../Server/PackageHelper").ReloadLib()
-			end
-		end
-	})
-
-	-- Example: Simple chat broadcast
-	M.Register("say", {
-		permission = "chat.say",
-		description = "Broadcast a message to all players",
-		args = { "message" },
-		handler = function(ply, ...)
-			local msg = table_concat({ ... }, " ");
-			-- Server broadcasts to all clients
-			(Server and Chat.BroadcastMessage or Chat.AddMessage)(string_format("%s: %s", ply:GetName(), msg))
-			return string_format("You said: %s", msg)
-		end
-	})
-
-	-- Example: Me command for roleplay actions
-	M.Register("me", {
-		permission = "chat.me",
-		description = "Perform a roleplay action",
-		args = { "action" },
-		handler = function(ply, ...)
-			local action = table_concat({ ... }, " ")
-			if Server then
-				Chat.BroadcastMessage(string_format("* %s %s", ply:GetName(), action))
-			end
-		end
-	})
-
-	-- Example: Whisper command (private message to nearby players)
-	M.Register("whisper", {
-		permission = "chat.whisper",
-		description = "Send a private message to nearby players",
-		args = { "player", "message" },
-		handler = function(ply, target_name, ...)
-			local msg = table_concat({ ... }, " ")
-			-- TODO: Find target player by name and send whisper
-			return string_format("You whisper to %s: %s", target_name, msg)
+			require("../Server/PackageHelper").ReloadLib()
 		end
 	})
 end

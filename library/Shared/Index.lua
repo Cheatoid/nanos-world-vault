@@ -134,7 +134,7 @@ require "ClientsideLua"
 --require "@cheatoid/extensions/string"
 -- @formatter:on
 
-RemoteCommand.Initialize()
+RemoteCommand.Initialize(true)
 
 --_G[Package.GetName()] = Package.GetVersion()
 

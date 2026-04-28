@@ -15,6 +15,8 @@
     - [ConVar](#convar)
     - [Chat Commander](#chat-commander)
     - [Config](#config)
+    - [NetWrapper](#netwrapper)
+    - [RemoteCommand](#remotecommand)
     - [FileWrapper](#filewrapper)
     - [HttpWrapper](#httpwrapper)
     - [WebUI Wrappers](#webui-wrappers)
@@ -212,6 +214,110 @@ Config.update({
 }, false) -- false = don't overwrite unspecified fields
 
 -- Note: Config automatically persists to <package-name>.json when values change
+```
+
+### NetWrapper
+
+Binary data serialization for network transmission with support for various data types and efficient bit-packing.  
+Provides an efficient scheme system for structured data serialization.
+
+Module file: [Shared/NetWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/NetWrapper.lua)
+
+```lua
+local net = require "NetWrapper"
+
+-- Basic read/write operations
+net.resetWriteBuffer()
+net.writeString("Hello World")
+net.writeInt(42, 32)
+net.writeFloat(3.14)
+net.writeBool(true)
+local data = net.getWriteBuffer()
+
+-- Reading back
+net.setReadBuffer(data)
+local str = net.readString()
+local num = net.readInt(32)
+local flt = net.readFloat()
+local flag = net.readBool()
+
+-- Scheme-based serialization (for structured data)
+local player_scheme = net.scheme {
+    name = "string",
+    health = "int",
+    position = "Vector",
+    is_admin = "boolean"
+}
+
+-- Write using scheme
+net.resetWriteBuffer()
+player_scheme:write({ name = "cheatoid", health = 100, position = {0, 0, 0}, is_admin = true })
+local serialized = net.getWriteBuffer()
+
+-- Read using scheme
+net.setReadBuffer(serialized)
+local player_data = player_scheme:read()
+-- Returns: { name = "cheatoid", health = 100, position = {0, 0, 0}, is_admin = true }
+```
+
+### RemoteCommand
+
+Permission-based remote command system that allows registering commands invoked via the `cmd` console command.  
+Supports server-side broadcast, client-to-server calls, argument parsing, and permission-based access control.
+
+Module file: [Shared/RemoteCommand.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/RemoteCommand.lua)
+
+```lua
+local cmd = require "RemoteCommand"
+local permission = require "@cheatoid/permission/permission"
+
+-- Create a new permission group
+permission.define_category_on(perm_registry, "chat", {
+    { name = "say", default = true, description = "Broadcast a chat message" }
+})
+
+-- Initialize the command system (required)
+cmd.Initialize()
+
+-- Example: Simple chat broadcast
+cmd.Register("say", {
+    permission = "chat.say",
+    description = "Broadcast a message to all players",
+    args = { "message" },
+    server_only = true, -- Handler will only execute on server-side
+    handler = function(ply, ...)
+        local msg = table.concat({ ... }, " ")
+        -- TODO: Truncate and sanitize msg
+        -- Server broadcasts to all clients
+        Chat.BroadcastMessage(string_format("%s: %s", ply:GetName(), msg))
+    end
+})
+-- Bind H to broadcast a chat message (client-side), in console:
+-- bind H cmd say Hello World
+
+-- Example: Reload the cheatoid-library package
+M.Register("reloadlib", {
+    permission = "cmd.reloadlib",
+    description = "Reload the cheatoid-library package",
+    server_only = true,
+    handler = function(ply)
+        Server.ReloadPackage("cheatoid-library")
+    end
+})
+-- Reload the cheatoid-library package, in console:
+-- cmd reloadlib
+
+-- Permission management
+cmd.GrantPermission(player, "chat.say")
+cmd.DenyPermission(player, "chat.say")
+cmd.HasPermission(player, "chat.say") -- returns boolean
+
+-- Execute commands programmatically
+cmd.Execute("say", player, { "Hello World" })
+cmd.HandleCommand("say Hello World", player)
+
+-- Built-in help command, in console:
+-- cmd help [command_name]
 ```
 
 ### FileWrapper
@@ -2086,8 +2192,7 @@ Examples: [Shared/@cheatoid/load_balancer/examples.lua](https://github.com/Cheat
 
 ## Installation
 
-1. Download the package from the nanos-world store/vault,
-   or [automated GitHub releases](https://github.com/Cheatoid/nanos-world-vault/releases)
+1. Download the package from the nanos-world store/vault, or [automated GitHub releases](https://github.com/Cheatoid/nanos-world-vault/releases)
 2. Extract it in your server's `Packages/` folder
 3. Add it to your package's requirements in `Package.toml` (preferably keep it first in the list):
 
