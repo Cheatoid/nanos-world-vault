@@ -195,12 +195,13 @@ License: MIT
 			font-size: 14px;
 		}
 
-		.nav-btn:hover:not(:disabled) {
+		.nav-btn:hover {
 			background: var(--primary-color) !important;
 		}
 
 		.nav-btn:disabled {
-			opacity: 0.3;
+			background: var(--bg-darker) !important;
+			color: var(--text-muted);
 			cursor: not-allowed;
 		}
 
@@ -290,10 +291,10 @@ License: MIT
 
 	<!-- Toolbar -->
 	<div class="toolbar">
-		<button class="nav-btn" id="backBtn" title="Back" disabled>
+		<button class="nav-btn" id="backBtn" title="Back">
 			<i class="fas fa-arrow-left"></i>
 		</button>
-		<button class="nav-btn" id="forwardBtn" title="Forward" disabled>
+		<button class="nav-btn" id="forwardBtn" title="Forward">
 			<i class="fas fa-arrow-right"></i>
 		</button>
 		<button class="nav-btn" id="reloadBtn" title="Reload">
@@ -612,7 +613,7 @@ License: MIT
 		});
 
 		// Tab switched
-		Events.Subscribe('TabSwitched', function (tabId) {
+		Events.Subscribe('TabSwitched', function (tabId, canGoBack, canGoForward) {
 			activeTabId = tabId;
 
 			// Update tab styles
@@ -631,6 +632,11 @@ License: MIT
 					lockIcon.className = 'fas fa-lock-open lock-icon';
 					lockIcon.style.color = '#666';
 				}
+			}
+
+			// Update navigation button states (canGoBack and canGoForward are optional for backward compatibility)
+			if (typeof canGoBack === 'boolean' && typeof canGoForward === 'boolean') {
+				updateNavButtons(canGoBack, canGoForward);
 			}
 		});
 
@@ -663,13 +669,6 @@ License: MIT
 			updateTabElement(tabId, {loading: loading});
 		});
 
-		// History state changed
-		Events.Subscribe('HistoryStateChanged', function (tabId, canGoBack, canGoForward) {
-			if (activeTabId === tabId) {
-				backBtn.disabled = !canGoBack;
-				forwardBtn.disabled = !canGoForward;
-			}
-		});
 
 		// Rebuild tabs (called when restoring from localStorage)
 		Events.Subscribe('RebuildTabs', function (tabsData) {
@@ -687,6 +686,18 @@ License: MIT
 				}
 			}
 		});
+
+	}
+
+	// Update navigation button states
+	function updateNavButtons(canGoBack, canGoForward) {
+		backBtn.disabled = !canGoBack;
+		backBtn.style.opacity = canGoBack ? '1' : '0.3';
+		backBtn.style.cursor = canGoBack ? 'pointer' : 'not-allowed';
+
+		forwardBtn.disabled = !canGoForward;
+		forwardBtn.style.opacity = canGoForward ? '1' : '0.3';
+		forwardBtn.style.cursor = canGoForward ? 'pointer' : 'not-allowed';
 	}
 
 	// Initialize

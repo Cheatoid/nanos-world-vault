@@ -233,6 +233,36 @@ License: MIT
 			--particle-color: #4fc1ff;
 		}
 
+		/* Theme: Glass */
+		[data-theme="glass"] {
+			--bg-primary: #0a0e18;
+			--bg-secondary: rgba(20,30,50,.6);
+			--bg-tertiary: rgba(30,45,70,.6);
+			--bg-input: rgba(15,25,40,.6);
+			--border-color: rgba(100,180,255,.6);
+			--border-glow: rgba(0,212,255,.6);
+			--text-primary: #e8f4ff;
+			--text-secondary: #7a9cc8;
+			--text-muted: #5a7aa8;
+			--accent: #00d4ff;
+			--accent-dim: rgba(0,212,255,.6);
+			--accent-bright: #40e0ff;
+			--log-color: #c8d8e8;
+			--info-color: #64d2ff;
+			--warn-color: #ffb74d;
+			--error-color: #ff6b6b;
+			--debug-color: #607080;
+			--success-color: #69f0ae;
+			--cmd-color: #00d4ff;
+			--scrollbar-thumb: rgba(100,180,255,.6);
+			--scrollbar-track: #0a0e18;
+			--glow-color: rgba(0,212,255,.6);
+			--badge-bg: rgba(0,212,255,.6);
+			--overlay-bg: rgba(10,14,24,.6);
+			--header-bg: rgba(15,25,40,.6);
+			--particle-color: #00d4ff;
+		}
+
 		/* ========== Reset & Base ========== */
 		*, *::before, *::after {
 			box-sizing: border-box;
@@ -357,6 +387,11 @@ License: MIT
 			transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 			opacity: 0;
 			overflow: hidden;
+		}
+
+		[data-theme="glass"] .console-container {
+			background: var(--bg-secondary);
+			backdrop-filter: blur(12px);
 		}
 
 		.console-container.open {
@@ -1145,7 +1180,7 @@ License: MIT
 </button>
 
 <!-- Console Container -->
-<div class="console-container" id="consoleContainer" role="log" aria-label="Game Console">
+<div class="console-container open" id="consoleContainer" role="log" aria-label="Game Console">
 	<!-- Header -->
 	<header class="console-header">
 		<span class="console-title"><span class="dot"></span>Console</span>
@@ -1241,6 +1276,9 @@ License: MIT
 				</div>
 				<div class="theme-option" data-theme="midnight" role="menuitem">
 					<span class="swatch" style="background:#4fc1ff"></span> Midnight
+				</div>
+				<div class="theme-option" data-theme="glass" role="menuitem">
+					<span class="swatch" style="background:#00d4ff"></span> Glass
 				</div>
 			</div>
 		</div>

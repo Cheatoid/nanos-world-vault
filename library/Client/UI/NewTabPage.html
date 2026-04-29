@@ -415,6 +415,46 @@ License: MIT
 			transform: scale(1.05);
 			box-shadow: 0 5px 20px rgba(255, 31, 90, 0.4);
 		}
+
+		.quick-links-settings {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 10px;
+			max-height: 200px;
+			overflow-y: auto;
+			padding: 5px;
+		}
+
+		.quick-link-toggle {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px;
+			background: rgba(255, 255, 255, 0.05);
+			border-radius: 8px;
+			cursor: pointer;
+			transition: background 0.2s;
+		}
+
+		.quick-link-toggle:hover {
+			background: rgba(255, 255, 255, 0.1);
+		}
+
+		.quick-link-toggle input[type="checkbox"] {
+			width: 18px;
+			height: 18px;
+			cursor: pointer;
+			accent-color: #ff1f5a;
+		}
+
+		.quick-link-toggle label {
+			flex: 1;
+			font-size: 13px;
+			cursor: pointer;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 	</style>
 </head>
 <body>
@@ -445,9 +485,21 @@ License: MIT
 			<i class="fas fa-layer-group"></i>
 			<span>Basic NeoUI</span>
 		</a>
+		<a href="file://UI/AdminMenu.html" class="quick-link">
+			<i class="fas fa-shield-halved"></i>
+			<span>Admin Menu</span>
+		</a>
+		<a href="file://UI/SpawnMenu.html" class="quick-link">
+			<i class="fas fa-cubes"></i>
+			<span>Spawn Menu</span>
+		</a>
 		<a href="file://UI/Constellation.html" class="quick-link">
 			<i class="fas fa-star"></i>
 			<span>Constellation</span>
+		</a>
+		<a href="file://UI/Cube3D.html" class="quick-link">
+			<i class="fas fa-cube"></i>
+			<span>Cube3D</span>
 		</a>
 		<a href="file://UI/Fake3D.html" class="quick-link">
 			<i class="fas fa-cube"></i>
@@ -455,6 +507,10 @@ License: MIT
 		</a>
 		<a href="file://UI/Transparent.html" class="quick-link">
 			<span>Transparent</span>
+		</a>
+		<a href="https://iogames.space" class="quick-link">
+			<i class="fas fa-gamepad"></i>
+			<span>IO Games</span>
 		</a>
 		<a href="https://docs.nanos-world.com" class="quick-link">
 			<i class="fas fa-book"></i>
@@ -567,28 +623,32 @@ License: MIT
 	<div id="gradientSettings">
 		<div class="settings-group">
 			<label>Background Color 1</label>
-			<input type="color" id="bgColor1" value="#1a1a2e">
+			<input type="color" id="bgColor1" value="#402040">
 		</div>
 		<div class="settings-group">
 			<label>Background Color 2</label>
-			<input type="color" id="bgColor2" value="#16213e">
+			<input type="color" id="bgColor2" value="#203558">
 		</div>
 		<div class="settings-group">
 			<label>Background Color 3</label>
-			<input type="color" id="bgColor3" value="#0f3460">
+			<input type="color" id="bgColor3" value="#106464">
 		</div>
 		<div class="settings-group">
 			<label>Gradient Angle: <span id="angleValue">135</span>°</label>
 			<input type="range" id="gradientAngle" min="0" max="360" value="135">
 		</div>
 	</div>
+	<div class="settings-group">
+		<label>Accent Color</label>
+		<input type="color" id="accentColor" value="#ff205a">
+	</div>
 	<div class="settings-group image-url-input" id="imageSettings">
 		<label>Background Image URL</label>
 		<input type="text" id="bgImageUrl" placeholder="https://example.com/image.jpg">
 	</div>
 	<div class="settings-group">
-		<label>Accent Color</label>
-		<input type="color" id="accentColor" value="#ff1f5a">
+		<label>Quick Links Visibility</label>
+		<div class="quick-links-settings" id="quickLinksSettings"></div>
 	</div>
 	<div class="settings-buttons">
 		<button class="reset-btn" id="resetSettings">Reset to Default</button>
@@ -652,11 +712,12 @@ License: MIT
 	// Quick links
 	document.querySelectorAll('.quick-link').forEach(link => {
 		link.addEventListener('click', (e) => {
-			e.preventDefault();
 			e.stopPropagation(); // Prevent injected JS from handling this click
 			if (typeof Events !== 'undefined') {
+				e.preventDefault();
 				Events.Call('Navigate', link.href);
 			}
+			// If Events is not available, let the default link behavior work
 		});
 	});
 
@@ -670,13 +731,54 @@ License: MIT
 	// Default settings
 	const defaultSettings = {
 		bgType: 'gradient',
-		bgColor1: '#1a1a2e',
-		bgColor2: '#16213e',
-		bgColor3: '#0f3460',
+		bgColor1: '#402040',
+		bgColor2: '#203558',
+		bgColor3: '#106464',
 		gradientAngle: 135,
 		bgImageUrl: '',
-		accentColor: '#ff1f5a'
+		accentColor: '#ff205a',
+		quickLinksVisibility: {}
 	};
+
+	// Quick links visibility state
+	let quickLinksVisibility = {};
+
+	// Function to render quick links visibility toggles
+	function renderQuickLinksSettings() {
+		quickLinksSettings.innerHTML = '';
+		const quickLinks = document.querySelectorAll('.quick-link');
+		quickLinks.forEach((link, index) => {
+			const label = link.querySelector('span').textContent.replace(/\n/g, ' ').trim();
+			const href = link.href;
+			const linkId = `link_${index}`;
+			const isVisible = quickLinksVisibility[linkId] !== false; // Default to visible
+
+			const toggle = document.createElement('div');
+			toggle.className = 'quick-link-toggle';
+			toggle.innerHTML = `
+				<input type="checkbox" id="${linkId}" ${isVisible ? 'checked' : ''}>
+				<label for="${linkId}">${label}</label>
+			`;
+			quickLinksSettings.appendChild(toggle);
+
+			// Add event listener to checkbox
+			const checkbox = toggle.querySelector('input');
+			checkbox.addEventListener('change', (e) => {
+				quickLinksVisibility[linkId] = e.target.checked;
+				updateQuickLinksVisibility();
+			});
+		});
+	}
+
+	// Function to update quick links visibility on the page
+	function updateQuickLinksVisibility() {
+		const quickLinks = document.querySelectorAll('.quick-link');
+		quickLinks.forEach((link, index) => {
+			const linkId = `link_${index}`;
+			const isVisible = quickLinksVisibility[linkId] !== false;
+			link.style.display = isVisible ? 'flex' : 'none';
+		});
+	}
 
 	// Gradient angle slider
 	const gradientAngle = document.getElementById('gradientAngle');
@@ -690,6 +792,7 @@ License: MIT
 	const imageOption = document.getElementById('imageOption');
 	const gradientSettings = document.getElementById('gradientSettings');
 	const imageSettings = document.getElementById('imageSettings');
+	const quickLinksSettings = document.getElementById('quickLinksSettings');
 
 	// Background type selection
 	let currentBgType = 'gradient';
@@ -786,6 +889,7 @@ License: MIT
 	if (savedSettings) {
 		const settings = JSON.parse(savedSettings);
 		currentBgType = settings.bgType || 'gradient';
+		quickLinksVisibility = settings.quickLinksVisibility || {};
 
 		// Update UI based on background type
 		if (currentBgType === 'gradient') {
@@ -820,6 +924,9 @@ License: MIT
 		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
 			el.style.color = settings.accentColor;
 		});
+
+		// Apply quick links visibility
+		updateQuickLinksVisibility();
 	} else {
 		// If no saved settings, load chrome theme as accent color
 		const chromeTheme = localStorage.getItem('webbrowser_theme');
@@ -853,8 +960,11 @@ License: MIT
 			bgColor3: bgColor3.value,
 			gradientAngle: gradientAngle.value,
 			bgImageUrl: bgImageUrl.value,
-			accentColor: accentColor.value
+			accentColor: accentColor.value,
+			quickLinksVisibility: {...quickLinksVisibility}
 		};
+		// Render quick links settings
+		renderQuickLinksSettings();
 		settingsModal.classList.add('active');
 		// Notify Lua to bring this WebUI to front
 		if (typeof Events !== 'undefined') {
@@ -873,6 +983,7 @@ License: MIT
 			angleValue.textContent = window.originalSettings.gradientAngle;
 			bgImageUrl.value = window.originalSettings.bgImageUrl;
 			accentColor.value = window.originalSettings.accentColor;
+			quickLinksVisibility = {...window.originalSettings.quickLinksVisibility};
 
 			// Restore UI state
 			if (currentBgType === 'gradient') {
@@ -892,6 +1003,7 @@ License: MIT
 			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
 				el.style.color = window.originalSettings.accentColor;
 			});
+			updateQuickLinksVisibility();
 		}
 		settingsModal.classList.remove('active');
 	});
@@ -904,7 +1016,8 @@ License: MIT
 			bgColor3: document.getElementById('bgColor3').value,
 			gradientAngle: document.getElementById('gradientAngle').value,
 			bgImageUrl: document.getElementById('bgImageUrl').value,
-			accentColor: document.getElementById('accentColor').value
+			accentColor: document.getElementById('accentColor').value,
+			quickLinksVisibility: quickLinksVisibility
 		};
 
 		localStorage.setItem('newTabSettings', JSON.stringify(settings));
@@ -938,6 +1051,11 @@ License: MIT
 		document.getElementById('bgImageUrl').value = defaultSettings.bgImageUrl;
 		document.getElementById('accentColor').value = defaultSettings.accentColor;
 
+		// Reset quick links visibility
+		quickLinksVisibility = {...defaultSettings.quickLinksVisibility};
+		updateQuickLinksVisibility();
+		renderQuickLinksSettings();
+
 		// Apply default colors
 		document.body.style.background = `linear-gradient(${defaultSettings.gradientAngle}deg, ${defaultSettings.bgColor1} 0%, ${defaultSettings.bgColor2} 50%, ${defaultSettings.bgColor3} 100%)`;
 		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
@@ -961,6 +1079,7 @@ License: MIT
 				angleValue.textContent = window.originalSettings.gradientAngle;
 				bgImageUrl.value = window.originalSettings.bgImageUrl;
 				accentColor.value = window.originalSettings.accentColor;
+				quickLinksVisibility = {...window.originalSettings.quickLinksVisibility};
 
 				// Restore UI state
 				if (currentBgType === 'gradient') {
@@ -980,6 +1099,7 @@ License: MIT
 				document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
 					el.style.color = window.originalSettings.accentColor;
 				});
+				updateQuickLinksVisibility();
 			}
 			settingsModal.classList.remove('active');
 		}

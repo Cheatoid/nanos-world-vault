@@ -38,7 +38,8 @@ const ThemeManager = {
 		bloodmoon: '#ff2020',
 		cyberpunk: '#e040fb',
 		matrix: '#00ff41',
-		midnight: '#4fc1ff'
+		midnight: '#4fc1ff',
+		glass: '#00d4ff'
 	},
 	set(name) {
 		if (!this.swatches[name]) return;

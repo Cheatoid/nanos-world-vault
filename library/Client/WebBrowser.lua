@@ -34,13 +34,43 @@ local STORAGE_KEY = "WebBrowser_Tabs"
 
 -- New tab page URL (single source of truth)
 local NEW_TAB_PAGE_URL = "file://UI/NewTabPage.html"
---local NEW_TAB_PAGE_URL = "file:///" .. Package.GetName() .. "/Client/UI/NewTabPage.html"
+--local NEW_TAB_PAGE_URL = "file://" .. Package.GetName() .. "/Client/UI/NewTabPage.html"
 
 -- Configuration
 local CONFIG = {
 	ENABLE_FREEZE = false,   -- Set to true to enable tab freezing for performance
 	ENABLE_SAVE_RESTORE = false -- Set to true to enable tab save/restore functionality
 }
+
+--- Updates the back/forward button states in the chrome UI using ExecuteJavaScript
+---@param canGoBack boolean Whether back button should be enabled
+---@param canGoForward boolean Whether forward button should be enabled
+local function updateChromeNavButtons(canGoBack, canGoForward)
+	local script = string.format([[
+		(function() {
+			const backBtn = document.getElementById('backBtn');
+			const forwardBtn = document.getElementById('forwardBtn');
+			if (backBtn) {
+				backBtn.disabled = %s;
+				backBtn.style.opacity = %s ? '1' : '0.3';
+				backBtn.style.cursor = %s ? 'pointer' : 'not-allowed';
+			}
+			if (forwardBtn) {
+				forwardBtn.disabled = %s;
+				forwardBtn.style.opacity = %s ? '1' : '0.3';
+				forwardBtn.style.cursor = %s ? 'pointer' : 'not-allowed';
+			}
+		})();
+	]],
+		tostring(not canGoBack),
+		tostring(canGoBack),
+		tostring(canGoBack),
+		tostring(not canGoForward),
+		tostring(canGoForward),
+		tostring(canGoForward)
+	)
+	ChromeWebUI:ExecuteJavaScript(script)
+end
 
 -- Inject navigation tracking JavaScript (defined at module level for re-use)
 local navigationScript = [[
@@ -121,6 +151,8 @@ local navigationScript = [[
 	})();
 ]]
 
+local packageName = Package.GetName()
+
 -- Helper function to detect if a URL is the new tab page
 -- Handles short form: file://UI/NewTabPage.html
 -- and full path form: file:///{PackageName}/Client/UI/NewTabPage.html
@@ -139,6 +171,11 @@ end
 local function normalizeURL(url)
 	if isNewTabPage(url) then
 		return NEW_TAB_PAGE_URL
+	end
+	-- Handle short form file://UI/ URLs by converting to full package path
+	if url and string.sub(url, 1, 7) == "file://UI/" then
+		local relativePath = string.sub(url, 8) -- Remove "file://"
+		return "file://" .. packageName .. "/Client/UI/" .. relativePath
 	end
 	return url
 end
@@ -299,8 +336,8 @@ local function createTabWebUI(tabId)
 			-- Update chrome UI
 			ChromeWebUI:CallEvent("TabURLChanged", tabId, url)
 
-			-- Notify chrome UI of history state change
-			ChromeWebUI:CallEvent("HistoryStateChanged", tabId, tab.historyIndex > 1, tab.historyIndex < #tab.history)
+			-- Update back/forward button states via ExecuteJavaScript
+			updateChromeNavButtons(tab.historyIndex > 1, tab.historyIndex < #tab.history)
 
 			-- Save tabs after URL change
 			if CONFIG.ENABLE_SAVE_RESTORE then
@@ -449,8 +486,8 @@ ChromeWebUI:Subscribe("Navigate", function(tabId, url)
 			saveTabs()
 		end
 
-		-- Notify chrome UI of history state change
-		ChromeWebUI:CallEvent("HistoryStateChanged", tabId, tab.historyIndex > 1, tab.historyIndex < #tab.history)
+		-- Update back/forward button states via ExecuteJavaScript
+		updateChromeNavButtons(tab.historyIndex > 1, tab.historyIndex < #tab.history)
 	end
 end)
 
@@ -469,8 +506,8 @@ ChromeWebUI:Subscribe("GoBack", function(tabId)
 		-- Notify chrome UI of URL change
 		ChromeWebUI:CallEvent("TabURLChanged", tabId, url)
 
-		-- Notify chrome UI of history state change
-		ChromeWebUI:CallEvent("HistoryStateChanged", tabId, tab.historyIndex > 1, tab.historyIndex < #tab.history)
+		-- Update back/forward button states via ExecuteJavaScript
+		updateChromeNavButtons(tab.historyIndex > 1, tab.historyIndex < #tab.history)
 	end
 end)
 
@@ -489,8 +526,8 @@ ChromeWebUI:Subscribe("GoForward", function(tabId)
 		-- Notify chrome UI of URL change
 		ChromeWebUI:CallEvent("TabURLChanged", tabId, url)
 
-		-- Notify chrome UI of history state change
-		ChromeWebUI:CallEvent("HistoryStateChanged", tabId, tab.historyIndex > 1, tab.historyIndex < #tab.history)
+		-- Update back/forward button states via ExecuteJavaScript
+		updateChromeNavButtons(tab.historyIndex > 1, tab.historyIndex < #tab.history)
 	end
 end)
 
@@ -824,12 +861,9 @@ function WebBrowser.SwitchTab(tabId)
 	tab.webui:BringToFront()
 	tab.webui:SetFocus()
 
-	-- Notify chrome UI
+	-- Notify chrome UI with history state
 	print("[WebBrowser DEBUG] Calling TabSwitched for tabId:", tabId)
-	ChromeWebUI:CallEvent("TabSwitched", tabId)
-
-	-- Notify chrome UI of history state for the new tab
-	ChromeWebUI:CallEvent("HistoryStateChanged", tabId, tab.historyIndex > 1, tab.historyIndex < #tab.history)
+	ChromeWebUI:CallEvent("TabSwitched", tabId, tab.historyIndex > 1, tab.historyIndex < #tab.history)
 end
 
 --- Sets the browser visibility
