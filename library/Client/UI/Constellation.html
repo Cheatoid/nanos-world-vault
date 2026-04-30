@@ -649,7 +649,7 @@ License: MIT
 
 	// Automatically resize canvas on window resize
 	window.addEventListener("resize", resizeCanvas);
-	// Disable right‑click / context menu
+	// Disable right-click / context menu
 	canvas.addEventListener("contextmenu", e => e.preventDefault());
 	// Disable text selection drag
 	canvas.addEventListener("selectstart", e => e.preventDefault());
@@ -1057,7 +1057,7 @@ License: MIT
 				this.vx -= nx * force * invMass;
 				this.vy -= ny * force * invMass;
 			} else if (settings.interactionMode === "pushAway") {
-				// Particles are violently expelled when very close — great for "explosion" effects
+				// Particles are violently expelled when very close - great for "explosion" effects
 				// Push away HARDER when very close
 				const force = (proximity ** 2) * settings.pushAwayStrength;
 				this.vx -= nx * force * invMass;
@@ -1069,7 +1069,7 @@ License: MIT
 			const speed = Math.hypot(this.vx, this.vy);
 			if (speed > settings.maxAllowedSpeed) {
 				// Apply mass to slowdown
-				// Heavier stars slow down less — feels more natural.
+				// Heavier stars slow down less - feels more natural.
 				const m = this.mass;
 				this.vx *= 1 - (1 - settings.slowdownRate) / m;
 				this.vy *= 1 - (1 - settings.slowdownRate) / m;
