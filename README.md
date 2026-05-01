@@ -43,7 +43,7 @@ For complete documentation on:
 - **WebSocket API (client-side)**: connect, send/receive socket messages (bridged via WebUI)
 - **Regex API (client-side)**: true regular expression engine (bridged via WebUI)
 - **Hash API (client-side)**: common hashing functions CRC32/MD5/SHA* (bridged via WebUI)
-- **Bind library (client-side): Source-engine inspired bind system for console commands (e.g. `bind F9 browser_open`)**
+- **Bind library (client-side)**: Source-engine inspired bind system for console commands (e.g. `bind F9 browser_open`)
 - **LINQ library**
 - **Benchmark library**: diagnose performance bottlenecks, measure code performance with statistical analysis,
   comparison tools, and multiple timing modes
