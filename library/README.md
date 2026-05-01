@@ -1318,18 +1318,18 @@ Module file: [Shared/Reflection.lua](https://github.com/Cheatoid/nanos-world-vau
 ```lua
 local Reflection = require "Reflection"
 
--- Get all enum tables from the global environment
--- Returns a table where keys are enum names and values are enum tables
-local enums = Reflection.GetEnums()
-for name, enum in next, enums do
-    print(name) -- Prints enum names like "EColor", "EInputKey", "EControlMode", etc.
-end
-
 -- Get all registered classes from the debug registry
 -- Returns a table mapping numeric IDs to class tables
 local classes = Reflection.GetClasses()
 for id, class in next, classes do
     print("Class ID:", id, "Name:", class.Name or "Unknown")
+end
+
+-- Get all enum tables from the global environment
+-- Returns a table where keys are enum names and values are enum tables
+local enums = Reflection.GetEnums()
+for name, enum in next, enums do
+    print(name) -- Prints enum names like AimMode, AnimationSlotType, AssetType, etc.
 end
 ```
 
