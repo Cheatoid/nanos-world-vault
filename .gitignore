@@ -594,3 +594,6 @@ Packages/
 
 # not yet
 luavm.lua
+
+# imgui wasm demo output
+imgui_web_demo/build/
