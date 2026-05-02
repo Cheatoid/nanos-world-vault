@@ -22,3 +22,7 @@
 	path = emsdk
 	url = https://github.com/emscripten-core/emsdk
 	branch = main
+[submodule "imgui"]
+	path = imgui
+	url = https://github.com/ocornut/imgui
+	branch = docking
