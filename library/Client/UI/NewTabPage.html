@@ -704,6 +704,8 @@ License: MIT
 			}
 			if (typeof Events !== 'undefined') {
 				Events.Call('Navigate', url);
+			} else {
+				window.location.href = url;
 			}
 		}
 	}
@@ -714,14 +716,23 @@ License: MIT
 	});
 
 	// Quick links
+	const PAGE_BASE_URL = 'https://cheatoid.github.io/nanos-world-vault/library/Client/UI/';
 	document.querySelectorAll('.quick-link').forEach(link => {
 		link.addEventListener('click', (e) => {
 			e.stopPropagation(); // Prevent injected JS from handling this click
+			let targetUrl = String(link.href);
+			if (targetUrl.startsWith('file://')) {
+				targetUrl = 'https://cheatoid.github.io/nanos-world-vault/library/Client/' + targetUrl.substring(7);
+			} else if (targetUrl.startsWith(PAGE_BASE_URL)) {
+				targetUrl = targetUrl.substring(PAGE_BASE_URL.length);
+			}
 			if (typeof Events !== 'undefined') {
 				e.preventDefault();
-				Events.Call('Navigate', link.href);
+				Events.Call('Navigate', targetUrl);
+			} else {
+				e.preventDefault();
+				window.location.href = targetUrl;
 			}
-			// If Events is not available, let the default link behavior work
 		});
 	});
 
