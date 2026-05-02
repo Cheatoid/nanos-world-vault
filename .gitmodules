@@ -26,3 +26,7 @@
 	path = imgui
 	url = https://github.com/ocornut/imgui
 	branch = docking
+[submodule "luajit"]
+	path = luajit
+	url = https://github.com/LuaJIT/LuaJIT
+	branch = v2.1

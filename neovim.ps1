@@ -1,3 +1,5 @@
+#!/usr/bin/env pwsh
+
 # Author: Cheatoid ~ https://github.com/Cheatoid
 # License: MIT
 
