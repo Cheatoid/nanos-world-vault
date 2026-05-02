@@ -18,11 +18,11 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.41",
-	timestamp = "2026-05-02 12:37:42",
-	commit_count = 262,
+	timestamp = "2026-05-02 12:54:02",
+	commit_count = 263,
 	tag_count = 38,
 	branch_name = "main",
-	prev_hash = "9fa97d99125ad08e93d88c33d024b196a2961131",
+	prev_hash = "4add4c52369d73d89b372684f901f333afc7ad58",
 	tag = "v0.0.42",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
@@ -50,7 +50,7 @@ return {
 		["Client/UI/Fake3D.html"] = "56dc6c81cf1b4057495c78ae3e0b24259b159db26a4568495ed8b53cd160821e",
 		["Client/UI/HashAPI.html"] = "bc72bea4faa9949df900649e3017c2018cd148dd6862dfc718d6435cf8bc1820",
 		["Client/UI/NUI.html"] = "c7e5ab005de2b6ea170991e1db9e735d96a56621eca492177e7113681361a25f",
-		["Client/UI/NewTabPage.html"] = "60dc19247fa9bdb8993257c5b29e16e0487dc50af6ef85aed711633bf2aaa316",
+		["Client/UI/NewTabPage.html"] = "e43f6d6781a3026bd1c0a772a6129a612a1bca0b49437016eba5522b98f2fb7f",
 		["Client/UI/RegexAPI.html"] = "e5668cf755adbe80de9c1531b47eddf068350d65f999c5046e36a613f7aec481",
 		["Client/UI/SpawnMenu.html"] = "4fd6d9a9dc49fe2afe1860ba6176eecf7531995b8c193a30301775727086caa5",
 		["Client/UI/Transparent.html"] = "a04b61709eb9c7025981a30022a23aecc09fd2a6b5e6c633d00112f17d095490",
