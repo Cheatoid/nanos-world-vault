@@ -18,3 +18,7 @@
 	path = .nanos-world/sandbox
 	url = https://github.com/nanos-world/sandbox
 	branch = master
+[submodule "emsdk"]
+	path = emsdk
+	url = https://github.com/emscripten-core/emsdk
+	branch = main
