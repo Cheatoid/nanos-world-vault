@@ -565,6 +565,50 @@ License: MIT
 			<i class="fas fa-robot"></i>
 			<span>Mistral AI</span>
 		</a>
+		<a href="https://v0.app" class="quick-link">
+			<i class="fas fa-wand-magic-sparkles"></i>
+			<span>v0.dev</span>
+		</a>
+		<a href="https://replit.com" class="quick-link">
+			<i class="fas fa-terminal"></i>
+			<span>Replit</span>
+		</a>
+		<a href="https://app.blackbox.ai" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Blackbox AI</span>
+		</a>
+		<a href="https://codepal.ai" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>CodePal AI</span>
+		</a>
+		<a href="https://duck.ai/chat" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Duck AI</span>
+		</a>
+		<a href="https://www.easemate.ai/webapp/chat" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>EaseMate AI</span>
+		</a>
+		<a href="https://chat.novaapp.ai" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Nova AI</span>
+		</a>
+		<a href="https://visualgpt.io" class="quick-link">
+			<i class="fas fa-eye"></i>
+			<span>VisualGPT<br>(AI Image)</span>
+		</a>
+		<a href="https://app.heygen.com/apps/generate-b-roll" class="quick-link">
+			<i class="fas fa-video"></i>
+			<span>HeyGen<br>(AI Video)</span>
+		</a>
+		<a href="https://github.dev" class="quick-link">
+			<i class="fab fa-github"></i>
+			<span>GitHub.dev<br>(editor)</span>
+		</a>
+		<a href="https://vscode.dev" class="quick-link">
+			<i class="fas fa-code"></i>
+			<span>VSCode.dev<br>(editor)</span>
+		</a>
 		<a href="https://www.perplexity.ai" class="quick-link">
 			<i class="fas fa-brain"></i>
 			<span>Perplexity</span>
@@ -758,14 +802,26 @@ License: MIT
 	// Quick links visibility state
 	let quickLinksVisibility = {};
 
+	// Function to generate a stable ID from URL
+	function getLinkIdFromUrl(url) {
+		// Create a simple hash from the URL for stable ID generation
+		let hash = 0;
+		for (let i = 0; i < url.length; i++) {
+			const char = url.charCodeAt(i);
+			hash = ((hash << 5) - hash) + char;
+			hash = hash & hash; // Convert to 32bit integer
+		}
+		return `link_${Math.abs(hash)}`;
+	}
+
 	// Function to render quick links visibility toggles
 	function renderQuickLinksSettings() {
 		quickLinksSettings.innerHTML = '';
 		const quickLinks = document.querySelectorAll('.quick-link');
-		quickLinks.forEach((link, index) => {
+		quickLinks.forEach((link) => {
 			const label = link.querySelector('span').textContent.replace(/\n/g, ' ').trim();
 			const href = link.href;
-			const linkId = `link_${index}`;
+			const linkId = getLinkIdFromUrl(href);
 			const isVisible = quickLinksVisibility[linkId] !== false; // Default to visible
 
 			const toggle = document.createElement('div');
@@ -788,8 +844,8 @@ License: MIT
 	// Function to update quick links visibility on the page
 	function updateQuickLinksVisibility() {
 		const quickLinks = document.querySelectorAll('.quick-link');
-		quickLinks.forEach((link, index) => {
-			const linkId = `link_${index}`;
+		quickLinks.forEach((link) => {
+			const linkId = getLinkIdFromUrl(link.href);
 			const isVisible = quickLinksVisibility[linkId] !== false;
 			link.style.display = isVisible ? 'flex' : 'none';
 		});
