@@ -1,0 +1,387 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>NEO WARS</title>
+	<script>
+		// ==================================================
+		// DEVELOPMENT: Uncomment to unban yourself, you fool
+		// ==================================================
+		(function () {
+			try {
+				document.cookie = 'ac_banned=; path=/; max-age=0; SameSite=Strict; Secure';
+				sessionStorage.removeItem('ac_banned');
+				localStorage.removeItem('ac_banned');
+				console.log('Unbanned via bootstrapper');
+			} catch (e) {
+			}
+		})();
+
+		// Immediate ban check - redirect if banned
+		(function () {
+			try {
+				// Check for embedding/framing
+				if (window.top !== window.self) {
+					// Page is embedded in iframe - check if from authorized origin
+					try {
+						const topOrigin = window.top.location.origin;
+						const allowedOrigins = ['https://cheatoid.github.io', 'http://localhost', 'https://localhost', 'file://'];
+						if (!allowedOrigins.some(allowed => topOrigin.startsWith(allowed))) {
+							// Embedded from unauthorized origin
+							window.top.location.href = 'about:blank';
+							document.body.innerHTML = '';
+							return;
+						}
+					} catch (e) {
+						// Cross-origin frame access blocked - assume unauthorized
+						window.top.location.href = 'about:blank';
+						document.body.innerHTML = '';
+						return;
+					}
+				}
+
+				let cookieBanned = false;
+				let sessionBanned = false;
+				let localBanned = false;
+
+				// Check cookie
+				const cookies = document.cookie.split(';');
+				for (let cookie of cookies) {
+					const [name, value] = cookie.trim().split('=');
+					if (name === 'ac_banned' && value) {
+						cookieBanned = true;
+					}
+				}
+
+				// Check sessionStorage
+				if (sessionStorage.getItem('ac_banned')) {
+					sessionBanned = true;
+				}
+
+				// Check localStorage
+				if (localStorage.getItem('ac_banned')) {
+					localBanned = true;
+				}
+
+				// Check for inconsistencies or ban
+				const banCount = (cookieBanned ? 1 : 0) + (sessionBanned ? 1 : 0) + (localBanned ? 1 : 0);
+				if (banCount > 0) {
+					window.location.href = 'about:blank';
+					document.body.innerHTML = '';
+				}
+			} catch (e) {
+			}
+		})();
+
+		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
+		// Using 'const' or 'let' would cause a redeclaration error.
+		// noinspection ES6ConvertVarToLetConst
+		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
+		var Events = window.Events;
+	</script>
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background: #05040a
+		}
+
+		iframe {
+			width: 100%;
+			height: 100%;
+			border: none;
+			display: block
+		}
+	</style>
+</head>
+<body>
+<iframe id="main-frame" src="index.html"></iframe>
+<script>
+	// Restore fullscreen state if it was set
+	const wasFullscreen = sessionStorage.getItem('wasFullscreen') === 'true';
+	if (wasFullscreen && document.documentElement.requestFullscreen && document.fullscreenElement === null) {
+		document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen restore failed:', err));
+	}
+	sessionStorage.removeItem('wasFullscreen');
+
+	// Comprehensive Browser Fingerprinting
+	function generateFingerprint() {
+		const fingerprint = {};
+
+		// Basic browser info
+		fingerprint.userAgent = navigator.userAgent;
+		fingerprint.platform = navigator.platform;
+		fingerprint.language = navigator.language;
+		fingerprint.languages = navigator.languages;
+		fingerprint.vendor = navigator.vendor;
+		fingerprint.product = navigator.product;
+		fingerprint.appVersion = navigator.appVersion;
+		fingerprint.appName = navigator.appName;
+		fingerprint.appCodeName = navigator.appCodeName;
+
+		// Screen info
+		fingerprint.screenWidth = screen.width;
+		fingerprint.screenHeight = screen.height;
+		fingerprint.screenAvailWidth = screen.availWidth;
+		fingerprint.screenAvailHeight = screen.availHeight;
+		fingerprint.screenColorDepth = screen.colorDepth;
+		fingerprint.screenPixelDepth = screen.pixelDepth;
+		fingerprint.devicePixelRatio = window.devicePixelRatio;
+
+		// Window info
+		fingerprint.innerWidth = window.innerWidth;
+		fingerprint.innerHeight = window.innerHeight;
+		fingerprint.outerWidth = window.outerWidth;
+		fingerprint.outerHeight = window.outerHeight;
+
+		// Timezone
+		fingerprint.timezoneOffset = new Date().getTimezoneOffset();
+		fingerprint.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+		// Hardware info
+		fingerprint.hardwareConcurrency = navigator.hardwareConcurrency;
+		fingerprint.deviceMemory = navigator.deviceMemory;
+		fingerprint.maxTouchPoints = navigator.maxTouchPoints;
+
+		// Feature detection
+		fingerprint.webgl = !!window.WebGLRenderingContext;
+		fingerprint.webgl2 = !!window.WebGL2RenderingContext;
+		fingerprint.webgpu = !!navigator.gpu;
+		fingerprint.webrtc = !!window.RTCPeerConnection || !!window.webkitRTCPeerConnection || !!window.mozRTCPeerConnection;
+		fingerprint.websocket = !!window.WebSocket;
+		fingerprint.serviceWorker = !!window.ServiceWorker;
+		fingerprint.worker = !!window.Worker;
+		fingerprint.sharedWorker = !!window.SharedWorker;
+		fingerprint.notification = !!window.Notification;
+		fingerprint.geolocation = !!navigator.geolocation;
+		fingerprint.battery = !!navigator.getBattery;
+		fingerprint.vibration = !!navigator.vibrate;
+		fingerprint.bluetooth = !!navigator.bluetooth;
+		fingerprint.usb = !!navigator.usb;
+		fingerprint.clipboard = !!navigator.clipboard;
+		fingerprint.mediaDevices = !!navigator.mediaDevices;
+		fingerprint.gamepad = !!navigator.getGamepads;
+		fingerprint.pointerLock = !!document.pointerLockElement;
+		fingerprint.fullscreen = !!document.fullscreenElement;
+
+		// Storage support
+		fingerprint.localStorage = !!window.localStorage;
+		fingerprint.sessionStorage = !!window.sessionStorage;
+		fingerprint.indexedDB = !!window.indexedDB;
+		fingerprint.cookies = navigator.cookieEnabled;
+
+		// Canvas fingerprinting
+		try {
+			const canvas = document.createElement('canvas');
+			const ctx = canvas.getContext('2d');
+			ctx.textBaseline = 'top';
+			ctx.font = '14px Arial';
+			ctx.fillStyle = '#f60';
+			ctx.fillRect(125, 1, 62, 20);
+			ctx.fillStyle = '#069';
+			ctx.fillText('Browser Fingerprint 🔒', 2, 15);
+			fingerprint.canvas = canvas.toDataURL();
+		} catch (e) {
+			fingerprint.canvas = 'error';
+		}
+
+		// WebGL fingerprinting
+		try {
+			const canvas = document.createElement('canvas');
+			const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+			if (gl) {
+				const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+				fingerprint.webglVendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'unknown';
+				fingerprint.webglRenderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'unknown';
+			}
+		} catch (e) {
+			fingerprint.webglVendor = 'error';
+			fingerprint.webglRenderer = 'error';
+		}
+
+		// Audio fingerprinting
+		try {
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			const oscillator = audioContext.createOscillator();
+			const analyser = audioContext.createAnalyser();
+			const gain = audioContext.createGain();
+			gain.gain.value = 0;
+			oscillator.type = 'triangle';
+			oscillator.connect(analyser);
+			analyser.connect(gain);
+			gain.connect(audioContext.destination);
+			oscillator.start(0);
+			const fingerprint2 = new Uint8Array(analyser.frequencyBinCount);
+			analyser.getByteFrequencyData(fingerprint2);
+			oscillator.stop(0);
+			audioContext.close();
+			fingerprint.audio = Array.from(fingerprint2).join(',');
+		} catch (e) {
+			fingerprint.audio = 'error';
+		}
+
+		// Font detection
+		const baseFonts = ['monospace', 'sans-serif', 'serif'];
+		const testFonts = ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Georgia', 'Impact', 'Times New Roman', 'Trebuchet MS', 'Verdana', 'Helvetica', 'Palatino', 'Garamond', 'Bookman', 'Avant Garde', 'Candara', 'Calibri', 'Cambria', 'Consolas', 'Monaco', 'Lucida Console'];
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		const testString = 'mmmmmmmmmmlli';
+		const testSize = '72px';
+		ctx.font = testSize + ' ' + baseFonts[0];
+		const baseWidth = ctx.measureText(testString).width;
+		const detectedFonts = [];
+		testFonts.forEach(font => {
+			ctx.font = testSize + ' ' + font + ',' + baseFonts[0];
+			if (ctx.measureText(testString).width !== baseWidth) {
+				detectedFonts.push(font);
+			}
+		});
+		fingerprint.fonts = detectedFonts;
+
+		// Hidden pixel detection
+		try {
+			const div = document.createElement('div');
+			div.style.position = 'absolute';
+			div.style.left = '-9999px';
+			div.style.width = '1px';
+			div.style.height = '1px';
+			div.style.overflow = 'hidden';
+			document.body.appendChild(div);
+			const pixel = document.createElement('img');
+			pixel.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+			div.appendChild(pixel);
+			fingerprint.hiddenPixel = pixel.width + 'x' + pixel.height;
+			document.body.removeChild(div);
+		} catch (e) {
+			fingerprint.hiddenPixel = 'error';
+		}
+
+		// Session data
+		try {
+			sessionStorage.setItem('fingerprint_test', 'test');
+			sessionStorage.removeItem('fingerprint_test');
+			fingerprint.sessionStorageAccessible = true;
+		} catch (e) {
+			fingerprint.sessionStorageAccessible = false;
+		}
+
+		// Cookie test
+		try {
+			document.cookie = 'fingerprint_test=test; SameSite=Strict';
+			fingerprint.cookiesAccessible = document.cookie.indexOf('fingerprint_test') !== -1;
+			document.cookie = 'fingerprint_test=; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+		} catch (e) {
+			fingerprint.cookiesAccessible = false;
+		}
+
+		// Generate hash
+		const fingerprintString = JSON.stringify(fingerprint);
+		let hash = 0;
+		for (let i = 0; i < fingerprintString.length; i++) {
+			const char = fingerprintString.charCodeAt(i);
+			hash = ((hash << 5) - hash) + char;
+			hash = hash & hash;
+		}
+		fingerprint.hash = Math.abs(hash).toString(16);
+
+		return fingerprint;
+	}
+
+	// Generate and store fingerprint
+	const browserFingerprint = generateFingerprint();
+	console.log('Browser Fingerprint:', browserFingerprint);
+
+	const iframe = document.getElementById('main-frame');
+
+	// Helper function to navigate with fullscreen attempts
+	function navigateTo(page) {
+		const tryFullscreen = () => {
+			if (document.documentElement.requestFullscreen && document.fullscreenElement === null) {
+				document.documentElement.requestFullscreen().catch(() => {});
+			}
+		};
+
+		tryFullscreen();
+		iframe.src = page;
+		setTimeout(tryFullscreen, 100);
+	}
+
+	window.addEventListener('message', (e) => {
+		if (e.data === 'navigate:loading') {
+			navigateTo('loading.html');
+		} else if (e.data === 'navigate:index') {
+			navigateTo('index.html');
+		} else if (e.data === 'navigate:hud') {
+			navigateTo('hud.html');
+		}
+	});
+
+	// ============================================================
+	// DEVELOPMENT: Uncomment to disable AntiCheat heartbeat check
+	// ============================================================
+	const DISABLE_ANTICHEAT = true;
+	const isAntiCheatDisabled = (typeof DISABLE_ANTICHEAT !== 'undefined' && DISABLE_ANTICHEAT);
+	if (!isAntiCheatDisabled) {
+		// Load anti-cheat module with secure token verification
+		const antiCheatScript = document.createElement('script');
+		antiCheatScript.src = 'anticheat.js';
+
+		// Listen for secure token from anti-cheat
+		let antiCheatVerified = false;
+		window.addEventListener('anticheat-loaded', function (e) {
+			if (e.detail && e.detail.secureToken && typeof e.detail.secureToken === 'string' && e.detail.secureToken.length > 20) {
+				antiCheatVerified = true;
+			}
+		});
+
+		// Verify anti-cheat loaded within 2 seconds
+		setTimeout(() => {
+			if (!antiCheatVerified) {
+				setTimeout(() => {
+					throw new Error('Verification failed');
+				}, 0);
+				document.body.innerHTML = '';
+			}
+		}, 2000);
+
+		document.head.appendChild(antiCheatScript);
+		let lastHeartbeatResponse = Date.now();
+		const heartbeatTimeout = 5000;
+
+		// Listen for heartbeat response from anticheat
+		window.addEventListener('anticheat-heartbeat-response', function (e) {
+			if (e.detail && e.detail.valid) {
+				lastHeartbeatResponse = Date.now();
+			}
+		});
+
+		// Check if anticheat is responding
+		setInterval(() => {
+			if (Date.now() - lastHeartbeatResponse > heartbeatTimeout) {
+				// Anticheat not responding - blank page
+				document.body.innerHTML = '';
+				window.location.href = 'about:blank';
+			}
+		}, 2000);
+
+		// Send heartbeat to validate anticheat is loaded from correct page
+		const sendHeartbeat = () => {
+			window.dispatchEvent(new CustomEvent('anticheat-heartbeat', {
+				detail: {page: window.location.pathname}
+			}));
+		};
+		setInterval(sendHeartbeat, 1000);
+	}
+</script>
+</body>
+</html>
