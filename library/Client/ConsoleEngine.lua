@@ -15,7 +15,7 @@ local M = {}
 local ConsoleWebUI = _G.ConsoleWebUI
 
 -- Create ChatCommander instance
-local commander = chat_commander.new("")
+local commander = chat_commander.new("/")
 
 -- Register theme suggestions for autocompletion
 local themes = { "amber", "arctic", "aurora", "bloodmoon", "cyberpunk", "matrix", "midnight", "glass" }
@@ -129,8 +129,6 @@ commander:register_command("about", {
 	handler = function(ctx, args)
 		M.Info("In-Game Console UI")
 		M.Info("A modular, themeable, and extensible console system.")
-		M.Info("Built with vanilla JS, CSS custom properties.")
-		M.Info("Features: themes, search, filters, autocomplete, history, export.")
 		M.Info("")
 		M.Info("Press Tab for autocomplete, Up/Down for history.")
 	end
@@ -179,11 +177,22 @@ function M.Initialize()
 	print("DEBUG: ConsoleEngine.Initialize() called!")
 	if ConsoleWebUI then
 		print("DEBUG: ConsoleWebUI already exists, recreating")
-		ConsoleWebUI:Destroy()
+		--ConsoleWebUI:Destroy()
+		ConsoleWebUI = nil
 		_G.ConsoleWebUI = nil
 		collectgarbage()
 		collectgarbage()
 	end
+
+	Package.Subscribe("Unload", function()
+		if ConsoleWebUI then
+			ConsoleWebUI:Destroy()
+			ConsoleWebUI = nil
+			_G.ConsoleWebUI = nil
+			collectgarbage()
+			collectgarbage()
+		end
+	end)
 
 	print("DEBUG: Creating new ConsoleWebUI instance")
 	ConsoleWebUI = _G.ConsoleWebUI or WebUI(
@@ -217,6 +226,10 @@ function M.Initialize()
 			end
 			M.Log(logType, text)
 		end)
+	end)
+
+	ConsoleWebUI:Subscribe("clipboardWrite", function(text)
+		Client.CopyToClipboard(text)
 	end)
 
 	-- Handle command execution from JS
