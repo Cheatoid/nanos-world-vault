@@ -61,7 +61,8 @@ Alternatively, you can make a keybind: `bind F9 browser_open` and then simply pr
 To open developer tools for the current tab, you can run `browser_devtools` console command (or bind it to key).  
 Enjoy a beautiful New Tab experience, you can customize the background gradient, or use an image and much more...
 
-Module file: [Client/WebBrowser.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/WebBrowser.lua)
+Module
+file: [Client/WebBrowser.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/WebBrowser.lua)
 
 ### Bind
 
@@ -138,11 +139,28 @@ end
 
 ### Chat Commander
 
-Command parser and dispatcher for in-game chat commands with autocompletion support, type coercion, and flexible
-validation.
+Advanced command parser and dispatcher for (in-game) chat commands with comprehensive autocompletion, flexible argument
+parsing, type coercion, validation, and a fluent API.
 
 See [Chat Commander documentation](https://github.com/Cheatoid/Lua.Scripts/tree/develop/chat_commander) for complete
 details.
+
+**Key Features:**
+
+- **Fluent API** for intuitive command building
+- **Advanced argument parsing** with positional, named (key=value), and mixed support
+- **Rich type system** with built-in types (string, number, boolean, integer, any) and custom type registration
+- **Multi-type arguments** supporting multiple valid types for the same argument
+- **Anonymous arguments** with automatic numerical indexing
+- **Comprehensive autocompletion** with context-aware suggestions
+- **Permission system** with custom validation
+- **Enum validation** with case-sensitive matching
+- **Escape sequence support** in quoted strings
+- **Hexadecimal and binary literals** for number types
+- **Varargs support** for capturing remaining arguments
+- **Custom validation** at registration and execution time
+
+#### Basic Usage
 
 ```lua
 local chat_commander = require "chat_commander"
@@ -151,29 +169,241 @@ local chat_commander = require "chat_commander"
 chat_commander.register_command("teleport", {
     description = "Teleport to coordinates",
     args = {
-        { "x", "number" },
-        { "y", type = "number" },
-        { name = "z", type = "number", default = 0 },
+        { "x", "number" },        -- Required number
+        { "y", type = "number" }, -- Required number (alternative syntax)
+        { name = "z", type = "number", default = 0 }, -- Optional with default
     },
     handler = function(ctx, args)
         print("Teleporting to:", args.x, args.y, args.z)
     end,
 })
 
+-- Execute command
 local ok, err = chat_commander.handle_line({ player = player }, "/teleport 10 20 30")
+```
 
--- Fluent API
+#### Fluent API
+
+```lua
+-- Fluent API for intuitive command building
 chat_commander.register_command("kick")
     :description("Kick a player")
     :arg("player", "string")
+    :arg("reason", "string")        -- Optional (no default)
     :permission(function(ctx, args)
         return ctx.player.is_admin, "admin only"
     end)
     :handler(function(ctx, args)
-        -- Kick logic
+        -- Kick logic here
+        print("Kicking:", args.player, "Reason:", args.reason or "No reason")
     end)
     :register()
 ```
+
+#### Advanced Argument Syntax
+
+```lua
+-- Anonymous arguments (auto-numbered)
+chat_commander.register_command("echo", {
+    args = {
+        { type = "string" },     -- args[1]
+        { type = "number" },     -- args[2]
+    },
+    handler = function(ctx, args)
+        print(args[1], args[2])  -- Access by index
+    end,
+})
+
+-- Multi-type arguments
+chat_commander.register_command("process", {
+    args = {
+        { name = "input", type = { "string", "number" } }, -- Accepts string OR number
+    },
+    handler = function(ctx, args)
+        print("Input type:", type(args.input))
+    end,
+})
+
+-- Optional type suffix
+chat_commander.register_command("optional", {
+    args = {
+        { name = "flag", type = "boolean?" }, -- ? suffix makes optional
+    },
+    handler = function(ctx, args)
+        print("Flag:", args.flag or "not provided")
+    end,
+})
+
+-- Enum validation
+chat_commander.register_command("mode", {
+    args = {
+        { name = "type", type = "string", enum = { "LOW", "MEDIUM", "HIGH" } },
+    },
+    handler = function(ctx, args)
+        print("Mode set to:", args.type)
+    end,
+})
+```
+
+#### Custom Types and Autocompletion
+
+```lua
+-- Register custom type with validation
+chat_commander.register_type("vector3", function(token)
+    local x, y, z = string.match(token, "^%s*([^,]+)%s*,%s*([^,]+)%s*,%s*([^,]+)%s*$")
+    if not x then return nil, "invalid vector3 format, expected x,y,z" end
+    
+    local nx = tonumber(x)
+    local ny = tonumber(y) 
+    local nz = tonumber(z)
+    if not nx or not ny or not nz then
+        return nil, "all components must be numbers"
+    end
+    
+    return { x = nx, y = ny, z = nz }
+end)
+
+-- Register custom suggestions for autocompletion
+chat_commander.register_suggestions("vector3", function(partial)
+    local examples = { "0,0,0", "100,100,100", "50,25,0" }
+    local matches = {}
+    for _, example in ipairs(examples) do
+        if string.sub(example, 1, #partial) == partial then
+            table.insert(matches, example)
+        end
+    end
+    return matches
+end)
+
+-- Use custom type
+chat_commander.register_command("move", {
+    args = {
+        { name = "position", type = "vector3", required = true },
+    },
+    handler = function(ctx, args)
+        print("Moving to:", args.position.x, args.position.y, args.position.z)
+    end,
+})
+```
+
+#### Named and Mixed Arguments
+
+```lua
+chat_commander.register_command("config", {
+    args = {
+        { name = "setting", type = "string", required = true },
+        { name = "value", type = "string", default = "default" },
+    },
+    handler = function(ctx, args)
+        print("Setting:", args.setting, "Value:", args.value)
+    end,
+})
+
+-- All these work:
+-- /config debug true
+-- /config setting=debug value=true  
+-- /config debug value=true
+-- /config setting=debug true
+```
+
+#### Validation and Permissions
+
+```lua
+chat_commander.register_command("admin_only", {
+    description = "Admin-only command",
+    args = {
+        { name = "action", type = "string", enum = { "kick", "ban", "restart" } },
+    },
+    -- Registration-time validation
+    validate = function(schema)
+        if not schema.args or #schema.args == 0 then
+            return false, "must specify an action"
+        end
+        return true
+    end,
+    -- Permission check
+    permission = function(ctx, args)
+        return ctx.player and ctx.player.is_admin, "admin only"
+    end,
+    -- Execution-time validation
+    pre_validate = function(ctx, args)
+        if args.action == "restart" and not ctx.player.is_super_admin then
+            return false, "restart requires super admin"
+        end
+        return true
+    end,
+    handler = function(ctx, args)
+        print("Admin action:", args.action)
+    end,
+})
+```
+
+#### Built-in Type Support
+
+- **string**: Text values with quoted string support and escape sequences
+- **number**: Decimal, integer, hexadecimal (0xFF), and binary (0b1010) literals
+- **integer**: Integer-only validation (no fractional part)
+- **boolean**: Accepts true/false, 1/0, yes/no, on/off (case-insensitive)
+- **any**: Accepts any value as raw string (no coercion)
+
+#### Autocompletion Features
+
+```lua
+-- Get suggestions at cursor position
+local suggestions = chat_commander.suggest_at("/telep", 6)
+-- Returns: { "teleport", "teleport_to" }
+
+-- Boolean argument suggestions
+local bool_suggestions = chat_commander.suggest_at("/toggle ")
+-- Returns: { "true", "false", "1", "0", "yes", "no", "on", "off" }
+
+-- Enum argument suggestions  
+local enum_suggestions = chat_commander.suggest_at("/mode ")
+-- Returns: { "LOW", "MEDIUM", "HIGH" }
+```
+
+#### Utility Functions
+
+```lua
+-- Get command help
+local help = chat_commander.get_help("teleport")
+
+-- List all commands
+local commands = chat_commander.list_commands()
+
+-- Parse line without executing
+local ok, parsed = chat_commander.parse_line("/teleport 10 20 30")
+
+-- Set custom prefix (default: "/")
+chat_commander.set_prefix("!")
+
+-- Unregister command
+chat_commander.unregister_command("old_command")
+```
+
+#### Argument Reference
+
+| Field      | Type          | Description                                               |
+|------------|---------------|-----------------------------------------------------------|
+| `name`     | string        | Argument name (auto-generated if omitted)                 |
+| `type`     | string\|table | Type or array of types (supports `?` suffix for optional) |
+| `required` | boolean       | Whether argument is required (auto-detected from default) |
+| `default`  | any           | Default value for optional arguments                      |
+| `enum`     | table         | Array of valid string values                              |
+| `raw`      | boolean       | Skip type coercion, return raw token                      |
+
+#### Command Schema Reference
+
+| Field          | Type     | Description                               |
+|----------------|----------|-------------------------------------------|
+| `description`  | string   | Command description for help              |
+| `args`         | table    | Array of argument specifications          |
+| `aliases`      | table    | Alternative command names                 |
+| `handler`      | function | Command execution function                |
+| `permission`   | function | Permission check function                 |
+| `validate`     | function | Registration-time validation              |
+| `pre_validate` | function | Execution-time validation                 |
+| `pass_varargs` | boolean  | Pass remaining args as varargs to handler |
 
 ### Config
 
@@ -221,7 +451,8 @@ Config.update({
 Binary data serialization for network transmission with support for various data types and efficient bit-packing.  
 Provides an efficient scheme system for structured data serialization.
 
-Module file: [Shared/NetWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/NetWrapper.lua)
+Module
+file: [Shared/NetWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/NetWrapper.lua)
 
 ```lua
 local net = require "NetWrapper"
@@ -265,7 +496,8 @@ local player_data = player_scheme:read()
 Permission-based remote command system that allows registering commands invoked via the `cmd` console command.  
 Supports server-side broadcast, client-to-server calls, argument parsing, and permission-based access control.
 
-Module file: [Shared/RemoteCommand.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/RemoteCommand.lua)
+Module
+file: [Shared/RemoteCommand.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/RemoteCommand.lua)
 
 ```lua
 local cmd = require "RemoteCommand"
@@ -324,7 +556,8 @@ cmd.HandleCommand("say Hello World", player)
 
 Convenience file I/O wrapper with virtual file system (VFS) support.
 
-Module file: [Shared/FileWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/FileWrapper.lua)
+Module
+file: [Shared/FileWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/FileWrapper.lua)
 
 ```lua
 local file = require "FileWrapper"
@@ -476,7 +709,8 @@ end
 
 Simplified HTTP requests with callback support and utility functions for status code checking.
 
-Module file: [Shared/HttpWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/HttpWrapper.lua)
+Module
+file: [Shared/HttpWrapper.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/HttpWrapper.lua)
 
 ```lua
 local http = require "HttpWrapper"
@@ -561,10 +795,10 @@ print("Error range:", http.is_client_error(400))     -- true
 
 ### WebUI Wrappers
 
-Client-side WebUI-bridged APIs for 
-[Hash](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/HashAPI.lua), 
-[Regex](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/RegexAPI.lua), 
-[WebSocket](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/WebSocketAPI.lua), 
+Client-side WebUI-bridged APIs for
+[Hash](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/HashAPI.lua),
+[Regex](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/RegexAPI.lua),
+[WebSocket](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/WebSocketAPI.lua),
 and [WebAudio](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/WebAudioAPI.lua) functionality.
 
 ```lua
@@ -744,7 +978,8 @@ print("Current:", tostring(Version.getCurrent()))
 
 Execute Lua code on clients from the server.
 
-Module file: [Shared/BroadcastLua.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/BroadcastLua.lua)
+Module
+file: [Shared/BroadcastLua.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/BroadcastLua.lua)
 
 ```lua
 -- Server-side
@@ -763,7 +998,8 @@ Provides the `lua` console command for executing Lua code (or script) via consol
 But, server-side must enable `allowcslua` convar to allow client-side Lua execution (it is disabled by default).  
 Enter `allowcslua 1` into server console if you are server operator and want to allow client-side `lua` console command.
 
-Module file: [Shared/ClientsideLua.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/ClientsideLua.lua)
+Module
+file: [Shared/ClientsideLua.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/ClientsideLua.lua)
 
 ```lua
 -- In console (when allowcslua is enabled):
@@ -778,7 +1014,8 @@ Module file: [Shared/ClientsideLua.lua](https://github.com/Cheatoid/nanos-world-
 
 Convenient utility for batch loading scripts from a directory.
 
-Module file: [Shared/RequireFolder.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/RequireFolder.lua)
+Module
+file: [Shared/RequireFolder.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/RequireFolder.lua)
 
 ```lua
 local requiref = require "RequireFolder"
@@ -964,7 +1201,8 @@ pool:release(arr) -- Return to pool for reuse
 Enhanced
 builtin [string](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standard/string.lua),
 [table](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standard/table.lua),
-and [math](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standard/math.lua) libraries with additional functions.  
+and [math](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standard/math.lua) libraries with additional
+functions.  
 And they are also fully documented (see .d.lua files in the same directory for LuaDoc annotations).
 
 ```lua
@@ -1007,7 +1245,8 @@ local result = linq.From({1, 2, 3, 4, 5})
 -- result: {6, 8, 10}
 ```
 
-**[linq2 (v2)](https://github.com/Cheatoid/Lua.Scripts/blob/develop/linq/linq2.lua)** - Alternative implementation with PascalCase:
+**[linq2 (v2)](https://github.com/Cheatoid/Lua.Scripts/blob/develop/linq/linq2.lua)** - Alternative implementation with
+PascalCase:
 
 ```lua
 local linq = require "@cheatoid/linq/linq2"
@@ -1273,7 +1512,8 @@ StackVM.run(L, proto)
 
 Custom module loader (codename: GAIMERS) providing utility functions for module loading and global exports.
 
-Module file: [Shared/@cheatoid/loader/gaimers.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/loader/gaimers.lua)
+Module
+file: [Shared/@cheatoid/loader/gaimers.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/loader/gaimers.lua)
 
 ```lua
 local gaimers = require "@cheatoid/loader/gaimers"
@@ -1313,7 +1553,8 @@ local isolated = s("some_module", true)  -- deep copy environment
 Runtime reflection utilities for inspecting nanos-world's game engine internals. Provides access to registered classes
 and enum tables from the debug registry.
 
-Module file: [Shared/Reflection.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/Reflection.lua)
+Module
+file: [Shared/Reflection.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Shared/Reflection.lua)
 
 ```lua
 local Reflection = require "Reflection"
@@ -1339,7 +1580,8 @@ Modular permission system combining simplicity with performance. Provides a clea
 bit-packed storage for efficiency. Supports category-level overrides, multi-registry support, and freeze concept for
 immutable registries.
 
-Module file: [Shared/@cheatoid/permission/permission.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/permission/permission.lua)
+Module
+file: [Shared/@cheatoid/permission/permission.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/permission/permission.lua)
 
 ```lua
 local perm = require "@cheatoid/permission/permission"
@@ -1381,13 +1623,15 @@ local ctx2 = perm.new_context_on(reg)
 
 ### Autocompleter
 
-Smart autocompletion algorithm with prefix, shorthand, substring, and fuzzy matching using Trie data structure. Ideal for text editors and command completion systems.
+Smart autocompletion algorithm with prefix, shorthand, substring, and fuzzy matching using Trie data structure. Ideal
+for text editors and command completion systems.
 
 [For example usage see here](https://github.com/Cheatoid/Lua.Scripts/blob/develop/autocompleter/example.lua).
 
 [Readme is here](https://github.com/Cheatoid/Lua.Scripts/blob/develop/autocompleter/README.md).
 
-Module file: [Shared/@cheatoid/autocompleter/autocompleter.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/autocompleter/autocompleter.lua)
+Module
+file: [Shared/@cheatoid/autocompleter/autocompleter.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/autocompleter/autocompleter.lua)
 
 ```lua
 local autocompleter = require "@cheatoid/autocompleter/autocompleter"
@@ -1420,7 +1664,8 @@ local completions = ac:get_completions("aple", { fuzzy = true, max_edit_distance
 Arbitrary-precision integer arithmetic for handling numbers that exceed Lua's number precision. Perfect for SteamIDs,
 large database IDs, and cryptographic calculations.
 
-Module file: [Shared/@cheatoid/standalone/biginteger.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/biginteger.lua)
+Module
+file: [Shared/@cheatoid/standalone/biginteger.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/biginteger.lua)
 
 ```lua
 local BigInteger = require "@cheatoid/standalone/biginteger"
@@ -1467,7 +1712,8 @@ local one = BigInteger.one
 Interactive command console with fuzzy completion, history tracking, and IntelliSense. Perfect for admin panels, debug
 interfaces, or in-game command systems.
 
-Module file: [Shared/@cheatoid/standalone/console.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/console.lua)
+Module
+file: [Shared/@cheatoid/standalone/console.lua](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/console.lua)
 
 ```lua
 local Console = require "@cheatoid/standalone/console"
@@ -1551,7 +1797,8 @@ local state = console:save_state()
 Benchmarking toolkit for measuring code performance with statistical analysis, comparison tools, and multiple timing
 modes (with high-precision timer on LuaJIT)...
 
-See [Benchmark example](https://github.com/Cheatoid/Lua.Scripts/blob/develop/benchmark/example.lua) for complete usage examples.
+See [Benchmark example](https://github.com/Cheatoid/Lua.Scripts/blob/develop/benchmark/example.lua) for complete usage
+examples.
 
 ```lua
 local bench = require "@cheatoid/benchmark/init"
@@ -2192,7 +2439,8 @@ Examples: [Shared/@cheatoid/load_balancer/examples.lua](https://github.com/Cheat
 
 ## Installation
 
-1. Download the package from the nanos-world store/vault, or [automated GitHub releases](https://github.com/Cheatoid/nanos-world-vault/releases)
+1. Download the package from the nanos-world store/vault,
+   or [automated GitHub releases](https://github.com/Cheatoid/nanos-world-vault/releases)
 2. Extract it in your server's `Packages/` folder
 3. Add it to your package's requirements in `Package.toml` (preferably keep it first in the list):
 

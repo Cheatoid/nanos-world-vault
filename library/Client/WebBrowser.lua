@@ -16,7 +16,7 @@ local ChromeWebUI = WebUI(
 )
 
 -- Tab management
-local tabs = {} ---@type table<integer, {id:integer, webui:WebUI, url:string, title:string, loading:boolean, history:table<string>, historyIndex:integer}>
+local tabs = {} ---@type table<integer, {id:integer, webui:WebUI, url:string, title:string, loading:boolean, history:table<string>, historyIndex:integer, devtoolsOpen:boolean}>
 local activeTabId
 local tabIdCounter = 0
 local is_ready = false
@@ -24,10 +24,6 @@ local is_ready = false
 -- Track tab ready states and pending URLs
 local tabReadyStates = {} ---@type table<integer, boolean>
 local tabPendingURLs = {} ---@type table<integer, string>
-
--- Save previous input state to restore when closing
-local savedInputEnabled = false
-local savedMouseEnabled = false
 
 -- Tab persistence
 local STORAGE_KEY = "WebBrowser_Tabs"
@@ -188,7 +184,7 @@ local function saveTabs()
 			id = tabId,
 			url = tab.url,
 			title = tab.title,
-			isActive = (tabId == activeTabId)
+			isActive = tabId == activeTabId
 		}
 	end
 
@@ -610,7 +606,8 @@ ChromeWebUI:Subscribe("TabsLoaded", function(jsonData)
 		tabIdCounter = 0
 
 		-- Restore saved tabs
-		for i, savedTab in ipairs(tabData) do
+		for i = 1, #tabData do
+			local savedTab = tabData[i]
 			tabIdCounter = tabIdCounter + 1
 			local newTabId = tabIdCounter
 
@@ -670,10 +667,7 @@ local isBrowserOpen = false
 ---@param url string|nil Optional URL to load in first tab
 function WebBrowser.Open(url)
 	print("[WebBrowser DEBUG] WebBrowser.Open called, url:", url)
-
-	-- Save current input state
-	savedInputEnabled = Input.IsInputEnabled()
-	savedMouseEnabled = Input.IsMouseEnabled()
+	require("ConsoleEngine").Initialize()
 
 	-- Enable input and mouse for browser
 	Input.SetInputEnabled(true)
@@ -1006,6 +1000,7 @@ end
 
 do
 	-- Register browser actions with the Bind system
+	Bind.RegisterCommand("browser", WebBrowser.Open)
 	Bind.RegisterCommand("browser_open", WebBrowser.Open)
 	Bind.RegisterCommand("browser_close", WebBrowser.Close)
 	local function ToggleWebBrowser()

@@ -10,6 +10,7 @@ local WebSocketAPI = require "WebSocketAPI"
 -- Test WebSocket connection
 local function test_websocket()
 	print("Testing WebSocket Bridge...")
+	WebSocketAPI.Initialize()
 
 	-- Connect to a public echo server
 	WebSocketAPI.Connect("wss://echo.websocket.org", nil, function(success, result)

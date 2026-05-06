@@ -25,7 +25,7 @@ License: MIT
 	<meta content="origin-when-cross-origin" name="referrer">
 	<meta name="robots" content="noindex, nofollow">
 	<meta name="viewport"
-	      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<style type="text/css">
@@ -74,195 +74,195 @@ License: MIT
 </head>
 
 <body>
-<canvas id="canvas">
-	<p>Your browser does not support HTML5 canvas!</p>
-</canvas>
-<script type="text/javascript">
-	const FPS = 60.0;
-	const FRAME_TIME = 1000.0 / FPS;
-	const FORCE_SOFTWARE_RENDERING = true;
+	<canvas id="canvas">
+		<p>Your browser does not support HTML5 canvas!</p>
+	</canvas>
+	<script type="text/javascript">
+		const FPS = 60.0;
+		const FRAME_TIME = 1000.0 / FPS;
+		const FORCE_SOFTWARE_RENDERING = true;
 
-	const createCanvasContext = (canvas) => {
-		let context;
-		if (FORCE_SOFTWARE_RENDERING) {
-			context = canvas.getContext('2d', {alpha: true, desynchronized: true});
-		} else {
-			context = canvas.getContext('experimental-webgl') || canvas.getContext('webgl');
-			if (!context || !(context instanceof WebGLRenderingContext)) {
-				console.log('Fallback, using software renderer.');
-				context = canvas.getContext('2d', {alpha: true, desynchronized: true});
+		const createCanvasContext = (canvas) => {
+			let context;
+			if (FORCE_SOFTWARE_RENDERING) {
+				context = canvas.getContext('2d', { alpha: true, desynchronized: true });
 			} else {
-				console.log('Awesome, your browser supports WebGL renderer... (WIP)');
-				return false; // TODO
+				context = canvas.getContext('experimental-webgl') || canvas.getContext('webgl');
+				if (!context || !(context instanceof WebGLRenderingContext)) {
+					console.log('Fallback, using software renderer.');
+					context = canvas.getContext('2d', { alpha: true, desynchronized: true });
+				} else {
+					console.log('Awesome, your browser supports WebGL renderer... (WIP)');
+					return false; // TODO
+				}
 			}
-		}
-		if (!context) {
-			console.log('Something went wrong, failed to initialize canvas context!');
-			return false;
-		}
-		return context;
-	};
-
-	const setupResolution = (canvas) => {
-		canvas.width = //window.screen.width ||
-			window.innerWidth
-			|| document.documentElement.clientWidth
-			|| document.body.clientWidth; // document.width is obsolete
-		canvas.height = //window.screen.height ||
-			window.innerHeight
-			|| document.documentElement.clientHeight
-			|| document.body.clientHeight; // document.height is obsolete
-	};
-
-	const onLoad = () => {
-		// Grab our canvas
-		const canvas = document.getElementById('canvas') || document.createElement('canvas');
-		if (!(canvas && canvas.getContext)) {
-			console.log('(ERROR) Your browser does not support HTML5 canvas!');
-			return;
-		}
-
-		// Initialize our canvas resolution and create the context
-		setupResolution(canvas);
-		const context = createCanvasContext(canvas);
-
-		// Polyfill for rAF/cAF functionality
-		window.requestAnimationFrame = window.requestAnimationFrame
-			|| window.mozRequestAnimationFrame
-			|| window.webkitRequestAnimationFrame
-			|| window.msRequestAnimationFrame
-			|| function (f) {
-				return setTimeout(f, FRAME_TIME);
-			};
-		window.cancelAnimationFrame = window.cancelAnimationFrame
-			|| window.mozCancelAnimationFrame
-			|| clearTimeout;
-
-		let paintRAF = false;
-		let resizeTimeout;
-
-		// Bouncing box state
-		const box = {
-			x: 25,
-			y: 50,
-			width: 100,
-			height: 75,
-			vx: 3,
-			vy: 2,
-			color: '#00a8e8'
+			if (!context) {
+				console.log('Something went wrong, failed to initialize canvas context!');
+				return false;
+			}
+			return context;
 		};
 
-		// Async image loader
-		const boxImage = new Image();
-		let imageLoaded = false;
-		boxImage.onload = () => {
-			imageLoaded = true;
-			// Set dimensions to natural image size, then clamp to max bounds
-			const maxWidth = 737;
-			const maxHeight = 264;
-			let newWidth = boxImage.width;
-			let newHeight = boxImage.height;
-			// Scale down if exceeding max bounds while maintaining aspect ratio
-			if (newWidth > maxWidth) {
-				newHeight = (newHeight * maxWidth) / newWidth;
-				newWidth = maxWidth;
-			}
-			if (newHeight > maxHeight) {
-				newWidth = (newWidth * maxHeight) / newHeight;
-				newHeight = maxHeight;
-			}
-			box.width = newWidth;
-			box.height = newHeight;
-			console.log('Box image loaded successfully: ' + box.width + 'x' + box.height);
-		};
-		boxImage.onerror = () => {
-			console.log('Failed to load box image, using fallback box');
-		};
-		boxImage.src = 'https://raw.githubusercontent.com/Cheatoid/nanos-world-vault/main/.resources/cheatoid-library.trim.png';
-
-		const onResize = () => {
-			resizeTimeout = clearTimeout(resizeTimeout);
-			resizeTimeout = setTimeout(afterResize, 1);
+		const setupResolution = (canvas) => {
+			canvas.width = //window.screen.width ||
+				window.innerWidth
+				|| document.documentElement.clientWidth
+				|| document.body.clientWidth; // document.width is obsolete
+			canvas.height = //window.screen.height ||
+				window.innerHeight
+				|| document.documentElement.clientHeight
+				|| document.body.clientHeight; // document.height is obsolete
 		};
 
-		const afterResize = () => {
-			if (paintRAF) {
-				window.cancelAnimationFrame(paintRAF);
-				paintRAF = false;
-			}
-			const oldWidth = canvas.width;
-			const oldHeight = canvas.height;
-			console.log('Old resolution was: ' + oldWidth + 'x' + oldHeight);
-			setupResolution(canvas);
-			console.log('Client resolution detected: ' + canvas.clientWidth + 'x' + canvas.clientHeight);
-			console.log('Offset resolution detected: ' + canvas.offsetWidth + 'x' + canvas.offsetHeight);
-			console.log('Canvas resolution detected: ' + canvas.width + 'x' + canvas.height);
-			// Keep box within bounds after resize
-			box.x = Math.min(box.x, canvas.width - box.width);
-			box.y = Math.min(box.y, canvas.height - box.height);
-			paintCanvas();
-		};
-
-		const updateBox = () => {
-			// Update position
-			box.x += box.vx;
-			box.y += box.vy;
-
-			// Bounce off walls
-			if (box.x <= 0 || box.x + box.width >= canvas.width) {
-				box.vx = -box.vx;
-				box.x = Math.max(0, Math.min(box.x, canvas.width - box.width));
-			}
-			if (box.y <= 0 || box.y + box.height >= canvas.height) {
-				box.vy = -box.vy;
-				box.y = Math.max(0, Math.min(box.y, canvas.height - box.height));
-			}
-		};
-
-		const drawBox = () => {
-			if (imageLoaded) {
-				// Draw the loaded image
-				context.drawImage(boxImage, box.x, box.y, box.width, box.height);
+		const onLoad = () => {
+			// Grab our canvas
+			const canvas = document.getElementById('canvas') || document.createElement('canvas');
+			if (!(canvas && canvas.getContext)) {
+				console.log('(ERROR) Your browser does not support HTML5 canvas!');
 				return;
 			}
 
-			// Glow/shadow effect (screensaver style)
-			context.shadowBlur = 20;
-			context.shadowColor = box.color;
+			// Initialize our canvas resolution and create the context
+			setupResolution(canvas);
+			const context = createCanvasContext(canvas);
 
-			// Draw filled box with gradient
-			const gradient = context.createLinearGradient(box.x, box.y, box.x + box.width, box.y + box.height);
-			gradient.addColorStop(0, box.color);
-			gradient.addColorStop(1, '#0077b6');
-			context.fillStyle = gradient;
-			context.fillRect(box.x, box.y, box.width, box.height);
+			// Polyfill for rAF/cAF functionality
+			window.requestAnimationFrame = window.requestAnimationFrame
+				|| window.mozRequestAnimationFrame
+				|| window.webkitRequestAnimationFrame
+				|| window.msRequestAnimationFrame
+				|| function (f) {
+					return setTimeout(f, FRAME_TIME);
+				};
+			window.cancelAnimationFrame = window.cancelAnimationFrame
+				|| window.mozCancelAnimationFrame
+				|| clearTimeout;
 
-			// Draw border
-			context.shadowBlur = 0;
-			context.lineWidth = 3;
-			context.strokeStyle = '#ffffff';
-			context.strokeRect(box.x, box.y, box.width, box.height);
+			let paintRAF = false;
+			let resizeTimeout;
 
-			// Draw inner highlight
-			context.lineWidth = 1;
-			context.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-			context.strokeRect(box.x + 4, box.y + 4, box.width - 8, box.height - 8);
+			// Bouncing box state
+			const box = {
+				x: 25,
+				y: 50,
+				width: 100,
+				height: 75,
+				vx: 3,
+				vy: 2,
+				color: '#00a8e8'
+			};
+
+			// Async image loader
+			const boxImage = new Image();
+			let imageLoaded = false;
+			boxImage.onload = () => {
+				imageLoaded = true;
+				// Set dimensions to natural image size, then clamp to max bounds
+				const maxWidth = 737;
+				const maxHeight = 264;
+				let newWidth = boxImage.width;
+				let newHeight = boxImage.height;
+				// Scale down if exceeding max bounds while maintaining aspect ratio
+				if (newWidth > maxWidth) {
+					newHeight = (newHeight * maxWidth) / newWidth;
+					newWidth = maxWidth;
+				}
+				if (newHeight > maxHeight) {
+					newWidth = (newWidth * maxHeight) / newHeight;
+					newHeight = maxHeight;
+				}
+				box.width = newWidth;
+				box.height = newHeight;
+				console.log('Box image loaded successfully: ' + box.width + 'x' + box.height);
+			};
+			boxImage.onerror = () => {
+				console.log('Failed to load box image, using fallback box');
+			};
+			boxImage.src = 'https://raw.githubusercontent.com/Cheatoid/nanos-world-vault/main/.resources/cheatoid-library.trim.png';
+
+			const onResize = () => {
+				resizeTimeout = clearTimeout(resizeTimeout);
+				resizeTimeout = setTimeout(afterResize, 1);
+			};
+
+			const afterResize = () => {
+				if (paintRAF) {
+					window.cancelAnimationFrame(paintRAF);
+					paintRAF = false;
+				}
+				const oldWidth = canvas.width;
+				const oldHeight = canvas.height;
+				console.log('Old resolution was: ' + oldWidth + 'x' + oldHeight);
+				setupResolution(canvas);
+				console.log('Client resolution detected: ' + canvas.clientWidth + 'x' + canvas.clientHeight);
+				console.log('Offset resolution detected: ' + canvas.offsetWidth + 'x' + canvas.offsetHeight);
+				console.log('Canvas resolution detected: ' + canvas.width + 'x' + canvas.height);
+				// Keep box within bounds after resize
+				box.x = Math.min(box.x, canvas.width - box.width);
+				box.y = Math.min(box.y, canvas.height - box.height);
+				paintCanvas();
+			};
+
+			const updateBox = () => {
+				// Update position
+				box.x += box.vx;
+				box.y += box.vy;
+
+				// Bounce off walls
+				if (box.x <= 0 || box.x + box.width >= canvas.width) {
+					box.vx = -box.vx;
+					box.x = Math.max(0, Math.min(box.x, canvas.width - box.width));
+				}
+				if (box.y <= 0 || box.y + box.height >= canvas.height) {
+					box.vy = -box.vy;
+					box.y = Math.max(0, Math.min(box.y, canvas.height - box.height));
+				}
+			};
+
+			const drawBox = () => {
+				if (imageLoaded) {
+					// Draw the loaded image
+					context.drawImage(boxImage, box.x, box.y, box.width, box.height);
+					return;
+				}
+
+				// Glow/shadow effect (screensaver style)
+				context.shadowBlur = 20;
+				context.shadowColor = box.color;
+
+				// Draw filled box with gradient
+				const gradient = context.createLinearGradient(box.x, box.y, box.x + box.width, box.y + box.height);
+				gradient.addColorStop(0, box.color);
+				gradient.addColorStop(1, '#0077b6');
+				context.fillStyle = gradient;
+				context.fillRect(box.x, box.y, box.width, box.height);
+
+				// Draw border
+				context.shadowBlur = 0;
+				context.lineWidth = 3;
+				context.strokeStyle = '#ffffff';
+				context.strokeRect(box.x, box.y, box.width, box.height);
+
+				// Draw inner highlight
+				context.lineWidth = 1;
+				context.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+				context.strokeRect(box.x + 4, box.y + 4, box.width - 8, box.height - 8);
+			};
+
+			const paintCanvas = () => {
+				context.clearRect(0, 0, canvas.width, canvas.height);
+				updateBox();
+				drawBox();
+				paintRAF = window.requestAnimationFrame(paintCanvas);
+			};
+
+			window.addEventListener('resize', onResize, false); //window.onresize = onResize;
+			paintCanvas();
+			console.log('Canvas setup completed.');
 		};
 
-		const paintCanvas = () => {
-			context.clearRect(0, 0, canvas.width, canvas.height);
-			updateBox();
-			drawBox();
-			paintRAF = window.requestAnimationFrame(paintCanvas);
-		};
-
-		window.addEventListener('resize', onResize, false); //window.onresize = onResize;
-		paintCanvas();
-		console.log('Canvas setup completed.');
-	};
-
-	window.addEventListener('load', onLoad, false); //window.onload = onLoad;
-</script>
+		window.addEventListener('load', onLoad, false); //window.onload = onLoad;
+	</script>
 </body>
 
 </html>

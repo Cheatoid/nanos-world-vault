@@ -18,7 +18,8 @@ License: MIT
 			box-sizing: border-box;
 		}
 
-		html, body {
+		html,
+		body {
 			height: 100%;
 			overflow: auto;
 			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -546,392 +547,372 @@ License: MIT
 		}
 	</style>
 </head>
+
 <body>
-<button class="settings-btn" id="settingsBtn">
-	<i class="fas fa-cog"></i>
-</button>
+	<button class="settings-btn" id="settingsBtn">
+		<i class="fas fa-cog"></i>
+	</button>
 
-<div class="container">
-	<div class="search-container">
-		<div class="search-box">
-			<input type="text" id="searchInput" placeholder="Search the web...">
-			<button id="searchBtn">
-				<i class="fas fa-search"></i>
+	<div class="container">
+		<div class="search-container">
+			<div class="search-box">
+				<input type="text" id="searchInput" placeholder="Search the web...">
+				<button id="searchBtn">
+					<i class="fas fa-search"></i>
+				</button>
+			</div>
+		</div>
+
+		<div class="quick-links" id="quickLinks">
+			<a href="https://github.com/Cheatoid/nanos-world-vault" class="quick-link">
+				<i class="fab fa-github"></i>
+				<span>Repository</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/2036/bootstrapper.html" class="quick-link">
+				<i class="fas fa-gamepad"></i>
+				<span>Neo Wars<br>(WIP)</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/ConsoleEngine.html"
+				class="quick-link">
+				<i class="fas fa-terminal"></i>
+				<span>Console (WIP)</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/imgui_web_demo/index.html" class="quick-link">
+				<i class="fas fa-layer-group"></i>
+				<span>ImGui (WebGPU)</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/NUI.html" class="quick-link">
+				<i class="fas fa-layer-group"></i>
+				<span>Basic NeoUI</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/AdminMenu.html" class="quick-link">
+				<i class="fas fa-shield-halved"></i>
+				<span>Admin Menu<br>(WIP)</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/SpawnMenu.html" class="quick-link">
+				<i class="fas fa-cubes"></i>
+				<span>Spawn Menu<br>(WIP)</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Constellation.html"
+				class="quick-link">
+				<i class="fas fa-star"></i>
+				<span>Constellation</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Cube3D.html" class="quick-link">
+				<i class="fas fa-cube"></i>
+				<span>Cube3D</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Fake3D.html" class="quick-link">
+				<i class="fas fa-cube"></i>
+				<span>Fake3D</span>
+			</a>
+			<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Transparent.html"
+				class="quick-link">
+				<span>Transparent</span>
+			</a>
+			<a href="https://browserleaks.com" class="quick-link">
+				<i class="fas fa-eye"></i>
+				<span>BrowserLeaks</span>
+			</a>
+			<a href="https://typescripttolua.github.io/play/" class="quick-link">
+				<i class="fas fa-code"></i>
+				<span>TypeScriptToLua<br>(playground)</span>
+			</a>
+			<a href="https://play.luau.org" class="quick-link">
+				<i class="fas fa-code"></i>
+				<span>Luau<br>(playground)</span>
+			</a>
+			<a href="https://iogames.space" class="quick-link">
+				<i class="fas fa-gamepad"></i>
+				<span>IO Games</span>
+			</a>
+			<a href="https://docs.nanos-world.com" class="quick-link">
+				<i class="fas fa-book"></i>
+				<span>nanos-world Docs</span>
+			</a>
+			<a href="https://feedback.nanos-world.com" class="quick-link">
+				<i class="fas fa-comments"></i>
+				<!--<i class="fas fa-comment-dots"></i>-->
+				<span>nanos-world Feedback</span>
+			</a>
+			<a href="https://discord.gg/nanos-world" class="quick-link">
+				<i class="fab fa-discord"></i>
+				<span>nanos-world Discord</span>
+			</a>
+			<a href="https://openrouter.ai/chat" class="quick-link">
+				<i class="fas fa-microchip"></i>
+				<span>OpenRouter<br>AI playground</span>
+			</a>
+			<a href="https://cloud.siliconflow.com/me/playground/chat" class="quick-link">
+				<i class="fas fa-microchip"></i>
+				<span>SiliconFlow</span>
+			</a>
+			<a href="https://chat.z.ai" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>Z.ai GLM</span>
+			</a>
+			<a href="https://chatgpt.com" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>ChatGPT</span>
+			</a>
+			<a href="https://gemini.google.com/app" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>Gemini</span>
+			</a>
+			<a href="https://copilot.microsoft.com" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>Microsoft Copilot</span>
+			</a>
+			<a href="https://www.kimi.com/?chat_enter_method=new_chat" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>Kimi</span>
+			</a>
+			<a href="https://chat.deepseek.com" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>DeepSeek</span>
+			</a>
+			<a href="https://chat.mistral.ai/chat" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>Mistral AI</span>
+			</a>
+			<a href="https://v0.app" class="quick-link">
+				<i class="fas fa-wand-magic-sparkles"></i>
+				<span>v0.dev</span>
+			</a>
+			<a href="https://replit.com" class="quick-link">
+				<i class="fas fa-terminal"></i>
+				<span>Replit</span>
+			</a>
+			<a href="https://app.blackbox.ai" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>Blackbox AI</span>
+			</a>
+			<a href="https://codepal.ai" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>CodePal AI</span>
+			</a>
+			<a href="https://duck.ai/chat" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>Duck AI</span>
+			</a>
+			<a href="https://www.easemate.ai/webapp/chat" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>EaseMate AI</span>
+			</a>
+			<a href="https://chat.novaapp.ai" class="quick-link">
+				<i class="fas fa-robot"></i>
+				<span>Nova AI</span>
+			</a>
+			<a href="https://visualgpt.io" class="quick-link">
+				<i class="fas fa-eye"></i>
+				<span>VisualGPT<br>(AI Image)</span>
+			</a>
+			<a href="https://app.heygen.com/apps/generate-b-roll" class="quick-link">
+				<i class="fas fa-video"></i>
+				<span>HeyGen<br>(AI Video)</span>
+			</a>
+			<a href="https://github.dev" class="quick-link">
+				<i class="fab fa-github"></i>
+				<span>GitHub.dev<br>(editor)</span>
+			</a>
+			<a href="https://vscode.dev" class="quick-link">
+				<i class="fas fa-code"></i>
+				<span>VSCode.dev<br>(editor)</span>
+			</a>
+			<a href="https://www.perplexity.ai" class="quick-link">
+				<i class="fas fa-brain"></i>
+				<span>Perplexity</span>
+			</a>
+			<a href="https://github.com" class="quick-link">
+				<i class="fab fa-github"></i>
+				<span>GitHub</span>
+			</a>
+			<a href="https://www.google.com" class="quick-link">
+				<i class="fab fa-google"></i>
+				<span>Google</span>
+			</a>
+			<a href="https://www.youtube.com" class="quick-link">
+				<i class="fab fa-youtube"></i>
+				<span>YouTube</span>
+			</a>
+			<a href="https://www.twitch.tv" class="quick-link">
+				<i class="fab fa-twitch"></i>
+				<span>Twitch</span>
+			</a>
+			<a href="https://www.reddit.com" class="quick-link">
+				<i class="fab fa-reddit"></i>
+				<span>Reddit</span>
+			</a>
+			<a href="https://x.com" class="quick-link">
+				<i class="fab fa-twitter"></i>
+				<span>X (Twitter)</span>
+			</a>
+		</div>
+	</div>
+
+	<div class="clock-container">
+		<div class="analog-clock">
+			<div class="hand hour-hand" id="hourHand"></div>
+			<div class="hand minute-hand" id="minuteHand"></div>
+			<div class="hand second-hand" id="secondHand"></div>
+		</div>
+		<div class="clock" id="clock">00:00:00</div>
+		<div class="date" id="date">Loading...</div>
+	</div>
+
+	<div class="settings-modal" id="settingsModal">
+		<div class="settings-modal-content">
+			<button class="close-btn" id="closeSettings">
+				<i class="fas fa-times"></i>
 			</button>
-		</div>
-	</div>
-
-	<div class="quick-links" id="quickLinks">
-		<a href="https://github.com/Cheatoid/nanos-world-vault" class="quick-link">
-			<i class="fab fa-github"></i>
-			<span>Repository</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/2036/bootstrapper.html" class="quick-link">
-			<i class="fas fa-gamepad"></i>
-			<span>Neo Wars<br>(WIP)</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/ConsoleEngine.html" class="quick-link">
-			<i class="fas fa-terminal"></i>
-			<span>Console (WIP)</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/imgui_web_demo/index.html" class="quick-link">
-			<i class="fas fa-layer-group"></i>
-			<span>ImGui (WebGPU)</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/NUI.html" class="quick-link">
-			<i class="fas fa-layer-group"></i>
-			<span>Basic NeoUI</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/AdminMenu.html" class="quick-link">
-			<i class="fas fa-shield-halved"></i>
-			<span>Admin Menu<br>(WIP)</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/SpawnMenu.html" class="quick-link">
-			<i class="fas fa-cubes"></i>
-			<span>Spawn Menu<br>(WIP)</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Constellation.html" class="quick-link">
-			<i class="fas fa-star"></i>
-			<span>Constellation</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Cube3D.html" class="quick-link">
-			<i class="fas fa-cube"></i>
-			<span>Cube3D</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Fake3D.html" class="quick-link">
-			<i class="fas fa-cube"></i>
-			<span>Fake3D</span>
-		</a>
-		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Transparent.html" class="quick-link">
-			<span>Transparent</span>
-		</a>
-		<a href="https://browserleaks.com" class="quick-link">
-			<i class="fas fa-eye"></i>
-			<span>BrowserLeaks</span>
-		</a>
-		<a href="https://typescripttolua.github.io/play/" class="quick-link">
-			<i class="fas fa-code"></i>
-			<span>TypeScriptToLua<br>(playground)</span>
-		</a>
-		<a href="https://play.luau.org" class="quick-link">
-			<i class="fas fa-code"></i>
-			<span>Luau<br>(playground)</span>
-		</a>
-		<a href="https://iogames.space" class="quick-link">
-			<i class="fas fa-gamepad"></i>
-			<span>IO Games</span>
-		</a>
-		<a href="https://docs.nanos-world.com" class="quick-link">
-			<i class="fas fa-book"></i>
-			<span>nanos-world Docs</span>
-		</a>
-		<a href="https://feedback.nanos-world.com" class="quick-link">
-			<i class="fas fa-comments"></i>
-			<!--<i class="fas fa-comment-dots"></i>-->
-			<span>nanos-world Feedback</span>
-		</a>
-		<a href="https://discord.gg/nanos-world" class="quick-link">
-			<i class="fab fa-discord"></i>
-			<span>nanos-world Discord</span>
-		</a>
-		<a href="https://openrouter.ai/chat" class="quick-link">
-			<i class="fas fa-microchip"></i>
-			<span>OpenRouter<br>AI playground</span>
-		</a>
-		<a href="https://cloud.siliconflow.com/me/playground/chat" class="quick-link">
-			<i class="fas fa-microchip"></i>
-			<span>SiliconFlow</span>
-		</a>
-		<a href="https://chat.z.ai" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>Z.ai GLM</span>
-		</a>
-		<a href="https://chatgpt.com" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>ChatGPT</span>
-		</a>
-		<a href="https://gemini.google.com/app" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>Gemini</span>
-		</a>
-		<a href="https://copilot.microsoft.com" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>Microsoft Copilot</span>
-		</a>
-		<a href="https://www.kimi.com/?chat_enter_method=new_chat" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>Kimi</span>
-		</a>
-		<a href="https://chat.deepseek.com" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>DeepSeek</span>
-		</a>
-		<a href="https://chat.mistral.ai/chat" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>Mistral AI</span>
-		</a>
-		<a href="https://v0.app" class="quick-link">
-			<i class="fas fa-wand-magic-sparkles"></i>
-			<span>v0.dev</span>
-		</a>
-		<a href="https://replit.com" class="quick-link">
-			<i class="fas fa-terminal"></i>
-			<span>Replit</span>
-		</a>
-		<a href="https://app.blackbox.ai" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>Blackbox AI</span>
-		</a>
-		<a href="https://codepal.ai" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>CodePal AI</span>
-		</a>
-		<a href="https://duck.ai/chat" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>Duck AI</span>
-		</a>
-		<a href="https://www.easemate.ai/webapp/chat" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>EaseMate AI</span>
-		</a>
-		<a href="https://chat.novaapp.ai" class="quick-link">
-			<i class="fas fa-robot"></i>
-			<span>Nova AI</span>
-		</a>
-		<a href="https://visualgpt.io" class="quick-link">
-			<i class="fas fa-eye"></i>
-			<span>VisualGPT<br>(AI Image)</span>
-		</a>
-		<a href="https://app.heygen.com/apps/generate-b-roll" class="quick-link">
-			<i class="fas fa-video"></i>
-			<span>HeyGen<br>(AI Video)</span>
-		</a>
-		<a href="https://github.dev" class="quick-link">
-			<i class="fab fa-github"></i>
-			<span>GitHub.dev<br>(editor)</span>
-		</a>
-		<a href="https://vscode.dev" class="quick-link">
-			<i class="fas fa-code"></i>
-			<span>VSCode.dev<br>(editor)</span>
-		</a>
-		<a href="https://www.perplexity.ai" class="quick-link">
-			<i class="fas fa-brain"></i>
-			<span>Perplexity</span>
-		</a>
-		<a href="https://github.com" class="quick-link">
-			<i class="fab fa-github"></i>
-			<span>GitHub</span>
-		</a>
-		<a href="https://www.google.com" class="quick-link">
-			<i class="fab fa-google"></i>
-			<span>Google</span>
-		</a>
-		<a href="https://www.youtube.com" class="quick-link">
-			<i class="fab fa-youtube"></i>
-			<span>YouTube</span>
-		</a>
-		<a href="https://www.twitch.tv" class="quick-link">
-			<i class="fab fa-twitch"></i>
-			<span>Twitch</span>
-		</a>
-		<a href="https://www.reddit.com" class="quick-link">
-			<i class="fab fa-reddit"></i>
-			<span>Reddit</span>
-		</a>
-		<a href="https://x.com" class="quick-link">
-			<i class="fab fa-twitter"></i>
-			<span>X (Twitter)</span>
-		</a>
-	</div>
-</div>
-
-<div class="clock-container">
-	<div class="analog-clock">
-		<div class="hand hour-hand" id="hourHand"></div>
-		<div class="hand minute-hand" id="minuteHand"></div>
-		<div class="hand second-hand" id="secondHand"></div>
-	</div>
-	<div class="clock" id="clock">00:00:00</div>
-	<div class="date" id="date">Loading...</div>
-</div>
-
-<div class="settings-modal" id="settingsModal">
-	<div class="settings-modal-content">
-		<button class="close-btn" id="closeSettings">
-			<i class="fas fa-times"></i>
-		</button>
-		<h2>Settings</h2>
-		<div class="settings-tabs">
-			<div class="settings-tab active" data-tab="background">Background</div>
-			<div class="settings-tab" data-tab="scrollbar">Scrollbar</div>
-		</div>
-		<div class="settings-tab-content active" id="backgroundTab">
-			<div class="settings-group">
-				<label>Background Type</label>
-				<div class="bg-type-selector">
-					<label class="bg-type-option active" id="gradientOption">
-						<input type="radio" name="bgType" value="gradient" checked>
-						Gradient
-					</label>
-					<label class="bg-type-option" id="imageOption">
-						<input type="radio" name="bgType" value="image">
-						Image
-					</label>
-				</div>
+			<h2>Settings</h2>
+			<div class="settings-tabs">
+				<div class="settings-tab active" data-tab="background">Background</div>
+				<div class="settings-tab" data-tab="scrollbar">Scrollbar</div>
 			</div>
-			<div id="gradientSettings">
+			<div class="settings-tab-content active" id="backgroundTab">
 				<div class="settings-group">
-					<label>Background Color 1</label>
-					<input type="color" id="bgColor1" value="#402040">
+					<label>Background Type</label>
+					<div class="bg-type-selector">
+						<label class="bg-type-option active" id="gradientOption">
+							<input type="radio" name="bgType" value="gradient" checked>
+							Gradient
+						</label>
+						<label class="bg-type-option" id="imageOption">
+							<input type="radio" name="bgType" value="image">
+							Image
+						</label>
+					</div>
+				</div>
+				<div id="gradientSettings">
+					<div class="settings-group">
+						<label>Background Color 1</label>
+						<input type="color" id="bgColor1" value="#402040">
+					</div>
+					<div class="settings-group">
+						<label>Background Color 2</label>
+						<input type="color" id="bgColor2" value="#203558">
+					</div>
+					<div class="settings-group">
+						<label>Background Color 3</label>
+						<input type="color" id="bgColor3" value="#106464">
+					</div>
+					<div class="settings-group">
+						<label>Gradient Angle: <span id="angleValue">135</span>°</label>
+						<input type="range" id="gradientAngle" min="0" max="360" value="135">
+					</div>
 				</div>
 				<div class="settings-group">
-					<label>Background Color 2</label>
-					<input type="color" id="bgColor2" value="#203558">
+					<label>Accent Color</label>
+					<input type="color" id="accentColor" value="#ff205a">
+				</div>
+				<div class="settings-group image-url-input" id="imageSettings">
+					<label>Background Image URL</label>
+					<input type="text" id="bgImageUrl" placeholder="https://example.com/image.jpg">
 				</div>
 				<div class="settings-group">
-					<label>Background Color 3</label>
-					<input type="color" id="bgColor3" value="#106464">
+					<label>Quick Links Visibility</label>
+					<div class="quick-links-settings" id="quickLinksSettings"></div>
 				</div>
 				<div class="settings-group">
-					<label>Gradient Angle: <span id="angleValue">135</span>°</label>
-					<input type="range" id="gradientAngle" min="0" max="360" value="135">
+					<div class="quick-link-toggle">
+						<input type="checkbox" id="useLocalFiles">
+						<label for="useLocalFiles">Use local HTML files for quick-links</label>
+					</div>
 				</div>
 			</div>
-			<div class="settings-group">
-				<label>Accent Color</label>
-				<input type="color" id="accentColor" value="#ff205a">
-			</div>
-			<div class="settings-group image-url-input" id="imageSettings">
-				<label>Background Image URL</label>
-				<input type="text" id="bgImageUrl" placeholder="https://example.com/image.jpg">
-			</div>
-			<div class="settings-group">
-				<label>Quick Links Visibility</label>
-				<div class="quick-links-settings" id="quickLinksSettings"></div>
-			</div>
-			<div class="settings-group">
-				<div class="quick-link-toggle">
-					<input type="checkbox" id="useLocalFiles">
-					<label for="useLocalFiles">Use local HTML files for quick-links</label>
+			<div class="settings-tab-content" id="scrollbarTab">
+				<div class="settings-group">
+					<label>Scrollbar Width: <span id="scrollbarWidthValue">8</span>px</label>
+					<input type="range" id="scrollbarWidth" min="4" max="20" value="8">
+				</div>
+				<div class="settings-group">
+					<label>Scrollbar Track Color</label>
+					<input type="color" id="scrollbarTrackColor" value="#1a1a2e">
+				</div>
+				<div class="settings-group">
+					<label>Scrollbar Thumb Color</label>
+					<input type="color" id="scrollbarThumbColor" value="#ff1f5a">
+				</div>
+				<div class="settings-group">
+					<label>Scrollbar Thumb Hover Color</label>
+					<input type="color" id="scrollbarThumbHoverColor" value="#ff3f7a">
+				</div>
+				<div class="settings-group">
+					<label>Scrollbar Border Radius: <span id="scrollbarRadiusValue">0</span>px</label>
+					<input type="range" id="scrollbarRadius" min="0" max="10" value="0">
 				</div>
 			</div>
 		</div>
-		<div class="settings-tab-content" id="scrollbarTab">
-			<div class="settings-group">
-				<label>Scrollbar Width: <span id="scrollbarWidthValue">8</span>px</label>
-				<input type="range" id="scrollbarWidth" min="4" max="20" value="8">
-			</div>
-			<div class="settings-group">
-				<label>Scrollbar Track Color</label>
-				<input type="color" id="scrollbarTrackColor" value="#1a1a2e">
-			</div>
-			<div class="settings-group">
-				<label>Scrollbar Thumb Color</label>
-				<input type="color" id="scrollbarThumbColor" value="#ff1f5a">
-			</div>
-			<div class="settings-group">
-				<label>Scrollbar Thumb Hover Color</label>
-				<input type="color" id="scrollbarThumbHoverColor" value="#ff3f7a">
-			</div>
-			<div class="settings-group">
-				<label>Scrollbar Border Radius: <span id="scrollbarRadiusValue">0</span>px</label>
-				<input type="range" id="scrollbarRadius" min="0" max="10" value="0">
-			</div>
+		<div class="settings-buttons">
+			<button class="reset-btn" id="resetSettings">Reset to Default</button>
+			<button class="save-btn" id="saveSettings">Save Settings</button>
 		</div>
 	</div>
-	<div class="settings-buttons">
-		<button class="reset-btn" id="resetSettings">Reset to Default</button>
-		<button class="save-btn" id="saveSettings">Save Settings</button>
-	</div>
-</div>
 
-<script>
-	// Constants
-	const REMOTE_BASE_URL = 'https://cheatoid.github.io/nanos-world-vault/library/Client/';
+	<script>
+		// Constants
+		const REMOTE_BASE_URL = 'https://cheatoid.github.io/nanos-world-vault/library/Client/';
 
-	// Clock
-	function updateClock() {
-		const now = new Date();
-		const hours = String(now.getHours()).padStart(2, '0');
-		const minutes = String(now.getMinutes()).padStart(2, '0');
-		const seconds = String(now.getSeconds()).padStart(2, '0');
-		document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+		// Clock
+		function updateClock() {
+			const now = new Date();
+			const hours = String(now.getHours()).padStart(2, '0');
+			const minutes = String(now.getMinutes()).padStart(2, '0');
+			const seconds = String(now.getSeconds()).padStart(2, '0');
+			document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
 
-		const options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
-		document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+			const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+			document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
 
-		// Update analog clock
-		const hourDeg = (now.getHours() % 12) * 30 + now.getMinutes() * 0.5;
-		const minuteDeg = now.getMinutes() * 6 + now.getSeconds() * 0.1;
-		const secondDeg = now.getSeconds() * 6;
+			// Update analog clock
+			const hourDeg = (now.getHours() % 12) * 30 + now.getMinutes() * 0.5;
+			const minuteDeg = now.getMinutes() * 6 + now.getSeconds() * 0.1;
+			const secondDeg = now.getSeconds() * 6;
 
-		document.getElementById('hourHand').style.transform = `rotate(${hourDeg}deg)`;
-		document.getElementById('minuteHand').style.transform = `rotate(${minuteDeg}deg)`;
-		document.getElementById('secondHand').style.transform = `rotate(${secondDeg}deg)`;
-	}
+			document.getElementById('hourHand').style.transform = `rotate(${hourDeg}deg)`;
+			document.getElementById('minuteHand').style.transform = `rotate(${minuteDeg}deg)`;
+			document.getElementById('secondHand').style.transform = `rotate(${secondDeg}deg)`;
+		}
 
-	updateClock();
-	setInterval(updateClock, 1000);
+		updateClock();
+		setInterval(updateClock, 1000);
 
-	// Search
-	const searchInput = document.getElementById('searchInput');
-	const searchBtn = document.getElementById('searchBtn');
+		// Search
+		const searchInput = document.getElementById('searchInput');
+		const searchBtn = document.getElementById('searchBtn');
 
-	function performSearch() {
-		const query = searchInput.value.trim();
-		if (query) {
-			// Check if it's a valid URL, otherwise use DuckDuckGo search
-			let url;
-			if (query.startsWith('http://') || query.startsWith('https://') || query.includes('://')) {
-				url = query;
-			} else if ((query.includes('.') || query.includes('/')) && !query.includes(' ')) {
-				url = `https://${query}`;
-			} else {
-				// Use DuckDuckGo search
-				url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
-			}
-			if (typeof Events !== 'undefined') {
-				Events.Call('Navigate', url);
-			} else {
-				window.location.href = url;
+		function performSearch() {
+			const query = searchInput.value.trim();
+			if (query) {
+				// Check if it's a valid URL, otherwise use DuckDuckGo search
+				let url;
+				if (query.startsWith('http://') || query.startsWith('https://') || query.includes('://')) {
+					url = query;
+				} else if ((query.includes('.') || query.includes('/')) && !query.includes(' ')) {
+					url = `https://${query}`;
+				} else {
+					// Use DuckDuckGo search
+					url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+				}
+				if (typeof Events !== 'undefined') {
+					Events.Call('Navigate', url);
+				} else {
+					window.location.href = url;
+				}
 			}
 		}
-	}
 
-	searchBtn.addEventListener('click', performSearch);
-	searchInput.addEventListener('keypress', (e) => {
-		if (e.key === 'Enter') performSearch();
-	});
-
-	// Quick links
-	document.querySelectorAll('.quick-link').forEach(link => {
-		// Left click - navigate in current tab
-		link.addEventListener('click', (e) => {
-			e.stopPropagation(); // Prevent injected JS from handling this click
-			let targetUrl = String(link.href);
-			// Convert remote URLs to local file:// URLs if setting is enabled
-			if (useLocalFiles && targetUrl.startsWith(REMOTE_BASE_URL)) {
-				const relativePath = targetUrl.substring(REMOTE_BASE_URL.length);
-				targetUrl = 'file://' + relativePath;
-			}
-			// Only convert local file:// URLs to remote URLs for GitHub Pages when not using local files
-			if (!useLocalFiles && targetUrl.startsWith('file://')) {
-				targetUrl = REMOTE_BASE_URL + targetUrl.substring(7);
-			}
-			if (typeof Events !== 'undefined') {
-				e.preventDefault();
-				Events.Call('Navigate', targetUrl);
-			} else {
-				e.preventDefault();
-				window.location.href = targetUrl;
-			}
+		searchBtn.addEventListener('click', performSearch);
+		searchInput.addEventListener('keypress', (e) => {
+			if (e.key === 'Enter') performSearch();
 		});
 
-		// Middle click - open in new tab
-		link.addEventListener('auxclick', (e) => {
-			if (e.button === 1) { // Middle mouse button
-				e.stopPropagation();
-				e.preventDefault();
+		// Quick links
+		document.querySelectorAll('.quick-link').forEach(link => {
+			// Left click - navigate in current tab
+			link.addEventListener('click', (e) => {
+				e.stopPropagation(); // Prevent injected JS from handling this click
 				let targetUrl = String(link.href);
 				// Convert remote URLs to local file:// URLs if setting is enabled
 				if (useLocalFiles && targetUrl.startsWith(REMOTE_BASE_URL)) {
@@ -943,57 +924,81 @@ License: MIT
 					targetUrl = REMOTE_BASE_URL + targetUrl.substring(7);
 				}
 				if (typeof Events !== 'undefined') {
-					Events.Call('OpenInNewTab', targetUrl);
+					e.preventDefault();
+					Events.Call('Navigate', targetUrl);
+				} else {
+					e.preventDefault();
+					window.location.href = targetUrl;
 				}
-			}
+			});
+
+			// Middle click - open in new tab
+			link.addEventListener('auxclick', (e) => {
+				if (e.button === 1) { // Middle mouse button
+					e.stopPropagation();
+					e.preventDefault();
+					let targetUrl = String(link.href);
+					// Convert remote URLs to local file:// URLs if setting is enabled
+					if (useLocalFiles && targetUrl.startsWith(REMOTE_BASE_URL)) {
+						const relativePath = targetUrl.substring(REMOTE_BASE_URL.length);
+						targetUrl = 'file://' + relativePath;
+					}
+					// Only convert local file:// URLs to remote URLs for GitHub Pages when not using local files
+					if (!useLocalFiles && targetUrl.startsWith('file://')) {
+						targetUrl = REMOTE_BASE_URL + targetUrl.substring(7);
+					}
+					if (typeof Events !== 'undefined') {
+						Events.Call('OpenInNewTab', targetUrl);
+					}
+				}
+			});
 		});
-	});
 
-	// Settings
-	const settingsBtn = document.getElementById('settingsBtn');
-	const settingsModal = document.getElementById('settingsModal');
-	const closeSettings = document.getElementById('closeSettings');
-	const saveSettings = document.getElementById('saveSettings');
-	const resetSettings = document.getElementById('resetSettings');
+		// Settings
+		const settingsBtn = document.getElementById('settingsBtn');
+		const settingsModal = document.getElementById('settingsModal');
+		const closeSettings = document.getElementById('closeSettings');
+		const saveSettings = document.getElementById('saveSettings');
+		const resetSettings = document.getElementById('resetSettings');
 
-	// Default settings
-	const defaultSettings = {
-		bgType: 'gradient',
-		bgColor1: '#402040',
-		bgColor2: '#203558',
-		bgColor3: '#106464',
-		gradientAngle: 135,
-		bgImageUrl: '',
-		accentColor: '#ff205a',
-		quickLinksVisibility: {},
-		useLocalFiles: false,
-		scrollbarWidth: 8,
-		scrollbarTrackColor: '#1a1a2e',
-		scrollbarThumbColor: '#ff1f5a',
-		scrollbarThumbHoverColor: '#ff3f7a',
-		scrollbarRadius: 0
-	};
+		// Default settings
+		const defaultSettings = {
+			bgType: 'gradient',
+			bgColor1: '#402040',
+			bgColor2: '#203558',
+			bgColor3: '#106464',
+			gradientAngle: 135,
+			bgImageUrl: '',
+			accentColor: '#ff205a',
+			quickLinksVisibility: {},
+			useLocalFiles: false,
+			scrollbarWidth: 8,
+			scrollbarTrackColor: '#1a1a2e',
+			scrollbarThumbColor: '#ff1f5a',
+			scrollbarThumbHoverColor: '#ff3f7a',
+			scrollbarRadius: 0
+		};
 
-	// Use local files state
-	let useLocalFiles = false;
+		// Use local files state
+		let useLocalFiles = false;
 
-	// Quick links visibility state
-	let quickLinksVisibility = {};
+		// Quick links visibility state
+		let quickLinksVisibility = {};
 
-	// Scrollbar settings state
-	let scrollbarSettings = {
-		width: 8,
-		trackColor: '#1a1a2e',
-		thumbColor: '#ff1f5a',
-		thumbHoverColor: '#ff3f7a',
-		radius: 4
-	};
+		// Scrollbar settings state
+		let scrollbarSettings = {
+			width: 8,
+			trackColor: '#1a1a2e',
+			thumbColor: '#ff1f5a',
+			thumbHoverColor: '#ff3f7a',
+			radius: 4
+		};
 
-	// Function to apply scrollbar styles
-	function applyScrollbarStyles() {
-		const style = document.createElement('style');
-		style.id = 'custom-scrollbar';
-		style.textContent = `
+		// Function to apply scrollbar styles
+		function applyScrollbarStyles() {
+			const style = document.createElement('style');
+			style.id = 'custom-scrollbar';
+			style.textContent = `
 			::-webkit-scrollbar {
 				width: ${scrollbarSettings.width}px;
 			}
@@ -1009,402 +1014,259 @@ License: MIT
 				background: ${scrollbarSettings.thumbHoverColor};
 			}
 		`;
-		const existingStyle = document.getElementById('custom-scrollbar');
-		if (existingStyle) {
-			existingStyle.remove();
+			const existingStyle = document.getElementById('custom-scrollbar');
+			if (existingStyle) {
+				existingStyle.remove();
+			}
+			document.head.appendChild(style);
 		}
-		document.head.appendChild(style);
-	}
 
-	// Function to generate a stable ID from URL
-	function getLinkIdFromUrl(url) {
-		// Create a simple hash from the URL for stable ID generation
-		let hash = 0;
-		for (let i = 0; i < url.length; i++) {
-			const char = url.charCodeAt(i);
-			hash = ((hash << 5) - hash) + char;
-			hash = hash & hash; // Convert to 32bit integer
+		// Function to generate a stable ID from URL
+		function getLinkIdFromUrl(url) {
+			// Create a simple hash from the URL for stable ID generation
+			let hash = 0;
+			for (let i = 0; i < url.length; i++) {
+				const char = url.charCodeAt(i);
+				hash = ((hash << 5) - hash) + char;
+				hash = hash & hash; // Convert to 32bit integer
+			}
+			return `link_${Math.abs(hash)}`;
 		}
-		return `link_${Math.abs(hash)}`;
-	}
 
-	// Function to render quick links visibility toggles
-	function renderQuickLinksSettings() {
-		quickLinksSettings.innerHTML = '';
-		const quickLinks = document.querySelectorAll('.quick-link');
-		quickLinks.forEach((link) => {
-			const label = link.querySelector('span').textContent.replace(/\n/g, ' ').trim();
-			const href = link.href;
-			const linkId = getLinkIdFromUrl(href);
-			const isVisible = quickLinksVisibility[linkId] !== false; // Default to visible
+		// Function to render quick links visibility toggles
+		function renderQuickLinksSettings() {
+			quickLinksSettings.innerHTML = '';
+			const quickLinks = document.querySelectorAll('.quick-link');
+			quickLinks.forEach((link) => {
+				const label = link.querySelector('span').textContent.replace(/\n/g, ' ').trim();
+				const href = link.href;
+				const linkId = getLinkIdFromUrl(href);
+				const isVisible = quickLinksVisibility[linkId] !== false; // Default to visible
 
-			const toggle = document.createElement('div');
-			toggle.className = 'quick-link-toggle';
-			toggle.innerHTML = `
+				const toggle = document.createElement('div');
+				toggle.className = 'quick-link-toggle';
+				toggle.innerHTML = `
 				<input type="checkbox" id="${linkId}" ${isVisible ? 'checked' : ''}>
 				<label for="${linkId}">${label}</label>
 			`;
-			quickLinksSettings.appendChild(toggle);
+				quickLinksSettings.appendChild(toggle);
 
-			// Add event listener to checkbox
-			const checkbox = toggle.querySelector('input');
-			checkbox.addEventListener('change', (e) => {
-				quickLinksVisibility[linkId] = e.target.checked;
-				updateQuickLinksVisibility();
-			});
-
-			// Add click handler to the entire toggle div for better responsiveness
-			toggle.addEventListener('click', (e) => {
-				if (e.target !== checkbox) {
-					checkbox.checked = !checkbox.checked;
-					quickLinksVisibility[linkId] = checkbox.checked;
+				// Add event listener to checkbox
+				const checkbox = toggle.querySelector('input');
+				checkbox.addEventListener('change', (e) => {
+					quickLinksVisibility[linkId] = e.target.checked;
 					updateQuickLinksVisibility();
-				}
+				});
+
+				// Add click handler to the entire toggle div for better responsiveness
+				toggle.addEventListener('click', (e) => {
+					if (e.target !== checkbox) {
+						checkbox.checked = !checkbox.checked;
+						quickLinksVisibility[linkId] = checkbox.checked;
+						updateQuickLinksVisibility();
+					}
+				});
 			});
-		});
-	}
+		}
 
-	// Function to update quick links visibility on the page
-	function updateQuickLinksVisibility() {
-		const quickLinks = document.querySelectorAll('.quick-link');
-		quickLinks.forEach((link) => {
-			const linkId = getLinkIdFromUrl(link.href);
-			const isVisible = quickLinksVisibility[linkId] !== false;
-			link.style.display = isVisible ? 'flex' : 'none';
-		});
-	}
+		// Function to update quick links visibility on the page
+		function updateQuickLinksVisibility() {
+			const quickLinks = document.querySelectorAll('.quick-link');
+			quickLinks.forEach((link) => {
+				const linkId = getLinkIdFromUrl(link.href);
+				const isVisible = quickLinksVisibility[linkId] !== false;
+				link.style.display = isVisible ? 'flex' : 'none';
+			});
+		}
 
-	// Gradient angle slider
-	const gradientAngle = document.getElementById('gradientAngle');
-	const angleValue = document.getElementById('angleValue');
-	const bgColor1 = document.getElementById('bgColor1');
-	const bgColor2 = document.getElementById('bgColor2');
-	const bgColor3 = document.getElementById('bgColor3');
-	const accentColor = document.getElementById('accentColor');
-	const bgImageUrl = document.getElementById('bgImageUrl');
-	const gradientOption = document.getElementById('gradientOption');
-	const imageOption = document.getElementById('imageOption');
-	const gradientSettings = document.getElementById('gradientSettings');
-	const imageSettings = document.getElementById('imageSettings');
-	const quickLinksSettings = document.getElementById('quickLinksSettings');
-	const useLocalFilesCheckbox = document.getElementById('useLocalFiles');
+		// Gradient angle slider
+		const gradientAngle = document.getElementById('gradientAngle');
+		const angleValue = document.getElementById('angleValue');
+		const bgColor1 = document.getElementById('bgColor1');
+		const bgColor2 = document.getElementById('bgColor2');
+		const bgColor3 = document.getElementById('bgColor3');
+		const accentColor = document.getElementById('accentColor');
+		const bgImageUrl = document.getElementById('bgImageUrl');
+		const gradientOption = document.getElementById('gradientOption');
+		const imageOption = document.getElementById('imageOption');
+		const gradientSettings = document.getElementById('gradientSettings');
+		const imageSettings = document.getElementById('imageSettings');
+		const quickLinksSettings = document.getElementById('quickLinksSettings');
+		const useLocalFilesCheckbox = document.getElementById('useLocalFiles');
 
-	// Scrollbar controls
-	const scrollbarWidth = document.getElementById('scrollbarWidth');
-	const scrollbarWidthValue = document.getElementById('scrollbarWidthValue');
-	const scrollbarTrackColor = document.getElementById('scrollbarTrackColor');
-	const scrollbarThumbColor = document.getElementById('scrollbarThumbColor');
-	const scrollbarThumbHoverColor = document.getElementById('scrollbarThumbHoverColor');
-	const scrollbarRadius = document.getElementById('scrollbarRadius');
-	const scrollbarRadiusValue = document.getElementById('scrollbarRadiusValue');
+		// Scrollbar controls
+		const scrollbarWidth = document.getElementById('scrollbarWidth');
+		const scrollbarWidthValue = document.getElementById('scrollbarWidthValue');
+		const scrollbarTrackColor = document.getElementById('scrollbarTrackColor');
+		const scrollbarThumbColor = document.getElementById('scrollbarThumbColor');
+		const scrollbarThumbHoverColor = document.getElementById('scrollbarThumbHoverColor');
+		const scrollbarRadius = document.getElementById('scrollbarRadius');
+		const scrollbarRadiusValue = document.getElementById('scrollbarRadiusValue');
 
-	// Background type selection
-	let currentBgType = 'gradient';
+		// Background type selection
+		let currentBgType = 'gradient';
 
-	// Function to update background in real-time
-	function updateBackground() {
-		if (currentBgType === 'gradient') {
-			const angle = gradientAngle.value;
-			const bg1 = bgColor1.value;
-			const bg2 = bgColor2.value;
-			const bg3 = bgColor3.value;
-			document.body.style.background = `linear-gradient(${angle}deg, ${bg1} 0%, ${bg2} 50%, ${bg3} 100%)`;
-		} else if (currentBgType === 'image') {
-			const url = bgImageUrl.value.trim();
-			if (url) {
-				document.body.style.background = `url('${url}') center center / cover no-repeat fixed`;
-			} else {
-				// Fallback to default gradient if no URL provided
-				document.body.style.background = `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`;
+		// Function to update background in real-time
+		function updateBackground() {
+			if (currentBgType === 'gradient') {
+				const angle = gradientAngle.value;
+				const bg1 = bgColor1.value;
+				const bg2 = bgColor2.value;
+				const bg3 = bgColor3.value;
+				document.body.style.background = `linear-gradient(${angle}deg, ${bg1} 0%, ${bg2} 50%, ${bg3} 100%)`;
+			} else if (currentBgType === 'image') {
+				const url = bgImageUrl.value.trim();
+				if (url) {
+					document.body.style.background = `url('${url}') center center / cover no-repeat fixed`;
+				} else {
+					// Fallback to default gradient if no URL provided
+					document.body.style.background = `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`;
+				}
 			}
 		}
-	}
 
-	// Real-time preview for gradient angle
-	gradientAngle.addEventListener('input', () => {
-		angleValue.textContent = gradientAngle.value;
-		updateBackground();
-	});
-
-	// Background type switching
-	gradientOption.addEventListener('click', () => {
-		currentBgType = 'gradient';
-		gradientOption.classList.add('active');
-		imageOption.classList.remove('active');
-		gradientSettings.style.display = 'block';
-		imageSettings.classList.remove('active');
-		updateBackground();
-	});
-
-	imageOption.addEventListener('click', () => {
-		currentBgType = 'image';
-		imageOption.classList.add('active');
-		gradientOption.classList.remove('active');
-		gradientSettings.style.display = 'none';
-		imageSettings.classList.add('active');
-		updateBackground();
-	});
-
-	// Real-time preview for background image URL
-	bgImageUrl.addEventListener('input', () => {
-		if (currentBgType === 'image') {
+		// Real-time preview for gradient angle
+		gradientAngle.addEventListener('input', () => {
+			angleValue.textContent = gradientAngle.value;
 			updateBackground();
-		}
-	});
-
-	// Prevent click propagation on inputs to avoid modal closing
-	bgColor1.addEventListener('click', (e) => e.stopPropagation());
-	bgColor2.addEventListener('click', (e) => e.stopPropagation());
-	bgColor3.addEventListener('click', (e) => e.stopPropagation());
-	gradientAngle.addEventListener('click', (e) => e.stopPropagation());
-	accentColor.addEventListener('click', (e) => e.stopPropagation());
-	bgImageUrl.addEventListener('click', (e) => e.stopPropagation());
-	gradientOption.addEventListener('click', (e) => e.stopPropagation());
-	imageOption.addEventListener('click', (e) => e.stopPropagation());
-
-	// Prevent click propagation on buttons
-	saveSettings.addEventListener('click', (e) => e.stopPropagation());
-	resetSettings.addEventListener('click', (e) => e.stopPropagation());
-	closeSettings.addEventListener('click', (e) => e.stopPropagation());
-	useLocalFilesCheckbox.addEventListener('click', (e) => e.stopPropagation());
-
-	// Tab switching
-	const settingsTabs = document.querySelectorAll('.settings-tab');
-	const tabContents = document.querySelectorAll('.settings-tab-content');
-
-	settingsTabs.forEach(tab => {
-		tab.addEventListener('click', () => {
-			const targetTab = tab.dataset.tab;
-			settingsTabs.forEach(t => t.classList.remove('active'));
-			tabContents.forEach(c => c.classList.remove('active'));
-			tab.classList.add('active');
-			document.getElementById(targetTab + 'Tab').classList.add('active');
 		});
-	});
 
-	// Update useLocalFiles state when checkbox changes
-	useLocalFilesCheckbox.addEventListener('change', (e) => {
-		useLocalFiles = e.target.checked;
-	});
-
-	// Add click handler to the entire toggle div for better responsiveness
-	useLocalFilesCheckbox.parentElement.addEventListener('click', (e) => {
-		// Only toggle if clicking on the container itself (not checkbox or label)
-		if (e.target === useLocalFilesCheckbox.parentElement) {
-			useLocalFilesCheckbox.checked = !useLocalFilesCheckbox.checked;
-			useLocalFiles = useLocalFilesCheckbox.checked;
-		}
-	});
-
-	// Prevent click propagation on modal content
-	document.querySelectorAll('.settings-group, .settings-buttons, h2, .settings-tabs, .settings-tab, .settings-tab-content, .settings-modal-content').forEach(el => {
-		el.addEventListener('click', (e) => e.stopPropagation());
-	});
-
-	// Real-time preview for background colors
-	bgColor1.addEventListener('input', updateBackground);
-	bgColor2.addEventListener('input', updateBackground);
-	bgColor3.addEventListener('input', updateBackground);
-
-	// Real-time preview for scrollbar settings
-	scrollbarWidth.addEventListener('input', () => {
-		scrollbarWidthValue.textContent = scrollbarWidth.value;
-		scrollbarSettings.width = parseInt(scrollbarWidth.value);
-		applyScrollbarStyles();
-	});
-
-	scrollbarTrackColor.addEventListener('input', () => {
-		scrollbarSettings.trackColor = scrollbarTrackColor.value;
-		applyScrollbarStyles();
-	});
-
-	scrollbarThumbColor.addEventListener('input', () => {
-		scrollbarSettings.thumbColor = scrollbarThumbColor.value;
-		applyScrollbarStyles();
-	});
-
-	scrollbarThumbHoverColor.addEventListener('input', () => {
-		scrollbarSettings.thumbHoverColor = scrollbarThumbHoverColor.value;
-		applyScrollbarStyles();
-	});
-
-	scrollbarRadius.addEventListener('input', () => {
-		scrollbarRadiusValue.textContent = scrollbarRadius.value;
-		scrollbarSettings.radius = parseInt(scrollbarRadius.value);
-		applyScrollbarStyles();
-	});
-
-	// Real-time preview for accent color
-	accentColor.addEventListener('input', () => {
-		const accent = accentColor.value;
-		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
-			el.style.color = accent;
-		});
-		// Also save to chrome theme localStorage
-		localStorage.setItem('webbrowser_theme', accent);
-		console.log('Theme updated:', accent);
-	});
-
-	// Load saved settings
-	const savedSettings = localStorage.getItem('newTabSettings');
-	if (savedSettings) {
-		const settings = JSON.parse(savedSettings);
-		currentBgType = settings.bgType || 'gradient';
-		quickLinksVisibility = settings.quickLinksVisibility || {};
-		useLocalFiles = settings.useLocalFiles || false;
-		useLocalFilesCheckbox.checked = useLocalFiles;
-
-		// Load scrollbar settings
-		if (settings.scrollbarWidth) scrollbarSettings.width = settings.scrollbarWidth;
-		if (settings.scrollbarTrackColor) scrollbarSettings.trackColor = settings.scrollbarTrackColor;
-		if (settings.scrollbarThumbColor) scrollbarSettings.thumbColor = settings.scrollbarThumbColor;
-		if (settings.scrollbarThumbHoverColor) scrollbarSettings.thumbHoverColor = settings.scrollbarThumbHoverColor;
-		if (settings.scrollbarRadius) scrollbarSettings.radius = settings.scrollbarRadius;
-
-		// Update scrollbar UI
-		scrollbarWidth.value = scrollbarSettings.width;
-		scrollbarWidthValue.textContent = scrollbarSettings.width;
-		scrollbarTrackColor.value = scrollbarSettings.trackColor;
-		scrollbarThumbColor.value = scrollbarSettings.thumbColor;
-		scrollbarThumbHoverColor.value = scrollbarSettings.thumbHoverColor;
-		scrollbarRadius.value = scrollbarSettings.radius;
-		scrollbarRadiusValue.textContent = scrollbarSettings.radius;
-		applyScrollbarStyles();
-
-		// Update UI based on background type
-		if (currentBgType === 'gradient') {
+		// Background type switching
+		gradientOption.addEventListener('click', () => {
+			currentBgType = 'gradient';
 			gradientOption.classList.add('active');
 			imageOption.classList.remove('active');
 			gradientSettings.style.display = 'block';
 			imageSettings.classList.remove('active');
-			const angle = settings.gradientAngle || 135;
-			document.body.style.background = `linear-gradient(${angle}deg, ${settings.bgColor1} 0%, ${settings.bgColor2} 50%, ${settings.bgColor3} 100%)`;
-			document.getElementById('bgColor1').value = settings.bgColor1;
-			document.getElementById('bgColor2').value = settings.bgColor2;
-			document.getElementById('bgColor3').value = settings.bgColor3;
-			document.getElementById('gradientAngle').value = angle;
-			document.getElementById('angleValue').textContent = angle;
-		} else if (currentBgType === 'image') {
+			updateBackground();
+		});
+
+		imageOption.addEventListener('click', () => {
+			currentBgType = 'image';
 			imageOption.classList.add('active');
 			gradientOption.classList.remove('active');
 			gradientSettings.style.display = 'none';
 			imageSettings.classList.add('active');
-			const url = settings.bgImageUrl || '';
-			if (url) {
-				document.body.style.background = `url('${url}') center center / cover no-repeat fixed`;
-			} else {
-				document.body.style.background = `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`;
-			}
-			document.getElementById('bgImageUrl').value = url;
-		}
-		document.getElementById('accentColor').value = settings.accentColor;
-
-		// Apply accent color
-		document.documentElement.style.setProperty('--accent-color', settings.accentColor);
-		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
-			el.style.color = settings.accentColor;
+			updateBackground();
 		});
 
-		// Apply quick links visibility
-		updateQuickLinksVisibility();
-		// Apply use local files setting
-		useLocalFilesCheckbox.checked = useLocalFiles;
-		// Apply scrollbar styles
-		applyScrollbarStyles();
-	} else {
-		// If no saved settings, load chrome theme as accent color
-		const chromeTheme = localStorage.getItem('webbrowser_theme');
-		if (chromeTheme) {
-			document.getElementById('accentColor').value = chromeTheme;
-			document.documentElement.style.setProperty('--accent-color', chromeTheme);
-			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
-				el.style.color = chromeTheme;
+		// Real-time preview for background image URL
+		bgImageUrl.addEventListener('input', () => {
+			if (currentBgType === 'image') {
+				updateBackground();
+			}
+		});
+
+		// Prevent click propagation on inputs to avoid modal closing
+		bgColor1.addEventListener('click', (e) => e.stopPropagation());
+		bgColor2.addEventListener('click', (e) => e.stopPropagation());
+		bgColor3.addEventListener('click', (e) => e.stopPropagation());
+		gradientAngle.addEventListener('click', (e) => e.stopPropagation());
+		accentColor.addEventListener('click', (e) => e.stopPropagation());
+		bgImageUrl.addEventListener('click', (e) => e.stopPropagation());
+		gradientOption.addEventListener('click', (e) => e.stopPropagation());
+		imageOption.addEventListener('click', (e) => e.stopPropagation());
+
+		// Prevent click propagation on buttons
+		saveSettings.addEventListener('click', (e) => e.stopPropagation());
+		resetSettings.addEventListener('click', (e) => e.stopPropagation());
+		closeSettings.addEventListener('click', (e) => e.stopPropagation());
+		useLocalFilesCheckbox.addEventListener('click', (e) => e.stopPropagation());
+
+		// Tab switching
+		const settingsTabs = document.querySelectorAll('.settings-tab');
+		const tabContents = document.querySelectorAll('.settings-tab-content');
+
+		settingsTabs.forEach(tab => {
+			tab.addEventListener('click', () => {
+				const targetTab = tab.dataset.tab;
+				settingsTabs.forEach(t => t.classList.remove('active'));
+				tabContents.forEach(c => c.classList.remove('active'));
+				tab.classList.add('active');
+				document.getElementById(targetTab + 'Tab').classList.add('active');
 			});
-		}
-	}
+		});
 
-	// Listen for theme changes from other tabs
-	window.addEventListener('storage', (e) => {
-		if (e.key === 'webbrowser_theme' && e.newValue) {
-			document.getElementById('accentColor').value = e.newValue;
-			document.documentElement.style.setProperty('--accent-color', e.newValue);
+		// Update useLocalFiles state when checkbox changes
+		useLocalFilesCheckbox.addEventListener('change', (e) => {
+			useLocalFiles = e.target.checked;
+		});
+
+		// Add click handler to the entire toggle div for better responsiveness
+		useLocalFilesCheckbox.parentElement.addEventListener('click', (e) => {
+			// Only toggle if clicking on the container itself (not checkbox or label)
+			if (e.target === useLocalFilesCheckbox.parentElement) {
+				useLocalFilesCheckbox.checked = !useLocalFilesCheckbox.checked;
+				useLocalFiles = useLocalFilesCheckbox.checked;
+			}
+		});
+
+		// Prevent click propagation on modal content
+		document.querySelectorAll('.settings-group, .settings-buttons, h2, .settings-tabs, .settings-tab, .settings-tab-content, .settings-modal-content').forEach(el => {
+			el.addEventListener('click', (e) => e.stopPropagation());
+		});
+
+		// Real-time preview for background colors
+		bgColor1.addEventListener('input', updateBackground);
+		bgColor2.addEventListener('input', updateBackground);
+		bgColor3.addEventListener('input', updateBackground);
+
+		// Real-time preview for scrollbar settings
+		scrollbarWidth.addEventListener('input', () => {
+			scrollbarWidthValue.textContent = scrollbarWidth.value;
+			scrollbarSettings.width = parseInt(scrollbarWidth.value);
+			applyScrollbarStyles();
+		});
+
+		scrollbarTrackColor.addEventListener('input', () => {
+			scrollbarSettings.trackColor = scrollbarTrackColor.value;
+			applyScrollbarStyles();
+		});
+
+		scrollbarThumbColor.addEventListener('input', () => {
+			scrollbarSettings.thumbColor = scrollbarThumbColor.value;
+			applyScrollbarStyles();
+		});
+
+		scrollbarThumbHoverColor.addEventListener('input', () => {
+			scrollbarSettings.thumbHoverColor = scrollbarThumbHoverColor.value;
+			applyScrollbarStyles();
+		});
+
+		scrollbarRadius.addEventListener('input', () => {
+			scrollbarRadiusValue.textContent = scrollbarRadius.value;
+			scrollbarSettings.radius = parseInt(scrollbarRadius.value);
+			applyScrollbarStyles();
+		});
+
+		// Real-time preview for accent color
+		accentColor.addEventListener('input', () => {
+			const accent = accentColor.value;
 			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
-				el.style.color = e.newValue;
+				el.style.color = accent;
 			});
-			console.log('Theme updated from storage:', e.newValue);
-		}
-	});
+			// Also save to chrome theme localStorage
+			localStorage.setItem('webbrowser_theme', accent);
+			console.log('Theme updated:', accent);
+		});
 
-	settingsBtn.addEventListener('click', () => {
-		// Store original values before opening modal
-		window.originalSettings = {
-			bgType: currentBgType,
-			bgColor1: bgColor1.value,
-			bgColor2: bgColor2.value,
-			bgColor3: bgColor3.value,
-			gradientAngle: gradientAngle.value,
-			bgImageUrl: bgImageUrl.value,
-			accentColor: accentColor.value,
-			quickLinksVisibility: {...quickLinksVisibility},
-			useLocalFiles: useLocalFiles,
-			scrollbarWidth: scrollbarSettings.width,
-			scrollbarTrackColor: scrollbarSettings.trackColor,
-			scrollbarThumbColor: scrollbarSettings.thumbColor,
-			scrollbarThumbHoverColor: scrollbarSettings.thumbHoverColor,
-			scrollbarRadius: scrollbarSettings.radius
-		};
-		// Render quick links settings
-		renderQuickLinksSettings();
-		settingsModal.classList.add('active');
-		// Notify Lua to bring this WebUI to front
-		if (typeof Events !== 'undefined') {
-			Events.Call('BringTabToFront');
-		}
-	});
-
-	closeSettings.addEventListener('click', () => {
-		// Restore original values
-		if (window.originalSettings) {
-			currentBgType = window.originalSettings.bgType;
-			bgColor1.value = window.originalSettings.bgColor1;
-			bgColor2.value = window.originalSettings.bgColor2;
-			bgColor3.value = window.originalSettings.bgColor3;
-			gradientAngle.value = window.originalSettings.gradientAngle;
-			angleValue.textContent = window.originalSettings.gradientAngle;
-			bgImageUrl.value = window.originalSettings.bgImageUrl;
-			accentColor.value = window.originalSettings.accentColor;
-			quickLinksVisibility = {...window.originalSettings.quickLinksVisibility};
-			useLocalFiles = window.originalSettings.useLocalFiles;
+		// Load saved settings
+		const savedSettings = localStorage.getItem('newTabSettings');
+		if (savedSettings) {
+			const settings = JSON.parse(savedSettings);
+			currentBgType = settings.bgType || 'gradient';
+			quickLinksVisibility = settings.quickLinksVisibility || {};
+			useLocalFiles = settings.useLocalFiles || false;
 			useLocalFilesCheckbox.checked = useLocalFiles;
 
-			// Restore UI state
-			if (currentBgType === 'gradient') {
-				gradientOption.classList.add('active');
-				imageOption.classList.remove('active');
-				gradientSettings.style.display = 'block';
-				imageSettings.classList.remove('active');
-			} else {
-				imageOption.classList.add('active');
-				gradientOption.classList.remove('active');
-				gradientSettings.style.display = 'none';
-				imageSettings.classList.add('active');
-			}
+			// Load scrollbar settings
+			if (settings.scrollbarWidth) scrollbarSettings.width = settings.scrollbarWidth;
+			if (settings.scrollbarTrackColor) scrollbarSettings.trackColor = settings.scrollbarTrackColor;
+			if (settings.scrollbarThumbColor) scrollbarSettings.thumbColor = settings.scrollbarThumbColor;
+			if (settings.scrollbarThumbHoverColor) scrollbarSettings.thumbHoverColor = settings.scrollbarThumbHoverColor;
+			if (settings.scrollbarRadius) scrollbarSettings.radius = settings.scrollbarRadius;
 
-			// Apply original settings
-			updateBackground();
-			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
-				el.style.color = window.originalSettings.accentColor;
-			});
-			updateQuickLinksVisibility();
-
-			// Restore scrollbar settings
-			scrollbarSettings = {
-				width: window.originalSettings.scrollbarWidth || defaultSettings.scrollbarWidth,
-				trackColor: window.originalSettings.scrollbarTrackColor || defaultSettings.scrollbarTrackColor,
-				thumbColor: window.originalSettings.scrollbarThumbColor || defaultSettings.scrollbarThumbColor,
-				thumbHoverColor: window.originalSettings.scrollbarThumbHoverColor || defaultSettings.scrollbarThumbHoverColor,
-				radius: window.originalSettings.scrollbarRadius || defaultSettings.scrollbarRadius
-			};
+			// Update scrollbar UI
 			scrollbarWidth.value = scrollbarSettings.width;
 			scrollbarWidthValue.textContent = scrollbarSettings.width;
 			scrollbarTrackColor.value = scrollbarSettings.trackColor;
@@ -1413,99 +1275,100 @@ License: MIT
 			scrollbarRadius.value = scrollbarSettings.radius;
 			scrollbarRadiusValue.textContent = scrollbarSettings.radius;
 			applyScrollbarStyles();
+
+			// Update UI based on background type
+			if (currentBgType === 'gradient') {
+				gradientOption.classList.add('active');
+				imageOption.classList.remove('active');
+				gradientSettings.style.display = 'block';
+				imageSettings.classList.remove('active');
+				const angle = settings.gradientAngle || 135;
+				document.body.style.background = `linear-gradient(${angle}deg, ${settings.bgColor1} 0%, ${settings.bgColor2} 50%, ${settings.bgColor3} 100%)`;
+				document.getElementById('bgColor1').value = settings.bgColor1;
+				document.getElementById('bgColor2').value = settings.bgColor2;
+				document.getElementById('bgColor3').value = settings.bgColor3;
+				document.getElementById('gradientAngle').value = angle;
+				document.getElementById('angleValue').textContent = angle;
+			} else if (currentBgType === 'image') {
+				imageOption.classList.add('active');
+				gradientOption.classList.remove('active');
+				gradientSettings.style.display = 'none';
+				imageSettings.classList.add('active');
+				const url = settings.bgImageUrl || '';
+				if (url) {
+					document.body.style.background = `url('${url}') center center / cover no-repeat fixed`;
+				} else {
+					document.body.style.background = `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`;
+				}
+				document.getElementById('bgImageUrl').value = url;
+			}
+			document.getElementById('accentColor').value = settings.accentColor;
+
+			// Apply accent color
+			document.documentElement.style.setProperty('--accent-color', settings.accentColor);
+			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+				el.style.color = settings.accentColor;
+			});
+
+			// Apply quick links visibility
+			updateQuickLinksVisibility();
+			// Apply use local files setting
+			useLocalFilesCheckbox.checked = useLocalFiles;
+			// Apply scrollbar styles
+			applyScrollbarStyles();
+		} else {
+			// If no saved settings, load chrome theme as accent color
+			const chromeTheme = localStorage.getItem('webbrowser_theme');
+			if (chromeTheme) {
+				document.getElementById('accentColor').value = chromeTheme;
+				document.documentElement.style.setProperty('--accent-color', chromeTheme);
+				document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+					el.style.color = chromeTheme;
+				});
+			}
 		}
-		settingsModal.classList.remove('active');
-	});
 
-	saveSettings.addEventListener('click', () => {
-		const settings = {
-			bgType: currentBgType,
-			bgColor1: document.getElementById('bgColor1').value,
-			bgColor2: document.getElementById('bgColor2').value,
-			bgColor3: document.getElementById('bgColor3').value,
-			gradientAngle: document.getElementById('gradientAngle').value,
-			bgImageUrl: document.getElementById('bgImageUrl').value,
-			accentColor: document.getElementById('accentColor').value,
-			quickLinksVisibility: quickLinksVisibility,
-			useLocalFiles: useLocalFilesCheckbox.checked,
-			scrollbarWidth: parseInt(scrollbarWidth.value),
-			scrollbarTrackColor: scrollbarTrackColor.value,
-			scrollbarThumbColor: scrollbarThumbColor.value,
-			scrollbarThumbHoverColor: scrollbarThumbHoverColor.value,
-			scrollbarRadius: parseInt(scrollbarRadius.value)
-		};
-
-		localStorage.setItem('newTabSettings', JSON.stringify(settings));
-		updateBackground();
-
-		// Apply accent color
-		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
-			el.style.color = settings.accentColor;
+		// Listen for theme changes from other tabs
+		window.addEventListener('storage', (e) => {
+			if (e.key === 'webbrowser_theme' && e.newValue) {
+				document.getElementById('accentColor').value = e.newValue;
+				document.documentElement.style.setProperty('--accent-color', e.newValue);
+				document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+					el.style.color = e.newValue;
+				});
+				console.log('Theme updated from storage:', e.newValue);
+			}
 		});
 
-		// Save accent color to chrome theme
-		localStorage.setItem('webbrowser_theme', settings.accentColor);
-
-		settingsModal.classList.remove('active');
-	});
-
-	resetSettings.addEventListener('click', () => {
-		// Reset to default gradient
-		currentBgType = defaultSettings.bgType;
-		gradientOption.classList.add('active');
-		imageOption.classList.remove('active');
-		gradientSettings.style.display = 'block';
-		imageSettings.classList.remove('active');
-
-		// Reset color inputs to defaults
-		document.getElementById('bgColor1').value = defaultSettings.bgColor1;
-		document.getElementById('bgColor2').value = defaultSettings.bgColor2;
-		document.getElementById('bgColor3').value = defaultSettings.bgColor3;
-		document.getElementById('gradientAngle').value = defaultSettings.gradientAngle;
-		document.getElementById('angleValue').textContent = defaultSettings.gradientAngle;
-		document.getElementById('bgImageUrl').value = defaultSettings.bgImageUrl;
-		document.getElementById('accentColor').value = defaultSettings.accentColor;
-
-		// Reset quick links visibility
-		quickLinksVisibility = {...defaultSettings.quickLinksVisibility};
-		updateQuickLinksVisibility();
-		renderQuickLinksSettings();
-
-		// Reset use local files setting
-		useLocalFiles = defaultSettings.useLocalFiles;
-		useLocalFilesCheckbox.checked = useLocalFiles;
-
-		// Reset scrollbar settings
-		scrollbarSettings = {
-			width: defaultSettings.scrollbarWidth,
-			trackColor: defaultSettings.scrollbarTrackColor,
-			thumbColor: defaultSettings.scrollbarThumbColor,
-			thumbHoverColor: defaultSettings.scrollbarThumbHoverColor,
-			radius: defaultSettings.scrollbarRadius
-		};
-		scrollbarWidth.value = scrollbarSettings.width;
-		scrollbarWidthValue.textContent = scrollbarSettings.width;
-		scrollbarTrackColor.value = scrollbarSettings.trackColor;
-		scrollbarThumbColor.value = scrollbarSettings.thumbColor;
-		scrollbarThumbHoverColor.value = scrollbarSettings.thumbHoverColor;
-		scrollbarRadius.value = scrollbarSettings.radius;
-		scrollbarRadiusValue.textContent = scrollbarSettings.radius;
-		applyScrollbarStyles();
-
-		// Apply default colors
-		document.body.style.background = `linear-gradient(${defaultSettings.gradientAngle}deg, ${defaultSettings.bgColor1} 0%, ${defaultSettings.bgColor2} 50%, ${defaultSettings.bgColor3} 100%)`;
-		document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
-			el.style.color = defaultSettings.accentColor;
+		settingsBtn.addEventListener('click', () => {
+			// Store original values before opening modal
+			window.originalSettings = {
+				bgType: currentBgType,
+				bgColor1: bgColor1.value,
+				bgColor2: bgColor2.value,
+				bgColor3: bgColor3.value,
+				gradientAngle: gradientAngle.value,
+				bgImageUrl: bgImageUrl.value,
+				accentColor: accentColor.value,
+				quickLinksVisibility: { ...quickLinksVisibility },
+				useLocalFiles: useLocalFiles,
+				scrollbarWidth: scrollbarSettings.width,
+				scrollbarTrackColor: scrollbarSettings.trackColor,
+				scrollbarThumbColor: scrollbarSettings.thumbColor,
+				scrollbarThumbHoverColor: scrollbarSettings.thumbHoverColor,
+				scrollbarRadius: scrollbarSettings.radius
+			};
+			// Render quick links settings
+			renderQuickLinksSettings();
+			settingsModal.classList.add('active');
+			// Notify Lua to bring this WebUI to front
+			if (typeof Events !== 'undefined') {
+				Events.Call('BringTabToFront');
+			}
 		});
 
-		// Clear saved settings
-		localStorage.removeItem('newTabSettings');
-	});
-
-	// Close modal on outside click
-	settingsModal.addEventListener('click', (e) => {
-		if (e.target === settingsModal) {
-			// Restore original values before closing
+		closeSettings.addEventListener('click', () => {
+			// Restore original values
 			if (window.originalSettings) {
 				currentBgType = window.originalSettings.bgType;
 				bgColor1.value = window.originalSettings.bgColor1;
@@ -1515,7 +1378,9 @@ License: MIT
 				angleValue.textContent = window.originalSettings.gradientAngle;
 				bgImageUrl.value = window.originalSettings.bgImageUrl;
 				accentColor.value = window.originalSettings.accentColor;
-				quickLinksVisibility = {...window.originalSettings.quickLinksVisibility};
+				quickLinksVisibility = { ...window.originalSettings.quickLinksVisibility };
+				useLocalFiles = window.originalSettings.useLocalFiles;
+				useLocalFilesCheckbox.checked = useLocalFiles;
 
 				// Restore UI state
 				if (currentBgType === 'gradient') {
@@ -1536,15 +1401,156 @@ License: MIT
 					el.style.color = window.originalSettings.accentColor;
 				});
 				updateQuickLinksVisibility();
+
+				// Restore scrollbar settings
+				scrollbarSettings = {
+					width: window.originalSettings.scrollbarWidth || defaultSettings.scrollbarWidth,
+					trackColor: window.originalSettings.scrollbarTrackColor || defaultSettings.scrollbarTrackColor,
+					thumbColor: window.originalSettings.scrollbarThumbColor || defaultSettings.scrollbarThumbColor,
+					thumbHoverColor: window.originalSettings.scrollbarThumbHoverColor || defaultSettings.scrollbarThumbHoverColor,
+					radius: window.originalSettings.scrollbarRadius || defaultSettings.scrollbarRadius
+				};
+				scrollbarWidth.value = scrollbarSettings.width;
+				scrollbarWidthValue.textContent = scrollbarSettings.width;
+				scrollbarTrackColor.value = scrollbarSettings.trackColor;
+				scrollbarThumbColor.value = scrollbarSettings.thumbColor;
+				scrollbarThumbHoverColor.value = scrollbarSettings.thumbHoverColor;
+				scrollbarRadius.value = scrollbarSettings.radius;
+				scrollbarRadiusValue.textContent = scrollbarSettings.radius;
+				applyScrollbarStyles();
 			}
 			settingsModal.classList.remove('active');
-		}
-	});
+		});
 
-	// Tab ready
-	if (typeof Events !== 'undefined') {
-		Events.Call('TabReady');
-	}
-</script>
+		saveSettings.addEventListener('click', () => {
+			const settings = {
+				bgType: currentBgType,
+				bgColor1: document.getElementById('bgColor1').value,
+				bgColor2: document.getElementById('bgColor2').value,
+				bgColor3: document.getElementById('bgColor3').value,
+				gradientAngle: document.getElementById('gradientAngle').value,
+				bgImageUrl: document.getElementById('bgImageUrl').value,
+				accentColor: document.getElementById('accentColor').value,
+				quickLinksVisibility: quickLinksVisibility,
+				useLocalFiles: useLocalFilesCheckbox.checked,
+				scrollbarWidth: parseInt(scrollbarWidth.value),
+				scrollbarTrackColor: scrollbarTrackColor.value,
+				scrollbarThumbColor: scrollbarThumbColor.value,
+				scrollbarThumbHoverColor: scrollbarThumbHoverColor.value,
+				scrollbarRadius: parseInt(scrollbarRadius.value)
+			};
+
+			localStorage.setItem('newTabSettings', JSON.stringify(settings));
+			updateBackground();
+
+			// Apply accent color
+			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+				el.style.color = settings.accentColor;
+			});
+
+			// Save accent color to chrome theme
+			localStorage.setItem('webbrowser_theme', settings.accentColor);
+
+			settingsModal.classList.remove('active');
+		});
+
+		resetSettings.addEventListener('click', () => {
+			// Reset to default gradient
+			currentBgType = defaultSettings.bgType;
+			gradientOption.classList.add('active');
+			imageOption.classList.remove('active');
+			gradientSettings.style.display = 'block';
+			imageSettings.classList.remove('active');
+
+			// Reset color inputs to defaults
+			document.getElementById('bgColor1').value = defaultSettings.bgColor1;
+			document.getElementById('bgColor2').value = defaultSettings.bgColor2;
+			document.getElementById('bgColor3').value = defaultSettings.bgColor3;
+			document.getElementById('gradientAngle').value = defaultSettings.gradientAngle;
+			document.getElementById('angleValue').textContent = defaultSettings.gradientAngle;
+			document.getElementById('bgImageUrl').value = defaultSettings.bgImageUrl;
+			document.getElementById('accentColor').value = defaultSettings.accentColor;
+
+			// Reset quick links visibility
+			quickLinksVisibility = { ...defaultSettings.quickLinksVisibility };
+			updateQuickLinksVisibility();
+			renderQuickLinksSettings();
+
+			// Reset use local files setting
+			useLocalFiles = defaultSettings.useLocalFiles;
+			useLocalFilesCheckbox.checked = useLocalFiles;
+
+			// Reset scrollbar settings
+			scrollbarSettings = {
+				width: defaultSettings.scrollbarWidth,
+				trackColor: defaultSettings.scrollbarTrackColor,
+				thumbColor: defaultSettings.scrollbarThumbColor,
+				thumbHoverColor: defaultSettings.scrollbarThumbHoverColor,
+				radius: defaultSettings.scrollbarRadius
+			};
+			scrollbarWidth.value = scrollbarSettings.width;
+			scrollbarWidthValue.textContent = scrollbarSettings.width;
+			scrollbarTrackColor.value = scrollbarSettings.trackColor;
+			scrollbarThumbColor.value = scrollbarSettings.thumbColor;
+			scrollbarThumbHoverColor.value = scrollbarSettings.thumbHoverColor;
+			scrollbarRadius.value = scrollbarSettings.radius;
+			scrollbarRadiusValue.textContent = scrollbarSettings.radius;
+			applyScrollbarStyles();
+
+			// Apply default colors
+			document.body.style.background = `linear-gradient(${defaultSettings.gradientAngle}deg, ${defaultSettings.bgColor1} 0%, ${defaultSettings.bgColor2} 50%, ${defaultSettings.bgColor3} 100%)`;
+			document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+				el.style.color = defaultSettings.accentColor;
+			});
+
+			// Clear saved settings
+			localStorage.removeItem('newTabSettings');
+		});
+
+		// Close modal on outside click
+		settingsModal.addEventListener('click', (e) => {
+			if (e.target === settingsModal) {
+				// Restore original values before closing
+				if (window.originalSettings) {
+					currentBgType = window.originalSettings.bgType;
+					bgColor1.value = window.originalSettings.bgColor1;
+					bgColor2.value = window.originalSettings.bgColor2;
+					bgColor3.value = window.originalSettings.bgColor3;
+					gradientAngle.value = window.originalSettings.gradientAngle;
+					angleValue.textContent = window.originalSettings.gradientAngle;
+					bgImageUrl.value = window.originalSettings.bgImageUrl;
+					accentColor.value = window.originalSettings.accentColor;
+					quickLinksVisibility = { ...window.originalSettings.quickLinksVisibility };
+
+					// Restore UI state
+					if (currentBgType === 'gradient') {
+						gradientOption.classList.add('active');
+						imageOption.classList.remove('active');
+						gradientSettings.style.display = 'block';
+						imageSettings.classList.remove('active');
+					} else {
+						imageOption.classList.add('active');
+						gradientOption.classList.remove('active');
+						gradientSettings.style.display = 'none';
+						imageSettings.classList.add('active');
+					}
+
+					// Apply original settings
+					updateBackground();
+					document.querySelectorAll('.quick-link i, .search-box button, .settings-btn').forEach(el => {
+						el.style.color = window.originalSettings.accentColor;
+					});
+					updateQuickLinksVisibility();
+				}
+				settingsModal.classList.remove('active');
+			}
+		});
+
+		// Tab ready
+		if (typeof Events !== 'undefined') {
+			Events.Call('TabReady');
+		}
+	</script>
 </body>
+
 </html>

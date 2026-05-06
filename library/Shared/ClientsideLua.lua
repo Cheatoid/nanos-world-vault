@@ -37,13 +37,16 @@ local function RunLua(...) -- TODO: Move to Lua lib (runlua)
 		--	source = nil
 		--end
 		-- Use Package.Require force-load (more reliable)
-		input = string.normalize_path(input)
-		if not string_match(input, "%.[Ll][Uu][Aa]$") then
-			input = input .. ".lua"
+		local path = string.normalize_path(input)
+		if string_match(path, "%.[Ll][Uu][Aa]$") then -- and File.Exists(path)
+			Console.Log("[lua] Executing file: " .. path)
+			code = string_format("return require(%q, true);", path)
+			source = path
+		else
+			-- Treat as code
+			code = input
+			source = nil
 		end
-		Console.Log("[lua] Executing file: " .. input)
-		code = string_format("return require(%q, true);", input)
-		source = input
 	else
 		-- Treat as code
 		code = input

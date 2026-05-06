@@ -10,10 +10,10 @@ local WebSocketAPI = {}
 
 --- Enqueue until ready
 local send
-do
+function WebSocketAPI.Initialize()
 	local WebSocketWebUI = WebUI(
 		Package.GetName() .. ":websocket.api",
-		"file:///UI/WebSocketAPI.html",
+		"file://UI/WebSocketAPI.html",
 		WidgetVisibility.Hidden, true, false, 0, 0
 	)
 	local pending = {} ---@type table<integer, function|nil>
@@ -79,6 +79,8 @@ do
 		queued[#queued + 1] = { event = event, args = args, callback = callback, req_id = req_id }
 		return req_id
 	end
+
+	WebSocketAPI.Initialize = function() end
 end
 
 ----------------------------------------------------------------------

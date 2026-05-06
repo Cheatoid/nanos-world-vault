@@ -10,10 +10,10 @@ local EvalAPI = {}
 
 --- Enqueue until ready
 local send
-do
+function EvalAPI.Initialize()
 	local EvalWebUI = WebUI(
 		Package.GetName() .. ":eval.api",
-		"file:///UI/EvalAPI.html",
+		"file://UI/EvalAPI.html",
 		WidgetVisibility.Hidden, true, false, 0, 0
 	)
 	local pending = {} ---@type table<integer, function|nil>
@@ -79,6 +79,8 @@ do
 		queued[#queued + 1] = { event = event, args = args, callback = callback, req_id = req_id }
 		return req_id
 	end
+
+	EvalAPI.Initialize = function() end
 end
 
 ----------------------------------------------------------------------

@@ -10,10 +10,10 @@ local WebAudioAPI = {}
 
 --- Enqueue until ready
 local send
-do
+function WebAudioAPI.Initialize()
 	local WebAudioWebUI = WebUI(
 		Package.GetName() .. ":webaudio.api",
-		"file:///UI/WebAudioAPI.html",
+		"file://UI/WebAudioAPI.html",
 		WidgetVisibility.Hidden, true, false, 0, 0
 	)
 	local pending = {} ---@type table<integer, function|nil>
@@ -79,6 +79,8 @@ do
 		queued[#queued + 1] = { event = event, args = args, callback = callback, req_id = req_id }
 		return req_id
 	end
+
+	WebAudioAPI.Initialize = function() end
 end
 
 ----------------------------------------------------------------------

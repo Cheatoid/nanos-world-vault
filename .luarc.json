@@ -21,7 +21,7 @@
 		"indent_style": "tab",
 		"indent_size": "2"
 	},
-	"hint.setType": true,
+	"hint.setType": false,
 	"hint.enable": false,
 	"workspace.preloadFileSize": 1000,
 	"workspace.maxPreload": 1000

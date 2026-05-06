@@ -10,10 +10,10 @@ local RegexAPI = {}
 
 --- Enqueue until ready
 local send
-do
+function RegexAPI.Initialize()
 	local RegexWebUI = WebUI(
 		Package.GetName() .. ":regex.api",
-		"file:///UI/RegexAPI.html",
+		"file://UI/RegexAPI.html",
 		WidgetVisibility.Hidden, true, false, 0, 0
 	)
 	local pending = {} ---@type table<integer, function|nil>
@@ -79,6 +79,8 @@ do
 		queued[#queued + 1] = { event = event, args = args, callback = callback, req_id = req_id }
 		return req_id
 	end
+
+	RegexAPI.Initialize = function() end
 end
 
 ----------------------------------------------------------------------
