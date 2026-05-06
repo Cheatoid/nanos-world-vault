@@ -8,12 +8,21 @@ License: MIT
 
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+	<meta name="viewport"
+	      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
 	<style>
+		* {
+			margin: 0 !important;
+			padding: 0 !important;
+			border: 0 !important;
+		}
+
+		html,
 		body {
-			margin: 0;
-			background-color: black;
+			width: 100vw;
+			height: 100vh;
 			overflow: hidden;
+			background: transparent !important;
 		}
 
 		.emscripten {
@@ -39,11 +48,62 @@ License: MIT
 		#canvas:focus {
 			outline: none;
 		}
+
+		::-webkit-scrollbar {
+			display: none;
+		}
+
+		#error-overlay {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(20, 0, 0, 0.95);
+			z-index: 9999;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			color: #ff6666;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+			padding: 40px;
+			text-align: center;
+		}
+
+		#error-overlay h1 {
+			font-size: 32px;
+			margin-bottom: 20px;
+		}
+
+		#error-overlay p {
+			font-size: 16px;
+			line-height: 1.6;
+			max-width: 600px;
+		}
 	</style>
 </head>
 <body>
+<div id="error-overlay">
+	<h1>WebGPU Error</h1>
+	<p id="error-message"></p>
+</div>
 <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
 <script type="text/javascript">
+	window.showWebGPUError = function (message) {
+		const overlay = document.getElementById('error-overlay');
+		const msgElement = document.getElementById('error-message');
+		if (overlay && msgElement) {
+			msgElement.textContent = message;
+			overlay.style.display = 'flex';
+		}
+	};
+
+	// Check if running in CEF (nanos-world) vs regular browser
+	window.isCEF = window.location.href.includes('file://') || !window.chrome || window.location.protocol === 'file:';
+
+	// Flag to control initial window positioning
+	window.useInitialPositioning = true;
 	var Module = {
 		preRun: [],
 		postRun: [],
@@ -69,6 +129,571 @@ License: MIT
 	};
 	window.onerror = () => {
 		console.log("onerror: " + event);
+	};
+
+	// ImGui namespace - will be populated after Module initializes
+	var ImGui = {};
+
+	// Deferred init function called from Module.onRuntimeInitialized
+	function initImGuiAPI() {
+		const cwrap = Module.cwrap;
+
+		// Memory for persistent values
+		const boolStorage = new Map();
+		const floatStorage = new Map();
+		const intStorage = new Map();
+		const stringStorage = new Map();
+		let boolPtr, floatPtr, intPtr, stringPtr;
+		const stringBufferSize = 256;
+
+		function initMemory() {
+			boolPtr = Module._malloc(1);
+			floatPtr = Module._malloc(16);
+			intPtr = Module._malloc(4);
+			stringPtr = Module._malloc(stringBufferSize);
+		}
+
+		// Wrap C++ functions
+		const _Begin = cwrap('imgui_Begin', 'void', ['string', 'number', 'number']);
+		const _End = cwrap('imgui_End', 'void', []);
+		const _ShowDemoWindow = cwrap('imgui_ShowDemoWindow', 'void', ['number']);
+		const _Text = cwrap('imgui_Text', 'void', ['string']);
+		const _Button = cwrap('imgui_Button', 'number', ['string', 'number', 'number']);
+		const _Checkbox = cwrap('imgui_Checkbox', 'number', ['string', 'number']);
+		const _SliderFloat = cwrap('imgui_SliderFloat', 'number', ['string', 'number', 'number', 'number', 'string', 'number']);
+		const _SliderInt = cwrap('imgui_SliderInt', 'number', ['string', 'number', 'number', 'number', 'string', 'number']);
+		const _ColorEdit3 = cwrap('imgui_ColorEdit3', 'number', ['string', 'number', 'number']);
+		const _ColorEdit4 = cwrap('imgui_ColorEdit4', 'number', ['string', 'number', 'number']);
+		// InputText uses direct ccall to avoid char*/string conversion issues
+		const _InputText = cwrap('imgui_InputText', 'number', ['string', 'number', 'number', 'number', 'number', 'number']);
+		const _InputFloat = cwrap('imgui_InputFloat', 'number', ['string', 'number', 'number', 'number', 'string', 'number']);
+		const _InputInt = cwrap('imgui_InputInt', 'number', ['string', 'number', 'number', 'number', 'number']);
+		const _SameLine = cwrap('imgui_SameLine', 'void', ['number', 'number']);
+		const _Spacing = cwrap('imgui_Spacing', 'void', []);
+		const _Separator = cwrap('imgui_Separator', 'void', []);
+		const _NewLine = cwrap('imgui_NewLine', 'void', []);
+		const _Indent = cwrap('imgui_Indent', 'void', ['number']);
+		const _Unindent = cwrap('imgui_Unindent', 'void', ['number']);
+		const _TreeNode = cwrap('imgui_TreeNode', 'number', ['string']);
+		const _TreePop = cwrap('imgui_TreePop', 'void', []);
+		const _Selectable = cwrap('imgui_Selectable', 'number', ['string', 'number', 'number', 'number']);
+		const _BeginCombo = cwrap('imgui_BeginCombo', 'number', ['string', 'string', 'number']);
+		const _EndCombo = cwrap('imgui_EndCombo', 'void', []);
+		const _ProgressBar = cwrap('imgui_ProgressBar', 'void', ['number', 'number', 'string']);
+		const _Bullet = cwrap('imgui_Bullet', 'void', []);
+		const _BulletText = cwrap('imgui_BulletText', 'void', ['string']);
+		const _GetFramerate = cwrap('imgui_GetFramerate', 'number', []);
+		const _SetNextItemWidth = cwrap('imgui_SetNextItemWidth', 'void', ['number']);
+		const _SetNextWindowPos = cwrap('imgui_SetNextWindowPos', 'void', ['number', 'number', 'number', 'number', 'number']);
+		const _SetNextWindowSize = cwrap('imgui_SetNextWindowSize', 'void', ['number', 'number', 'number']);
+
+		// Enum value getters
+		const _Cond_None = cwrap('imgui_Cond_None', 'number', []);
+		const _Cond_Always = cwrap('imgui_Cond_Always', 'number', []);
+		const _Cond_Once = cwrap('imgui_Cond_Once', 'number', []);
+		const _Cond_FirstUseEver = cwrap('imgui_Cond_FirstUseEver', 'number', []);
+		const _Cond_Appearing = cwrap('imgui_Cond_Appearing', 'number', []);
+		const _WindowFlags_None = cwrap('imgui_WindowFlags_None', 'number', []);
+		const _WindowFlags_NoTitleBar = cwrap('imgui_WindowFlags_NoTitleBar', 'number', []);
+		const _WindowFlags_NoResize = cwrap('imgui_WindowFlags_NoResize', 'number', []);
+		const _WindowFlags_NoMove = cwrap('imgui_WindowFlags_NoMove', 'number', []);
+		const _WindowFlags_NoScrollbar = cwrap('imgui_WindowFlags_NoScrollbar', 'number', []);
+		const _WindowFlags_NoCollapse = cwrap('imgui_WindowFlags_NoCollapse', 'number', []);
+		const _WindowFlags_AlwaysAutoResize = cwrap('imgui_WindowFlags_AlwaysAutoResize', 'number', []);
+		const _WindowFlags_MenuBar = cwrap('imgui_WindowFlags_MenuBar', 'number', []);
+
+		// TreeNodeFlags enum getters
+		const _TreeNodeFlags_None = cwrap('imgui_TreeNodeFlags_None', 'number', []);
+		const _TreeNodeFlags_DefaultOpen = cwrap('imgui_TreeNodeFlags_DefaultOpen', 'number', []);
+		const _TreeNodeFlags_Framed = cwrap('imgui_TreeNodeFlags_Framed', 'number', []);
+
+		// SelectableFlags enum getters
+		const _SelectableFlags_None = cwrap('imgui_SelectableFlags_None', 'number', []);
+		const _SelectableFlags_SpanAvailWidth = cwrap('imgui_SelectableFlags_SpanAvailWidth', 'number', []);
+		const _SelectableFlags_AllowDoubleClick = cwrap('imgui_SelectableFlags_AllowDoubleClick', 'number', []);
+
+		// TabBarFlags enum getters
+		const _TabBarFlags_None = cwrap('imgui_TabBarFlags_None', 'number', []);
+		const _TabBarFlags_Reorderable = cwrap('imgui_TabBarFlags_Reorderable', 'number', []);
+		const _TabBarFlags_AutoSelectNewTabs = cwrap('imgui_TabBarFlags_AutoSelectNewTabs', 'number', []);
+
+		// TabItemFlags enum getters
+		const _TabItemFlags_None = cwrap('imgui_TabItemFlags_None', 'number', []);
+		const _TabItemFlags_NoCloseWithMiddleMouseButton = cwrap('imgui_TabItemFlags_NoCloseWithMiddleMouseButton', 'number', []);
+
+		const _Columns = cwrap('imgui_Columns', 'void', ['number', 'string', 'number']);
+		const _NextColumn = cwrap('imgui_NextColumn', 'void', []);
+		const _BeginMenuBar = cwrap('imgui_BeginMenuBar', 'number', []);
+		const _EndMenuBar = cwrap('imgui_EndMenuBar', 'void', []);
+		const _BeginMenu = cwrap('imgui_BeginMenu', 'number', ['string', 'number']);
+		const _EndMenu = cwrap('imgui_EndMenu', 'void', []);
+		const _MenuItem = cwrap('imgui_MenuItem', 'number', ['string', 'string', 'number', 'number']);
+		const _BeginTabBar = cwrap('imgui_BeginTabBar', 'number', ['string', 'number']);
+		const _EndTabBar = cwrap('imgui_EndTabBar', 'void', []);
+		const _BeginTabItem = cwrap('imgui_BeginTabItem', 'number', ['string', 'number', 'number']);
+		const _EndTabItem = cwrap('imgui_EndTabItem', 'void', []);
+		const _BeginChild = cwrap('imgui_BeginChild', 'number', ['string', 'number', 'number', 'number']);
+		const _EndChild = cwrap('imgui_EndChild', 'void', []);
+		const _CollapsingHeader = cwrap('imgui_CollapsingHeader', 'number', ['string', 'number']);
+		const _RadioButton = cwrap('imgui_RadioButton', 'number', ['string', 'number']);
+		const _DragFloat = cwrap('imgui_DragFloat', 'number', ['string', 'number', 'number', 'number', 'number', 'string', 'number']);
+		const _DragInt = cwrap('imgui_DragInt', 'number', ['string', 'number', 'number', 'number', 'number', 'string', 'number']);
+
+		// Flags - use C++ bound values
+		const Cond = {
+			None: _Cond_None(),
+			Always: _Cond_Always(),
+			Once: _Cond_Once(),
+			FirstUseEver: _Cond_FirstUseEver(),
+			Appearing: _Cond_Appearing()
+		};
+		const WindowFlags = {
+			None: _WindowFlags_None(),
+			NoTitleBar: _WindowFlags_NoTitleBar(),
+			NoResize: _WindowFlags_NoResize(),
+			NoMove: _WindowFlags_NoMove(),
+			NoScrollbar: _WindowFlags_NoScrollbar(),
+			NoCollapse: _WindowFlags_NoCollapse(),
+			AlwaysAutoResize: _WindowFlags_AlwaysAutoResize(),
+			MenuBar: _WindowFlags_MenuBar()
+		};
+		const TreeNodeFlags = {
+			None: _TreeNodeFlags_None(),
+			DefaultOpen: _TreeNodeFlags_DefaultOpen(),
+			Framed: _TreeNodeFlags_Framed()
+		};
+		const SelectableFlags = {
+			None: _SelectableFlags_None(),
+			SpanAvailWidth: _SelectableFlags_SpanAvailWidth(),
+			AllowDoubleClick: _SelectableFlags_AllowDoubleClick()
+		};
+		const TabBarFlags = {
+			None: _TabBarFlags_None(),
+			Reorderable: _TabBarFlags_Reorderable(),
+			AutoSelectNewTabs: _TabBarFlags_AutoSelectNewTabs()
+		};
+		const TabItemFlags = {
+			None: _TabItemFlags_None(),
+			NoCloseWithMiddleMouseButton: _TabItemFlags_NoCloseWithMiddleMouseButton()
+		};
+
+		function getBool(key, def) {
+			if (!boolStorage.has(key)) boolStorage.set(key, def);
+			return boolStorage.get(key);
+		}
+
+		function getFloat(key, def) {
+			if (!floatStorage.has(key)) floatStorage.set(key, def);
+			return floatStorage.get(key);
+		}
+
+		function getInt(key, def) {
+			if (!intStorage.has(key)) intStorage.set(key, def);
+			return intStorage.get(key);
+		}
+
+		// Populate ImGui object
+		ImGui.Cond = Cond;
+		ImGui.WindowFlags = WindowFlags;
+		ImGui.TreeNodeFlags = TreeNodeFlags;
+		ImGui.SelectableFlags = SelectableFlags;
+		ImGui.TabBarFlags = TabBarFlags;
+		ImGui.TabItemFlags = TabItemFlags;
+
+		ImGui.init = initMemory;
+
+		ImGui.Begin = function (name, p_open = null, flags = 0) {
+			const openPtr = p_open !== null ? boolPtr : 0;
+			Module.setValue(boolPtr, p_open || false, 'i1');
+			_Begin(name, openPtr, flags);
+			if (p_open !== null) {
+				const val = Module.getValue(boolPtr, 'i1');
+				boolStorage.set(name, val);
+				return val;
+			}
+			return true;
+		};
+		ImGui.End = _End;
+		ImGui.ShowDemoWindow = function (p_open = null) {
+			const openPtr = p_open !== null ? boolPtr : 0;
+			if (p_open !== null) Module.setValue(boolPtr, p_open ? 1 : 0, 'i1');
+			_ShowDemoWindow(openPtr);
+			if (p_open !== null) return Module.getValue(boolPtr, 'i1');
+		};
+		ImGui.Text = _Text;
+		ImGui.Button = function (label, w = 0, h = 0) {
+			return _Button(label, w, h) !== 0;
+		};
+		ImGui.Checkbox = function (label, key, def = false) {
+			const val = getBool(key, def);
+			Module.setValue(boolPtr, val, 'i1');
+			const changed = _Checkbox(label, boolPtr) !== 0;
+			const newVal = Module.getValue(boolPtr, 'i1');
+			boolStorage.set(key, newVal);
+			return {changed, value: newVal};
+		};
+		ImGui.GetBool = function (key, def = false) {
+			return getBool(key, def);
+		};
+		ImGui.SliderFloat = function (label, key, min, max, fmt = "%.3f", flags = 0, def = 0.0) {
+			const val = getFloat(key, def);
+			Module.setValue(floatPtr, val, 'float');
+			const changed = _SliderFloat(label, floatPtr, min, max, fmt, flags) !== 0;
+			const newVal = Module.getValue(floatPtr, 'float');
+			floatStorage.set(key, newVal);
+			return {changed, value: newVal};
+		};
+		ImGui.SliderInt = function (label, key, min, max, fmt = "%d", flags = 0, def = 0) {
+			const val = getInt(key, def);
+			Module.setValue(intPtr, val, 'i32');
+			const changed = _SliderInt(label, intPtr, min, max, fmt, flags) !== 0;
+			const newVal = Module.getValue(intPtr, 'i32');
+			intStorage.set(key, newVal);
+			return {changed, value: newVal};
+		};
+		ImGui.ColorEdit3 = function (label, key, flags = 0, def = [1, 1, 1]) {
+			const r = getFloat(key + '_r', def[0]), g = getFloat(key + '_g', def[1]), b = getFloat(key + '_b', def[2]);
+			Module.setValue(floatPtr, r, 'float');
+			Module.setValue(floatPtr + 4, g, 'float');
+			Module.setValue(floatPtr + 8, b, 'float');
+			const changed = _ColorEdit3(label, floatPtr, flags) !== 0;
+			floatStorage.set(key + '_r', Module.getValue(floatPtr, 'float'));
+			floatStorage.set(key + '_g', Module.getValue(floatPtr + 4, 'float'));
+			floatStorage.set(key + '_b', Module.getValue(floatPtr + 8, 'float'));
+			return {
+				changed,
+				value: [floatStorage.get(key + '_r'), floatStorage.get(key + '_g'), floatStorage.get(key + '_b')]
+			};
+		};
+		ImGui.ColorEdit4 = function (label, key, flags = 0, def = [1, 1, 1, 1]) {
+			const r = getFloat(key + '_r', def[0]), g = getFloat(key + '_g', def[1]), b = getFloat(key + '_b', def[2]),
+				a = getFloat(key + '_a', def[3]);
+			Module.setValue(floatPtr, r, 'float');
+			Module.setValue(floatPtr + 4, g, 'float');
+			Module.setValue(floatPtr + 8, b, 'float');
+			Module.setValue(floatPtr + 12, a, 'float');
+			const changed = _ColorEdit4(label, floatPtr, flags) !== 0;
+			floatStorage.set(key + '_r', Module.getValue(floatPtr, 'float'));
+			floatStorage.set(key + '_g', Module.getValue(floatPtr + 4, 'float'));
+			floatStorage.set(key + '_b', Module.getValue(floatPtr + 8, 'float'));
+			floatStorage.set(key + '_a', Module.getValue(floatPtr + 12, 'float'));
+			return {
+				changed,
+				value: [floatStorage.get(key + '_r'), floatStorage.get(key + '_g'), floatStorage.get(key + '_b'), floatStorage.get(key + '_a')]
+			};
+		};
+		ImGui.InputText = function (label, key, flags = 0, def = "") {
+			const val = stringStorage.has(key) ? stringStorage.get(key) : String(def || "");
+			Module.stringToUTF8(val, stringPtr, stringBufferSize);
+			const changed = _InputText(label, stringPtr, stringBufferSize, flags, 0, 0) !== 0;
+			const newVal = Module.UTF8ToString(stringPtr);
+			stringStorage.set(key, newVal);
+			return {changed, value: newVal};
+		};
+		ImGui.InputFloat = function (label, key, step = 0, step_fast = 0, fmt = "%.3f", flags = 0, def = 0.0) {
+			const val = getFloat(key, def);
+			Module.setValue(floatPtr, val, 'float');
+			const changed = _InputFloat(label, floatPtr, step, step_fast, fmt, flags) !== 0;
+			const newVal = Module.getValue(floatPtr, 'float');
+			floatStorage.set(key, newVal);
+			return {changed, value: newVal};
+		};
+		ImGui.InputInt = function (label, key, step = 1, step_fast = 100, flags = 0, def = 0) {
+			const val = getInt(key, def);
+			Module.setValue(intPtr, val, 'i32');
+			const changed = _InputInt(label, intPtr, step, step_fast, flags) !== 0;
+			const newVal = Module.getValue(intPtr, 'i32');
+			intStorage.set(key, newVal);
+			return {changed, value: newVal};
+		};
+		ImGui.SameLine = _SameLine;
+		ImGui.Spacing = _Spacing;
+		ImGui.Separator = _Separator;
+		ImGui.NewLine = _NewLine;
+		ImGui.Indent = _Indent;
+		ImGui.Unindent = _Unindent;
+		ImGui.TreeNode = function (label) {
+			return _TreeNode(label) !== 0;
+		};
+		ImGui.TreePop = _TreePop;
+		ImGui.Selectable = function (label, selected = false, flags = 0, w = 0, h = 0) {
+			const sizePtr = Module._malloc(8);
+			Module.setValue(sizePtr, w, 'float');
+			Module.setValue(sizePtr + 4, h, 'float');
+			const result = _Selectable(label, selected ? 1 : 0, flags, sizePtr) !== 0;
+			Module._free(sizePtr);
+			return result;
+		};
+		ImGui.BeginCombo = function (label, preview, flags = 0) {
+			return _BeginCombo(label, preview, flags) !== 0;
+		};
+		ImGui.EndCombo = _EndCombo;
+		ImGui.ProgressBar = function (fraction, w = 0, h = 0, overlay = null) {
+			const sizePtr = Module._malloc(8);
+			Module.setValue(sizePtr, w, 'float');
+			Module.setValue(sizePtr + 4, h, 'float');
+			_ProgressBar(fraction, sizePtr, overlay || "");
+			Module._free(sizePtr);
+		};
+		ImGui.Bullet = _Bullet;
+		ImGui.BulletText = _BulletText;
+		ImGui.GetFramerate = _GetFramerate;
+		ImGui.SetNextItemWidth = _SetNextItemWidth;
+		ImGui.SetNextWindowPos = function (x, y, cond = 0, pivotX = 0, pivotY = 0) {
+			_SetNextWindowPos(x, y, cond, pivotX, pivotY);
+		};
+		ImGui.SetNextWindowSize = function (w, h, cond = 0) {
+			_SetNextWindowSize(w, h, cond);
+		};
+		ImGui.Columns = _Columns;
+		ImGui.NextColumn = _NextColumn;
+		ImGui.BeginMenuBar = function () {
+			return _BeginMenuBar() !== 0;
+		};
+		ImGui.EndMenuBar = _EndMenuBar;
+		ImGui.BeginMenu = function (label, enabled = true) {
+			return _BeginMenu(label, enabled ? 1 : 0) !== 0;
+		};
+		ImGui.EndMenu = _EndMenu;
+		ImGui.MenuItem = function (label, shortcut = null, selected = false, enabled = true) {
+			return _MenuItem(label, shortcut || "", selected ? 1 : 0, enabled ? 1 : 0) !== 0;
+		};
+		ImGui.BeginTabBar = function (id, flags = 0) {
+			return _BeginTabBar(id, flags) !== 0;
+		};
+		ImGui.EndTabBar = _EndTabBar;
+		ImGui.BeginTabItem = function (label, p_open = null, flags = 0) {
+			const openPtr = p_open !== null ? boolPtr : 0;
+			Module.setValue(boolPtr, p_open || false, 'i1');
+			return _BeginTabItem(label, openPtr, flags) !== 0;
+		};
+		ImGui.EndTabItem = _EndTabItem;
+		ImGui.BeginChild = function (id, w = 0, h = 0, border = false, flags = 0) {
+			const sizePtr = Module._malloc(8);
+			Module.setValue(sizePtr, w, 'float');
+			Module.setValue(sizePtr + 4, h, 'float');
+			const result = _BeginChild(id, sizePtr, border ? 1 : 0, flags) !== 0;
+			Module._free(sizePtr);
+			return result;
+		};
+		ImGui.EndChild = _EndChild;
+		ImGui.CollapsingHeader = function (label, flags = 0) {
+			return _CollapsingHeader(label, flags) !== 0;
+		};
+		ImGui.RadioButton = function (label, active) {
+			return _RadioButton(label, active ? 1 : 0) !== 0;
+		};
+		ImGui.DragFloat = function (label, key, speed = 1, min = 0, max = 0, fmt = "%.3f", flags = 0, def = 0.0) {
+			const val = getFloat(key, def);
+			Module.setValue(floatPtr, val, 'float');
+			const changed = _DragFloat(label, floatPtr, speed, min, max, fmt, flags) !== 0;
+			const newVal = Module.getValue(floatPtr, 'float');
+			floatStorage.set(key, newVal);
+			return {changed, value: newVal};
+		};
+		ImGui.DragInt = function (label, key, speed = 1, min = 0, max = 0, fmt = "%d", flags = 0, def = 0) {
+			const val = getInt(key, def);
+			Module.setValue(intPtr, val, 'i32');
+			const changed = _DragInt(label, intPtr, speed, min, max, fmt, flags) !== 0;
+			const newVal = Module.getValue(intPtr, 'i32');
+			intStorage.set(key, newVal);
+			return {changed, value: newVal};
+		};
+
+		console.log("ImGui API initialized successfully");
+	}
+
+	// Initialize ImGui on module load
+	Module.onRuntimeInitialized = function () {
+		console.log("ImGui WASM runtime initialized, setting up API...");
+		initImGuiAPI();
+		console.log("Calling ImGui.init()...");
+		ImGui.init();
+		console.log("ImGui.init() completed");
+	};
+
+	// Main render function called from C++
+	window.imguiRender = function () {
+		console.log("imguiRender called");
+
+		// FPS display
+		const fps = ImGui.GetFramerate();
+
+		// Main window - position based on flag
+		if (window.useInitialPositioning) {
+			ImGui.SetNextWindowPos(10, 10, ImGui.Cond.FirstUseEver);
+			ImGui.SetNextWindowSize(400, 600, ImGui.Cond.FirstUseEver);
+		}
+		if (ImGui.Begin("Hello from JavaScript!", null, 0)) {
+			ImGui.Text("This UI is created entirely from JavaScript!");
+			ImGui.Text("No C++ recompilation needed!");
+			ImGui.Separator();
+
+			ImGui.Text(`FPS: ${fps.toFixed(1)}`);
+			ImGui.Spacing();
+
+			// Checkbox example
+			const demoResult = ImGui.Checkbox("Show Demo Window", "show_demo", false);
+			ImGui.Checkbox("Enable Something", "enable_something", true);
+			ImGui.Spacing();
+
+			// Show demo window if checkbox is enabled
+			if (ImGui.GetBool("show_demo", false)) {
+				ImGui.ShowDemoWindow();
+			}
+
+			// Slider examples
+			const floatResult = ImGui.SliderFloat("Float Value", "my_float", 0.0, 1.0, "%.3f", 0, 0.5);
+			const intResult = ImGui.SliderInt("Int Value", "my_int", 0, 100, "%d", 0, 50);
+			ImGui.Spacing();
+
+			// Color picker
+			const colorResult = ImGui.ColorEdit3("Color", "my_color", 0, [0.45, 0.55, 0.60]);
+			ImGui.Spacing();
+
+			// Button example
+			if (ImGui.Button("Click Me!")) {
+				console.log("Button clicked!");
+			}
+			ImGui.SameLine();
+			if (ImGui.Button("Reset")) {
+				// Reset values would go here
+			}
+			ImGui.Spacing();
+
+			// Input examples
+			const textResult = ImGui.InputText("Text Input", "my_text", 0, "Hello");
+			const floatInput = ImGui.InputFloat("Float Input", "input_float", 0.1, 1.0, "%.2f", 0, 0.0);
+			const intInput = ImGui.InputInt("Int Input", "input_int", 1, 10, 0, 0);
+			ImGui.Spacing();
+
+			// Tree node example
+			if (ImGui.TreeNode("Advanced Options")) {
+				ImGui.Text("Nested content here");
+				ImGui.BulletText("Option 1");
+				ImGui.BulletText("Option 2");
+				ImGui.BulletText("Option 3");
+				ImGui.TreePop();
+			}
+			ImGui.Spacing();
+
+			// Selectable example
+			ImGui.Text("Select an item:");
+			ImGui.Selectable("Item 1", false, ImGui.SelectableFlags.None, 0, 0);
+			ImGui.Selectable("Item 2", false, ImGui.SelectableFlags.None, 0, 0);
+			ImGui.Selectable("Item 3", false, ImGui.SelectableFlags.None, 0, 0);
+			ImGui.Spacing();
+
+			// Progress bar
+			ImGui.Text("Progress:");
+			ImGui.ProgressBar(0.65, 0, 0, "65%");
+			ImGui.Spacing();
+
+			// Drag controls
+			const dragFloat = ImGui.DragFloat("Drag Float", "drag_float", 0.01, 0, 1, "%.3f", 0, 0.5);
+			const dragInt = ImGui.DragInt("Drag Int", "drag_int", 1, 0, 100, "%d", 0, 50);
+			ImGui.Spacing();
+
+			// Radio buttons
+			ImGui.Text("Radio Buttons:");
+			ImGui.RadioButton("Option A", true);
+			ImGui.SameLine();
+			ImGui.RadioButton("Option B", false);
+			ImGui.SameLine();
+			ImGui.RadioButton("Option C", false);
+			ImGui.Spacing();
+
+			// Collapsing header
+			if (ImGui.CollapsingHeader("Collapsing Header", ImGui.TreeNodeFlags.None)) {
+				ImGui.Text("Content inside collapsible header");
+				ImGui.Indent();
+				ImGui.Text("Indented text");
+				ImGui.Unindent();
+			}
+		}
+		ImGui.End();
+
+		// Second window example - position based on flag
+		if (window.useInitialPositioning) {
+			ImGui.SetNextWindowPos(430, 10, ImGui.Cond.FirstUseEver);
+			ImGui.SetNextWindowSize(350, 300, ImGui.Cond.FirstUseEver);
+		}
+		if (ImGui.Begin("Controls", null, 0)) {
+			ImGui.Text("Window Controls");
+			ImGui.Separator();
+
+			if (ImGui.BeginTabBar("MyTabBar", ImGui.TabBarFlags.Reorderable)) {
+				if (ImGui.BeginTabItem("Tab 1", null, ImGui.TabItemFlags.None)) {
+					ImGui.Text("Content of Tab 1");
+					ImGui.Button("Tab 1 Button");
+					ImGui.EndTabItem();
+				}
+				if (ImGui.BeginTabItem("Tab 2", null, ImGui.TabItemFlags.None)) {
+					ImGui.Text("Content of Tab 2");
+					ImGui.Checkbox("Tab 2 Checkbox", "tab2_check", false);
+					ImGui.EndTabItem();
+				}
+				ImGui.EndTabBar();
+			}
+		}
+		ImGui.End();
+
+		// Menu bar example - position based on flag
+		if (window.useInitialPositioning) {
+			ImGui.SetNextWindowPos(430, 330, ImGui.Cond.FirstUseEver);
+			ImGui.SetNextWindowSize(350, 280, ImGui.Cond.FirstUseEver);
+		}
+		if (ImGui.Begin("Menu Example", null, ImGui.WindowFlags.MenuBar)) {
+			if (ImGui.BeginMenuBar()) {
+				if (ImGui.BeginMenu("File")) {
+					if (ImGui.MenuItem("New")) {
+						console.log("New");
+					}
+					if (ImGui.MenuItem("Open")) {
+						console.log("Open");
+					}
+					if (ImGui.MenuItem("Save")) {
+						console.log("Save");
+					}
+					ImGui.Separator();
+					if (ImGui.MenuItem("Exit")) {
+						console.log("Exit");
+					}
+					ImGui.EndMenu();
+				}
+				if (ImGui.BeginMenu("Edit")) {
+					if (ImGui.MenuItem("Undo")) {
+						console.log("Undo");
+					}
+					if (ImGui.MenuItem("Redo")) {
+						console.log("Redo");
+					}
+					ImGui.EndMenu();
+				}
+				ImGui.EndMenuBar();
+			}
+			ImGui.Text("Window with menu bar");
+		}
+		ImGui.End();
+
+		// Columns example - position based on flag
+		if (window.useInitialPositioning) {
+			ImGui.SetNextWindowPos(800, 10, ImGui.Cond.FirstUseEver);
+			ImGui.SetNextWindowSize(300, 400, ImGui.Cond.FirstUseEver);
+		}
+		if (ImGui.Begin("Columns Example", null, 0)) {
+			ImGui.Text("Two columns:");
+			ImGui.Columns(2, "myColumns", true);
+			ImGui.Text("Column 1");
+			ImGui.NextColumn();
+			ImGui.Text("Column 2");
+			ImGui.NextColumn();
+			ImGui.Text("More content in col 1");
+			ImGui.NextColumn();
+			ImGui.Text("More content in col 2");
+			ImGui.Columns(1);
+		}
+		ImGui.End();
 	};
 </script>
 {{{ SCRIPT }}}

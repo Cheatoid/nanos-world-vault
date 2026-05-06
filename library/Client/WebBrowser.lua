@@ -313,6 +313,10 @@ local function createTabWebUI(tabId)
 			if string.sub(url, 1, 8) == "https://" or string.sub(url, 1, 7) == "http://" then
 				print("[WebBrowser DEBUG] Re-injecting navigation script for remote page:", url)
 				tabWebUI:ExecuteJavaScript(navigationScript)
+			elseif string.sub(url, 1, 7) == "file://" then
+				-- Also inject on local file:// pages
+				print("[WebBrowser DEBUG] Injecting navigation script for local page:", url)
+				tabWebUI:ExecuteJavaScript(navigationScript)
 			end
 
 			-- Update title based on URL (for new tab page or remote pages)
@@ -410,6 +414,11 @@ ChromeWebUI:Subscribe("CreateTab", function(url)
 	WebBrowser.CreateTab(url)
 end)
 
+ChromeWebUI:Subscribe("OpenInNewTab", function(url)
+	print("[WebBrowser DEBUG] OpenInNewTab event, url:", url)
+	WebBrowser.CreateTab(url)
+end)
+
 ChromeWebUI:Subscribe("CloseTab", function(tabId)
 	WebBrowser.CloseTab(tabId)
 end)
@@ -457,10 +466,14 @@ ChromeWebUI:Subscribe("Navigate", function(tabId, url)
 		print("[WebBrowser DEBUG] LoadURL called in Navigate:", url)
 		tab.webui:LoadURL(url)
 		-- Re-inject navigation script for remote pages (script only works on local file:// pages)
-		--if string.sub(url, 1, 8) == "https://" or string.sub(url, 1, 7) == "http://" then
-		print("[WebBrowser DEBUG] Re-injecting navigation script for remote page:", url)
-		tab.webui:ExecuteJavaScript(navigationScript)
-		--end
+		if string.sub(url, 1, 8) == "https://" or string.sub(url, 1, 7) == "http://" then
+			print("[WebBrowser DEBUG] Re-injecting navigation script for remote page:", url)
+			tab.webui:ExecuteJavaScript(navigationScript)
+		elseif string.sub(url, 1, 7) == "file://" then
+			-- Also inject on local file:// pages
+			print("[WebBrowser DEBUG] Injecting navigation script for local page:", url)
+			tab.webui:ExecuteJavaScript(navigationScript)
+		end
 		--else
 		--	print("[WebBrowser DEBUG] Skipping LoadURL in Navigate (new tab page):", url)
 		--	-- Still update UI even if not loading (for address bar/tab title consistency)
@@ -535,13 +548,30 @@ ChromeWebUI:Subscribe("Reload", function(tabId)
 	print("[WebBrowser DEBUG] Reload event, tabId:", tabId)
 	local tab = tabs[tabId]
 	if tab and tab.webui and tab.url then
-		-- Only reload remote URLs, not local file:// pages (especially new tab page)
-		--if not isNewTabPage(tab.url) then
-		print("[WebBrowser DEBUG] LoadURL called in Reload:", tab.url)
-		tab.webui:LoadURL(tab.url)
-		--else
-		--	print("[WebBrowser DEBUG] Reload skipped (new tab page):", tab.url)
-		--end
+		if not isNewTabPage(tab.url) then
+			print("[WebBrowser DEBUG] Executing window.location.reload() for tab:", tabId)
+			tab.webui:ExecuteJavaScript("window.location.reload()")
+		else
+			print("[WebBrowser DEBUG] Reloading:", tab.url)
+			tab.webui:LoadURL(tab.url)
+		end
+	end
+end)
+
+ChromeWebUI:Subscribe("ToggleDevTools", function(tabId)
+	print("[WebBrowser DEBUG] ToggleDevTools event, tabId:", tabId)
+	local tab = tabs[tabId]
+	if tab and tab.webui then
+		-- Track DevTools state per tab
+		if tab.devtoolsOpen then
+			tab.webui:CloseDevTools()
+			tab.devtoolsOpen = false
+			print("[WebBrowser DEBUG] DevTools closed for tab:", tabId)
+		else
+			tab.webui:OpenDevTools()
+			tab.devtoolsOpen = true
+			print("[WebBrowser DEBUG] DevTools opened for tab:", tabId)
+		end
 	end
 end)
 
@@ -905,6 +935,7 @@ function WebBrowser.OpenDevTools()
 	local tab = tabs[activeTabId]
 	if tab and tab.webui then
 		tab.webui:OpenDevTools()
+		tab.devtoolsOpen = true
 	end
 end
 
@@ -913,6 +944,7 @@ function WebBrowser.CloseDevTools()
 	local tab = tabs[activeTabId]
 	if tab and tab.webui then
 		tab.webui:CloseDevTools()
+		tab.devtoolsOpen = false
 	end
 end
 
@@ -991,10 +1023,17 @@ do
 	--Input.Bind("WebBrowser.Toggle", InputEvent.Pressed, ToggleWebBrowser)
 
 	Bind.RegisterCommand("browser_devtools", function()
-		if activeTabId and tabs[activeTabId] and tabs[activeTabId].webui then
-			tabs[activeTabId].webui:OpenDevTools()
+		local tab = tabs[activeTabId]
+		if tab and tab.webui then
+			if tab.devtoolsOpen then
+				tab.webui:CloseDevTools()
+				tab.devtoolsOpen = false
+			else
+				tab.webui:OpenDevTools()
+				tab.devtoolsOpen = true
+			end
 		end
-	end, "Open WebBrowser DevTools")
+	end, "Toggle WebBrowser DevTools")
 end
 
 -- Export

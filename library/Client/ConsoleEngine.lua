@@ -4,10 +4,12 @@
 -- Console engine
 
 -- Import dependencies
+local fuzzy = require "@cheatoid/standalone/fuzzy"
 local console = require "@cheatoid/standalone/console"
 local autocompleter = require "@cheatoid/autocompleter/autocompleter"
 local permission = require "@cheatoid/permission/permission"
 local plugin_framework = require "@cheatoid/plugin_framework/plugin_framework"
+local chat_commander = require "@cheatoid/chat_commander/chat_commander"
 
 local M = {}
 local ConsoleWebUI
@@ -31,10 +33,28 @@ function M.Initialize()
 			WidgetVisibility.Hidden, true, true
 		)
 
-		ConsoleWebUI:Subscribe("Ready", function()
+		ConsoleWebUI:Subscribe("ConsoleReady", function()
 			-- Initialize with default theme
 			ConsoleWebUI:CallEvent("setTheme", "amber")
 			M.Toggle(true)
+
+			-- Subscribe to game console logs
+			Console.Subscribe("LogEntry", function(text, type)
+				-- Map LogType to console UI types
+				local logType = "log"
+				if type == LogType.Error or type == LogType.Fatal or type == LogType.ScriptingError then
+					logType = "error"
+				elseif type == LogType.ScriptingWarn then
+					logType = "warn"
+				elseif type == LogType.Debug or type == LogType.Verbose then
+					logType = "debug"
+				elseif type == LogType.Success then
+					logType = "success"
+				elseif type == LogType.Chat then
+					logType = "info"
+				end
+				M.Log(logType, text)
+			end)
 		end)
 
 		-- Handle command execution from JS
@@ -45,6 +65,13 @@ function M.Initialize()
 				if result then
 					M.Log(result.type or "log", result.text)
 				end
+			else
+				-- Forward to Console.RunCommand for game console commands
+				local fullCommand = name
+				if args and #args > 0 then
+					fullCommand = fullCommand .. " " .. table.concat(args, " ")
+				end
+				Console.RunCommand(fullCommand)
 			end
 		end)
 
@@ -58,6 +85,12 @@ function M.Initialize()
 			if caretPositionCallback then
 				caretPositionCallback(position, inputValue, wordBeforeCaret)
 			end
+		end)
+
+		-- Handle autocomplete requests from JS
+		ConsoleWebUI:Subscribe("getAutocomplete", function(line, caret)
+			local suggestions = chat_commander.suggest_at(line, caret, { max_results = 8 })
+			ConsoleWebUI:CallEvent("autocompleteSuggestions", suggestions)
 		end)
 	end
 end

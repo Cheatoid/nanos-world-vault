@@ -242,17 +242,45 @@ License: MIT
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%) scale(0.9);
-			background: rgba(26, 26, 46, 0.95);
-			border-radius: 20px;
-			padding: 30px;
-			max-width: 500px;
+			background: rgba(26, 26, 46, 0.98);
+			border-radius: 16px;
+			max-width: 480px;
 			width: 90%;
+			max-height: min(85vh, 600px);
+			display: flex;
+			flex-direction: column;
 			opacity: 0;
 			visibility: hidden;
-			transition: all 0.3s ease;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 			backdrop-filter: blur(20px);
-			border: 1px solid rgba(255, 255, 255, 0.1);
+			border: 1px solid rgba(255, 255, 255, 0.08);
 			z-index: 999999;
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+		}
+
+		.settings-modal-content {
+			flex: 1;
+			overflow-y: auto;
+			padding: 24px;
+			padding-bottom: 0;
+		}
+
+		.settings-modal-content::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.settings-modal-content::-webkit-scrollbar-track {
+			background: transparent;
+			margin: 4px 0;
+		}
+
+		.settings-modal-content::-webkit-scrollbar-thumb {
+			background: rgba(255, 31, 90, 0.4);
+			border-radius: 3px;
+		}
+
+		.settings-modal-content::-webkit-scrollbar-thumb:hover {
+			background: rgba(255, 31, 90, 0.6);
 		}
 
 		.settings-modal.active {
@@ -266,6 +294,50 @@ License: MIT
 			color: #ff1f5a;
 		}
 
+		.settings-tabs {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 20px;
+			background: rgba(0, 0, 0, 0.2);
+			padding: 4px;
+			border-radius: 12px;
+		}
+
+		.settings-tab {
+			padding: 8px 16px;
+			background: transparent;
+			border: none;
+			user-select: none;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			font-size: 13px;
+			font-weight: 500;
+			color: rgba(255, 255, 255, 0.6);
+			flex: 1;
+			text-align: center;
+		}
+
+		.settings-tab:hover {
+			color: rgba(255, 255, 255, 0.9);
+			background: rgba(255, 255, 255, 0.05);
+		}
+
+		.settings-tab.active {
+			background: rgba(255, 31, 90, 0.9);
+			color: white;
+			box-shadow: 0 4px 12px rgba(255, 31, 90, 0.3);
+		}
+
+		.settings-tab-content {
+			display: none;
+			padding-bottom: 16px;
+		}
+
+		.settings-tab-content.active {
+			display: block;
+		}
+
 		.settings-group {
 			margin-bottom: 20px;
 		}
@@ -274,6 +346,7 @@ License: MIT
 			display: block;
 			margin-bottom: 10px;
 			font-weight: 500;
+			user-select: none;
 		}
 
 		.settings-group input[type="text"],
@@ -381,39 +454,53 @@ License: MIT
 			display: flex;
 			gap: 10px;
 			justify-content: flex-end;
-			margin-top: 20px;
+			border-top: 1px solid rgba(255, 255, 255, 0.1);
+			background: rgba(26, 26, 46, 0.98);
+			backdrop-filter: blur(10px);
+			padding: 16px 24px;
+			z-index: 10;
+			flex-shrink: 0;
 		}
 
 		.reset-btn {
-			background: rgba(255, 255, 255, 0.1);
-			color: #e0e0e0;
-			border: 1px solid rgba(255, 255, 255, 0.2);
-			padding: 12px 20px;
-			border-radius: 25px;
-			font-size: 16px;
+			background: rgba(255, 255, 255, 0.08);
+			color: rgba(255, 255, 255, 0.8);
+			border: 1px solid rgba(255, 255, 255, 0.15);
+			padding: 10px 18px;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 500;
 			cursor: pointer;
-			transition: all 0.3s ease;
+			transition: all 0.2s ease;
+			backdrop-filter: blur(10px);
 		}
 
 		.reset-btn:hover {
-			background: rgba(255, 255, 255, 0.2);
+			background: rgba(255, 255, 255, 0.15);
+			color: white;
+			border-color: rgba(255, 255, 255, 0.3);
 		}
 
 		.save-btn {
-			background: #ff1f5a;
+			background: linear-gradient(135deg, #ff1f5a 0%, #ff3f7a 100%);
 			color: white;
 			border: none;
-			padding: 12px 30px;
-			border-radius: 25px;
-			font-size: 16px;
+			padding: 10px 24px;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 600;
 			cursor: pointer;
-			transition: all 0.3s ease;
+			transition: all 0.2s ease;
+			box-shadow: 0 4px 15px rgba(255, 31, 90, 0.3);
 		}
 
 		.save-btn:hover {
-			background: #ff1f5a;
-			transform: scale(1.05);
-			box-shadow: 0 5px 20px rgba(255, 31, 90, 0.4);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(255, 31, 90, 0.4);
+		}
+
+		.save-btn:active {
+			transform: translateY(0);
 		}
 
 		.quick-links-settings {
@@ -429,6 +516,7 @@ License: MIT
 			display: flex;
 			align-items: center;
 			gap: 8px;
+			user-select: none;
 			padding: 8px;
 			background: rgba(255, 255, 255, 0.05);
 			border-radius: 8px;
@@ -451,6 +539,7 @@ License: MIT
 			flex: 1;
 			font-size: 13px;
 			cursor: pointer;
+			user-select: none;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
@@ -667,52 +756,88 @@ License: MIT
 </div>
 
 <div class="settings-modal" id="settingsModal">
-	<button class="close-btn" id="closeSettings">
-		<i class="fas fa-times"></i>
-	</button>
-	<h2>Settings</h2>
-	<div class="settings-group">
-		<label>Background Type</label>
-		<div class="bg-type-selector">
-			<label class="bg-type-option active" id="gradientOption">
-				<input type="radio" name="bgType" value="gradient" checked>
-				Gradient
-			</label>
-			<label class="bg-type-option" id="imageOption">
-				<input type="radio" name="bgType" value="image">
-				Image
-			</label>
+	<div class="settings-modal-content">
+		<button class="close-btn" id="closeSettings">
+			<i class="fas fa-times"></i>
+		</button>
+		<h2>Settings</h2>
+		<div class="settings-tabs">
+			<div class="settings-tab active" data-tab="background">Background</div>
+			<div class="settings-tab" data-tab="scrollbar">Scrollbar</div>
 		</div>
-	</div>
-	<div id="gradientSettings">
-		<div class="settings-group">
-			<label>Background Color 1</label>
-			<input type="color" id="bgColor1" value="#402040">
+		<div class="settings-tab-content active" id="backgroundTab">
+			<div class="settings-group">
+				<label>Background Type</label>
+				<div class="bg-type-selector">
+					<label class="bg-type-option active" id="gradientOption">
+						<input type="radio" name="bgType" value="gradient" checked>
+						Gradient
+					</label>
+					<label class="bg-type-option" id="imageOption">
+						<input type="radio" name="bgType" value="image">
+						Image
+					</label>
+				</div>
+			</div>
+			<div id="gradientSettings">
+				<div class="settings-group">
+					<label>Background Color 1</label>
+					<input type="color" id="bgColor1" value="#402040">
+				</div>
+				<div class="settings-group">
+					<label>Background Color 2</label>
+					<input type="color" id="bgColor2" value="#203558">
+				</div>
+				<div class="settings-group">
+					<label>Background Color 3</label>
+					<input type="color" id="bgColor3" value="#106464">
+				</div>
+				<div class="settings-group">
+					<label>Gradient Angle: <span id="angleValue">135</span>°</label>
+					<input type="range" id="gradientAngle" min="0" max="360" value="135">
+				</div>
+			</div>
+			<div class="settings-group">
+				<label>Accent Color</label>
+				<input type="color" id="accentColor" value="#ff205a">
+			</div>
+			<div class="settings-group image-url-input" id="imageSettings">
+				<label>Background Image URL</label>
+				<input type="text" id="bgImageUrl" placeholder="https://example.com/image.jpg">
+			</div>
+			<div class="settings-group">
+				<label>Quick Links Visibility</label>
+				<div class="quick-links-settings" id="quickLinksSettings"></div>
+			</div>
+			<div class="settings-group">
+				<div class="quick-link-toggle">
+					<input type="checkbox" id="useLocalFiles">
+					<label for="useLocalFiles">Use local HTML files for quick-links</label>
+				</div>
+			</div>
 		</div>
-		<div class="settings-group">
-			<label>Background Color 2</label>
-			<input type="color" id="bgColor2" value="#203558">
+		<div class="settings-tab-content" id="scrollbarTab">
+			<div class="settings-group">
+				<label>Scrollbar Width: <span id="scrollbarWidthValue">8</span>px</label>
+				<input type="range" id="scrollbarWidth" min="4" max="20" value="8">
+			</div>
+			<div class="settings-group">
+				<label>Scrollbar Track Color</label>
+				<input type="color" id="scrollbarTrackColor" value="#1a1a2e">
+			</div>
+			<div class="settings-group">
+				<label>Scrollbar Thumb Color</label>
+				<input type="color" id="scrollbarThumbColor" value="#ff1f5a">
+			</div>
+			<div class="settings-group">
+				<label>Scrollbar Thumb Hover Color</label>
+				<input type="color" id="scrollbarThumbHoverColor" value="#ff3f7a">
+			</div>
+			<div class="settings-group">
+				<label>Scrollbar Border Radius: <span id="scrollbarRadiusValue">0</span>px</label>
+				<input type="range" id="scrollbarRadius" min="0" max="10" value="0">
+			</div>
 		</div>
-		<div class="settings-group">
-			<label>Background Color 3</label>
-			<input type="color" id="bgColor3" value="#106464">
-		</div>
-		<div class="settings-group">
-			<label>Gradient Angle: <span id="angleValue">135</span>°</label>
-			<input type="range" id="gradientAngle" min="0" max="360" value="135">
-		</div>
-	</div>
-	<div class="settings-group">
-		<label>Accent Color</label>
-		<input type="color" id="accentColor" value="#ff205a">
-	</div>
-	<div class="settings-group image-url-input" id="imageSettings">
-		<label>Background Image URL</label>
-		<input type="text" id="bgImageUrl" placeholder="https://example.com/image.jpg">
-	</div>
-	<div class="settings-group">
-		<label>Quick Links Visibility</label>
-		<div class="quick-links-settings" id="quickLinksSettings"></div>
 	</div>
 	<div class="settings-buttons">
 		<button class="reset-btn" id="resetSettings">Reset to Default</button>
@@ -721,6 +846,9 @@ License: MIT
 </div>
 
 <script>
+	// Constants
+	const REMOTE_BASE_URL = 'https://cheatoid.github.io/nanos-world-vault/library/Client/';
+
 	// Clock
 	function updateClock() {
 		const now = new Date();
@@ -776,15 +904,19 @@ License: MIT
 	});
 
 	// Quick links
-	const PAGE_BASE_URL = 'https://cheatoid.github.io/nanos-world-vault/library/Client/UI/';
 	document.querySelectorAll('.quick-link').forEach(link => {
+		// Left click - navigate in current tab
 		link.addEventListener('click', (e) => {
 			e.stopPropagation(); // Prevent injected JS from handling this click
 			let targetUrl = String(link.href);
-			if (targetUrl.startsWith('file://')) {
-				targetUrl = 'https://cheatoid.github.io/nanos-world-vault/library/Client/' + targetUrl.substring(7);
-			} else if (targetUrl.startsWith(PAGE_BASE_URL)) {
-				targetUrl = targetUrl.substring(PAGE_BASE_URL.length);
+			// Convert remote URLs to local file:// URLs if setting is enabled
+			if (useLocalFiles && targetUrl.startsWith(REMOTE_BASE_URL)) {
+				const relativePath = targetUrl.substring(REMOTE_BASE_URL.length);
+				targetUrl = 'file://' + relativePath;
+			}
+			// Only convert local file:// URLs to remote URLs for GitHub Pages when not using local files
+			if (!useLocalFiles && targetUrl.startsWith('file://')) {
+				targetUrl = REMOTE_BASE_URL + targetUrl.substring(7);
 			}
 			if (typeof Events !== 'undefined') {
 				e.preventDefault();
@@ -792,6 +924,27 @@ License: MIT
 			} else {
 				e.preventDefault();
 				window.location.href = targetUrl;
+			}
+		});
+
+		// Middle click - open in new tab
+		link.addEventListener('auxclick', (e) => {
+			if (e.button === 1) { // Middle mouse button
+				e.stopPropagation();
+				e.preventDefault();
+				let targetUrl = String(link.href);
+				// Convert remote URLs to local file:// URLs if setting is enabled
+				if (useLocalFiles && targetUrl.startsWith(REMOTE_BASE_URL)) {
+					const relativePath = targetUrl.substring(REMOTE_BASE_URL.length);
+					targetUrl = 'file://' + relativePath;
+				}
+				// Only convert local file:// URLs to remote URLs for GitHub Pages when not using local files
+				if (!useLocalFiles && targetUrl.startsWith('file://')) {
+					targetUrl = REMOTE_BASE_URL + targetUrl.substring(7);
+				}
+				if (typeof Events !== 'undefined') {
+					Events.Call('OpenInNewTab', targetUrl);
+				}
 			}
 		});
 	});
@@ -812,11 +965,56 @@ License: MIT
 		gradientAngle: 135,
 		bgImageUrl: '',
 		accentColor: '#ff205a',
-		quickLinksVisibility: {}
+		quickLinksVisibility: {},
+		useLocalFiles: false,
+		scrollbarWidth: 8,
+		scrollbarTrackColor: '#1a1a2e',
+		scrollbarThumbColor: '#ff1f5a',
+		scrollbarThumbHoverColor: '#ff3f7a',
+		scrollbarRadius: 0
 	};
+
+	// Use local files state
+	let useLocalFiles = false;
 
 	// Quick links visibility state
 	let quickLinksVisibility = {};
+
+	// Scrollbar settings state
+	let scrollbarSettings = {
+		width: 8,
+		trackColor: '#1a1a2e',
+		thumbColor: '#ff1f5a',
+		thumbHoverColor: '#ff3f7a',
+		radius: 4
+	};
+
+	// Function to apply scrollbar styles
+	function applyScrollbarStyles() {
+		const style = document.createElement('style');
+		style.id = 'custom-scrollbar';
+		style.textContent = `
+			::-webkit-scrollbar {
+				width: ${scrollbarSettings.width}px;
+			}
+			::-webkit-scrollbar-track {
+				background: ${scrollbarSettings.trackColor};
+				border-radius: ${scrollbarSettings.radius}px;
+			}
+			::-webkit-scrollbar-thumb {
+				background: ${scrollbarSettings.thumbColor};
+				border-radius: ${scrollbarSettings.radius}px;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: ${scrollbarSettings.thumbHoverColor};
+			}
+		`;
+		const existingStyle = document.getElementById('custom-scrollbar');
+		if (existingStyle) {
+			existingStyle.remove();
+		}
+		document.head.appendChild(style);
+	}
 
 	// Function to generate a stable ID from URL
 	function getLinkIdFromUrl(url) {
@@ -854,6 +1052,15 @@ License: MIT
 				quickLinksVisibility[linkId] = e.target.checked;
 				updateQuickLinksVisibility();
 			});
+
+			// Add click handler to the entire toggle div for better responsiveness
+			toggle.addEventListener('click', (e) => {
+				if (e.target !== checkbox) {
+					checkbox.checked = !checkbox.checked;
+					quickLinksVisibility[linkId] = checkbox.checked;
+					updateQuickLinksVisibility();
+				}
+			});
 		});
 	}
 
@@ -880,6 +1087,16 @@ License: MIT
 	const gradientSettings = document.getElementById('gradientSettings');
 	const imageSettings = document.getElementById('imageSettings');
 	const quickLinksSettings = document.getElementById('quickLinksSettings');
+	const useLocalFilesCheckbox = document.getElementById('useLocalFiles');
+
+	// Scrollbar controls
+	const scrollbarWidth = document.getElementById('scrollbarWidth');
+	const scrollbarWidthValue = document.getElementById('scrollbarWidthValue');
+	const scrollbarTrackColor = document.getElementById('scrollbarTrackColor');
+	const scrollbarThumbColor = document.getElementById('scrollbarThumbColor');
+	const scrollbarThumbHoverColor = document.getElementById('scrollbarThumbHoverColor');
+	const scrollbarRadius = document.getElementById('scrollbarRadius');
+	const scrollbarRadiusValue = document.getElementById('scrollbarRadiusValue');
 
 	// Background type selection
 	let currentBgType = 'gradient';
@@ -949,9 +1166,38 @@ License: MIT
 	saveSettings.addEventListener('click', (e) => e.stopPropagation());
 	resetSettings.addEventListener('click', (e) => e.stopPropagation());
 	closeSettings.addEventListener('click', (e) => e.stopPropagation());
+	useLocalFilesCheckbox.addEventListener('click', (e) => e.stopPropagation());
+
+	// Tab switching
+	const settingsTabs = document.querySelectorAll('.settings-tab');
+	const tabContents = document.querySelectorAll('.settings-tab-content');
+
+	settingsTabs.forEach(tab => {
+		tab.addEventListener('click', () => {
+			const targetTab = tab.dataset.tab;
+			settingsTabs.forEach(t => t.classList.remove('active'));
+			tabContents.forEach(c => c.classList.remove('active'));
+			tab.classList.add('active');
+			document.getElementById(targetTab + 'Tab').classList.add('active');
+		});
+	});
+
+	// Update useLocalFiles state when checkbox changes
+	useLocalFilesCheckbox.addEventListener('change', (e) => {
+		useLocalFiles = e.target.checked;
+	});
+
+	// Add click handler to the entire toggle div for better responsiveness
+	useLocalFilesCheckbox.parentElement.addEventListener('click', (e) => {
+		// Only toggle if clicking on the container itself (not checkbox or label)
+		if (e.target === useLocalFilesCheckbox.parentElement) {
+			useLocalFilesCheckbox.checked = !useLocalFilesCheckbox.checked;
+			useLocalFiles = useLocalFilesCheckbox.checked;
+		}
+	});
 
 	// Prevent click propagation on modal content
-	document.querySelectorAll('.settings-group, .settings-buttons, h2').forEach(el => {
+	document.querySelectorAll('.settings-group, .settings-buttons, h2, .settings-tabs, .settings-tab, .settings-tab-content, .settings-modal-content').forEach(el => {
 		el.addEventListener('click', (e) => e.stopPropagation());
 	});
 
@@ -959,6 +1205,34 @@ License: MIT
 	bgColor1.addEventListener('input', updateBackground);
 	bgColor2.addEventListener('input', updateBackground);
 	bgColor3.addEventListener('input', updateBackground);
+
+	// Real-time preview for scrollbar settings
+	scrollbarWidth.addEventListener('input', () => {
+		scrollbarWidthValue.textContent = scrollbarWidth.value;
+		scrollbarSettings.width = parseInt(scrollbarWidth.value);
+		applyScrollbarStyles();
+	});
+
+	scrollbarTrackColor.addEventListener('input', () => {
+		scrollbarSettings.trackColor = scrollbarTrackColor.value;
+		applyScrollbarStyles();
+	});
+
+	scrollbarThumbColor.addEventListener('input', () => {
+		scrollbarSettings.thumbColor = scrollbarThumbColor.value;
+		applyScrollbarStyles();
+	});
+
+	scrollbarThumbHoverColor.addEventListener('input', () => {
+		scrollbarSettings.thumbHoverColor = scrollbarThumbHoverColor.value;
+		applyScrollbarStyles();
+	});
+
+	scrollbarRadius.addEventListener('input', () => {
+		scrollbarRadiusValue.textContent = scrollbarRadius.value;
+		scrollbarSettings.radius = parseInt(scrollbarRadius.value);
+		applyScrollbarStyles();
+	});
 
 	// Real-time preview for accent color
 	accentColor.addEventListener('input', () => {
@@ -977,6 +1251,25 @@ License: MIT
 		const settings = JSON.parse(savedSettings);
 		currentBgType = settings.bgType || 'gradient';
 		quickLinksVisibility = settings.quickLinksVisibility || {};
+		useLocalFiles = settings.useLocalFiles || false;
+		useLocalFilesCheckbox.checked = useLocalFiles;
+
+		// Load scrollbar settings
+		if (settings.scrollbarWidth) scrollbarSettings.width = settings.scrollbarWidth;
+		if (settings.scrollbarTrackColor) scrollbarSettings.trackColor = settings.scrollbarTrackColor;
+		if (settings.scrollbarThumbColor) scrollbarSettings.thumbColor = settings.scrollbarThumbColor;
+		if (settings.scrollbarThumbHoverColor) scrollbarSettings.thumbHoverColor = settings.scrollbarThumbHoverColor;
+		if (settings.scrollbarRadius) scrollbarSettings.radius = settings.scrollbarRadius;
+
+		// Update scrollbar UI
+		scrollbarWidth.value = scrollbarSettings.width;
+		scrollbarWidthValue.textContent = scrollbarSettings.width;
+		scrollbarTrackColor.value = scrollbarSettings.trackColor;
+		scrollbarThumbColor.value = scrollbarSettings.thumbColor;
+		scrollbarThumbHoverColor.value = scrollbarSettings.thumbHoverColor;
+		scrollbarRadius.value = scrollbarSettings.radius;
+		scrollbarRadiusValue.textContent = scrollbarSettings.radius;
+		applyScrollbarStyles();
 
 		// Update UI based on background type
 		if (currentBgType === 'gradient') {
@@ -1014,6 +1307,10 @@ License: MIT
 
 		// Apply quick links visibility
 		updateQuickLinksVisibility();
+		// Apply use local files setting
+		useLocalFilesCheckbox.checked = useLocalFiles;
+		// Apply scrollbar styles
+		applyScrollbarStyles();
 	} else {
 		// If no saved settings, load chrome theme as accent color
 		const chromeTheme = localStorage.getItem('webbrowser_theme');
@@ -1048,7 +1345,13 @@ License: MIT
 			gradientAngle: gradientAngle.value,
 			bgImageUrl: bgImageUrl.value,
 			accentColor: accentColor.value,
-			quickLinksVisibility: {...quickLinksVisibility}
+			quickLinksVisibility: {...quickLinksVisibility},
+			useLocalFiles: useLocalFiles,
+			scrollbarWidth: scrollbarSettings.width,
+			scrollbarTrackColor: scrollbarSettings.trackColor,
+			scrollbarThumbColor: scrollbarSettings.thumbColor,
+			scrollbarThumbHoverColor: scrollbarSettings.thumbHoverColor,
+			scrollbarRadius: scrollbarSettings.radius
 		};
 		// Render quick links settings
 		renderQuickLinksSettings();
@@ -1071,6 +1374,8 @@ License: MIT
 			bgImageUrl.value = window.originalSettings.bgImageUrl;
 			accentColor.value = window.originalSettings.accentColor;
 			quickLinksVisibility = {...window.originalSettings.quickLinksVisibility};
+			useLocalFiles = window.originalSettings.useLocalFiles;
+			useLocalFilesCheckbox.checked = useLocalFiles;
 
 			// Restore UI state
 			if (currentBgType === 'gradient') {
@@ -1091,6 +1396,23 @@ License: MIT
 				el.style.color = window.originalSettings.accentColor;
 			});
 			updateQuickLinksVisibility();
+
+			// Restore scrollbar settings
+			scrollbarSettings = {
+				width: window.originalSettings.scrollbarWidth || defaultSettings.scrollbarWidth,
+				trackColor: window.originalSettings.scrollbarTrackColor || defaultSettings.scrollbarTrackColor,
+				thumbColor: window.originalSettings.scrollbarThumbColor || defaultSettings.scrollbarThumbColor,
+				thumbHoverColor: window.originalSettings.scrollbarThumbHoverColor || defaultSettings.scrollbarThumbHoverColor,
+				radius: window.originalSettings.scrollbarRadius || defaultSettings.scrollbarRadius
+			};
+			scrollbarWidth.value = scrollbarSettings.width;
+			scrollbarWidthValue.textContent = scrollbarSettings.width;
+			scrollbarTrackColor.value = scrollbarSettings.trackColor;
+			scrollbarThumbColor.value = scrollbarSettings.thumbColor;
+			scrollbarThumbHoverColor.value = scrollbarSettings.thumbHoverColor;
+			scrollbarRadius.value = scrollbarSettings.radius;
+			scrollbarRadiusValue.textContent = scrollbarSettings.radius;
+			applyScrollbarStyles();
 		}
 		settingsModal.classList.remove('active');
 	});
@@ -1104,7 +1426,13 @@ License: MIT
 			gradientAngle: document.getElementById('gradientAngle').value,
 			bgImageUrl: document.getElementById('bgImageUrl').value,
 			accentColor: document.getElementById('accentColor').value,
-			quickLinksVisibility: quickLinksVisibility
+			quickLinksVisibility: quickLinksVisibility,
+			useLocalFiles: useLocalFilesCheckbox.checked,
+			scrollbarWidth: parseInt(scrollbarWidth.value),
+			scrollbarTrackColor: scrollbarTrackColor.value,
+			scrollbarThumbColor: scrollbarThumbColor.value,
+			scrollbarThumbHoverColor: scrollbarThumbHoverColor.value,
+			scrollbarRadius: parseInt(scrollbarRadius.value)
 		};
 
 		localStorage.setItem('newTabSettings', JSON.stringify(settings));
@@ -1142,6 +1470,27 @@ License: MIT
 		quickLinksVisibility = {...defaultSettings.quickLinksVisibility};
 		updateQuickLinksVisibility();
 		renderQuickLinksSettings();
+
+		// Reset use local files setting
+		useLocalFiles = defaultSettings.useLocalFiles;
+		useLocalFilesCheckbox.checked = useLocalFiles;
+
+		// Reset scrollbar settings
+		scrollbarSettings = {
+			width: defaultSettings.scrollbarWidth,
+			trackColor: defaultSettings.scrollbarTrackColor,
+			thumbColor: defaultSettings.scrollbarThumbColor,
+			thumbHoverColor: defaultSettings.scrollbarThumbHoverColor,
+			radius: defaultSettings.scrollbarRadius
+		};
+		scrollbarWidth.value = scrollbarSettings.width;
+		scrollbarWidthValue.textContent = scrollbarSettings.width;
+		scrollbarTrackColor.value = scrollbarSettings.trackColor;
+		scrollbarThumbColor.value = scrollbarSettings.thumbColor;
+		scrollbarThumbHoverColor.value = scrollbarSettings.thumbHoverColor;
+		scrollbarRadius.value = scrollbarSettings.radius;
+		scrollbarRadiusValue.textContent = scrollbarSettings.radius;
+		applyScrollbarStyles();
 
 		// Apply default colors
 		document.body.style.background = `linear-gradient(${defaultSettings.gradientAngle}deg, ${defaultSettings.bgColor1} 0%, ${defaultSettings.bgColor2} 50%, ${defaultSettings.bgColor3} 100%)`;

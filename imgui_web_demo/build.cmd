@@ -8,6 +8,12 @@ del "index.html" >NUL 2>&1
 
 call "..\emsdk\emsdk_env.bat"
 
+echo Cleaning CMake cache and build directory...
+if exist "build" (
+	rmdir /s /q "build" >NUL 2>&1
+)
+
+echo Configuring with CMake...
 rem call emcmake cmake -S . -B build -DCMAKE_BUILD_TYPE=MinSizeRel -DIMGUI_EMSCRIPTEN_WEBGPU_FLAG="--use-port=%~dp0emdawnwebgpu_pkg\emdawnwebgpu.port.py" -G Ninja
 call emcmake cmake -S . -B build -DCMAKE_BUILD_TYPE=MinSizeRel -G Ninja
 

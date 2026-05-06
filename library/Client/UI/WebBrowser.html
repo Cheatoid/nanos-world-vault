@@ -259,6 +259,25 @@ License: MIT
 			background: var(--primary-color) !important;
 		}
 
+		.devtools-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 6px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: var(--border-color);
+			border: none;
+			color: var(--text-color);
+			cursor: pointer;
+			transition: all 0.2s;
+			font-size: 14px;
+		}
+
+		.devtools-btn:hover {
+			background: var(--primary-color) !important;
+		}
+
 		.close-btn {
 			width: 36px;
 			height: 36px;
@@ -309,6 +328,9 @@ License: MIT
 		</div>
 		<button class="go-btn" id="goBtn" title="Go">
 			<i class="fas fa-arrow-right"></i>
+		</button>
+		<button class="devtools-btn" id="devtoolsBtn" title="Toggle DevTools">
+			<i class="fas fa-bug"></i>
 		</button>
 		<button class="close-btn" id="closeBtn" title="Close Browser">
 			<i class="fas fa-times"></i>
@@ -421,6 +443,7 @@ License: MIT
 	const reloadBtn = document.getElementById('reloadBtn');
 	const homeBtn = document.getElementById('homeBtn');
 	const goBtn = document.getElementById('goBtn');
+	const devtoolsBtn = document.getElementById('devtoolsBtn');
 	const closeBtn = document.getElementById('closeBtn');
 	const lockIcon = document.getElementById('lockIcon');
 
@@ -581,6 +604,12 @@ License: MIT
 
 	homeBtn.addEventListener('click', () => {
 		navigate(NEW_TAB_PAGE_URL);
+	});
+
+	devtoolsBtn.addEventListener('click', () => {
+		if (activeTabId && typeof Events !== 'undefined') {
+			Events.Call('ToggleDevTools', activeTabId);
+		}
 	});
 
 	closeBtn.addEventListener('click', () => {

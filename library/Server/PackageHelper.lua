@@ -10,10 +10,6 @@ local string_find = string.find
 --local string_match = string.match
 local string_sub = string.sub
 local Server_GetPackages = Server.GetPackages
-local Server_IsPackageLoaded = Server.IsPackageLoaded
-local Server_LoadPackage = Server.LoadPackage
-local Server_ReloadPackage = Server.ReloadPackage
-local Server_UnloadPackage = Server.UnloadPackage
 
 --- Package management utility library for Nanos World.<br>
 --- Provides console commands & functions for loading, unloading, and reloading packages with pattern matching support.
@@ -72,7 +68,6 @@ local function GetMatchingPackages(name)
 			end
 			return matches
 		end
-
 		-- Exact name match
 		if PackageExists(name) then
 			return { name }
@@ -89,9 +84,9 @@ self.Match = GetMatchingPackages
 local function ReloadAllPackages(onlyLoaded, typeFilter)
 	if onlyLoaded == nil then onlyLoaded = true end
 	--if typeFilter == nil then typeFilter = -1 end -- PackageType.* or -1 for all
-	for _, p in next, Server_GetPackages(onlyLoaded, typeFilter) do
-		--Console_RunCommand("package reload " .. p.name)
-		pcall(Server_ReloadPackage, p.name)
+	for _, p in next, Server.GetPackages(onlyLoaded, typeFilter) do
+		--Console.RunCommand("package reload " .. p.name)
+		pcall(Server.ReloadPackage, p.name)
 	end
 end
 
@@ -109,10 +104,10 @@ local function ReloadPack(...)
 			local matches = GetMatchingPackages(name)
 			for _, match in next, matches do
 				--Console_RunCommand("package reload " .. match)
-				if Server_IsPackageLoaded(match) then
-					pcall(Server_ReloadPackage, match)
+				if Server.IsPackageLoaded(match) then
+					pcall(Server.ReloadPackage, match)
 				else
-					pcall(Server_LoadPackage, match)
+					pcall(Server.LoadPackage, match)
 				end
 			end
 		end
@@ -126,19 +121,19 @@ self.Reload = ReloadPack
 ---@param ... string Variable number of package names or patterns to load.
 local function LoadPack(...)
 	if select("#", ...) == 0 then
-		--Console_RunCommand("package load all")
-		for _, p in next, Server_GetPackages(false) do
-			--if not Server_IsPackageLoaded(p.name) then
-			pcall(Server_LoadPackage, p.name)
+		--Console.RunCommand("package load all")
+		for _, p in next, Server.GetPackages(false) do
+			--if not Server.IsPackageLoaded(p.name) then
+			pcall(Server.LoadPackage, p.name)
 			--end
 		end
 	else
 		for _, name in next, { ... } do
 			local matches = GetMatchingPackages(name)
 			for _, match in next, matches do
-				--Console_RunCommand("package load " .. match)
-				--if not Server_IsPackageLoaded(match) then
-				pcall(Server_LoadPackage, match)
+				--Console.RunCommand("package load " .. match)
+				--if not Server.IsPackageLoaded(match) then
+				pcall(Server.LoadPackage, match)
 				--end
 			end
 		end
@@ -153,18 +148,18 @@ self.Load = LoadPack
 local function UnloadPack(...)
 	if select("#", ...) == 0 then
 		--Console_RunCommand("package unload all")
-		local result = Server_GetPackages(true)
+		local result = Server.GetPackages(true)
 		for _, p in next, result do
-			--Console_RunCommand("package unload " .. p.name)
-			pcall(Server_UnloadPackage, p.name)
+			--Console.RunCommand("package unload " .. p.name)
+			pcall(Server.UnloadPackage, p.name)
 		end
 	else
 		for _, name in next, { ... } do
 			local matches = GetMatchingPackages(name)
 			for _, match in next, matches do
-				--Console_RunCommand("package unload " .. match)
-				--if Server_IsPackageLoaded(match) then
-				pcall(Server_UnloadPackage, match)
+				--Console.RunCommand("package unload " .. match)
+				--if Server.IsPackageLoaded(match) then
+				pcall(Server.UnloadPackage, match)
 				--end
 			end
 		end
@@ -178,7 +173,7 @@ local PackageName = Package.GetName()
 --- Reload the cheatoid-library package itself.<br>
 --- Useful for development to quickly reload changes during development.
 local function ReloadLib()
-	Server_ReloadPackage(PackageName)
+	Server.ReloadPackage(PackageName)
 end
 
 self.ReloadLib = ReloadLib

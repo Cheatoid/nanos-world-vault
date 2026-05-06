@@ -184,6 +184,7 @@ else() # Emscripten settings
 	target_link_options(${IMGUI_EXECUTABLE} PRIVATE
 			"${IMGUI_EMSCRIPTEN_WEBGPU_FLAG}"
 			"${IMGUI_EMSCRIPTEN_GLFW3}"
+			"-lembind"
 			"-sWASM=1"
 			"-sASYNCIFY=1"
 			"-sALLOW_MEMORY_GROWTH=1"
@@ -192,8 +193,9 @@ else() # Emscripten settings
 			"-sDISABLE_EXCEPTION_CATCHING=1"
 			"-sNO_FILESYSTEM=1"
 			"-sSINGLE_FILE"
+			"-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','getValue','setValue','UTF8ToString','stringToUTF8']"
+			"-sEXPORTED_FUNCTIONS=['_malloc','_free','_main']"
 			"-O3"
-			#"--shell-file=${IMGUI_DIR}/examples/libs/emscripten/shell_minimal.html"
 			"--shell-file=${CMAKE_CURRENT_LIST_DIR}/shell_minimal.html"
 	)
 	set_target_properties(${IMGUI_EXECUTABLE} PROPERTIES OUTPUT_NAME "index")

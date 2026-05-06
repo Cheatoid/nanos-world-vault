@@ -340,7 +340,10 @@ const ConsoleEngine = {
 				this.log('error', `Command error: ${e.message}`);
 			}
 		} else {
-			this.log('error', `Unknown command: "${cmdName}". Type "help" for available commands.`);
+			// Send to Lua for Console.RunCommand execution
+			if (typeof WebUI !== 'undefined') {
+				WebUI.CallEvent('onCommand', cmdName, args);
+			}
 		}
 	},
 
@@ -430,6 +433,7 @@ const Autocomplete = {
 	items: [],
 	selected: -1,
 	caretPosition: 0, // Track caret position
+	loading: false,
 
 	show(matches) {
 		if (!this.el) this.el = $('#autocomplete');
@@ -439,12 +443,15 @@ const Autocomplete = {
 			this.hide();
 			return;
 		}
-		this.el.innerHTML = matches.map((m, i) => `
+		this.el.innerHTML = matches.map((m, i) => {
+			const text = typeof m === 'string' ? m : (m.name || '');
+			const desc = typeof m === 'string' ? '' : (m.desc || '');
+			return `
 <div class="autocomplete-item${i === 0 ? ' selected' : ''}" data-index="${i}" role="option">
-<span class="cmd-name">${escHtml(m.name)}</span>
-<span class="cmd-hint">${escHtml(m.desc)}</span>
+<span class="cmd-name">${escHtml(text)}</span>${desc ? `<span class="cmd-hint">${escHtml(desc)}</span>` : ''}
 </div>
-`).join('');
+`;
+		}).join('');
 		this.el.classList.add('visible');
 		$$('.autocomplete-item', this.el).forEach(item => {
 			item.addEventListener('mousedown', (e) => {
@@ -482,7 +489,8 @@ const Autocomplete = {
 		if (!item) return;
 		const input = $('#consoleInput');
 		if (input) {
-			input.value = item.name + ' ';
+			const text = typeof item === 'string' ? item : (item.name || '');
+			input.value = text + ' ';
 			this.hide();
 			input.focus();
 		}
@@ -523,6 +531,15 @@ const Autocomplete = {
 		const text = input.value.substring(0, this.caretPosition);
 		const match = text.match(/(\w+)$/);
 		return match ? match[1] : '';
+	},
+
+	// Request suggestions from Lua
+	requestSuggestions(input) {
+		if (this.loading || typeof Events === 'undefined') return;
+		this.loading = true;
+		const line = input.value;
+		const caret = input.selectionStart;
+		Events.Call('getAutocomplete', line, caret);
 	}
 };
 
@@ -651,51 +668,68 @@ window.ConsoleAPI = {
 	onToggle: null
 };
 
-// Nanos-world WebUI Event Listeners
-if (typeof WebUI !== 'undefined') {
+// Nanos-world Events API
+if (typeof Events !== 'undefined') {
+	// Ready event - signal Lua that JS is ready
+	const onReady = () => {
+		Events.Call('ConsoleReady');
+	};
+	document.addEventListener('DOMContentLoaded', onReady);
+	window.onload = onReady;
+
 	// Logging events
-	WebUI.Subscribe('log', (type, text) => ConsoleEngine.log(type, text));
-	WebUI.Subscribe('info', (text) => ConsoleEngine.log('info', text));
-	WebUI.Subscribe('warn', (text) => ConsoleEngine.log('warn', text));
-	WebUI.Subscribe('error', (text) => ConsoleEngine.log('error', text));
-	WebUI.Subscribe('debug', (text) => ConsoleEngine.log('debug', text));
-	WebUI.Subscribe('success', (text) => ConsoleEngine.log('success', text));
+	Events.Subscribe('log', (type, text) => ConsoleEngine.log(type, text));
+	Events.Subscribe('info', (text) => ConsoleEngine.log('info', text));
+	Events.Subscribe('warn', (text) => ConsoleEngine.log('warn', text));
+	Events.Subscribe('error', (text) => ConsoleEngine.log('error', text));
+	Events.Subscribe('debug', (text) => ConsoleEngine.log('debug', text));
+	Events.Subscribe('success', (text) => ConsoleEngine.log('success', text));
 
 	// Control events
-	WebUI.Subscribe('clear', () => ConsoleEngine.clear());
-	WebUI.Subscribe('toggle', (show) => ConsoleEngine.toggle(show));
-	WebUI.Subscribe('setTheme', (theme) => ThemeManager.set(theme));
+	Events.Subscribe('clear', () => ConsoleEngine.clear());
+	Events.Subscribe('toggle', (show) => ConsoleEngine.toggle(show));
+	Events.Subscribe('setTheme', (theme) => ThemeManager.set(theme));
 
 	// Command registration
-	WebUI.Subscribe('registerCommand', (name, desc) => {
+	Events.Subscribe('registerCommand', (name, desc) => {
 		CommandRegistry.register(name, desc, (args) => {
 			// Call back to Lua for execution
-			if (typeof WebUI !== 'undefined') {
-				WebUI.CallEvent('onCommand', name, args);
+			if (typeof Events !== 'undefined') {
+				Events.Call('onCommand', name, args);
 			}
 			return null;
 		});
 	});
 
 	// Autocomplete provider events
-	WebUI.Subscribe('registerAutocomplete', (name, desc, type, category) => {
+	Events.Subscribe('registerAutocomplete', (name, desc, type, category) => {
 		AutocompleteProvider.register(name, desc, type, category);
 	});
 
-	WebUI.Subscribe('unregisterAutocomplete', (name) => {
+	Events.Subscribe('unregisterAutocomplete', (name) => {
 		AutocompleteProvider.unregister(name);
 	});
 
-	WebUI.Subscribe('clearAutocomplete', () => {
+	Events.Subscribe('clearAutocomplete', () => {
 		AutocompleteProvider.clear();
 	});
 
 	// Caret position events
-	WebUI.Subscribe('getCaretPosition', () => {
+	Events.Subscribe('getCaretPosition', () => {
 		const input = $('#consoleInput');
 		if (input) {
 			Autocomplete.updateCaretPosition(input);
-			WebUI.CallEvent('caretPosition', Autocomplete.getCaretPosition(), input.value, Autocomplete.getWordBeforeCaret(input));
+			Events.Call('caretPosition', Autocomplete.getCaretPosition(), input.value, Autocomplete.getWordBeforeCaret(input));
+		}
+	});
+
+	// Autocomplete suggestions from Lua
+	Events.Subscribe('autocompleteSuggestions', (suggestions) => {
+		Autocomplete.loading = false;
+		if (suggestions && suggestions.length > 0) {
+			Autocomplete.show(suggestions);
+		} else {
+			Autocomplete.hide();
 		}
 	});
 }
@@ -820,13 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (!Autocomplete.confirmSelection()) {
 					const val = input.value.trim();
 					if (val) {
-						const matches = Autocomplete.getSuggestions(val);
-						if (matches.length === 1) {
-							input.value = matches[0].name + ' ';
-							Autocomplete.hide();
-						} else if (matches.length > 1) {
-							Autocomplete.show(matches);
-						}
+						Autocomplete.requestSuggestions(input);
 					}
 				}
 			} else if (e.key === 'ArrowUp') {
@@ -854,12 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			Autocomplete.updateCaretPosition(input);
 			const val = input.value.trim();
 			if (val.length >= 1) {
-				const matches = Autocomplete.getSuggestions(val);
-				if (matches.length > 0 && (matches.length > 1 || matches[0].name !== val)) {
-					Autocomplete.show(matches);
-				} else {
-					Autocomplete.hide();
-				}
+				Autocomplete.requestSuggestions(input);
 			} else {
 				Autocomplete.hide();
 			}
