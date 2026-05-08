@@ -5,7 +5,7 @@ const string ApiUrl = "https://api.nanos-world.com";
 const string PackageToml = "Package.toml";
 //const string UserAgent = "Cheatoid.NanosWorldPackager/v{0}"; // {0} is replaced with app version
 const string UserAgent =
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36";
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36";
 
 c.OutputEncoding = Encoding.UTF8;
 //c.Clear();
@@ -207,6 +207,24 @@ foreach (var dir in dirs)
 
 	c.WriteLine($"ℹ found valid git repository > {gitRoot}");
 	Directory.SetCurrentDirectory(gitRoot);
+
+	// Load packages.json to filter normalization targets
+	var packagesJsonPath = Path.Combine(gitRoot, "packages.json");
+	Dictionary<string, string>? packagesMap = null;
+	if (File.Exists(packagesJsonPath))
+	{
+		try
+		{
+			packagesMap =
+				JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(packagesJsonPath),
+					JsonOptions.Instance);
+		}
+		catch (Exception ex)
+		{
+			c.WriteLine($"⚠ warning: failed to parse packages.json: {ex.Message}");
+		}
+	}
+
 	var paths = GetPathsNotIgnored(gitRoot);
 	c.WriteLine($"ℹ found {paths.Count} files");
 	if (paths.Count <= 0) continue;
@@ -232,6 +250,26 @@ foreach (var dir in dirs)
 			}
 			else if (!fileInfo.IsBinaryFileExt && !fileInfo.IsBinaryFile())
 			{
+				// Only normalize line endings for packages.json targets
+				if (packagesMap != null)
+				{
+					bool isTarget = false;
+					foreach (var pkgFolder in packagesMap.Keys)
+					{
+						if (path.StartsWith(pkgFolder + "/", StringComparison.OrdinalIgnoreCase) ||
+						    path.Equals(pkgFolder, StringComparison.OrdinalIgnoreCase))
+						{
+							isTarget = true;
+							break;
+						}
+					}
+					if (!isTarget) continue; // Skip normalization for non-package files
+				}
+				else
+				{
+					// If packages.json is missing, skip normalization entirely (only normalize for packages.json targets)
+					continue;
+				}
 				files.Add(fileInfo.FullName);
 				c.ForegroundColor = ConsoleColor.Cyan;
 				c.WriteLine(fileInfo.FullName);
@@ -717,23 +755,23 @@ foreach (var dir in dirs)
 			: cliMode;
 		var packagesDir = Path.Combine(serverRoot, "Packages");
 		var publishDir = Path.Combine(vaultRoot, "publish");
-		var packagesJsonPath = Path.Combine(vaultRoot, "packages.json");
+		var packagesJsonPathUpload = Path.Combine(vaultRoot, "packages.json");
 
-		if (!File.Exists(packagesJsonPath))
+		if (!File.Exists(packagesJsonPathUpload))
 		{
-			c.Error.WriteLine($"❗ error: packages.json not found at: {packagesJsonPath}");
+			c.Error.WriteLine($"❗ error: packages.json not found at: {packagesJsonPathUpload}");
 			continue;
 		}
 
 		// Read packages.json
-		var packagesMap = JsonSerializer.Deserialize<Dictionary<string, string>>(
-			File.ReadAllText(packagesJsonPath), JsonOptions.Instance)!;
+		var packagesMapUpload = JsonSerializer.Deserialize<Dictionary<string, string>>(
+			File.ReadAllText(packagesJsonPathUpload), JsonOptions.Instance)!;
 
 		// Filter to single package if specified
 		var packagesToProcess = singlePackage is not null
-			? packagesMap.Where(kvp => kvp.Key == singlePackage || kvp.Value == singlePackage)
+			? packagesMapUpload.Where(kvp => kvp.Key == singlePackage || kvp.Value == singlePackage)
 				.ToDictionary(static kvp => kvp.Key, kvp => kvp.Value)
-			: packagesMap;
+			: packagesMapUpload;
 
 		if (packagesToProcess.Count == 0)
 		{
