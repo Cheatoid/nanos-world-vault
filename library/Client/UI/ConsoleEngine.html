@@ -2279,12 +2279,12 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.
 				if (e.key === "Escape" && ConsoleEngine.isOpen) {
 					// Only close console if autocompletion is not visible
 					const autocompleteVisible = Autocomplete.el && Autocomplete.el.classList.contains("visible");
-					console.log("DEBUG: Escape pressed - autocomplete visible:", autocompleteVisible);
+					// console.log("DEBUG: Escape pressed - autocomplete visible:", autocompleteVisible);
 					if (!autocompleteVisible) {
-						console.log("DEBUG: Closing console");
+						// console.log("DEBUG: Closing console");
 						ConsoleEngine.toggle(false);
 					} else {
-						console.log("DEBUG: Autocomplete visible, not closing console");
+						// console.log("DEBUG: Autocomplete visible, not closing console");
 					}
 				}
 			});

@@ -217,7 +217,7 @@ function M.Initialize()
 		-- Handle command execution from JS
 		ConsoleWebUI:Subscribe("OnCommand", function(name, args)
 			-- Debug: Log command execution attempt
-			M.Info("DEBUG: OnCommand event fired! Received command '" .. name .. "' with " .. #args .. " args")
+			-- M.Info("DEBUG: OnCommand event fired! Received command '" .. name .. "' with " .. #args .. " args")
 
 			-- Build full command line for console
 			local fullCommand = name
@@ -225,14 +225,14 @@ function M.Initialize()
 				fullCommand = fullCommand .. " " .. table.concat(args, " ")
 			end
 
-			M.Info("DEBUG: Full command: '" .. fullCommand .. "'")
+			-- M.Info("DEBUG: Full command: '" .. fullCommand .. "'")
 
 			-- Try to execute with console first
 			local success, result = pcall(function()
 				return console:input_line(fullCommand, {})
 			end)
 
-			M.Info("DEBUG: console result - success: " .. tostring(success) .. ", result: " .. tostring(result))
+			-- M.Info("DEBUG: console result - success: " .. tostring(success) .. ", result: " .. tostring(result))
 
 			if success then
 				-- Command was handled by console successfully
