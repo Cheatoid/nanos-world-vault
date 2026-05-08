@@ -88,6 +88,7 @@ requiref "Shared/@cheatoid" {
 	--[0] = require("FileWrapper").vfs, -- pass VFS instance at index 0
 	"@cheatoid/standard",
 	"@cheatoid/standalone",
+	"@cheatoid/math",
 	["%.tests%.lua$"] = false,                              -- skip all files ending in .tests.lua
 	["@cheatoid/extensions/.*"] = false,                    -- skip; extensions must be explicitly loaded because they modify default Lua types
 	["@cheatoid/patch/.*"] = false,                         -- skip; patches must be explicitly loaded

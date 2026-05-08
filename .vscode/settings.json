@@ -46,6 +46,9 @@
 		"**/obj/**": true,
 		"**/node_modules/**": true,
 		"coc": true,
+		"emsdk": true,
+		"imgui": true,
+		"luajit": true,
 		"publish/**": true,
 	},
 	"search.exclude": {
@@ -56,6 +59,9 @@
 		"**/bin/**": true,
 		"**/obj/**": true,
 		"**/node_modules/**": true,
+		"emsdk": true,
+		"imgui": true,
+		"luajit": true,
 		"publish/**": true,
 	},
 }

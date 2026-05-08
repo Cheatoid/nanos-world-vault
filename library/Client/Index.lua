@@ -16,6 +16,7 @@ local WebBrowser = require "WebBrowser"
 local ConsoleEngine = require "ConsoleEngine"
 
 Bind.Initialize()
+ConsoleEngine.Initialize()
 
 --include "WebSocketTest.lua" -- call using original 'require'
 

@@ -5,1562 +5,1620 @@ License: MIT
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link
-			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
-			rel="stylesheet"
-		/>
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
-		<style>
-			/* ========== CSS Variables / Theme System ========== */
-			:root {
-				--console-font: "JetBrains Mono", monospace;
-				--title-font: "Orbitron", sans-serif;
-				--transition-speed: 0.35s;
-				--console-radius: 8px;
-				--scrollbar-width: 6px;
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link
+		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
+		rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+	<style>
+		/* ========== CSS Variables / Theme System ========== */
+		:root {
+			--console-font: "JetBrains Mono", monospace;
+			--title-font: "Orbitron", sans-serif;
+			--transition-speed: 0.35s;
+			--console-radius: 8px;
+			--scrollbar-width: 6px;
+		}
+
+		/* Theme: Amber (default) */
+		[data-theme="amber"] {
+			--bg-primary: #0a0a08;
+			--bg-secondary: #141410;
+			--bg-tertiary: #1e1e16;
+			--bg-input: #12120e;
+			--border-color: #3d3520;
+			--border-glow: #d4a01740;
+			--text-primary: #e8dcc8;
+			--text-secondary: #9a8e78;
+			--text-muted: #5c5444;
+			--accent: #d4a017;
+			--accent-dim: #d4a01730;
+			--accent-bright: #f0c040;
+			--log-color: #c8bca8;
+			--info-color: #7eb8da;
+			--warn-color: #d4a017;
+			--error-color: #e05252;
+			--debug-color: #8a8a7a;
+			--success-color: #5cb85c;
+			--cmd-color: #d4a017;
+			--scrollbar-thumb: #3d3520;
+			--scrollbar-track: #0a0a08;
+			--glow-color: #d4a01715;
+			--badge-bg: #d4a01720;
+			--overlay-bg: #0a0a08e0;
+			--header-bg: linear-gradient(180deg, #1a1a12 0%, #0f0f0a 100%);
+			--particle-color: #d4a017;
+			--selection-color: #d4a01740;
+		}
+
+		/* Theme: Arctic */
+		[data-theme="arctic"] {
+			--bg-primary: #f0f4f8;
+			--bg-secondary: #e4eaf0;
+			--bg-tertiary: #d8e0e8;
+			--bg-input: #ffffff;
+			--border-color: #b0c0d0;
+			--border-glow: #0891b240;
+			--text-primary: #1a2a3a;
+			--text-secondary: #506878;
+			--text-muted: #90a0b0;
+			--accent: #0891b2;
+			--accent-dim: #0891b218;
+			--accent-bright: #06b6d4;
+			--log-color: #3a4a5a;
+			--info-color: #0369a1;
+			--warn-color: #b45309;
+			--error-color: #dc2626;
+			--debug-color: #8090a0;
+			--success-color: #16a34a;
+			--cmd-color: #0891b2;
+			--scrollbar-thumb: #b0c0d0;
+			--scrollbar-track: #e4eaf0;
+			--glow-color: #0891b208;
+			--badge-bg: #0891b212;
+			--overlay-bg: #f0f4f8e0;
+			--header-bg: linear-gradient(180deg, #e4eaf0 0%, #f0f4f8 100%);
+			--particle-color: #0891b2;
+			--selection-color: #0891b240;
+		}
+
+		/* Theme: Aurora */
+		[data-theme="aurora"] {
+			--bg-primary: #0f1419;
+			--bg-secondary: #131c24;
+			--bg-tertiary: #1a2630;
+			--bg-input: #111820;
+			--border-color: #1e2d3a;
+			--border-glow: #00d4aa30;
+			--text-primary: #e3e8ef;
+			--text-secondary: #7a8b9a;
+			--text-muted: #4a5a6a;
+			--accent: #00d4aa;
+			--accent-dim: #00d4aa20;
+			--accent-bright: #00ffe0;
+			--log-color: #a0aeb8;
+			--info-color: #64d2ff;
+			--warn-color: #ffb74d;
+			--error-color: #ff6b6b;
+			--debug-color: #607080;
+			--success-color: #69f0ae;
+			--cmd-color: #00d4aa;
+			--scrollbar-thumb: #1e2d3a;
+			--scrollbar-track: #0f1419;
+			--glow-color: #00d4aa15;
+			--badge-bg: #00d4aa20;
+			--overlay-bg: #0f1419e0;
+			--header-bg: linear-gradient(180deg, #162230 0%, #0f1419 100%);
+			--particle-color: #00d4aa;
+			--selection-color: #00d4aa40;
+		}
+
+		/* Theme: Blood Moon */
+		[data-theme="bloodmoon"] {
+			--bg-primary: #0a0404;
+			--bg-secondary: #140808;
+			--bg-tertiary: #1e0c0c;
+			--bg-input: #100606;
+			--border-color: #3d1515;
+			--border-glow: #ff202040;
+			--text-primary: #e8cccc;
+			--text-secondary: #9a7070;
+			--text-muted: #5c4040;
+			--accent: #ff2020;
+			--accent-dim: #ff202025;
+			--accent-bright: #ff5050;
+			--log-color: #c8a8a8;
+			--info-color: #7090c0;
+			--warn-color: #e0a030;
+			--error-color: #ff2020;
+			--debug-color: #8a6a6a;
+			--success-color: #40b040;
+			--cmd-color: #ff2020;
+			--scrollbar-thumb: #3d1515;
+			--scrollbar-track: #0a0404;
+			--glow-color: #ff2008;
+			--badge-bg: #ff202018;
+			--overlay-bg: #0a0404e0;
+			--header-bg: linear-gradient(180deg, #1a0a0a 0%, #0a0404 100%);
+			--particle-color: #ff2020;
+			--selection-color: #ff202040;
+		}
+
+		/* Theme: Cyberpunk */
+		[data-theme="cyberpunk"] {
+			--bg-primary: #08080f;
+			--bg-secondary: #0e0e1a;
+			--bg-tertiary: #161628;
+			--bg-input: #0a0a14;
+			--border-color: #2a1a3d;
+			--border-glow: #e040fb40;
+			--text-primary: #e0e0f0;
+			--text-secondary: #8888aa;
+			--text-muted: #4a4a6a;
+			--accent: #e040fb;
+			--accent-dim: #e040fb25;
+			--accent-bright: #ff70ff;
+			--log-color: #b0b0cc;
+			--info-color: #40c4ff;
+			--warn-color: #ffab40;
+			--error-color: #ff5252;
+			--debug-color: #7a7a9a;
+			--success-color: #69f0ae;
+			--cmd-color: #e040fb;
+			--scrollbar-thumb: #2a1a3d;
+			--scrollbar-track: #08080f;
+			--glow-color: #e040fb10;
+			--badge-bg: #e040fb20;
+			--overlay-bg: #08080fe0;
+			--header-bg: linear-gradient(180deg, #14142a 0%, #08080f 100%);
+			--particle-color: #e040fb;
+			--selection-color: #e040fb40;
+		}
+
+		/* Theme: Matrix */
+		[data-theme="matrix"] {
+			--bg-primary: #000a00;
+			--bg-secondary: #001200;
+			--bg-tertiary: #001a00;
+			--bg-input: #000e00;
+			--border-color: #003a00;
+			--border-glow: #00ff4140;
+			--text-primary: #c0f0c0;
+			--text-secondary: #5a9a5a;
+			--text-muted: #2a5a2a;
+			--accent: #00ff41;
+			--accent-dim: #00ff4120;
+			--accent-bright: #40ff70;
+			--log-color: #80c080;
+			--info-color: #40c0ff;
+			--warn-color: #c0c040;
+			--error-color: #ff4040;
+			--debug-color: #407040;
+			--success-color: #00ff41;
+			--cmd-color: #00ff41;
+			--scrollbar-thumb: #003a00;
+			--scrollbar-track: #000a00;
+			--glow-color: #00ff4108;
+			--badge-bg: #00ff4118;
+			--overlay-bg: #000a00e0;
+			--header-bg: linear-gradient(180deg, #001a00 0%, #000a00 100%);
+			--particle-color: #00ff41;
+			--selection-color: #00ff4140;
+		}
+
+		/* Theme: Midnight */
+		[data-theme="midnight"] {
+			--bg-primary: #121315;
+			--bg-secondary: #16181a;
+			--bg-tertiary: #1a1c1f;
+			--bg-input: #1e2023;
+			--border-color: #252629;
+			--border-glow: #007acc40;
+			--text-primary: #d4d4d4;
+			--text-secondary: #a0a0a0;
+			--text-muted: #808080;
+			--accent: #007acc;
+			--accent-dim: #007acc30;
+			--accent-bright: #4fc1ff;
+			--log-color: #cccccc;
+			--info-color: #4fc1ff;
+			--warn-color: #dcdcaa;
+			--error-color: #f44747;
+			--debug-color: #646464;
+			--success-color: #89d185;
+			--cmd-color: #007acc;
+			--scrollbar-thumb: #2a2c2f;
+			--scrollbar-track: #121315;
+			--glow-color: #4fc1ff12;
+			--badge-bg: #007acc25;
+			--overlay-bg: #121315e0;
+			--header-bg: linear-gradient(180deg, #1a1c20 0%, #121315 100%);
+			--particle-color: #4fc1ff;
+			--selection-color: #007acc40;
+		}
+
+		/* Theme: Glass */
+		[data-theme="glass"] {
+			--bg-primary: #0a0e18;
+			--bg-secondary: rgba(20, 30, 50, 0.6);
+			--bg-tertiary: rgba(30, 45, 70, 0.6);
+			--bg-input: rgba(15, 25, 40, 0.6);
+			--border-color: rgba(100, 180, 255, 0.6);
+			--border-glow: rgba(0, 212, 255, 0.6);
+			--text-primary: #e8f4ff;
+			--text-secondary: #7a9cc8;
+			--text-muted: #5a7aa8;
+			--accent: #00d4ff;
+			--accent-dim: rgba(0, 212, 255, 0.6);
+			--accent-bright: #40e0ff;
+			--log-color: #c8d8e8;
+			--info-color: #64d2ff;
+			--warn-color: #ffb74d;
+			--error-color: #ff6b6b;
+			--debug-color: #607080;
+			--success-color: #69f0ae;
+			--cmd-color: #00d4ff;
+			--scrollbar-thumb: rgba(100, 180, 255, 0.6);
+			--scrollbar-track: #0a0e18;
+			--glow-color: rgba(0, 212, 255, 0.6);
+			--badge-bg: rgba(0, 212, 255, 0.6);
+			--overlay-bg: rgba(10, 14, 24, 0.6);
+			--header-bg: rgba(15, 25, 40, 0.6);
+			--particle-color: #00d4ff;
+			--selection-color: rgba(0, 212, 255, 0.4);
+		}
+
+		/* ========== Reset & Base ========== */
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		/* ========== Text Selection ========== */
+		::selection {
+			background: var(--selection-color);
+			color: var(--text-primary);
+		}
+
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+			background: transparent !important;
+			font-family: var(--console-font);
+			color: var(--text-primary);
+			transition: background var(--transition-speed),
+				color var(--transition-speed);
+		}
+
+		/* ========== Scrollbar ========== */
+		::-webkit-scrollbar {
+			width: var(--scrollbar-width);
+		}
+
+		::-webkit-scrollbar-track {
+			background: var(--scrollbar-track);
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: var(--scrollbar-thumb);
+			border-radius: 3px;
+		}
+
+		/* Autocomplete scrollbar */
+		.autocomplete::-webkit-scrollbar {
+			width: var(--scrollbar-width);
+		}
+
+		.autocomplete::-webkit-scrollbar-track {
+			background: var(--scrollbar-track);
+		}
+
+		.autocomplete::-webkit-scrollbar-thumb {
+			background: var(--scrollbar-thumb);
+			border-radius: 0;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			background: var(--accent);
+		}
+
+		/* ========== Background Canvas ========== */
+		#bgCanvas {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 0;
+			pointer-events: none;
+			opacity: 0.4;
+			background: transparent !important;
+		}
+
+		/* ========== Toggle Button ========== */
+		.console-toggle {
+			position: fixed;
+			bottom: 24px;
+			right: 24px;
+			z-index: 1000;
+			width: 52px;
+			height: 52px;
+			border: 1px solid var(--border-color);
+			border-radius: 50%;
+			background: var(--bg-secondary);
+			color: var(--accent);
+			font-size: 20px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all var(--transition-speed);
+			box-shadow: 0 0 20px var(--glow-color),
+				0 4px 12px rgba(0, 0, 0, 0.4);
+		}
+
+		.console-toggle:hover {
+			background: var(--accent-dim);
+			border-color: var(--accent);
+			transform: scale(1.08);
+			box-shadow: 0 0 30px var(--border-glow),
+				0 4px 16px rgba(0, 0, 0, 0.5);
+		}
+
+		.console-toggle .badge {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			background: var(--error-color);
+			color: #fff;
+			font-size: 10px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transform: scale(0);
+			transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		}
+
+		.console-toggle .badge.visible {
+			opacity: 1;
+			transform: scale(1);
+		}
+
+		/* ========== Console Container ========== */
+		.console-container {
+			position: fixed;
+			bottom: -70vh;
+			left: calc(50% - min(48vw, 550px));
+			width: min(96vw, 1100px);
+			height: 70vh;
+			min-height: 400px;
+			max-height: 85vh;
+			z-index: 999;
+			display: flex;
+			flex-direction: column;
+			border: 1px solid var(--border-color);
+			border-bottom: none;
+			border-radius: var(--console-radius) var(--console-radius) 0 0;
+			background: var(--bg-primary);
+			box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6),
+				0 0 60px var(--glow-color),
+				inset 0 1px 0 var(--border-glow);
+			transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+				opacity 0.4s ease;
+			opacity: 0;
+			overflow: hidden;
+		}
+
+		[data-theme="glass"] .console-container {
+			background: var(--bg-secondary);
+			backdrop-filter: blur(12px);
+		}
+
+		.console-container.open {
+			bottom: 0;
+			opacity: 1;
+		}
+
+		.console-container.maximized {
+			width: 100vw !important;
+			height: 100vh !important;
+			max-height: 100vh !important;
+			border-radius: 0 !important;
+			left: 0 !important;
+			top: 0 !important;
+			bottom: auto !important;
+		}
+
+		/* ========== Header ========== */
+		.console-header {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 10px 16px;
+			background: var(--header-bg);
+			border-bottom: 1px solid var(--border-color);
+			flex-shrink: 0;
+			user-select: none;
+		}
+
+		.console-title {
+			font-family: var(--title-font);
+			font-size: 13px;
+			font-weight: 700;
+			letter-spacing: 2px;
+			color: var(--accent);
+			text-transform: uppercase;
+			white-space: nowrap;
+		}
+
+		.console-title .dot {
+			display: inline-block;
+			width: 7px;
+			height: 7px;
+			border-radius: 50%;
+			background: var(--accent);
+			margin-right: 8px;
+			box-shadow: 0 0 8px var(--accent);
+			animation: pulse-dot 2s ease-in-out infinite;
+		}
+
+		@keyframes pulse-dot {
+
+			0%,
+			100% {
+				opacity: 1;
+				box-shadow: 0 0 8px var(--accent);
 			}
 
-			/* Theme: Amber (default) */
-			[data-theme="amber"] {
-				--bg-primary: #0a0a08;
-				--bg-secondary: #141410;
-				--bg-tertiary: #1e1e16;
-				--bg-input: #12120e;
-				--border-color: #3d3520;
-				--border-glow: #d4a01740;
-				--text-primary: #e8dcc8;
-				--text-secondary: #9a8e78;
-				--text-muted: #5c5444;
-				--accent: #d4a017;
-				--accent-dim: #d4a01730;
-				--accent-bright: #f0c040;
-				--log-color: #c8bca8;
-				--info-color: #7eb8da;
-				--warn-color: #d4a017;
-				--error-color: #e05252;
-				--debug-color: #8a8a7a;
-				--success-color: #5cb85c;
-				--cmd-color: #d4a017;
-				--scrollbar-thumb: #3d3520;
-				--scrollbar-track: #0a0a08;
-				--glow-color: #d4a01715;
-				--badge-bg: #d4a01720;
-				--overlay-bg: #0a0a08e0;
-				--header-bg: linear-gradient(180deg, #1a1a12 0%, #0f0f0a 100%);
-				--particle-color: #d4a017;
+			50% {
+				opacity: 0.5;
+				box-shadow: 0 0 3px var(--accent);
+			}
+		}
+
+		.header-stats {
+			display: flex;
+			gap: 10px;
+			margin-left: auto;
+			font-size: 11px;
+			color: var(--text-muted);
+		}
+
+		.stat-item {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			padding: 2px 8px;
+			border-radius: 4px;
+			background: var(--bg-tertiary);
+			border: 1px solid transparent;
+			cursor: default;
+			transition: all 0.2s;
+		}
+
+		.stat-item:hover {
+			border-color: var(--border-color);
+		}
+
+		.stat-item .count {
+			font-weight: 600;
+			color: var(--text-secondary);
+		}
+
+		.stat-item.error-stat .count {
+			color: var(--error-color);
+		}
+
+		.stat-item.warn-stat .count {
+			color: var(--warn-color);
+		}
+
+		.header-actions {
+			display: flex;
+			gap: 4px;
+			flex-shrink: 0;
+		}
+
+		.header-btn {
+			width: 30px;
+			height: 30px;
+			border: 1px solid transparent;
+			border-radius: 4px;
+			background: transparent;
+			color: var(--text-muted);
+			font-size: 13px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+		}
+
+		.header-btn:hover {
+			color: var(--text-primary);
+			background: var(--bg-tertiary);
+			border-color: var(--border-color);
+		}
+
+		.header-btn.close-btn:hover {
+			color: var(--error-color);
+			background: #ff202015;
+			border-color: #ff202030;
+		}
+
+		/* ========== Toolbar ========== */
+		.console-toolbar {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 16px;
+			border-bottom: 1px solid var(--border-color);
+			background: var(--bg-secondary);
+			flex-shrink: 0;
+			flex-wrap: wrap;
+		}
+
+		.filter-chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 3px 10px;
+			border-radius: 12px;
+			font-size: 11px;
+			font-weight: 500;
+			cursor: pointer;
+			border: 1px solid var(--border-color);
+			background: var(--bg-primary);
+			color: var(--text-secondary);
+			transition: all 0.2s;
+			user-select: none;
+			white-space: nowrap;
+		}
+
+		.filter-chip:hover {
+			border-color: var(--text-muted);
+		}
+
+		.filter-chip.active {
+			border-color: var(--accent);
+			color: var(--accent);
+			background: var(--accent-dim);
+		}
+
+		.filter-chip .chip-dot {
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		.search-box {
+			flex: 1;
+			min-width: 140px;
+			position: relative;
+		}
+
+		.search-box i {
+			position: absolute;
+			left: 10px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: var(--text-muted);
+			font-size: 12px;
+			pointer-events: none;
+			transition: color 0.2s;
+		}
+
+		.search-box input {
+			width: 100%;
+			padding: 5px 10px 5px 30px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-input);
+			color: var(--text-primary);
+			font-family: var(--console-font);
+			font-size: 12px;
+			outline: none;
+			transition: all 0.2s;
+		}
+
+		.search-box input::placeholder {
+			color: var(--text-muted);
+		}
+
+		.search-box input:focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px var(--accent-dim);
+		}
+
+		.search-box input:focus+i,
+		.search-box input:focus~i {
+			color: var(--accent);
+		}
+
+		.toolbar-sep {
+			width: 1px;
+			height: 20px;
+			background: var(--border-color);
+			flex-shrink: 0;
+		}
+
+		.theme-selector {
+			position: relative;
+		}
+
+		.theme-btn {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			padding: 4px 10px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-primary);
+			color: var(--text-secondary);
+			font-family: var(--console-font);
+			font-size: 11px;
+			cursor: pointer;
+			transition: all 0.2s;
+			white-space: nowrap;
+		}
+
+		.theme-btn:hover {
+			border-color: var(--accent);
+			color: var(--accent);
+		}
+
+		.theme-swatch {
+			width: 12px;
+			height: 12px;
+			border-radius: 50%;
+			border: 1px solid var(--border-color);
+		}
+
+		.theme-dropdown {
+			position: absolute;
+			top: calc(100% + 6px);
+			right: 0;
+			min-width: 170px;
+			border: 1px solid var(--border-color);
+			border-radius: 6px;
+			background: var(--bg-secondary);
+			box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+			z-index: 100;
+			opacity: 0;
+			transform: translateY(-6px);
+			pointer-events: none;
+			transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+			overflow: hidden;
+		}
+
+		.theme-dropdown.open {
+			opacity: 1;
+			transform: translateY(0);
+			pointer-events: all;
+		}
+
+		.theme-option {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 8px 14px;
+			font-size: 12px;
+			color: var(--text-secondary);
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+
+		.theme-option:hover {
+			background: var(--accent-dim);
+			color: var(--text-primary);
+		}
+
+		.theme-option.active {
+			color: var(--accent);
+		}
+
+		.theme-option .swatch {
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			border: 2px solid var(--border-color);
+			flex-shrink: 0;
+		}
+
+		.auto-scroll-toggle {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			padding: 4px 10px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-primary);
+			color: var(--text-muted);
+			font-size: 11px;
+			cursor: pointer;
+			transition: all 0.2s;
+			white-space: nowrap;
+			user-select: none;
+		}
+
+		.auto-scroll-toggle.active {
+			color: var(--accent);
+			border-color: var(--accent);
+			background: var(--accent-dim);
+		}
+
+		/* ========== Output Area ========== */
+		.console-output {
+			flex: 1;
+			overflow-y: auto;
+			overflow-x: hidden;
+			padding: 8px 0;
+			scroll-behavior: smooth;
+		}
+
+		/* ========== Message Entry ========== */
+		.msg-entry {
+			display: flex;
+			align-items: flex-start;
+			padding: 3px 16px;
+			font-size: 12px;
+			line-height: 1.6;
+			gap: 8px;
+			transition: background 0.15s;
+			animation: msg-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+			position: relative;
+		}
+
+		.msg-entry:hover {
+			background: var(--glow-color);
+		}
+
+		.msg-entry.hidden {
+			display: none;
+		}
+
+		@keyframes msg-slide-in {
+			from {
+				opacity: 0;
+				transform: translateX(-8px);
 			}
 
-			/* Theme: Arctic */
-			[data-theme="arctic"] {
-				--bg-primary: #f0f4f8;
-				--bg-secondary: #e4eaf0;
-				--bg-tertiary: #d8e0e8;
-				--bg-input: #ffffff;
-				--border-color: #b0c0d0;
-				--border-glow: #0891b240;
-				--text-primary: #1a2a3a;
-				--text-secondary: #506878;
-				--text-muted: #90a0b0;
-				--accent: #0891b2;
-				--accent-dim: #0891b218;
-				--accent-bright: #06b6d4;
-				--log-color: #3a4a5a;
-				--info-color: #0369a1;
-				--warn-color: #b45309;
-				--error-color: #dc2626;
-				--debug-color: #8090a0;
-				--success-color: #16a34a;
-				--cmd-color: #0891b2;
-				--scrollbar-thumb: #b0c0d0;
-				--scrollbar-track: #e4eaf0;
-				--glow-color: #0891b208;
-				--badge-bg: #0891b212;
-				--overlay-bg: #f0f4f8e0;
-				--header-bg: linear-gradient(180deg, #e4eaf0 0%, #f0f4f8 100%);
-				--particle-color: #0891b2;
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		.msg-timestamp {
+			color: var(--text-muted);
+			font-size: 11px;
+			flex-shrink: 0;
+			min-width: 72px;
+			padding-top: 1px;
+			font-variant-numeric: tabular-nums;
+			user-select: none;
+		}
+
+		.msg-badge {
+			display: inline-flex;
+			align-items: center;
+			padding: 0 6px;
+			border-radius: 3px;
+			font-size: 10px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			flex-shrink: 0;
+			min-width: 46px;
+			justify-content: center;
+			line-height: 1.7;
+			user-select: none;
+		}
+
+		.msg-badge.log {
+			background: var(--bg-tertiary);
+			color: var(--log-color);
+		}
+
+		.msg-badge.info {
+			background: #40c4ff15;
+			color: var(--info-color);
+		}
+
+		.msg-badge.warn {
+			background: #d4a01715;
+			color: var(--warn-color);
+		}
+
+		.msg-badge.error {
+			background: #e0525215;
+			color: var(--error-color);
+		}
+
+		.msg-badge.debug {
+			background: var(--bg-tertiary);
+			color: var(--debug-color);
+		}
+
+		.msg-badge.success {
+			background: #5cb85c15;
+			color: var(--success-color);
+		}
+
+		.msg-badge.cmd {
+			background: var(--accent-dim);
+			color: var(--cmd-color);
+		}
+
+		.msg-text {
+			flex: 1;
+			word-break: break-word;
+			color: var(--log-color);
+		}
+
+		.msg-text.warn-text {
+			color: var(--warn-color);
+		}
+
+		.msg-text.error-text {
+			color: var(--error-color);
+		}
+
+		.msg-text.info-text {
+			color: var(--info-color);
+		}
+
+		.msg-text.debug-text {
+			color: var(--debug-color);
+		}
+
+		.msg-text.success-text {
+			color: var(--success-color);
+		}
+
+		.msg-text.cmd-text {
+			color: var(--cmd-color);
+		}
+
+		.msg-text .highlight {
+			background: var(--accent-dim);
+			color: var(--accent-bright);
+			border-radius: 2px;
+			padding: 0 2px;
+		}
+
+		.msg-actions {
+			display: flex;
+			gap: 2px;
+			opacity: 0;
+			transition: opacity 0.15s;
+			flex-shrink: 0;
+		}
+
+		.msg-entry:hover .msg-actions {
+			opacity: 1;
+		}
+
+		.msg-action-btn {
+			width: 22px;
+			height: 22px;
+			border: none;
+			border-radius: 3px;
+			background: transparent;
+			color: var(--text-muted);
+			font-size: 10px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.15s;
+		}
+
+		.msg-action-btn:hover {
+			background: var(--bg-tertiary);
+			color: var(--text-primary);
+		}
+
+		/* ========== Input Area ========== */
+		.console-input-area {
+			display: flex;
+			align-items: center;
+			gap: 0;
+			padding: 8px 16px 12px;
+			border-top: 1px solid var(--border-color);
+			background: var(--bg-secondary);
+			flex-shrink: 0;
+		}
+
+		.input-prompt {
+			color: var(--accent);
+			font-weight: 600;
+			font-size: 13px;
+			margin-right: 8px;
+			flex-shrink: 0;
+			text-shadow: 0 0 8px var(--border-glow);
+		}
+
+		.input-wrapper {
+			flex: 1;
+			position: relative;
+		}
+
+		.console-input {
+			width: 100%;
+			padding: 6px 12px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-input);
+			color: var(--text-primary);
+			font-family: var(--console-font);
+			font-size: 13px;
+			outline: none;
+			transition: all 0.2s;
+		}
+
+		.console-input::placeholder {
+			color: var(--text-muted);
+			font-size: 12px;
+		}
+
+		.console-input:focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px var(--accent-dim),
+				0 0 16px var(--glow-color);
+		}
+
+		/* Autocomplete */
+		.autocomplete {
+			position: absolute;
+			bottom: calc(100% + 4px);
+			left: 0;
+			min-width: 300px;
+			max-width: 500px;
+			max-height: 172px;
+			overflow-y: auto;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-secondary);
+			box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+			z-index: 50;
+			opacity: 0;
+			transform: translateY(4px);
+			pointer-events: none;
+			transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+
+		.autocomplete.visible {
+			opacity: 1;
+			transform: translateY(0);
+			pointer-events: all;
+		}
+
+		.autocomplete-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 6px 12px;
+			font-size: 12px;
+			cursor: pointer;
+			transition: background 0.1s;
+			gap: 12px;
+		}
+
+		.autocomplete-item:hover,
+		.autocomplete-item.selected {
+			background: var(--accent-dim);
+		}
+
+		.autocomplete-item .cmd-name {
+			color: var(--accent);
+			font-weight: 500;
+		}
+
+		.autocomplete-item .cmd-hint {
+			color: var(--text-muted);
+			font-size: 11px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		/* ========== Toast ========== */
+		.toast-container {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			z-index: 2000;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.toast {
+			padding: 10px 16px;
+			border-radius: 6px;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border-color);
+			color: var(--text-primary);
+			font-family: var(--console-font);
+			font-size: 12px;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+			animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.toast.removing {
+			animation: toast-out 0.25s ease-in both;
+		}
+
+		@keyframes toast-in {
+			from {
+				opacity: 0;
+				transform: translateX(30px);
 			}
 
-			/* Theme: Aurora */
-			[data-theme="aurora"] {
-				--bg-primary: #0f1419;
-				--bg-secondary: #131c24;
-				--bg-tertiary: #1a2630;
-				--bg-input: #111820;
-				--border-color: #1e2d3a;
-				--border-glow: #00d4aa30;
-				--text-primary: #e3e8ef;
-				--text-secondary: #7a8b9a;
-				--text-muted: #4a5a6a;
-				--accent: #00d4aa;
-				--accent-dim: #00d4aa20;
-				--accent-bright: #00ffe0;
-				--log-color: #a0aeb8;
-				--info-color: #64d2ff;
-				--warn-color: #ffb74d;
-				--error-color: #ff6b6b;
-				--debug-color: #607080;
-				--success-color: #69f0ae;
-				--cmd-color: #00d4aa;
-				--scrollbar-thumb: #1e2d3a;
-				--scrollbar-track: #0f1419;
-				--glow-color: #00d4aa15;
-				--badge-bg: #00d4aa20;
-				--overlay-bg: #0f1419e0;
-				--header-bg: linear-gradient(180deg, #162230 0%, #0f1419 100%);
-				--particle-color: #00d4aa;
+			to {
+				opacity: 1;
+				transform: translateX(0);
 			}
+		}
 
-			/* Theme: Blood Moon */
-			[data-theme="bloodmoon"] {
-				--bg-primary: #0a0404;
-				--bg-secondary: #140808;
-				--bg-tertiary: #1e0c0c;
-				--bg-input: #100606;
-				--border-color: #3d1515;
-				--border-glow: #ff202040;
-				--text-primary: #e8cccc;
-				--text-secondary: #9a7070;
-				--text-muted: #5c4040;
-				--accent: #ff2020;
-				--accent-dim: #ff202025;
-				--accent-bright: #ff5050;
-				--log-color: #c8a8a8;
-				--info-color: #7090c0;
-				--warn-color: #e0a030;
-				--error-color: #ff2020;
-				--debug-color: #8a6a6a;
-				--success-color: #40b040;
-				--cmd-color: #ff2020;
-				--scrollbar-thumb: #3d1515;
-				--scrollbar-track: #0a0404;
-				--glow-color: #ff2008;
-				--badge-bg: #ff202018;
-				--overlay-bg: #0a0404e0;
-				--header-bg: linear-gradient(180deg, #1a0a0a 0%, #0a0404 100%);
-				--particle-color: #ff2020;
+		@keyframes toast-out {
+			to {
+				opacity: 0;
+				transform: translateX(30px);
 			}
+		}
 
-			/* Theme: Cyberpunk */
-			[data-theme="cyberpunk"] {
-				--bg-primary: #08080f;
-				--bg-secondary: #0e0e1a;
-				--bg-tertiary: #161628;
-				--bg-input: #0a0a14;
-				--border-color: #2a1a3d;
-				--border-glow: #e040fb40;
-				--text-primary: #e0e0f0;
-				--text-secondary: #8888aa;
-				--text-muted: #4a4a6a;
-				--accent: #e040fb;
-				--accent-dim: #e040fb25;
-				--accent-bright: #ff70ff;
-				--log-color: #b0b0cc;
-				--info-color: #40c4ff;
-				--warn-color: #ffab40;
-				--error-color: #ff5252;
-				--debug-color: #7a7a9a;
-				--success-color: #69f0ae;
-				--cmd-color: #e040fb;
-				--scrollbar-thumb: #2a1a3d;
-				--scrollbar-track: #08080f;
-				--glow-color: #e040fb10;
-				--badge-bg: #e040fb20;
-				--overlay-bg: #08080fe0;
-				--header-bg: linear-gradient(180deg, #14142a 0%, #08080f 100%);
-				--particle-color: #e040fb;
-			}
+		/* ========== Welcome Banner ========== */
+		.welcome-banner {
+			padding: 16px;
+			margin: 4px 16px 8px;
+			border: 1px solid var(--border-color);
+			border-radius: 6px;
+			background: var(--bg-secondary);
+			animation: msg-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+		}
 
-			/* Theme: Matrix */
-			[data-theme="matrix"] {
-				--bg-primary: #000a00;
-				--bg-secondary: #001200;
-				--bg-tertiary: #001a00;
-				--bg-input: #000e00;
-				--border-color: #003a00;
-				--border-glow: #00ff4140;
-				--text-primary: #c0f0c0;
-				--text-secondary: #5a9a5a;
-				--text-muted: #2a5a2a;
-				--accent: #00ff41;
-				--accent-dim: #00ff4120;
-				--accent-bright: #40ff70;
-				--log-color: #80c080;
-				--info-color: #40c0ff;
-				--warn-color: #c0c040;
-				--error-color: #ff4040;
-				--debug-color: #407040;
-				--success-color: #00ff41;
-				--cmd-color: #00ff41;
-				--scrollbar-thumb: #003a00;
-				--scrollbar-track: #000a00;
-				--glow-color: #00ff4108;
-				--badge-bg: #00ff4118;
-				--overlay-bg: #000a00e0;
-				--header-bg: linear-gradient(180deg, #001a00 0%, #000a00 100%);
-				--particle-color: #00ff41;
-			}
+		.welcome-banner h2 {
+			font-family: var(--title-font);
+			font-size: 14px;
+			font-weight: 700;
+			color: var(--accent);
+			letter-spacing: 2px;
+			margin-bottom: 8px;
+		}
 
-			/* Theme: Midnight */
-			[data-theme="midnight"] {
-				--bg-primary: #121315;
-				--bg-secondary: #16181a;
-				--bg-tertiary: #1a1c1f;
-				--bg-input: #1e2023;
-				--border-color: #252629;
-				--border-glow: #007acc40;
-				--text-primary: #d4d4d4;
-				--text-secondary: #a0a0a0;
-				--text-muted: #808080;
-				--accent: #007acc;
-				--accent-dim: #007acc30;
-				--accent-bright: #4fc1ff;
-				--log-color: #cccccc;
-				--info-color: #4fc1ff;
-				--warn-color: #dcdcaa;
-				--error-color: #f44747;
-				--debug-color: #646464;
-				--success-color: #89d185;
-				--cmd-color: #007acc;
-				--scrollbar-thumb: #2a2c2f;
-				--scrollbar-track: #121315;
-				--glow-color: #4fc1ff12;
-				--badge-bg: #007acc25;
-				--overlay-bg: #121315e0;
-				--header-bg: linear-gradient(180deg, #1a1c20 0%, #121315 100%);
-				--particle-color: #4fc1ff;
-			}
+		.welcome-banner p {
+			font-size: 11px;
+			color: var(--text-secondary);
+			line-height: 1.7;
+		}
 
-			/* Theme: Glass */
-			[data-theme="glass"] {
-				--bg-primary: #0a0e18;
-				--bg-secondary: rgba(20, 30, 50, 0.6);
-				--bg-tertiary: rgba(30, 45, 70, 0.6);
-				--bg-input: rgba(15, 25, 40, 0.6);
-				--border-color: rgba(100, 180, 255, 0.6);
-				--border-glow: rgba(0, 212, 255, 0.6);
-				--text-primary: #e8f4ff;
-				--text-secondary: #7a9cc8;
-				--text-muted: #5a7aa8;
-				--accent: #00d4ff;
-				--accent-dim: rgba(0, 212, 255, 0.6);
-				--accent-bright: #40e0ff;
-				--log-color: #c8d8e8;
-				--info-color: #64d2ff;
-				--warn-color: #ffb74d;
-				--error-color: #ff6b6b;
-				--debug-color: #607080;
-				--success-color: #69f0ae;
-				--cmd-color: #00d4ff;
-				--scrollbar-thumb: rgba(100, 180, 255, 0.6);
-				--scrollbar-track: #0a0e18;
-				--glow-color: rgba(0, 212, 255, 0.6);
-				--badge-bg: rgba(0, 212, 255, 0.6);
-				--overlay-bg: rgba(10, 14, 24, 0.6);
-				--header-bg: rgba(15, 25, 40, 0.6);
-				--particle-color: #00d4ff;
-			}
+		.welcome-banner kbd {
+			display: inline-block;
+			padding: 1px 6px;
+			border: 1px solid var(--border-color);
+			border-radius: 3px;
+			background: var(--bg-tertiary);
+			font-family: var(--console-font);
+			font-size: 10px;
+			color: var(--text-primary);
+		}
 
-			/* ========== Reset & Base ========== */
+		.welcome-close {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+			width: 24px;
+			height: 24px;
+			border: none;
+			background: transparent;
+			color: var(--text-secondary);
+			font-size: 18px;
+			line-height: 1;
+			cursor: pointer;
+			border-radius: 4px;
+			transition: all 0.2s;
+		}
+
+		.welcome-close:hover {
+			background: var(--bg-tertiary);
+			color: var(--text-primary);
+		}
+
+		/* ========== Empty State ========== */
+		.empty-state {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 40px 20px;
+			color: var(--text-muted);
+			font-size: 13px;
+			gap: 8px;
+		}
+
+		.empty-state i {
+			font-size: 28px;
+			opacity: 0.4;
+		}
+
+		/* ========== Reduced Motion ========== */
+		@media (prefers-reduced-motion: reduce) {
+
 			*,
 			*::before,
 			*::after {
-				box-sizing: border-box;
-				margin: 0;
-				padding: 0;
+				animation-duration: 0.01ms !important;
+				transition-duration: 0.01ms !important;
 			}
+		}
 
-			html,
-			body {
-				margin: 0;
-				padding: 0;
-				width: 100vw;
-				height: 100vh;
-				overflow: hidden;
-				background: transparent !important;
-				font-family: var(--console-font);
-				color: var(--text-primary);
-				transition:
-					background var(--transition-speed),
-					color var(--transition-speed);
-			}
-
-			/* ========== Scrollbar ========== */
-			::-webkit-scrollbar {
-				width: var(--scrollbar-width);
-			}
-
-			::-webkit-scrollbar-track {
-				background: var(--scrollbar-track);
-			}
-
-			::-webkit-scrollbar-thumb {
-				background: var(--scrollbar-thumb);
-				border-radius: 3px;
-			}
-
-			::-webkit-scrollbar-thumb:hover {
-				background: var(--accent);
-			}
-
-			/* ========== Background Canvas ========== */
-			#bgCanvas {
-				position: fixed;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				z-index: 0;
-				pointer-events: none;
-				opacity: 0.4;
-				background: transparent !important;
-			}
-
-			/* ========== Toggle Button ========== */
-			.console-toggle {
-				position: fixed;
-				bottom: 24px;
-				right: 24px;
-				z-index: 1000;
-				width: 52px;
-				height: 52px;
-				border: 1px solid var(--border-color);
-				border-radius: 50%;
-				background: var(--bg-secondary);
-				color: var(--accent);
-				font-size: 20px;
-				cursor: pointer;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				transition: all var(--transition-speed);
-				box-shadow:
-					0 0 20px var(--glow-color),
-					0 4px 12px rgba(0, 0, 0, 0.4);
-			}
-
-			.console-toggle:hover {
-				background: var(--accent-dim);
-				border-color: var(--accent);
-				transform: scale(1.08);
-				box-shadow:
-					0 0 30px var(--border-glow),
-					0 4px 16px rgba(0, 0, 0, 0.5);
-			}
-
-			.console-toggle .badge {
-				position: absolute;
-				top: -4px;
-				right: -4px;
-				width: 18px;
-				height: 18px;
-				border-radius: 50%;
-				background: var(--error-color);
-				color: #fff;
-				font-size: 10px;
-				font-weight: 700;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				opacity: 0;
-				transform: scale(0);
-				transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-			}
-
-			.console-toggle .badge.visible {
-				opacity: 1;
-				transform: scale(1);
-			}
-
-			/* ========== Console Container ========== */
+		/* ========== Responsive ========== */
+		@media (max-width: 640px) {
 			.console-container {
-				position: fixed;
-				bottom: 0;
-				left: 50%;
-				transform: translateX(-50%) translateY(100%);
-				width: min(96vw, 1100px);
-				height: 70vh;
-				min-height: 400px;
-				max-height: 85vh;
-				z-index: 999;
-				display: flex;
-				flex-direction: column;
-				border: 1px solid var(--border-color);
-				border-bottom: none;
-				border-radius: var(--console-radius) var(--console-radius) 0 0;
-				background: var(--bg-primary);
-				box-shadow:
-					0 -8px 40px rgba(0, 0, 0, 0.6),
-					0 0 60px var(--glow-color),
-					inset 0 1px 0 var(--border-glow);
-				transition:
-					transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-					opacity 0.4s ease;
-				opacity: 0;
-				overflow: hidden;
-			}
-
-			[data-theme="glass"] .console-container {
-				background: var(--bg-secondary);
-				backdrop-filter: blur(12px);
-			}
-
-			.console-container.open {
-				transform: translateX(-50%) translateY(0);
-				opacity: 1;
-			}
-
-			.console-container.maximized {
 				width: 100vw;
-				height: 100vh;
-				max-height: 100vh;
+				height: 80vh;
 				border-radius: 0;
 			}
 
-			/* ========== Header ========== */
-			.console-header {
-				display: flex;
-				align-items: center;
-				gap: 12px;
-				padding: 10px 16px;
-				background: var(--header-bg);
-				border-bottom: 1px solid var(--border-color);
-				flex-shrink: 0;
-				user-select: none;
-			}
-
-			.console-title {
-				font-family: var(--title-font);
-				font-size: 13px;
-				font-weight: 700;
-				letter-spacing: 2px;
-				color: var(--accent);
-				text-transform: uppercase;
-				white-space: nowrap;
-			}
-
-			.console-title .dot {
-				display: inline-block;
-				width: 7px;
-				height: 7px;
-				border-radius: 50%;
-				background: var(--accent);
-				margin-right: 8px;
-				box-shadow: 0 0 8px var(--accent);
-				animation: pulse-dot 2s ease-in-out infinite;
-			}
-
-			@keyframes pulse-dot {
-				0%,
-				100% {
-					opacity: 1;
-					box-shadow: 0 0 8px var(--accent);
-				}
-
-				50% {
-					opacity: 0.5;
-					box-shadow: 0 0 3px var(--accent);
-				}
-			}
-
 			.header-stats {
-				display: flex;
-				gap: 10px;
-				margin-left: auto;
-				font-size: 11px;
-				color: var(--text-muted);
-			}
-
-			.stat-item {
-				display: flex;
-				align-items: center;
-				gap: 4px;
-				padding: 2px 8px;
-				border-radius: 4px;
-				background: var(--bg-tertiary);
-				border: 1px solid transparent;
-				cursor: default;
-				transition: all 0.2s;
-			}
-
-			.stat-item:hover {
-				border-color: var(--border-color);
-			}
-
-			.stat-item .count {
-				font-weight: 600;
-				color: var(--text-secondary);
-			}
-
-			.stat-item.error-stat .count {
-				color: var(--error-color);
-			}
-
-			.stat-item.warn-stat .count {
-				color: var(--warn-color);
-			}
-
-			.header-actions {
-				display: flex;
-				gap: 4px;
-				flex-shrink: 0;
-			}
-
-			.header-btn {
-				width: 30px;
-				height: 30px;
-				border: 1px solid transparent;
-				border-radius: 4px;
-				background: transparent;
-				color: var(--text-muted);
-				font-size: 13px;
-				cursor: pointer;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				transition: all 0.2s;
-			}
-
-			.header-btn:hover {
-				color: var(--text-primary);
-				background: var(--bg-tertiary);
-				border-color: var(--border-color);
-			}
-
-			.header-btn.close-btn:hover {
-				color: var(--error-color);
-				background: #ff202015;
-				border-color: #ff202030;
-			}
-
-			/* ========== Toolbar ========== */
-			.console-toolbar {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				padding: 8px 16px;
-				border-bottom: 1px solid var(--border-color);
-				background: var(--bg-secondary);
-				flex-shrink: 0;
-				flex-wrap: wrap;
-			}
-
-			.filter-chip {
-				display: inline-flex;
-				align-items: center;
-				gap: 5px;
-				padding: 3px 10px;
-				border-radius: 12px;
-				font-size: 11px;
-				font-weight: 500;
-				cursor: pointer;
-				border: 1px solid var(--border-color);
-				background: var(--bg-primary);
-				color: var(--text-secondary);
-				transition: all 0.2s;
-				user-select: none;
-				white-space: nowrap;
-			}
-
-			.filter-chip:hover {
-				border-color: var(--text-muted);
-			}
-
-			.filter-chip.active {
-				border-color: var(--accent);
-				color: var(--accent);
-				background: var(--accent-dim);
-			}
-
-			.filter-chip .chip-dot {
-				width: 6px;
-				height: 6px;
-				border-radius: 50%;
-				flex-shrink: 0;
-			}
-
-			.search-box {
-				flex: 1;
-				min-width: 140px;
-				position: relative;
-			}
-
-			.search-box i {
-				position: absolute;
-				left: 10px;
-				top: 50%;
-				transform: translateY(-50%);
-				color: var(--text-muted);
-				font-size: 12px;
-				pointer-events: none;
-				transition: color 0.2s;
-			}
-
-			.search-box input {
-				width: 100%;
-				padding: 5px 10px 5px 30px;
-				border: 1px solid var(--border-color);
-				border-radius: 4px;
-				background: var(--bg-input);
-				color: var(--text-primary);
-				font-family: var(--console-font);
-				font-size: 12px;
-				outline: none;
-				transition: all 0.2s;
-			}
-
-			.search-box input::placeholder {
-				color: var(--text-muted);
-			}
-
-			.search-box input:focus {
-				border-color: var(--accent);
-				box-shadow: 0 0 0 2px var(--accent-dim);
-			}
-
-			.search-box input:focus + i,
-			.search-box input:focus ~ i {
-				color: var(--accent);
-			}
-
-			.toolbar-sep {
-				width: 1px;
-				height: 20px;
-				background: var(--border-color);
-				flex-shrink: 0;
-			}
-
-			.theme-selector {
-				position: relative;
-			}
-
-			.theme-btn {
-				display: flex;
-				align-items: center;
-				gap: 6px;
-				padding: 4px 10px;
-				border: 1px solid var(--border-color);
-				border-radius: 4px;
-				background: var(--bg-primary);
-				color: var(--text-secondary);
-				font-family: var(--console-font);
-				font-size: 11px;
-				cursor: pointer;
-				transition: all 0.2s;
-				white-space: nowrap;
-			}
-
-			.theme-btn:hover {
-				border-color: var(--accent);
-				color: var(--accent);
-			}
-
-			.theme-swatch {
-				width: 12px;
-				height: 12px;
-				border-radius: 50%;
-				border: 1px solid var(--border-color);
-			}
-
-			.theme-dropdown {
-				position: absolute;
-				top: calc(100% + 6px);
-				right: 0;
-				min-width: 170px;
-				border: 1px solid var(--border-color);
-				border-radius: 6px;
-				background: var(--bg-secondary);
-				box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-				z-index: 100;
-				opacity: 0;
-				transform: translateY(-6px);
-				pointer-events: none;
-				transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-				overflow: hidden;
-			}
-
-			.theme-dropdown.open {
-				opacity: 1;
-				transform: translateY(0);
-				pointer-events: all;
-			}
-
-			.theme-option {
-				display: flex;
-				align-items: center;
-				gap: 10px;
-				padding: 8px 14px;
-				font-size: 12px;
-				color: var(--text-secondary);
-				cursor: pointer;
-				transition: all 0.15s;
-			}
-
-			.theme-option:hover {
-				background: var(--accent-dim);
-				color: var(--text-primary);
-			}
-
-			.theme-option.active {
-				color: var(--accent);
-			}
-
-			.theme-option .swatch {
-				width: 14px;
-				height: 14px;
-				border-radius: 50%;
-				border: 2px solid var(--border-color);
-				flex-shrink: 0;
-			}
-
-			.auto-scroll-toggle {
-				display: flex;
-				align-items: center;
-				gap: 5px;
-				padding: 4px 10px;
-				border: 1px solid var(--border-color);
-				border-radius: 4px;
-				background: var(--bg-primary);
-				color: var(--text-muted);
-				font-size: 11px;
-				cursor: pointer;
-				transition: all 0.2s;
-				white-space: nowrap;
-				user-select: none;
-			}
-
-			.auto-scroll-toggle.active {
-				color: var(--accent);
-				border-color: var(--accent);
-				background: var(--accent-dim);
-			}
-
-			/* ========== Output Area ========== */
-			.console-output {
-				flex: 1;
-				overflow-y: auto;
-				overflow-x: hidden;
-				padding: 8px 0;
-				scroll-behavior: smooth;
-			}
-
-			/* ========== Message Entry ========== */
-			.msg-entry {
-				display: flex;
-				align-items: flex-start;
-				padding: 3px 16px;
-				font-size: 12px;
-				line-height: 1.6;
-				gap: 8px;
-				transition: background 0.15s;
-				animation: msg-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
-				position: relative;
-			}
-
-			.msg-entry:hover {
-				background: var(--glow-color);
-			}
-
-			.msg-entry.hidden {
 				display: none;
 			}
 
-			@keyframes msg-slide-in {
-				from {
-					opacity: 0;
-					transform: translateX(-8px);
-				}
+			.console-toolbar {
+				padding: 6px 10px;
+				gap: 4px;
+			}
 
-				to {
-					opacity: 1;
-					transform: translateX(0);
-				}
+			.filter-chip {
+				padding: 2px 7px;
+				font-size: 10px;
+			}
+
+			.search-box {
+				min-width: 100px;
+			}
+
+			.msg-entry {
+				padding: 3px 10px;
+				font-size: 11px;
 			}
 
 			.msg-timestamp {
-				color: var(--text-muted);
-				font-size: 11px;
-				flex-shrink: 0;
-				min-width: 72px;
-				padding-top: 1px;
-				font-variant-numeric: tabular-nums;
+				min-width: 60px;
+				font-size: 10px;
 			}
 
 			.msg-badge {
-				display: inline-flex;
-				align-items: center;
-				padding: 0 6px;
-				border-radius: 3px;
-				font-size: 10px;
-				font-weight: 600;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-				flex-shrink: 0;
-				min-width: 46px;
-				justify-content: center;
-				line-height: 1.7;
+				min-width: 38px;
+				font-size: 9px;
+				padding: 0 4px;
 			}
+		}
+	</style>
+</head>
 
-			.msg-badge.log {
-				background: var(--bg-tertiary);
-				color: var(--log-color);
-			}
+<body data-theme="amber">
+	<!-- Background particle canvas -->
+	<canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-			.msg-badge.info {
-				background: #40c4ff15;
-				color: var(--info-color);
-			}
+	<!-- Toggle button -->
+	<button class="console-toggle" id="toggleBtn" aria-label="Toggle console">
+		<i class="fas fa-terminal"></i>
+		<span class="badge" id="errorBadge">0</span>
+	</button>
 
-			.msg-badge.warn {
-				background: #d4a01715;
-				color: var(--warn-color);
-			}
-
-			.msg-badge.error {
-				background: #e0525215;
-				color: var(--error-color);
-			}
-
-			.msg-badge.debug {
-				background: var(--bg-tertiary);
-				color: var(--debug-color);
-			}
-
-			.msg-badge.success {
-				background: #5cb85c15;
-				color: var(--success-color);
-			}
-
-			.msg-badge.cmd {
-				background: var(--accent-dim);
-				color: var(--cmd-color);
-			}
-
-			.msg-text {
-				flex: 1;
-				word-break: break-word;
-				color: var(--log-color);
-			}
-
-			.msg-text.warn-text {
-				color: var(--warn-color);
-			}
-
-			.msg-text.error-text {
-				color: var(--error-color);
-			}
-
-			.msg-text.info-text {
-				color: var(--info-color);
-			}
-
-			.msg-text.debug-text {
-				color: var(--debug-color);
-			}
-
-			.msg-text.success-text {
-				color: var(--success-color);
-			}
-
-			.msg-text.cmd-text {
-				color: var(--cmd-color);
-			}
-
-			.msg-text .highlight {
-				background: var(--accent-dim);
-				color: var(--accent-bright);
-				border-radius: 2px;
-				padding: 0 2px;
-			}
-
-			.msg-actions {
-				display: flex;
-				gap: 2px;
-				opacity: 0;
-				transition: opacity 0.15s;
-				flex-shrink: 0;
-			}
-
-			.msg-entry:hover .msg-actions {
-				opacity: 1;
-			}
-
-			.msg-action-btn {
-				width: 22px;
-				height: 22px;
-				border: none;
-				border-radius: 3px;
-				background: transparent;
-				color: var(--text-muted);
-				font-size: 10px;
-				cursor: pointer;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				transition: all 0.15s;
-			}
-
-			.msg-action-btn:hover {
-				background: var(--bg-tertiary);
-				color: var(--text-primary);
-			}
-
-			/* ========== Input Area ========== */
-			.console-input-area {
-				display: flex;
-				align-items: center;
-				gap: 0;
-				padding: 8px 16px 12px;
-				border-top: 1px solid var(--border-color);
-				background: var(--bg-secondary);
-				flex-shrink: 0;
-			}
-
-			.input-prompt {
-				color: var(--accent);
-				font-weight: 600;
-				font-size: 13px;
-				margin-right: 8px;
-				flex-shrink: 0;
-				text-shadow: 0 0 8px var(--border-glow);
-			}
-
-			.input-wrapper {
-				flex: 1;
-				position: relative;
-			}
-
-			.console-input {
-				width: 100%;
-				padding: 6px 12px;
-				border: 1px solid var(--border-color);
-				border-radius: 4px;
-				background: var(--bg-input);
-				color: var(--text-primary);
-				font-family: var(--console-font);
-				font-size: 13px;
-				outline: none;
-				transition: all 0.2s;
-			}
-
-			.console-input::placeholder {
-				color: var(--text-muted);
-				font-size: 12px;
-			}
-
-			.console-input:focus {
-				border-color: var(--accent);
-				box-shadow:
-					0 0 0 2px var(--accent-dim),
-					0 0 16px var(--glow-color);
-			}
-
-			/* Autocomplete */
-			.autocomplete {
-				position: absolute;
-				bottom: calc(100% + 4px);
-				left: 0;
-				min-width: 240px;
-				max-width: 400px;
-				max-height: 180px;
-				overflow-y: auto;
-				border: 1px solid var(--border-color);
-				border-radius: 6px;
-				background: var(--bg-secondary);
-				box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-				z-index: 50;
-				opacity: 0;
-				transform: translateY(4px);
-				pointer-events: none;
-				transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-			}
-
-			.autocomplete.visible {
-				opacity: 1;
-				transform: translateY(0);
-				pointer-events: all;
-			}
-
-			.autocomplete-item {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				padding: 6px 12px;
-				font-size: 12px;
-				cursor: pointer;
-				transition: background 0.1s;
-				gap: 12px;
-			}
-
-			.autocomplete-item:hover,
-			.autocomplete-item.selected {
-				background: var(--accent-dim);
-			}
-
-			.autocomplete-item .cmd-name {
-				color: var(--accent);
-				font-weight: 500;
-			}
-
-			.autocomplete-item .cmd-hint {
-				color: var(--text-muted);
-				font-size: 11px;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-
-			/* ========== Toast ========== */
-			.toast-container {
-				position: fixed;
-				top: 20px;
-				right: 20px;
-				z-index: 2000;
-				display: flex;
-				flex-direction: column;
-				gap: 8px;
-			}
-
-			.toast {
-				padding: 10px 16px;
-				border-radius: 6px;
-				background: var(--bg-secondary);
-				border: 1px solid var(--border-color);
-				color: var(--text-primary);
-				font-family: var(--console-font);
-				font-size: 12px;
-				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-				animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
-				display: flex;
-				align-items: center;
-				gap: 8px;
-			}
-
-			.toast.removing {
-				animation: toast-out 0.25s ease-in both;
-			}
-
-			@keyframes toast-in {
-				from {
-					opacity: 0;
-					transform: translateX(30px);
-				}
-
-				to {
-					opacity: 1;
-					transform: translateX(0);
-				}
-			}
-
-			@keyframes toast-out {
-				to {
-					opacity: 0;
-					transform: translateX(30px);
-				}
-			}
-
-			/* ========== Welcome Banner ========== */
-			.welcome-banner {
-				padding: 16px;
-				margin: 4px 16px 8px;
-				border: 1px solid var(--border-color);
-				border-radius: 6px;
-				background: var(--bg-secondary);
-				animation: msg-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-			}
-
-			.welcome-banner h2 {
-				font-family: var(--title-font);
-				font-size: 14px;
-				font-weight: 700;
-				color: var(--accent);
-				letter-spacing: 2px;
-				margin-bottom: 8px;
-			}
-
-			.welcome-banner p {
-				font-size: 11px;
-				color: var(--text-secondary);
-				line-height: 1.7;
-			}
-
-			.welcome-banner kbd {
-				display: inline-block;
-				padding: 1px 6px;
-				border: 1px solid var(--border-color);
-				border-radius: 3px;
-				background: var(--bg-tertiary);
-				font-family: var(--console-font);
-				font-size: 10px;
-				color: var(--text-primary);
-			}
-
-			.welcome-close {
-				position: absolute;
-				top: 8px;
-				right: 8px;
-				width: 24px;
-				height: 24px;
-				border: none;
-				background: transparent;
-				color: var(--text-secondary);
-				font-size: 18px;
-				line-height: 1;
-				cursor: pointer;
-				border-radius: 4px;
-				transition: all 0.2s;
-			}
-
-			.welcome-close:hover {
-				background: var(--bg-tertiary);
-				color: var(--text-primary);
-			}
-
-			/* ========== Empty State ========== */
-			.empty-state {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				padding: 40px 20px;
-				color: var(--text-muted);
-				font-size: 13px;
-				gap: 8px;
-			}
-
-			.empty-state i {
-				font-size: 28px;
-				opacity: 0.4;
-			}
-
-			/* ========== Reduced Motion ========== */
-			@media (prefers-reduced-motion: reduce) {
-				*,
-				*::before,
-				*::after {
-					animation-duration: 0.01ms !important;
-					transition-duration: 0.01ms !important;
-				}
-			}
-
-			/* ========== Responsive ========== */
-			@media (max-width: 640px) {
-				.console-container {
-					width: 100vw;
-					height: 80vh;
-					border-radius: 0;
-				}
-
-				.header-stats {
-					display: none;
-				}
-
-				.console-toolbar {
-					padding: 6px 10px;
-					gap: 4px;
-				}
-
-				.filter-chip {
-					padding: 2px 7px;
-					font-size: 10px;
-				}
-
-				.search-box {
-					min-width: 100px;
-				}
-
-				.msg-entry {
-					padding: 3px 10px;
-					font-size: 11px;
-				}
-
-				.msg-timestamp {
-					min-width: 60px;
-					font-size: 10px;
-				}
-
-				.msg-badge {
-					min-width: 38px;
-					font-size: 9px;
-					padding: 0 4px;
-				}
-			}
-		</style>
-	</head>
-
-	<body data-theme="amber">
-		<!-- Background particle canvas -->
-		<canvas id="bgCanvas" aria-hidden="true"></canvas>
-
-		<!-- Toggle button -->
-		<button class="console-toggle" id="toggleBtn" aria-label="Toggle console">
-			<i class="fas fa-terminal"></i>
-			<span class="badge" id="errorBadge">0</span>
-		</button>
-
-		<!-- Console Container -->
-		<div class="console-container open" id="consoleContainer" role="log" aria-label="Game Console">
-			<!-- Header -->
-			<header class="console-header">
-				<span class="console-title"><span class="dot"></span>Console</span>
-				<div class="header-stats" id="headerStats">
-					<div class="stat-item" title="Total messages">
-						<i class="fas fa-bars-staggered" style="font-size: 10px"></i>
-						<span class="count" id="statTotal">0</span>
-					</div>
-					<div class="stat-item warn-stat" title="Warnings">
-						<i class="fas fa-triangle-exclamation" style="font-size: 10px"></i>
-						<span class="count" id="statWarn">0</span>
-					</div>
-					<div class="stat-item error-stat" title="Errors">
-						<i class="fas fa-circle-xmark" style="font-size: 10px"></i>
-						<span class="count" id="statError">0</span>
-					</div>
+	<!-- Console Container -->
+	<div class="console-container open" id="consoleContainer" role="log" aria-label="Game Console">
+		<!-- Header -->
+		<header class="console-header">
+			<span class="console-title"><span class="dot"></span>Console</span>
+			<div class="header-stats" id="headerStats">
+				<div class="stat-item" title="Total messages">
+					<i class="fas fa-bars-staggered" style="font-size: 10px"></i>
+					<span class="count" id="statTotal">0</span>
 				</div>
-				<div class="header-actions">
-					<button class="header-btn" id="copyAllBtn" title="Copy all logs" aria-label="Copy all logs">
-						<i class="fas fa-copy"></i>
-					</button>
-					<button class="header-btn" id="maximizeBtn" title="Maximize" aria-label="Toggle maximize">
-						<i class="fas fa-expand"></i>
-					</button>
-					<button class="header-btn close-btn" id="closeBtn" title="Close" aria-label="Close console">
-						<i class="fas fa-xmark"></i>
-					</button>
+				<div class="stat-item warn-stat" title="Warnings">
+					<i class="fas fa-triangle-exclamation" style="font-size: 10px"></i>
+					<span class="count" id="statWarn">0</span>
 				</div>
-			</header>
-
-			<!-- Toolbar -->
-			<nav class="console-toolbar" aria-label="Console filters">
-				<button class="filter-chip active" data-filter="all">All</button>
-				<button class="filter-chip" data-filter="log">
-					<span class="chip-dot" style="background: var(--log-color)"></span>Log
-				</button>
-				<button class="filter-chip" data-filter="info">
-					<span class="chip-dot" style="background: var(--info-color)"></span>Info
-				</button>
-				<button class="filter-chip" data-filter="warn">
-					<span class="chip-dot" style="background: var(--warn-color)"></span>Warn
-				</button>
-				<button class="filter-chip" data-filter="error">
-					<span class="chip-dot" style="background: var(--error-color)"></span>Error
-				</button>
-				<button class="filter-chip" data-filter="debug">
-					<span class="chip-dot" style="background: var(--debug-color)"></span>Debug
-				</button>
-				<button class="filter-chip" data-filter="success">
-					<span class="chip-dot" style="background: var(--success-color)"></span>Success
-				</button>
-				<button class="filter-chip" data-filter="cmd">
-					<span class="chip-dot" style="background: var(--cmd-color)"></span>CMD
-				</button>
-
-				<div class="toolbar-sep"></div>
-
-				<div class="search-box">
-					<input type="text" id="searchInput" placeholder="Search logs..." aria-label="Search logs" />
-					<i class="fas fa-search"></i>
-				</div>
-
-				<div class="toolbar-sep"></div>
-
-				<button class="auto-scroll-toggle active" id="autoScrollBtn" aria-label="Toggle auto-scroll">
-					<i class="fas fa-arrow-down" style="font-size: 10px"></i>
-					Auto-scroll
-				</button>
-
-				<div class="theme-selector">
-					<button
-						class="theme-btn"
-						id="themeToggleBtn"
-						aria-label="Select theme"
-						aria-haspopup="true"
-						aria-expanded="false"
-					>
-						<span class="theme-swatch" id="currentSwatch" style="background: #d4a017"></span>
-						Theme
-						<i class="fas fa-chevron-up" style="font-size: 9px"></i>
-					</button>
-					<div class="theme-dropdown" id="themeDropdown" role="menu">
-						<div class="theme-option active" data-theme="amber" role="menuitem">
-							<span class="swatch" style="background: #d4a017"></span> Amber
-						</div>
-						<div class="theme-option" data-theme="arctic" role="menuitem">
-							<span class="swatch" style="background: #0891b2"></span> Arctic
-						</div>
-						<div class="theme-option" data-theme="aurora" role="menuitem">
-							<span class="swatch" style="background: #00d4aa"></span> Aurora
-						</div>
-						<div class="theme-option" data-theme="bloodmoon" role="menuitem">
-							<span class="swatch" style="background: #ff2020"></span> Blood Moon
-						</div>
-						<div class="theme-option" data-theme="cyberpunk" role="menuitem">
-							<span class="swatch" style="background: #e040fb"></span> Cyberpunk
-						</div>
-						<div class="theme-option" data-theme="matrix" role="menuitem">
-							<span class="swatch" style="background: #00ff41"></span> Matrix
-						</div>
-						<div class="theme-option" data-theme="midnight" role="menuitem">
-							<span class="swatch" style="background: #4fc1ff"></span> Midnight
-						</div>
-						<div class="theme-option" data-theme="glass" role="menuitem">
-							<span class="swatch" style="background: #00d4ff"></span> Glass
-						</div>
-					</div>
-				</div>
-			</nav>
-
-			<!-- Output -->
-			<main class="console-output" id="consoleOutput" aria-live="polite"></main>
-
-			<!-- Input -->
-			<div class="console-input-area">
-				<span class="input-prompt">&gt;</span>
-				<div class="input-wrapper">
-					<input
-						type="text"
-						class="console-input"
-						id="consoleInput"
-						placeholder="Type a command..."
-						autocomplete="off"
-						spellcheck="false"
-						aria-label="Command input"
-					/>
-					<div class="autocomplete" id="autocomplete" role="listbox"></div>
+				<div class="stat-item error-stat" title="Errors">
+					<i class="fas fa-circle-xmark" style="font-size: 10px"></i>
+					<span class="count" id="statError">0</span>
 				</div>
 			</div>
+			<div class="header-actions">
+				<button class="header-btn" id="copyAllBtn" title="Copy all logs" aria-label="Copy all logs">
+					<i class="fas fa-copy"></i>
+				</button>
+				<button class="header-btn" id="maximizeBtn" title="Maximize" aria-label="Toggle maximize">
+					<i class="fas fa-expand"></i>
+				</button>
+				<button class="header-btn close-btn" id="closeBtn" title="Close" aria-label="Close console">
+					<i class="fas fa-xmark"></i>
+				</button>
+			</div>
+		</header>
+
+		<!-- Toolbar -->
+		<nav class="console-toolbar" aria-label="Console filters">
+			<button class="filter-chip active" data-filter="all">All</button>
+			<button class="filter-chip" data-filter="log">
+				<span class="chip-dot" style="background: var(--log-color)"></span>Log
+			</button>
+			<button class="filter-chip" data-filter="info">
+				<span class="chip-dot" style="background: var(--info-color)"></span>Info
+			</button>
+			<button class="filter-chip" data-filter="warn">
+				<span class="chip-dot" style="background: var(--warn-color)"></span>Warn
+			</button>
+			<button class="filter-chip" data-filter="error">
+				<span class="chip-dot" style="background: var(--error-color)"></span>Error
+			</button>
+			<button class="filter-chip" data-filter="debug">
+				<span class="chip-dot" style="background: var(--debug-color)"></span>Debug
+			</button>
+			<button class="filter-chip" data-filter="success">
+				<span class="chip-dot" style="background: var(--success-color)"></span>Success
+			</button>
+			<button class="filter-chip" data-filter="cmd">
+				<span class="chip-dot" style="background: var(--cmd-color)"></span>CMD
+			</button>
+
+			<div class="toolbar-sep"></div>
+
+			<div class="search-box">
+				<input type="text" id="searchInput" placeholder="Search logs..." aria-label="Search logs" />
+				<i class="fas fa-search"></i>
+			</div>
+
+			<div class="toolbar-sep"></div>
+
+			<button class="auto-scroll-toggle active" id="autoScrollBtn" aria-label="Toggle auto-scroll">
+				<i class="fas fa-arrow-down" style="font-size: 10px"></i>
+				Auto-scroll
+			</button>
+
+			<div class="theme-selector">
+				<button class="theme-btn" id="themeToggleBtn" aria-label="Select theme" aria-haspopup="true"
+					aria-expanded="false">
+					<span class="theme-swatch" id="currentSwatch" style="background: #d4a017"></span>
+					Theme
+					<i class="fas fa-chevron-up" style="font-size: 9px"></i>
+				</button>
+				<div class="theme-dropdown" id="themeDropdown" role="menu">
+					<div class="theme-option active" data-theme="amber" role="menuitem">
+						<span class="swatch" style="background: #d4a017"></span> Amber
+					</div>
+					<div class="theme-option" data-theme="arctic" role="menuitem">
+						<span class="swatch" style="background: #0891b2"></span> Arctic
+					</div>
+					<div class="theme-option" data-theme="aurora" role="menuitem">
+						<span class="swatch" style="background: #00d4aa"></span> Aurora
+					</div>
+					<div class="theme-option" data-theme="bloodmoon" role="menuitem">
+						<span class="swatch" style="background: #ff2020"></span> Blood Moon
+					</div>
+					<div class="theme-option" data-theme="cyberpunk" role="menuitem">
+						<span class="swatch" style="background: #e040fb"></span> Cyberpunk
+					</div>
+					<div class="theme-option" data-theme="matrix" role="menuitem">
+						<span class="swatch" style="background: #00ff41"></span> Matrix
+					</div>
+					<div class="theme-option" data-theme="midnight" role="menuitem">
+						<span class="swatch" style="background: #4fc1ff"></span> Midnight
+					</div>
+					<div class="theme-option" data-theme="glass" role="menuitem">
+						<span class="swatch" style="background: #00d4ff"></span> Glass
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<!-- Output -->
+		<main class="console-output" id="consoleOutput" aria-live="polite"></main>
+
+		<!-- Input -->
+		<div class="console-input-area">
+			<span class="input-prompt">&gt;</span>
+			<div class="input-wrapper">
+				<input type="text" class="console-input" id="consoleInput" placeholder="Type a command..."
+					autocomplete="off" spellcheck="false" aria-label="Command input" />
+				<div class="autocomplete" id="autocomplete" role="listbox"></div>
+			</div>
 		</div>
+	</div>
 
-		<!-- Toast container -->
-		<div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+	<!-- Toast container -->
+	<div class="toast-container" id="toastContainer" aria-live="assertive"></div>
 
-		<script>
-			const clipboard_writeText = navigator.clipboard.writeText;
-			navigator.clipboard.writeText = (text) => {
-				window?.Events?.Call("clipboardWrite", text);
-				return clipboard_writeText(text);
-			};
+	<script>
+		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
+		// Using 'const' or 'let' would cause a redeclaration error.
+		// noinspection ES6ConvertVarToLetConst
+		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
+		var Events = window.Events || {
+			// NOTE: These are placeholders for the actual events.
+			// They will be replaced by the actual events when the window.Events object is available.
+			// This is a fallback for when the window.Events object is not available (when using OS web browser).
+			Call: function (event, ...args) {
+				// console.log(`Calling Lua event: ${event}`, ...args);
 
-			// Utility
-			const $ = (sel, ctx = document) => ctx.querySelector(sel);
-			const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
-			const escHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-			const now = () => {
-				const d = new Date();
-				return [d.getHours(), d.getMinutes(), d.getSeconds()].map((v) => String(v).padStart(2, "0")).join(":");
-			};
-			const getCS = (prop) => getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
-
-			// Toast System
-			const Toast = {
-				container: null,
-				show(msg, icon = "fa-check", duration = 2500) {
-					if (!this.container) this.container = $("#toastContainer");
-					const el = document.createElement("div");
-					el.className = "toast";
-					el.innerHTML = `<i class="fas ${icon}" style="color:var(--accent)"></i>${escHtml(msg)}`;
-					this.container.appendChild(el);
+				// Simulate autocomplete response for browser testing
+				if (event === "GetAutocomplete") {
 					setTimeout(() => {
-						el.classList.add("removing");
-						el.addEventListener("animationend", () => el.remove());
-					}, duration);
-				},
-			};
-			window.Toast = Toast;
+						const [line, caret] = args;
+						// console.log(`Simulating autocomplete response for: "${line}"`);
 
-			// Theme Manager
-			const ThemeManager = {
-				current: "amber",
-				swatches: {
-					amber: "#d4a017",
-					arctic: "#0891b2",
-					aurora: "#00d4aa",
-					bloodmoon: "#ff2020",
-					cyberpunk: "#e040fb",
-					matrix: "#00ff41",
-					midnight: "#4fc1ff",
-					glass: "#00d4ff",
-				},
-				set(name) {
-					if (!this.swatches[name]) return;
-					this.current = name;
-					document.body.setAttribute("data-theme", name);
-					const swatch = $("#currentSwatch");
-					if (swatch) swatch.style.background = this.swatches[name];
-					$$(".theme-option").forEach((o) => o.classList.toggle("active", o.dataset.theme === name));
-					if (typeof Particles !== "undefined") Particles.updateColor();
-				},
-				toggleDropdown() {
-					const dd = $("#themeDropdown");
-					if (!dd) return;
-					const isOpen = dd.classList.contains("open");
-					dd.classList.toggle("open");
-					const btn = $("#themeToggleBtn");
-					if (btn) btn.setAttribute("aria-expanded", !isOpen);
-				},
-				closeDropdown() {
-					const dd = $("#themeDropdown");
-					if (dd) dd.classList.remove("open");
-					const btn = $("#themeToggleBtn");
-					if (btn) btn.setAttribute("aria-expanded", "false");
-				},
-			};
-			window.ThemeManager = ThemeManager;
+						// Simple mock suggestions
+						const suggestions = ["help", "clear", "cls", "echo", "time", "date", "version", "theme"]
+							.filter(cmd => cmd.startsWith(line.toLowerCase()))
+							.map(cmd => ({ name: cmd, desc: `Mock ${cmd} command` }));
 
-			// History Manager
-			const HistoryManager = {
-				entries: [],
-				index: -1,
-				push(cmd) {
-					if (cmd && cmd !== this.entries[this.entries.length - 1]) {
-						this.entries.push(cmd);
-						if (this.entries.length > 200) this.entries.shift();
-					}
-					this.index = this.entries.length;
-				},
-				up() {
-					if (this.index > 0) {
-						this.index--;
-						return this.entries[this.index];
-					}
-					return null;
-				},
-				down() {
-					if (this.index < this.entries.length - 1) {
-						this.index++;
-						return this.entries[this.index];
-					}
-					this.index = this.entries.length;
-					return "";
-				},
-			};
-			window.HistoryManager = HistoryManager;
-
-			// Command Registry
-			const CommandRegistry = {
-				commands: {},
-				register(name, desc, fn, opts = {}) {
-					this.commands[name] = { desc, fn, alias: opts.alias || [], args: opts.args || "" };
-					if (opts.alias)
-						opts.alias.forEach((a) => {
-							this.commands[a] = this.commands[name];
+						// Trigger the AutocompleteSuggestions handler
+						const handlers = this._subscriptions?.["AutocompleteSuggestions"] || [];
+						handlers.forEach(handler => {
+							try {
+								handler(suggestions);
+							} catch (e) {
+								console.error("Error in AutocompleteSuggestions handler:", e);
+							}
 						});
-				},
-				get(name) {
-					return this.commands[name];
-				},
-				getAll() {
-					return Object.entries(this.commands).filter(
-						([k, v]) => k === Object.keys(this.commands).find((kk) => this.commands[kk] === v),
-					);
-				},
-				match(prefix) {
-					return this.getAll()
-						.filter(([name]) => name.startsWith(prefix.toLowerCase()))
-						.map(([name, cmd]) => ({ name, desc: cmd.desc, args: cmd.args }))
-						.slice(0, 8);
-				},
-				init() {
-					// No commands to register - all moved to Lua
-				},
-			};
-			window.CommandRegistry = CommandRegistry;
+					}, 100); // Simulate network delay
+				}
+			},
+			Subscribe: function (event, callback) {
+				// console.log(`Subscribed to event: ${event}`, callback);
+				if (!this._subscriptions) this._subscriptions = {};
+				if (!this._subscriptions[event]) this._subscriptions[event] = [];
+				this._subscriptions[event].push(callback);
+			}
+		};
 
-			// Search / Filter
-			const FilterManager = {
-				activeFilter: "all",
-				searchQuery: "",
-				setFilter(type) {
-					this.activeFilter = type;
-					$$(".filter-chip").forEach((c) => c.classList.toggle("active", c.dataset.filter === type));
-					this.apply();
-				},
-				setSearch(q) {
-					this.searchQuery = q.toLowerCase().trim();
-					this.apply();
-				},
-				apply() {
-					const entries = $$(".msg-entry");
-					let visible = 0;
-					entries.forEach((el) => {
-						const type = el.dataset.type;
-						const text = el.dataset.text || "";
-						const matchFilter = this.activeFilter === "all" || type === this.activeFilter;
-						const matchSearch = !this.searchQuery || text.includes(this.searchQuery);
-						const show = matchFilter && matchSearch;
-						el.classList.toggle("hidden", !show);
-						if (show) {
-							visible++;
-							if (this.searchQuery) {
-								const textEl = el.querySelector(".msg-text");
-								if (textEl) {
-									const raw = textEl.textContent;
-									const regex = new RegExp(
-										`(${this.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-										"gi",
-									);
-									textEl.innerHTML = escHtml(raw).replace(regex, '<span class="highlight">$1</span>');
-								}
-							} else {
-								const textEl = el.querySelector(".msg-text");
-								if (textEl && textEl.querySelector(".highlight")) {
-									textEl.innerHTML = escHtml(textEl.textContent);
-								}
+		//const clipboard_writeText = navigator.clipboard.writeText;
+		navigator.clipboard.writeText = (text) => {
+			Events?.Call("ClipboardWrite", text);
+			return Promise.resolve(text);
+		};
+
+		// Utility
+		const $ = (sel, ctx = document) => ctx.querySelector(sel);
+		const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+		const escHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		const now = () => {
+			const d = new Date();
+			return [d.getHours(), d.getMinutes(), d.getSeconds()].map((v) => String(v).padStart(2, "0")).join(":");
+		};
+		const getCS = (prop) => getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
+
+		// Toast System
+		const Toast = {
+			container: null,
+			show(msg, icon = "fa-check", duration = 2500) {
+				if (!this.container) this.container = $("#toastContainer");
+				const el = document.createElement("div");
+				el.className = "toast";
+				el.innerHTML = `<i class="fas ${icon}" style="color:var(--accent)"></i>${escHtml(msg)}`;
+				this.container.appendChild(el);
+				setTimeout(() => {
+					el.classList.add("removing");
+					el.addEventListener("animationend", () => el.remove());
+				}, duration);
+			},
+		};
+		window.Toast = Toast;
+
+		// Theme Manager
+		const ThemeManager = {
+			current: "amber",
+			swatches: {
+				amber: "#d4a017",
+				arctic: "#0891b2",
+				aurora: "#00d4aa",
+				bloodmoon: "#ff2020",
+				cyberpunk: "#e040fb",
+				matrix: "#00ff41",
+				midnight: "#4fc1ff",
+				glass: "#00d4ff",
+			},
+			set(name) {
+				if (!this.swatches[name]) return;
+				this.current = name;
+				document.body.setAttribute("data-theme", name);
+				const swatch = $("#currentSwatch");
+				if (swatch) swatch.style.background = this.swatches[name];
+				$$(".theme-option").forEach((o) => o.classList.toggle("active", o.dataset.theme === name));
+				if (typeof Particles !== "undefined") Particles.updateColor();
+			},
+			toggleDropdown() {
+				const dd = $("#themeDropdown");
+				if (!dd) return;
+				const isOpen = dd.classList.contains("open");
+				dd.classList.toggle("open");
+				const btn = $("#themeToggleBtn");
+				if (btn) btn.setAttribute("aria-expanded", !isOpen);
+			},
+			closeDropdown() {
+				const dd = $("#themeDropdown");
+				if (dd) dd.classList.remove("open");
+				const btn = $("#themeToggleBtn");
+				if (btn) btn.setAttribute("aria-expanded", "false");
+			},
+		};
+		window.ThemeManager = ThemeManager;
+
+		// History Manager
+		const HistoryManager = {
+			entries: [],
+			index: -1,
+			push(cmd) {
+				if (cmd && cmd !== this.entries[this.entries.length - 1]) {
+					this.entries.push(cmd);
+					if (this.entries.length > 200) this.entries.shift();
+				}
+				this.index = this.entries.length;
+			},
+			up() {
+				if (this.index > 0) {
+					this.index--;
+					return this.entries[this.index];
+				}
+				return null;
+			},
+			down() {
+				if (this.index < this.entries.length - 1) {
+					this.index++;
+					return this.entries[this.index];
+				}
+				this.index = this.entries.length;
+				return "";
+			},
+		};
+		window.HistoryManager = HistoryManager;
+
+		// Command Registry
+		const CommandRegistry = {
+			commands: {},
+			register(name, desc, fn, opts = {}) {
+				this.commands[name] = { desc, fn, alias: opts.alias || [], args: opts.args || "" };
+				if (opts.alias)
+					opts.alias.forEach((a) => {
+						this.commands[a] = this.commands[name];
+					});
+			},
+			get(name) {
+				return this.commands[name];
+			},
+			getAll() {
+				return Object.entries(this.commands).filter(
+					([k, v]) => k === Object.keys(this.commands).find((kk) => this.commands[kk] === v),
+				);
+			},
+			match(prefix) {
+				return this.getAll()
+					.filter(([name]) => name.startsWith(prefix.toLowerCase()))
+					.map(([name, cmd]) => ({ name, desc: cmd.desc, args: cmd.args }))
+					.slice(0, 8);
+			},
+			init() {
+				// No commands to register - all moved to Lua
+			},
+		};
+		window.CommandRegistry = CommandRegistry;
+
+		// Search / Filter
+		const FilterManager = {
+			activeFilter: "all",
+			searchQuery: "",
+			setFilter(type) {
+				this.activeFilter = type;
+				$$(".filter-chip").forEach((c) => c.classList.toggle("active", c.dataset.filter === type));
+				this.apply();
+			},
+			setSearch(q) {
+				this.searchQuery = q.toLowerCase().trim();
+				this.apply();
+			},
+			apply() {
+				const entries = $$(".msg-entry");
+				let visible = 0;
+				entries.forEach((el) => {
+					const type = el.dataset.type;
+					const text = el.dataset.text || "";
+					const matchFilter = this.activeFilter === "all" || type === this.activeFilter;
+					const matchSearch = !this.searchQuery || text.includes(this.searchQuery);
+					const show = matchFilter && matchSearch;
+					el.classList.toggle("hidden", !show);
+					if (show) {
+						visible++;
+						if (this.searchQuery) {
+							const textEl = el.querySelector(".msg-text");
+							if (textEl) {
+								const raw = textEl.textContent;
+								const regex = new RegExp(
+									`(${this.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+									"gi",
+								);
+								textEl.innerHTML = escHtml(raw).replace(regex, '<span class="highlight">$1</span>');
+							}
+						} else {
+							const textEl = el.querySelector(".msg-text");
+							if (textEl && textEl.querySelector(".highlight")) {
+								textEl.innerHTML = escHtml(textEl.textContent);
 							}
 						}
-					});
-					const empty = $(".empty-state");
-					if (visible === 0 && entries.length > 0) {
-						if (!empty) {
-							const e = document.createElement("div");
-							e.className = "empty-state";
-							e.innerHTML = '<i class="fas fa-filter"></i><span>No matching messages</span>';
-							const output = $("#consoleOutput");
-							if (output) output.appendChild(e);
-						}
-					} else if (empty) {
-						empty.remove();
 					}
-				},
-			};
-			window.FilterManager = FilterManager;
+				});
+				const empty = $(".empty-state");
+				if (visible === 0 && entries.length > 0) {
+					if (!empty) {
+						const e = document.createElement("div");
+						e.className = "empty-state";
+						e.innerHTML = '<i class="fas fa-filter"></i><span>No matching messages</span>';
+						const output = $("#consoleOutput");
+						if (output) output.appendChild(e);
+					}
+				} else if (empty) {
+					empty.remove();
+				}
+			},
+		};
+		window.FilterManager = FilterManager;
 
-			// Console Engine
-			const ConsoleEngine = {
-				messages: [],
-				stats: { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 },
-				maxMessages: 2000,
-				autoScroll: true,
-				isOpen: false,
+		// Console Engine
+		const ConsoleEngine = {
+			messages: [],
+			stats: { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 },
+			maxMessages: 2000,
+			autoScroll: true,
+			isOpen: false,
 
-				log(type, text) {
-					const entry = { type, text: String(text), time: now() };
-					this.messages.push(entry);
-					if (this.messages.length > this.maxMessages) this.messages.shift();
-					this.stats.total++;
-					this.stats[type] = (this.stats[type] || 0) + 1;
-					this.renderEntry(entry);
-					this.updateStats();
-				},
+			log(type, text) {
+				const entry = { type, text: String(text), time: now() };
+				this.messages.push(entry);
+				if (this.messages.length > this.maxMessages) this.messages.shift();
+				this.stats.total++;
+				this.stats[type] = (this.stats[type] || 0) + 1;
+				this.renderEntry(entry);
+				this.updateStats();
+			},
 
-				renderEntry(entry) {
-					const output = $("#consoleOutput");
-					if (!output) return;
-					const empty = output.querySelector(".empty-state");
-					if (empty) empty.remove();
+			renderEntry(entry) {
+				const output = $("#consoleOutput");
+				if (!output) return;
+				const empty = output.querySelector(".empty-state");
+				if (empty) empty.remove();
 
-					const div = document.createElement("div");
-					div.className = "msg-entry";
-					div.dataset.type = entry.type;
-					div.dataset.text = entry.text.toLowerCase();
+				const div = document.createElement("div");
+				div.className = "msg-entry";
+				div.dataset.type = entry.type;
+				div.dataset.text = entry.text.toLowerCase();
 
-					const textClass = ["warn", "error", "debug", "success", "cmd", "info"].includes(entry.type)
-						? `${entry.type}-text`
-						: "";
+				const textClass = ["warn", "error", "debug", "success", "cmd", "info"].includes(entry.type)
+					? `${entry.type}-text`
+					: "";
 
-					div.innerHTML = `
+				div.innerHTML = `
 <span class="msg-timestamp">${entry.time}</span>
 <span class="msg-badge ${entry.type}">${entry.type}</span>
 <span class="msg-text ${textClass}">${escHtml(entry.text)}</span>
@@ -1570,732 +1628,903 @@ License: MIT
 </button>
 </span>
 `;
-					output.appendChild(div);
+				output.appendChild(div);
 
-					const children = output.children;
-					while (children.length > this.maxMessages) children[0].remove();
+				const children = output.children;
+				while (children.length > this.maxMessages) children[0].remove();
 
-					if (this.autoScroll) {
-						output.scrollTop = output.scrollHeight;
+				if (this.autoScroll) {
+					output.scrollTop = output.scrollHeight;
+				}
+			},
+
+			copyMessage(btn) {
+				const entry = btn.closest(".msg-entry");
+				const text = entry.querySelector(".msg-text").textContent;
+				navigator.clipboard.writeText(text).then(() => {
+					Toast.show("Copied to clipboard", "fa-clipboard-check");
+				});
+			},
+
+			copyAll() {
+				const text = this.messages.map((m) => `[${m.time}] [${m.type.toUpperCase()}] ${m.text}`).join("\n");
+				navigator.clipboard.writeText(text).then(() => {
+					Toast.show(`Copied ${this.messages.length} messages`, "fa-clipboard-check");
+				});
+			},
+
+			clear() {
+				this.messages = [];
+				this.stats = { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 };
+				const output = $("#consoleOutput");
+				if (output) output.innerHTML = "";
+				this.updateStats();
+				this.showWelcome();
+				Toast.show("Console cleared", "fa-broom");
+			},
+
+			updateStats() {
+				const statTotal = $("#statTotal");
+				const statWarn = $("#statWarn");
+				const statError = $("#statError");
+				if (statTotal) statTotal.textContent = this.stats.total;
+				if (statWarn) statWarn.textContent = this.stats.warn;
+				if (statError) statError.textContent = this.stats.error;
+				const badge = $("#errorBadge");
+				if (badge) {
+					if (this.stats.error > 0) {
+						badge.textContent = this.stats.error;
+						badge.classList.add("visible");
+					} else {
+						badge.classList.remove("visible");
 					}
-				},
+				}
+			},
 
-				copyMessage(btn) {
-					const entry = btn.closest(".msg-entry");
-					const text = entry.querySelector(".msg-text").textContent;
-					navigator.clipboard.writeText(text).then(() => {
-						Toast.show("Copied to clipboard", "fa-clipboard-check");
-					});
-				},
+			execute(input) {
+				const trimmed = input.trim();
+				if (!trimmed) return;
+				HistoryManager.push(trimmed);
+				this.log("cmd", trimmed);
+				const parts = trimmed.split(/\s+/);
+				const cmdName = parts[0].toLowerCase();
+				const args = parts.slice(1);
 
-				copyAll() {
-					const text = this.messages.map((m) => `[${m.time}] [${m.type.toUpperCase()}] ${m.text}`).join("\n");
-					navigator.clipboard.writeText(text).then(() => {
-						Toast.show(`Copied ${this.messages.length} messages`, "fa-clipboard-check");
-					});
-				},
+				// Always send to Lua since all commands are now handled by chat_commander
+				Events.Call("OnCommand", cmdName, args);
+			},
 
-				clear() {
-					this.messages = [];
-					this.stats = { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 };
-					const output = $("#consoleOutput");
-					if (output) output.innerHTML = "";
-					this.updateStats();
-					this.showWelcome();
-					Toast.show("Console cleared", "fa-broom");
-				},
-
-				updateStats() {
-					const statTotal = $("#statTotal");
-					const statWarn = $("#statWarn");
-					const statError = $("#statError");
-					if (statTotal) statTotal.textContent = this.stats.total;
-					if (statWarn) statWarn.textContent = this.stats.warn;
-					if (statError) statError.textContent = this.stats.error;
-					const badge = $("#errorBadge");
-					if (badge) {
-						if (this.stats.error > 0) {
-							badge.textContent = this.stats.error;
-							badge.classList.add("visible");
-						} else {
-							badge.classList.remove("visible");
-						}
-					}
-				},
-
-				execute(input) {
-					const trimmed = input.trim();
-					if (!trimmed) return;
-					HistoryManager.push(trimmed);
-					this.log("cmd", trimmed);
-					const parts = trimmed.split(/\s+/);
-					const cmdName = parts[0].toLowerCase();
-					const args = parts.slice(1);
-
-					// Always send to Lua since all commands are now handled by chat_commander
-					window?.Events?.Call("onCommand", cmdName, args);
-				},
-
-				showWelcome() {
-					const output = $("#consoleOutput");
-					if (!output) return;
-					const banner = document.createElement("div");
-					banner.className = "welcome-banner";
-					banner.innerHTML = `
+			showWelcome() {
+				const output = $("#consoleOutput");
+				if (!output) return;
+				const banner = document.createElement("div");
+				banner.className = "welcome-banner";
+				banner.innerHTML = `
 <button class="welcome-close" title="Dismiss">&times;</button>
 <h2>Console Engine v0.1</h2>
 <p>
 Type <kbd>help</kbd> for commands &middot; <kbd>Tab</kbd> to autocomplete &middot; <kbd>&uarr;</kbd><kbd>&darr;</kbd> for history<br>
 Use the filter chips above to narrow by type, or search to find specific messages.<br>
-Try <kbd>theme cyberpunk</kbd>, or <kbd>time</kbd>.
+Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.
 </p>
 `;
-					banner.querySelector(".welcome-close").addEventListener("click", () => {
-						banner.remove();
-					});
-					output.appendChild(banner);
-				},
+				banner.querySelector(".welcome-close").addEventListener("click", () => {
+					banner.remove();
+				});
+				output.appendChild(banner);
+			},
 
-				toggle(show) {
-					const container = $("#consoleContainer");
-					const toggleBtn = $("#toggleBtn");
-					const input = $("#consoleInput");
-					if (!container || !toggleBtn) return;
+			toggle(show) {
+				const container = $("#consoleContainer");
+				const toggleBtn = $("#toggleBtn");
+				const input = $("#consoleInput");
+				if (!container || !toggleBtn) return;
 
-					if (show === undefined) {
-						show = !this.isOpen;
+				if (show === undefined) {
+					show = !this.isOpen;
+				}
+
+				this.isOpen = show;
+				if (show) {
+					container.classList.add("open");
+					toggleBtn.style.opacity = "0";
+					toggleBtn.style.pointerEvents = "none";
+					setTimeout(() => {
+						if (input) input.focus();
+						if (window.ConsoleAPI && window.ConsoleAPI.OnConsoleOpened) {
+							window.ConsoleAPI.OnConsoleOpened();
+						}
+					}, 400);
+				} else {
+					container.classList.remove("open");
+					toggleBtn.style.opacity = "1";
+					toggleBtn.style.pointerEvents = "auto";
+					Autocomplete.hide();
+					// Call Lua to close console
+					if (window.ConsoleAPI && window.ConsoleAPI.CloseConsole) {
+						window.ConsoleAPI.CloseConsole();
 					}
+				}
 
-					this.isOpen = show;
-					if (show) {
-						container.classList.add("open");
-						toggleBtn.style.opacity = "0";
-						toggleBtn.style.pointerEvents = "none";
-						setTimeout(() => {
-							if (input) input.focus();
-						}, 400);
-					} else {
-						container.classList.remove("open");
-						toggleBtn.style.opacity = "1";
-						toggleBtn.style.pointerEvents = "auto";
-						Autocomplete.hide();
-					}
+				// Notify Lua if available
+				if (window.ConsoleAPI && window.ConsoleAPI.OnToggle) {
+					window.ConsoleAPI.OnToggle(show);
+				}
+			},
+		};
+		window.ConsoleEngine = ConsoleEngine;
 
-					// Notify Lua if available
-					if (window.ConsoleAPI && window.ConsoleAPI.onToggle) {
-						window.ConsoleAPI.onToggle(show);
-					}
-				},
-			};
-			window.ConsoleEngine = ConsoleEngine;
+		// Autocomplete Provider (for custom autocomplete items)
+		const AutocompleteProvider = {
+			items: [],
 
-			// Autocomplete Provider (for custom autocomplete items)
-			const AutocompleteProvider = {
-				items: [],
+			register(name, desc, type = "command", category = null) {
+				this.items.push({ name, desc, type, category });
+			},
 
-				register(name, desc, type = "command", category = null) {
-					this.items.push({ name, desc, type, category });
-				},
+			unregister(name) {
+				this.items = this.items.filter((item) => item.name !== name);
+			},
 
-				unregister(name) {
-					this.items = this.items.filter((item) => item.name !== name);
-				},
+			clear() {
+				this.items = [];
+			},
 
-				clear() {
-					this.items = [];
-				},
+			match(prefix) {
+				return this.items
+					.filter((item) => item.name.toLowerCase().startsWith(prefix.toLowerCase()))
+					.map((item) => ({ name: item.name, desc: item.desc, type: item.type, category: item.category }))
+					.slice(0, 8);
+			},
 
-				match(prefix) {
-					return this.items
-						.filter((item) => item.name.toLowerCase().startsWith(prefix.toLowerCase()))
-						.map((item) => ({ name: item.name, desc: item.desc, type: item.type, category: item.category }))
-						.slice(0, 8);
-				},
+			getAll() {
+				return this.items;
+			},
+		};
+		window.AutocompleteProvider = AutocompleteProvider;
 
-				getAll() {
-					return this.items;
-				},
-			};
-			window.AutocompleteProvider = AutocompleteProvider;
+		// Autocomplete
+		const Autocomplete = {
+			el: null,
+			items: [],
+			selected: -1,
+			caretPosition: 0, // Track caret position
+			loading: false,
 
-			// Autocomplete
-			const Autocomplete = {
-				el: null,
-				items: [],
-				selected: -1,
-				caretPosition: 0, // Track caret position
-				loading: false,
-
-				show(matches) {
-					console.log("DEBUG: Autocomplete.show() called with", matches.length, "items:", matches);
-					if (!this.el) this.el = $("#autocomplete");
-					this.items = matches;
-					this.selected = -1;
-					if (matches.length === 0) {
-						console.log("DEBUG: No matches, hiding autocomplete");
-						this.hide();
-						return;
-					}
-					console.log("DEBUG: Building autocomplete HTML with", matches.length, "items");
-					this.el.innerHTML = matches
-						.map((m, i) => {
-							const text = typeof m === "string" ? m : m.name || "";
-							const desc = typeof m === "string" ? "" : m.desc || "";
-							return `
-<div class="autocomplete-item${i === 0 ? " selected" : ""}" data-index="${i}" role="option">
+			show(matches) {
+				// console.log("DEBUG: Autocomplete.show() called with", matches.length, "items:", matches);
+				if (!this.el) this.el = $("#autocomplete");
+				this.items = matches;
+				this.selected = matches.length > 0 ? 0 : -1;
+				if (matches.length === 0) {
+					// console.log("DEBUG: No matches, hiding autocomplete");
+					this.hide();
+					return;
+				}
+				// console.log("DEBUG: Building autocomplete HTML with", matches.length, "items");
+				this.el.innerHTML = matches
+					.map((m, i) => {
+						const text = typeof m === "string" ? m : m.name || "";
+						const desc = typeof m === "string" ? "" : m.desc || "";
+						return `
+<div class="autocomplete-item${i === this.selected ? " selected" : ""}" data-index="${i}" role="option">
 <span class="cmd-name">${escHtml(text)}</span>${desc ? `<span class="cmd-hint">${escHtml(desc)}</span>` : ""}
 </div>
 `;
-						})
-						.join("");
-					console.log("DEBUG: Setting autocomplete HTML, adding visible class");
-					this.el.classList.add("visible");
-					$$(".autocomplete-item", this.el).forEach((item) => {
-						item.addEventListener("mousedown", (e) => {
-							e.preventDefault();
-							this.select(parseInt(item.dataset.index));
-						});
+					})
+					.join("");
+				// console.log("DEBUG: Setting autocomplete HTML, adding visible class");
+				this.el.classList.add("visible");
+				$$(".autocomplete-item", this.el).forEach((item) => {
+					item.addEventListener("mousedown", (e) => {
+						e.preventDefault();
+						this.select(parseInt(item.dataset.index));
 					});
-					console.log(
-						"DEBUG: Autocomplete show() completed, element visible:",
-						this.el.classList.contains("visible"),
-					);
-				},
+				});
+				// console.log(
+				// 	"DEBUG: Autocomplete show() completed, element visible:",
+				// 	this.el.classList.contains("visible"),
+				// );
+			},
 
-				hide() {
-					if (!this.el) return;
-					this.el.classList.remove("visible");
-					this.items = [];
-					this.selected = -1;
-				},
+			hide() {
+				if (!this.el) return;
+				this.el.classList.remove("visible");
+				this.items = [];
+				this.selected = -1;
+			},
 
-				navigate(dir) {
-					if (this.items.length === 0) return;
+			navigate(dir) {
+				if (this.items.length === 0) return;
+
+				// Initialize selection if needed
+				if (this.selected < 0) {
+					this.selected = dir > 0 ? 0 : this.items.length - 1;
+				} else {
 					this.selected += dir;
-					if (this.selected < 0) this.selected = this.items.length - 1;
-					if (this.selected >= this.items.length) this.selected = 0;
-					$$(".autocomplete-item", this.el).forEach((item, i) => {
-						item.classList.toggle("selected", i === this.selected);
-					});
-				},
+				}
 
-				confirmSelection() {
-					if (this.selected < 0 || this.selected >= this.items.length) return false;
-					this.select(this.selected);
-					return true;
-				},
+				// Wrap around
+				if (this.selected < 0) this.selected = this.items.length - 1;
+				if (this.selected >= this.items.length) this.selected = 0;
 
-				select(index) {
-					const item = this.items[index];
-					if (!item) return;
-					const input = $("#consoleInput");
-					if (input) {
-						const text = typeof item === "string" ? item : item.name || "";
-						const caret = input.selectionStart;
-						const beforeCaret = input.value.substring(0, caret);
+				$$(".autocomplete-item", this.el).forEach((item, i) => {
+					item.classList.toggle("selected", i === this.selected);
+				});
 
-						// Check if we're completing a theme
-						const themeMatch = beforeCaret.match(/^theme\s+(\w*)$/i);
-						if (themeMatch && item.type === "theme") {
-							// Replace just the theme part, keep "theme " prefix
-							input.value = "theme " + text + " ";
-						} else {
-							// Normal command completion
-							input.value = text + " ";
+				// Ensure selected item is visible
+				const selectedItem = this.el.querySelector(".autocomplete-item.selected");
+				if (selectedItem) {
+					selectedItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+				}
+			},
+
+			confirmSelection() {
+				// If nothing is selected, default to the first item
+				if (this.selected < 0 || this.selected >= this.items.length) {
+					this.selected = 0;
+				}
+				this.select(this.selected);
+				return true;
+			},
+
+			select(index) {
+				const item = this.items[index];
+				if (!item) return;
+				const input = $("#consoleInput");
+				if (input) {
+					const text = typeof item === "string" ? item : item.name || "";
+					const caret = input.selectionStart;
+
+					// Check if suggestion has position metadata for context-aware replacement
+					if (item.start_pos !== undefined && item.end_pos !== undefined) {
+						// Convert Lua's 1-based indexing to JavaScript's 0-based indexing
+						const startPos = item.start_pos - 1;
+						const endPos = item.end_pos - 1;
+						// Replace only the specified range
+						const before = input.value.substring(0, startPos);
+						const after = input.value.substring(endPos);
+						input.value = before + text + after;
+						// Move caret to after the inserted text
+						input.selectionStart = input.selectionEnd = startPos + text.length;
+					} else {
+						// Fallback: replace only the word at caret position
+						const value = input.value;
+						const beforeCaret = value.substring(0, caret);
+						const afterCaret = value.substring(caret);
+
+						// Find word boundary before caret
+						let wordStart = caret;
+						while (wordStart > 0 && /\w/.test(value[wordStart - 1])) {
+							wordStart--;
 						}
 
-						this.hide();
-						input.focus();
-					}
-				},
-
-				// Get all autocomplete suggestions (commands + custom items)
-				getSuggestions(prefix) {
-					const commandMatches = CommandRegistry.match(prefix);
-					const customMatches = AutocompleteProvider.match(prefix);
-
-					// Combine and deduplicate
-					const all = [...commandMatches, ...customMatches];
-					const seen = new Set();
-					const unique = [];
-
-					for (const item of all) {
-						if (!seen.has(item.name)) {
-							seen.add(item.name);
-							unique.push(item);
+						// Find word boundary after caret
+						let wordEnd = caret;
+						while (wordEnd < value.length && /\w/.test(value[wordEnd])) {
+							wordEnd++;
 						}
+
+						// Replace the word at caret
+						const before = value.substring(0, wordStart);
+						const after = value.substring(wordEnd);
+						input.value = before + text + after;
+
+						// Move caret to after the inserted text
+						input.selectionStart = input.selectionEnd = wordStart + text.length;
 					}
 
-					return unique.slice(0, 8);
-				},
+					this.hide();
+					input.focus();
+				}
+			},
 
-				// Update caret position from input
-				updateCaretPosition(input) {
-					this.caretPosition = input.selectionStart;
-				},
+			// Get all autocomplete suggestions (commands + custom items)
+			getSuggestions(prefix) {
+				const commandMatches = CommandRegistry.match(prefix);
+				const customMatches = AutocompleteProvider.match(prefix);
 
-				// Get current caret position
-				getCaretPosition() {
-					return this.caretPosition;
-				},
+				// Combine and deduplicate
+				const all = [...commandMatches, ...customMatches];
+				const seen = new Set();
+				const unique = [];
 
-				// Get the word before the caret
-				getWordBeforeCaret(input) {
-					const text = input.value.substring(0, this.caretPosition);
-					const match = text.match(/(\w+)$/);
-					return match ? match[1] : "";
-				},
-
-				// Simple JavaScript autocompletion
-				getSimpleSuggestions(line, caret) {
-					const themes = [
-						"amber",
-						"arctic",
-						"aurora",
-						"bloodmoon",
-						"cyberpunk",
-						"matrix",
-						"midnight",
-						"glass",
-					];
-					const commands = ["help", "clear", "cls", "echo", "time", "date", "version", "theme"];
-
-					// Check if we're after "theme " command
-					const beforeCaret = line.substring(0, caret);
-					const themeMatch = beforeCaret.match(/^theme\s+(\w*)$/i);
-
-					if (themeMatch) {
-						// Suggest themes
-						const themePrefix = themeMatch[1].toLowerCase();
-						return themes
-							.filter((theme) => theme.toLowerCase().startsWith(themePrefix))
-							.map((theme) => ({
-								name: theme,
-								desc: `Switch to ${theme} theme`,
-								type: "theme",
-							}))
-							.slice(0, 8);
+				for (const item of all) {
+					if (!seen.has(item.name)) {
+						seen.add(item.name);
+						unique.push(item);
 					}
+				}
 
-					// Suggest commands
-					const lastWord = beforeCaret.split(/\s+/).pop();
-					if (lastWord) {
-						return commands
-							.filter((cmd) => cmd.toLowerCase().startsWith(lastWord.toLowerCase()))
-							.map((cmd) => ({
-								name: cmd,
-								desc: CommandRegistry.commands[cmd]?.desc || "",
-								type: "command",
-							}))
-							.slice(0, 8);
-					}
+				return unique.slice(0, 8);
+			},
 
-					return [];
-				},
+			// Update caret position from input
+			updateCaretPosition(input) {
+				this.caretPosition = input.selectionStart;
+			},
+
+			// Get current caret position
+			getCaretPosition() {
+				return this.caretPosition;
+			},
+
+			// Get the word before the caret
+			getWordBeforeCaret(input) {
+				const text = input.value.substring(0, this.caretPosition);
+				const match = text.match(/(\w+)$/);
+				return match ? match[1] : "";
+			},
+
+			// Simple JavaScript autocompletion
+			getSimpleSuggestions(line, caret) {
+				const themes = [
+					"amber",
+					"arctic",
+					"aurora",
+					"bloodmoon",
+					"cyberpunk",
+					"matrix",
+					"midnight",
+					"glass",
+				];
+				const commands = ["help", "clear", "cls", "echo", "time", "date", "version", "theme"];
+
+				// Check if we're after "theme " command
+				const beforeCaret = line.substring(0, caret);
+				const themeMatch = beforeCaret.match(/^theme\s+(\w*)$/i);
+
+				if (themeMatch) {
+					// Suggest themes
+					const themePrefix = themeMatch[1].toLowerCase();
+					return themes
+						.filter((theme) => theme.toLowerCase().startsWith(themePrefix))
+						.map((theme) => ({
+							name: theme,
+							desc: `Switch to ${theme} theme`,
+							type: "theme",
+						}))
+						.slice(0, 8);
+				}
+
+				// Suggest commands
+				const lastWord = beforeCaret.split(/\s+/).pop();
+				if (lastWord) {
+					return commands
+						.filter((cmd) => cmd.toLowerCase().startsWith(lastWord.toLowerCase()))
+						.map((cmd) => ({
+							name: cmd,
+							desc: CommandRegistry.commands[cmd]?.desc || "",
+							type: "command",
+						}))
+						.slice(0, 8);
+				}
+
+				return [];
+			},
+
+			// Request suggestions from Lua ChatCommander
+			requestSuggestions(input) {
+				// console.log("DEBUG: requestSuggestions called, loading:", this.loading, "value:", input.value);
+				if (this.loading) {
+					// console.log("DEBUG: Skipping request because already loading");
+					return;
+				}
+
+				const line = input.value;
+				const caret = input.selectionStart + 1; // Lua uses 1-based indexing
 
 				// Request suggestions from Lua ChatCommander
-				requestSuggestions(input) {
-					if (this.loading) return;
+				this.loading = true;
+				// console.log("DEBUG: Calling GetAutocomplete with:", line, caret);
+				Events.Call("GetAutocomplete", line, caret);
 
-					const line = input.value;
-					const caret = input.selectionStart + 1; // Lua uses 1-based indexing
-
-					// Request suggestions from Lua ChatCommander
-					this.loading = true;
-					window?.Events?.Call("getAutocomplete", line, caret);
-				},
-			};
-			window.Autocomplete = Autocomplete;
-
-			// Particle Background
-			const Particles = {
-				canvas: null,
-				ctx: null,
-				particles: [],
-				color: "#d4a017",
-				running: true,
-
-				init() {
-					this.canvas = $("#bgCanvas");
-					if (!this.canvas) return;
-					this.ctx = this.canvas.getContext("2d", { alpha: true });
-					this.resize();
-					window.addEventListener("resize", () => this.resize());
-					this.createParticles();
-					this.animate();
-				},
-
-				resize() {
-					if (!this.canvas) return;
-					this.canvas.width = window.innerWidth;
-					this.canvas.height = window.innerHeight;
-				},
-
-				updateColor() {
-					this.color = getCS("--particle-color") || "#d4a017";
-				},
-
-				createParticles() {
-					this.particles = [];
-					const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 12000), 120);
-					for (let i = 0; i < count; i++) {
-						this.particles.push({
-							x: Math.random() * this.canvas.width,
-							y: Math.random() * this.canvas.height,
-							vx: (Math.random() - 0.5) * 0.3,
-							vy: -Math.random() * 0.4 - 0.1,
-							size: Math.random() * 2 + 0.5,
-							opacity: Math.random() * 0.5 + 0.1,
-							life: Math.random(),
-						});
+				// Add timeout to reset loading state if Lua doesn't respond
+				setTimeout(() => {
+					if (this.loading) {
+						// console.log("DEBUG: Autocomplete request timed out, resetting loading state");
+						this.loading = false;
 					}
-				},
+				}, 1000); // 1 second timeout
+			},
+		};
+		window.Autocomplete = Autocomplete;
 
-				animate() {
-					if (!this.running || !this.ctx) return;
-					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-					this.color = getCS("--particle-color") || "#d4a017";
+		// Particle Background
+		const Particles = {
+			canvas: null,
+			ctx: null,
+			particles: [],
+			color: "#d4a017",
+			running: true,
 
-					for (const p of this.particles) {
-						p.x += p.vx;
-						p.y += p.vy;
-						p.life += 0.002;
+			init() {
+				this.canvas = $("#bgCanvas");
+				if (!this.canvas) return;
+				this.ctx = this.canvas.getContext("2d", { alpha: true });
+				this.resize();
+				window.addEventListener("resize", () => this.resize());
+				this.createParticles();
+				this.animate();
+			},
 
-						if (p.y < -10 || p.life > 1) {
-							p.x = Math.random() * this.canvas.width;
-							p.y = this.canvas.height + 10;
-							p.life = 0;
-							p.opacity = Math.random() * 0.5 + 0.1;
-						}
+			resize() {
+				if (!this.canvas) return;
+				this.canvas.width = window.innerWidth;
+				this.canvas.height = window.innerHeight;
+			},
 
-						const alpha = p.opacity * Math.sin(p.life * Math.PI);
-						this.ctx.beginPath();
-						this.ctx.arc(p.x, p.y, Math.max(0.1, p.size), 0, Math.PI * 2);
-						this.ctx.fillStyle = this.color;
-						this.ctx.globalAlpha = Math.max(0, alpha);
-						this.ctx.fill();
-					}
-					this.ctx.globalAlpha = 1;
-					requestAnimationFrame(() => this.animate());
-				},
-			};
-			window.Particles = Particles;
+			updateColor() {
+				this.color = getCS("--particle-color") || "#d4a017";
+			},
 
-			// Public API for Lua
-			window.ConsoleAPI = {
-				// Logging
-				log(type, text) {
-					ConsoleEngine.log(type, text);
-				},
-				info(text) {
-					ConsoleEngine.log("info", text);
-				},
-				warn(text) {
-					ConsoleEngine.log("warn", text);
-				},
-				error(text) {
-					ConsoleEngine.log("error", text);
-				},
-				debug(text) {
-					ConsoleEngine.log("debug", text);
-				},
-				success(text) {
-					ConsoleEngine.log("success", text);
-				},
-
-				// Console control
-				clear() {
-					ConsoleEngine.clear();
-				},
-				toggle(show) {
-					ConsoleEngine.toggle(show);
-				},
-				setTheme(theme) {
-					ThemeManager.set(theme);
-				},
-
-				// Command registration
-				registerCommand(name, desc, handler) {
-					CommandRegistry.register(name, desc, (args) => {
-						// Call Lua handler via event if available
-						if (window.ConsoleAPI.onCommand) {
-							const result = window.ConsoleAPI.onCommand(name, args);
-							if (result) return result;
-						}
-						// Fallback to JS handler
-						if (handler) return handler(args);
-						return null;
+			createParticles() {
+				this.particles = [];
+				const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 12000), 120);
+				for (let i = 0; i < count; i++) {
+					this.particles.push({
+						x: Math.random() * this.canvas.width,
+						y: Math.random() * this.canvas.height,
+						vx: (Math.random() - 0.5) * 0.3,
+						vy: -Math.random() * 0.4 - 0.1,
+						size: Math.random() * 2 + 0.5,
+						opacity: Math.random() * 0.5 + 0.1,
+						life: Math.random(),
 					});
-				},
+				}
+			},
 
-				// Callbacks (to be set by Lua)
-				onCommand: null,
-				onToggle: null,
-			};
+			animate() {
+				if (!this.running || !this.ctx) return;
+				this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+				this.color = getCS("--particle-color") || "#d4a017";
 
-			// Nanos World Events API
-			if (typeof Events !== "undefined") {
-				window.Events = window.Events || Events;
-				// Logging events
-				Events.Subscribe("log", (type, text) => ConsoleEngine.log(type, text));
-				Events.Subscribe("info", (text) => ConsoleEngine.log("info", text));
-				Events.Subscribe("warn", (text) => ConsoleEngine.log("warn", text));
-				Events.Subscribe("error", (text) => ConsoleEngine.log("error", text));
-				Events.Subscribe("debug", (text) => ConsoleEngine.log("debug", text));
-				Events.Subscribe("success", (text) => ConsoleEngine.log("success", text));
+				for (const p of this.particles) {
+					p.x += p.vx;
+					p.y += p.vy;
+					p.life += 0.002;
 
-				// Control events
-				Events.Subscribe("clear", () => ConsoleEngine.clear());
-				Events.Subscribe("toggle", (show) => ConsoleEngine.toggle(show));
-				Events.Subscribe("setTheme", (theme) => ThemeManager.set(theme));
-
-				// Command registration
-				Events.Subscribe("registerCommand", (name, desc) => {
-					CommandRegistry.register(name, desc, (args) => {
-						// Call back to Lua for execution
-						Events?.Call("onCommand", name, args);
-						return null;
-					});
-				});
-
-				// Autocomplete provider events
-				Events.Subscribe("registerAutocomplete", (name, desc, type, category) => {
-					AutocompleteProvider.register(name, desc, type, category);
-				});
-
-				Events.Subscribe("unregisterAutocomplete", (name) => {
-					AutocompleteProvider.unregister(name);
-				});
-
-				Events.Subscribe("clearAutocomplete", () => {
-					AutocompleteProvider.clear();
-				});
-
-				// Caret position events
-				Events.Subscribe("getCaretPosition", () => {
-					const input = $("#consoleInput");
-					if (input) {
-						Autocomplete.updateCaretPosition(input);
-						Events.Call(
-							"caretPosition",
-							Autocomplete.getCaretPosition(),
-							input.value,
-							Autocomplete.getWordBeforeCaret(input),
-						);
+					if (p.y < -10 || p.life > 1) {
+						p.x = Math.random() * this.canvas.width;
+						p.y = this.canvas.height + 10;
+						p.life = 0;
+						p.opacity = Math.random() * 0.5 + 0.1;
 					}
-				});
 
-				// Stats request event
-				Events.Subscribe("getStats", () => {
-					Events.Call("statsResponse", ConsoleEngine.stats);
-				});
+					const alpha = p.opacity * Math.sin(p.life * Math.PI);
+					this.ctx.beginPath();
+					this.ctx.arc(p.x, p.y, Math.max(0.1, p.size), 0, Math.PI * 2);
+					this.ctx.fillStyle = this.color;
+					this.ctx.globalAlpha = Math.max(0, alpha);
+					this.ctx.fill();
+				}
+				this.ctx.globalAlpha = 1;
+				requestAnimationFrame(() => this.animate());
+			},
+		};
+		window.Particles = Particles;
 
-				// Autocomplete suggestions from Lua
-				Events.Subscribe("autocompleteSuggestions", (suggestions) => {
-					Autocomplete.loading = false;
-					console.log("DEBUG: Received suggestions from Lua:", suggestions);
-					if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
-						console.log("DEBUG: Showing autocomplete with", suggestions.length, "items");
-						// Ensure suggestions are in the correct format
-						const formattedSuggestions = suggestions.map((s) => {
-							if (typeof s === "string") {
-								return { name: s, desc: "" };
-							} else if (typeof s === "object" && s.name) {
-								return { name: s.name, desc: s.desc || "" };
-							}
-							return { name: String(s), desc: "" };
-						});
-						Autocomplete.show(formattedSuggestions);
+		// Public API for Lua
+		window.ConsoleAPI = {
+			// Logging
+			log(type, text) {
+				ConsoleEngine.log(type, text);
+			},
+			info(text) {
+				ConsoleEngine.log("info", text);
+			},
+			warn(text) {
+				ConsoleEngine.log("warn", text);
+			},
+			error(text) {
+				ConsoleEngine.log("error", text);
+			},
+			debug(text) {
+				ConsoleEngine.log("debug", text);
+			},
+			success(text) {
+				ConsoleEngine.log("success", text);
+			},
+
+			// Console control
+			clear() {
+				ConsoleEngine.clear();
+			},
+			toggle(show) {
+				ConsoleEngine.toggle(show);
+			},
+			setTheme(theme) {
+				ThemeManager.set(theme);
+			},
+
+			// Command registration
+			registerCommand(name, desc, handler) {
+				CommandRegistry.register(name, desc, (args) => {
+					// Call Lua handler via event if available
+					if (window.ConsoleAPI.OnCommand) {
+						const result = window.ConsoleAPI.OnCommand(name, args);
+						if (result) return result;
+					}
+					// Fallback to JS handler
+					if (handler) return handler(args);
+					return null;
+				});
+			},
+
+			// Callbacks (to be set by Lua)
+			OnCommand: null,
+			OnToggle: () => {
+				Events.Call("OnToggle", ConsoleEngine.isOpen);
+			},
+			OnConsoleOpened: () => {
+				Events.Call("OnConsoleOpened");
+			},
+			OnConsoleClosed: () => {
+				Events.Call("OnConsoleClosed");
+			},
+			CloseConsole: () => {
+				Events.Call("CloseConsole");
+			},
+		};
+
+		// Nanos World Events API
+		// Logging events
+		Events.Subscribe("log", (type, text) => ConsoleEngine.log(type, text));
+		Events.Subscribe("info", (text) => ConsoleEngine.log("info", text));
+		Events.Subscribe("warn", (text) => ConsoleEngine.log("warn", text));
+		Events.Subscribe("error", (text) => ConsoleEngine.log("error", text));
+		Events.Subscribe("debug", (text) => ConsoleEngine.log("debug", text));
+		Events.Subscribe("success", (text) => ConsoleEngine.log("success", text));
+
+		// Control events
+		Events.Subscribe("Clear", () => ConsoleEngine.clear());
+		Events.Subscribe("Toggle", (show) => ConsoleEngine.toggle(show));
+		Events.Subscribe("SetTheme", (theme) => ThemeManager.set(theme));
+		Events.Subscribe("CloseConsole", () => ConsoleEngine.toggle(false));
+
+		// Command registration
+		Events.Subscribe("RegisterCommand", (name, desc) => {
+			CommandRegistry.register(name, desc, (args) => {
+				// Call back to Lua for execution
+				Events.Call("OnCommand", name, args);
+				return null;
+			});
+		});
+
+		// Autocomplete provider events
+		Events.Subscribe("RegisterAutocomplete", (name, desc, type, category) => {
+			AutocompleteProvider.register(name, desc, type, category);
+		});
+
+		Events.Subscribe("UnregisterAutocomplete", (name) => {
+			AutocompleteProvider.unregister(name);
+		});
+
+		Events.Subscribe("ClearAutocomplete", () => {
+			AutocompleteProvider.clear();
+		});
+
+		// Caret position events
+		Events.Subscribe("GetCaretPosition", () => {
+			const input = $("#consoleInput");
+			if (input) {
+				Autocomplete.updateCaretPosition(input);
+				Events.Call(
+					"CaretPosition",
+					Autocomplete.getCaretPosition(),
+					input.value,
+					Autocomplete.getWordBeforeCaret(input),
+				);
+			}
+		});
+
+		// Stats request event
+		Events.Subscribe("GetStats", () => {
+			Events.Call("StatsResponse", ConsoleEngine.stats);
+		});
+
+		// Autocomplete suggestions from Lua
+		Events.Subscribe("AutocompleteSuggestions", (suggestions) => {
+			Autocomplete.loading = false;
+			// console.log("DEBUG: Received suggestions from Lua:", suggestions);
+			if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
+				// console.log("DEBUG: Showing autocomplete with", suggestions.length, "items");
+				// Ensure suggestions are in the correct format
+				const formattedSuggestions = suggestions.map((s) => {
+					if (typeof s === "string") {
+						return { name: s, desc: "" };
+					}
+					if (typeof s === "object" && s.name) {
+						return { name: s.name, desc: s.desc || "" };
+					}
+					return { name: String(s), desc: "" };
+				});
+				Autocomplete.show(formattedSuggestions);
+			} else {
+				// console.log("DEBUG: Hiding autocomplete, no suggestions");
+				Autocomplete.hide();
+			}
+		});
+
+		// Initialization
+		document.addEventListener("DOMContentLoaded", () => {
+			CommandRegistry.init();
+			//Particles.init();
+			ConsoleEngine.showWelcome();
+
+			const container = $("#consoleContainer");
+			const toggleBtn = $("#toggleBtn");
+			const input = $("#consoleInput");
+
+			if (!input) {
+				return;
+			}
+
+			// Toggle console
+			toggleBtn.addEventListener("click", () => ConsoleEngine.toggle(true));
+			const closeBtn = $("#closeBtn");
+			if (closeBtn) closeBtn.addEventListener("click", () => ConsoleEngine.toggle(false));
+
+			// Keyboard shortcuts
+			document.addEventListener("keydown", (e) => {
+				if (e.key === "`" || e.key === "~") {
+					if (document.activeElement === input) {
+						e.preventDefault();
+						ConsoleEngine.toggle(false);
 					} else {
-						console.log("DEBUG: Hiding autocomplete, no suggestions");
+						e.preventDefault();
+						ConsoleEngine.toggle();
+					}
+				}
+				if (e.key === "Escape" && ConsoleEngine.isOpen) {
+					// Only close console if autocompletion is not visible
+					const autocompleteVisible = Autocomplete.el && Autocomplete.el.classList.contains("visible");
+					console.log("DEBUG: Escape pressed - autocomplete visible:", autocompleteVisible);
+					if (!autocompleteVisible) {
+						console.log("DEBUG: Closing console");
+						ConsoleEngine.toggle(false);
+					} else {
+						console.log("DEBUG: Autocomplete visible, not closing console");
+					}
+				}
+			});
+
+			// Maximize
+			let isMaximized = false;
+			const maximizeBtn = $("#maximizeBtn");
+			if (maximizeBtn) {
+				maximizeBtn.addEventListener("click", () => {
+					// console.log("DEBUG: Maximize button clicked, current state:", isMaximized);
+					isMaximized = !isMaximized;
+					// console.log("DEBUG: New maximized state:", isMaximized);
+					container.classList.toggle("maximized", isMaximized);
+					// console.log("DEBUG: Container classes after toggle:", container.className);
+					maximizeBtn.innerHTML = isMaximized
+						? '<i class="fas fa-compress"></i>'
+						: '<i class="fas fa-expand"></i>';
+					// console.log("DEBUG: Maximize button HTML updated to:", maximizeBtn.innerHTML);
+				});
+			}
+
+			// Copy all
+			const copyAllBtn = $("#copyAllBtn");
+			if (copyAllBtn) copyAllBtn.addEventListener("click", () => ConsoleEngine.copyAll());
+
+			// Filter chips
+			$$(".filter-chip").forEach((chip) => {
+				chip.addEventListener("click", () => FilterManager.setFilter(chip.dataset.filter));
+			});
+
+			// Search
+			let searchTimeout;
+			const searchInput = $("#searchInput");
+			if (searchInput) {
+				searchInput.addEventListener("input", (e) => {
+					clearTimeout(searchTimeout);
+					searchTimeout = setTimeout(() => FilterManager.setSearch(e.target.value), 150);
+				});
+			}
+
+			// Auto-scroll toggle
+			const autoScrollBtn = $("#autoScrollBtn");
+			let isUserScrolling = false;
+			let scrollTimeout;
+
+			if (autoScrollBtn) {
+				autoScrollBtn.addEventListener("click", () => {
+					ConsoleEngine.autoScroll = !ConsoleEngine.autoScroll;
+					autoScrollBtn.classList.toggle("active", ConsoleEngine.autoScroll);
+					if (ConsoleEngine.autoScroll) {
+						const output = $("#consoleOutput");
+						if (output) output.scrollTop = output.scrollHeight;
+					}
+				});
+			}
+
+			// Theme dropdown
+			const themeToggleBtn = $("#themeToggleBtn");
+			if (themeToggleBtn) {
+				themeToggleBtn.addEventListener("click", (e) => {
+					e.stopPropagation();
+					ThemeManager.toggleDropdown();
+				});
+			}
+
+			// Window dragging
+			const header = $(".console-header");
+			let isDragging = false;
+			let dragOffset = { x: 0, y: 0 };
+
+			if (header) {
+				header.addEventListener("mousedown", (e) => {
+					// Don't allow dragging when maximized
+					if (container.classList.contains("maximized")) return;
+
+					if (e.button === 0) { // Left mouse button
+						isDragging = true;
+						// Get current position accounting for transform
+						const rect = container.getBoundingClientRect();
+
+						// Switch to absolute pixel positions, override CSS centering
+						container.style.transition = "none"; // disable animation while dragging
+						container.style.left = rect.left + "px";
+						container.style.top = rect.top + "px";
+						container.style.bottom = "auto"; // unset bottom property so top takes over
+
+						dragOffset.x = e.clientX - rect.left;
+						dragOffset.y = e.clientY - rect.top;
+						header.style.cursor = "grabbing";
+						e.preventDefault();
+					}
+				});
+
+				document.addEventListener("mousemove", (e) => {
+					if (isDragging) {
+						const newX = e.clientX - dragOffset.x;
+						const newY = e.clientY - dragOffset.y;
+
+						// Constrain to window bounds
+						const maxX = window.innerWidth - container.offsetWidth;
+						const maxY = window.innerHeight - container.offsetHeight;
+
+						const constrainedX = Math.max(0, Math.min(newX, maxX));
+						const constrainedY = Math.max(0, Math.min(newY, maxY));
+						container.style.left = constrainedX + "px";
+						container.style.top = constrainedY + "px";
+					}
+				});
+
+				document.addEventListener("mouseup", () => {
+					if (isDragging) {
+						isDragging = false;
+						// Restore transition so open/close animations work later
+						container.style.transition = "";
+						header.style.cursor = "default";
+					}
+				});
+			}
+			$$(".theme-option").forEach((opt) => {
+				opt.addEventListener("click", () => {
+					ThemeManager.set(opt.dataset.theme);
+					ThemeManager.closeDropdown();
+					Toast.show(`Theme: ${opt.textContent.trim()}`, "fa-palette");
+				});
+			});
+			document.addEventListener("click", () => ThemeManager.closeDropdown());
+
+			// Command input
+			if (input) {
+				// Track caret position on click and keyup
+				input.addEventListener("click", () => {
+					Autocomplete.updateCaretPosition(input);
+				});
+
+				input.addEventListener("keyup", () => {
+					Autocomplete.updateCaretPosition(input);
+				});
+
+				input.addEventListener("select", () => {
+					Autocomplete.updateCaretPosition(input);
+				});
+
+				input.addEventListener("keydown", (e) => {
+					if (e.key === "`" || e.key === "~") {
+						e.preventDefault();
+						ConsoleEngine.toggle(false);
+						return;
+					}
+					if (e.key === "Enter") {
+						// Only try to confirm selection if autocomplete is visible
+						if (Autocomplete.el && Autocomplete.el.classList.contains("visible") && Autocomplete.confirmSelection()) {
+							return;
+						}
+						const val = input.value;
+						input.value = "";
+						Autocomplete.hide();
+						ConsoleEngine.execute(val);
+					} else if (e.key === "Tab") {
+						e.preventDefault();
+						// If autocomplete is already visible, try to confirm selection
+						if (Autocomplete.items.length > 0) {
+							Autocomplete.confirmSelection();
+						} else {
+							// Always request suggestions from Lua intellisense, even if empty
+							Autocomplete.requestSuggestions(input);
+						}
+					} else if (e.key === "ArrowUp") {
+						e.preventDefault();
+						if (Autocomplete.items.length > 0) {
+							Autocomplete.navigate(-1);
+						} else {
+							const prev = HistoryManager.up();
+							if (prev !== null) input.value = prev;
+						}
+					} else if (e.key === "ArrowDown") {
+						e.preventDefault();
+						if (Autocomplete.items.length > 0) {
+							Autocomplete.navigate(1);
+						} else {
+							const next = HistoryManager.down();
+							if (next !== null) input.value = next;
+						}
+					} else if (e.key === "Escape") {
+						Autocomplete.hide();
+						e.stopPropagation();
+					}
+				});
+
+				input.addEventListener("input", () => {
+					Autocomplete.updateCaretPosition(input);
+					const val = input.value.trim();
+					if (val.length >= 1) {
+						// Request suggestions from Lua intellisense
+						Autocomplete.requestSuggestions(input);
+					} else {
 						Autocomplete.hide();
 					}
 				});
 			}
 
-			// Initialization
-			document.addEventListener("DOMContentLoaded", () => {
-				CommandRegistry.init();
-				// Particles.init();
-				ConsoleEngine.showWelcome();
-
-				const container = $("#consoleContainer");
-				const toggleBtn = $("#toggleBtn");
-				const input = $("#consoleInput");
-
-				if (!input) {
-					return;
-				}
-
-				// Toggle console
-				toggleBtn.addEventListener("click", () => ConsoleEngine.toggle(true));
-				const closeBtn = $("#closeBtn");
-				if (closeBtn) closeBtn.addEventListener("click", () => ConsoleEngine.toggle(false));
-
-				// Keyboard shortcuts
-				document.addEventListener("keydown", (e) => {
-					if (e.key === "`" || e.key === "~") {
-						if (document.activeElement === input) {
-							e.preventDefault();
-							ConsoleEngine.toggle(false);
-						} else {
-							e.preventDefault();
-							ConsoleEngine.toggle();
-						}
-					}
-					if (e.key === "Escape" && ConsoleEngine.isOpen) {
-						ConsoleEngine.toggle(false);
-					}
+			// Manual scroll detection
+			const consoleOutput = $("#consoleOutput");
+			if (consoleOutput) {
+				// Detect user-initiated scrolling vs auto-scrolling
+				consoleOutput.addEventListener("wheel", () => {
+					isUserScrolling = true;
+					clearTimeout(scrollTimeout);
+					scrollTimeout = setTimeout(() => {
+						isUserScrolling = false;
+					}, 150);
 				});
 
-				// Maximize
-				let isMaximized = false;
-				const maximizeBtn = $("#maximizeBtn");
-				if (maximizeBtn) {
-					maximizeBtn.addEventListener("click", () => {
-						isMaximized = !isMaximized;
-						container.classList.toggle("maximized", isMaximized);
-						maximizeBtn.innerHTML = isMaximized
-							? '<i class="fas fa-compress"></i>'
-							: '<i class="fas fa-expand"></i>';
-					});
-				}
-
-				// Copy all
-				const copyAllBtn = $("#copyAllBtn");
-				if (copyAllBtn) copyAllBtn.addEventListener("click", () => ConsoleEngine.copyAll());
-
-				// Filter chips
-				$$(".filter-chip").forEach((chip) => {
-					chip.addEventListener("click", () => FilterManager.setFilter(chip.dataset.filter));
+				consoleOutput.addEventListener("touchstart", () => {
+					isUserScrolling = true;
+					clearTimeout(scrollTimeout);
+					scrollTimeout = setTimeout(() => {
+						isUserScrolling = false;
+					}, 150);
 				});
 
-				// Search
-				let searchTimeout;
-				const searchInput = $("#searchInput");
-				if (searchInput) {
-					searchInput.addEventListener("input", (e) => {
-						clearTimeout(searchTimeout);
-						searchTimeout = setTimeout(() => FilterManager.setSearch(e.target.value), 150);
-					});
-				}
-
-				// Auto-scroll toggle
-				const autoScrollBtn = $("#autoScrollBtn");
-				if (autoScrollBtn) {
-					autoScrollBtn.addEventListener("click", () => {
-						ConsoleEngine.autoScroll = !ConsoleEngine.autoScroll;
-						autoScrollBtn.classList.toggle("active", ConsoleEngine.autoScroll);
-						if (ConsoleEngine.autoScroll) {
-							const output = $("#consoleOutput");
-							if (output) output.scrollTop = output.scrollHeight;
-						}
-					});
-				}
-
-				// Theme dropdown
-				const themeToggleBtn = $("#themeToggleBtn");
-				if (themeToggleBtn) {
-					themeToggleBtn.addEventListener("click", (e) => {
-						e.stopPropagation();
-						ThemeManager.toggleDropdown();
-					});
-				}
-				$$(".theme-option").forEach((opt) => {
-					opt.addEventListener("click", () => {
-						ThemeManager.set(opt.dataset.theme);
-						ThemeManager.closeDropdown();
-						Toast.show(`Theme: ${opt.textContent.trim()}`, "fa-palette");
-					});
-				});
-				document.addEventListener("click", () => ThemeManager.closeDropdown());
-
-				// Command input
-				if (input) {
-					// Track caret position on click and keyup
-					input.addEventListener("click", () => {
-						Autocomplete.updateCaretPosition(input);
-					});
-
-					input.addEventListener("keyup", () => {
-						Autocomplete.updateCaretPosition(input);
-					});
-
-					input.addEventListener("select", () => {
-						Autocomplete.updateCaretPosition(input);
-					});
-
-					input.addEventListener("keydown", (e) => {
-						if (e.key === "Enter") {
-							if (Autocomplete.confirmSelection()) return;
-							const val = input.value;
-							input.value = "";
-							Autocomplete.hide();
-							ConsoleEngine.execute(val);
-						} else if (e.key === "Tab") {
-							e.preventDefault();
-							// If autocomplete is already visible, try to confirm selection
-							if (Autocomplete.items.length > 0) {
-								Autocomplete.confirmSelection();
-							} else {
-								// Otherwise, request suggestions from Lua intellisense
-								const val = input.value.trim();
-								if (val) {
-									Autocomplete.requestSuggestions(input);
-								}
-							}
-						} else if (e.key === "ArrowUp") {
-							e.preventDefault();
-							if (Autocomplete.items.length > 0) {
-								Autocomplete.navigate(-1);
-							} else {
-								const prev = HistoryManager.up();
-								if (prev !== null) input.value = prev;
-							}
-						} else if (e.key === "ArrowDown") {
-							e.preventDefault();
-							if (Autocomplete.items.length > 0) {
-								Autocomplete.navigate(1);
-							} else {
-								const next = HistoryManager.down();
-								if (next !== null) input.value = next;
-							}
-						} else if (e.key === "Escape") {
-							Autocomplete.hide();
-						}
-					});
-
-					input.addEventListener("input", () => {
-						Autocomplete.updateCaretPosition(input);
-						const val = input.value.trim();
-						if (val.length >= 1) {
-							// Request suggestions from Lua intellisense
-							Autocomplete.requestSuggestions(input);
-						} else {
-							Autocomplete.hide();
-						}
-					});
-				}
-
-				// Manual scroll detection
-				const consoleOutput = $("#consoleOutput");
-				if (consoleOutput) {
-					consoleOutput.addEventListener("scroll", () => {
+				consoleOutput.addEventListener("scroll", () => {
+					// Only disable auto-scroll if user is actually scrolling and not at bottom
+					if (isUserScrolling && ConsoleEngine.autoScroll) {
 						const atBottom =
-							consoleOutput.scrollHeight - consoleOutput.scrollTop - consoleOutput.clientHeight < 30;
-						if (!atBottom && ConsoleEngine.autoScroll) {
+							consoleOutput.scrollHeight - consoleOutput.scrollTop - consoleOutput.clientHeight < 50;
+						if (!atBottom) {
 							ConsoleEngine.autoScroll = false;
 							if (autoScrollBtn) autoScrollBtn.classList.remove("active");
 						}
-					});
-				}
-			});
+					}
+				});
+			}
+		});
 
-			// ConsoleReady event - signal Lua that JS is ready
-			const onReady = () => {
-				window?.Events?.Call("ConsoleReady");
-			};
-			window.onload = onReady;
-		</script>
-	</body>
+		// ConsoleReady event - signal Lua that JS is ready
+		const onReady = () => {
+			Events.Call("ConsoleReady");
+		};
+		window.onload = onReady;
+	</script>
+</body>
+
 </html>

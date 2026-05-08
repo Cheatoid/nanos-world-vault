@@ -156,11 +156,8 @@ local function isNewTabPage(url)
 	if not url or string.sub(url, 1, 7) ~= "file://" then
 		return false
 	end
-	-- Check for short form ending
-	if string.sub(url, -19) == "/UI/NewTabPage.html" then
-		return true
-	end
-	return false
+	-- Check for short-form ending
+	return string.sub(url, -19) == "/UI/NewTabPage.html"
 end
 
 -- Helper function to normalize new tab page URL to full path form
@@ -174,6 +171,16 @@ local function normalizeURL(url)
 		return "file://" .. packageName .. "/Client/UI/" .. relativePath
 	end
 	return url
+end
+
+---@param webui WebUI
+---@param url string
+local function navigateTo(webui, url)
+	url = normalizeURL(url)
+	if string.match(url, "^file:///?[A-Za-z]:/") then
+		return -- prevent
+	end
+	webui:LoadURL(url)
 end
 
 -- Save tabs to localStorage via ChromeWebUI
@@ -239,7 +246,7 @@ local function createTabWebUI(tabId)
 		tabReadyStates[tabId] = true
 		if tabPendingURLs[tabId] then
 			print("[WebBrowser DEBUG] LoadURL called in TabReady (pending):", tabPendingURLs[tabId])
-			tabWebUI:LoadURL(tabPendingURLs[tabId])
+			navigateTo(tabWebUI, tabPendingURLs[tabId])
 			tabPendingURLs[tabId] = nil
 		end
 	end)
@@ -250,7 +257,7 @@ local function createTabWebUI(tabId)
 		if url then
 			if tabReadyStates[tabId] then
 				print("[WebBrowser DEBUG] Loading URL immediately (ready):", url)
-				tabWebUI:LoadURL(url)
+				navigateTo(tabWebUI, url)
 			else
 				print("[WebBrowser DEBUG] Setting pending URL (not ready):", url)
 				tabPendingURLs[tabId] = url
@@ -442,10 +449,9 @@ ChromeWebUI:Subscribe("Navigate", function(tabId, url)
 		-- Update title based on URL
 		local newTitle = "New Tab"
 		if isNewTabPage(url) then
-			newTitle = "New Tab"
 		elseif string.sub(url, 1, 8) == "https://" or string.sub(url, 1, 7) == "http://" then
 			-- Extract domain from URL for title
-			local domain = url:match("^https?://([^/]+)")
+			local domain = string.match(url, "^https?://([^/]+)")
 			if domain then
 				newTitle = domain
 			else
@@ -460,7 +466,7 @@ ChromeWebUI:Subscribe("Navigate", function(tabId, url)
 		-- Load URL (skip if it's the new tab page to prevent infinite loop)
 		--if not isNewTabPage(url) then
 		print("[WebBrowser DEBUG] LoadURL called in Navigate:", url)
-		tab.webui:LoadURL(url)
+		navigateTo(tab.webui, url)
 		-- Re-inject navigation script for remote pages (script only works on local file:// pages)
 		if string.sub(url, 1, 8) == "https://" or string.sub(url, 1, 7) == "http://" then
 			print("[WebBrowser DEBUG] Re-injecting navigation script for remote page:", url)
@@ -509,7 +515,7 @@ ChromeWebUI:Subscribe("GoBack", function(tabId)
 		-- Normalize URL to short form for new tab page
 		url = normalizeURL(url)
 		print("[WebBrowser DEBUG] LoadURL called in GoBack:", url)
-		tab.webui:LoadURL(url)
+		navigateTo(tab.webui, url)
 		tab.url = url
 
 		-- Notify chrome UI of URL change
@@ -529,7 +535,7 @@ ChromeWebUI:Subscribe("GoForward", function(tabId)
 		-- Normalize URL to short form for new tab page
 		url = normalizeURL(url)
 		print("[WebBrowser DEBUG] LoadURL called in GoForward:", url)
-		tab.webui:LoadURL(url)
+		navigateTo(tab.webui, url)
 		tab.url = url
 
 		-- Notify chrome UI of URL change
@@ -544,12 +550,12 @@ ChromeWebUI:Subscribe("Reload", function(tabId)
 	print("[WebBrowser DEBUG] Reload event, tabId:", tabId)
 	local tab = tabs[tabId]
 	if tab and tab.webui and tab.url then
-		if not isNewTabPage(tab.url) then
+		if isNewTabPage(tab.url) then
 			print("[WebBrowser DEBUG] Executing window.location.reload() for tab:", tabId)
-			tab.webui:ExecuteJavaScript("window.location.reload()")
+			tab.webui:ExecuteJavaScript("window.location.reload();")
 		else
 			print("[WebBrowser DEBUG] Reloading:", tab.url)
-			tab.webui:LoadURL(tab.url)
+			navigateTo(tab.webui, tab.url)
 		end
 	end
 end)
@@ -629,7 +635,7 @@ ChromeWebUI:Subscribe("TabsLoaded", function(jsonData)
 			-- Load the URL
 			if savedTab.url then
 				print("[WebBrowser DEBUG] LoadURL called in TabsLoaded:", savedTab.url)
-				tabWebUI:LoadURL(savedTab.url)
+				navigateTo(tabWebUI, savedTab.url)
 			end
 
 			-- Set as active if it was the active tab
@@ -782,7 +788,7 @@ function WebBrowser.CreateTab(url)
 	else
 		if tabReadyStates[tabId] then
 			print("[WebBrowser DEBUG] LoadURL called in CreateTab (ready):", url)
-			tabWebUI:LoadURL(url)
+			navigateTo(tabWebUI, url)
 		else
 			print("[WebBrowser DEBUG] Setting pending URL in CreateTab (not ready):", url)
 			tabPendingURLs[tabId] = url
@@ -1000,9 +1006,9 @@ end
 
 do
 	-- Register browser actions with the Bind system
-	Bind.RegisterCommand("browser", WebBrowser.Open)
-	Bind.RegisterCommand("browser_open", WebBrowser.Open)
-	Bind.RegisterCommand("browser_close", WebBrowser.Close)
+	Bind.RegisterCommand("browser", WebBrowser.Open, "Open web browser")
+	Bind.RegisterCommand("browser_open", WebBrowser.Open, "Open web browser")
+	Bind.RegisterCommand("browser_close", WebBrowser.Close, "Close web browser")
 	local function ToggleWebBrowser()
 		if isBrowserOpen then
 			WebBrowser.Close()
@@ -1011,7 +1017,7 @@ do
 		end
 		isBrowserOpen = not isBrowserOpen
 	end
-	Bind.RegisterCommand("browser_toggle", ToggleWebBrowser)
+	Bind.RegisterCommand("browser_toggle", ToggleWebBrowser, "Toggle web browser visibility")
 
 	-- Register F9 keybinding to open WebBrowser (default)
 	--Input.Register("WebBrowser.Toggle", "F9", "Toggle WebBrowser")
@@ -1028,7 +1034,7 @@ do
 				tab.devtoolsOpen = true
 			end
 		end
-	end, "Toggle WebBrowser DevTools")
+	end, "Toggle DevTools for the current web browser tab")
 end
 
 -- Export

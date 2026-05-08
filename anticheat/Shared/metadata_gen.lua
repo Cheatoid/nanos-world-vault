@@ -18,16 +18,16 @@
 ---@type metadata_gen
 return {
 	package_version = "0.0.1",
-	timestamp = "2026-05-08 10:56:43",
+	timestamp = "2026-05-08 10:57:17",
 	commit_count = 272,
 	tag_count = 39,
 	branch_name = "main",
-	prev_hash = "46881336d56fdd200faa50c4238e339b8dc47cc3",
+	prev_hash = "98c5be1a78f883136c3ab7774a41288c8173ddd3",
 	tag = "v0.0.43",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
 	path = "anticheat",
-	filenames_hash = "6a1d3b43ad6f2b249fe0505ad9f14455405a646080812e0853021d574103ac7f",
+	filenames_hash = "d891634bae53f90ab9182beeaa98c41e59e1be114585ca9e998be58ca4f2fa44",
 	files_hash = {
 		["Package.toml"] = "057bbbf8c3cf51008757c4370282ce164daac7ae0deb6b445dff161b7e37187a",
 		["index.html"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -43,5 +43,6 @@ return {
 		"Server/Index.lua",
 		"Shared/Config.lua",
 		"Shared/Index.lua",
+		"Shared/metadata_gen.lua",
 	},
 }

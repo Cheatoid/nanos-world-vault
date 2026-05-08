@@ -14,6 +14,14 @@ Input.SetMouseCursor(CursorType.Default)
 Input.SetMouseEnabled(true)
 
 Steam.SetRichPresence("NEO WARS")
+Client.SetEscapeMenuText([[
+	<h1>NEO WARS</>
+	<h2>Massive Multiplayer Online FPS</>
+	<h3>Developed by Cheatoid</>
+	<strong>v0.0.4</>
+	*everything is still a work-in-progress*
+]])
+Viewport.SetBrandingBarSettings(WidgetHorizontalAlignment.Right, WidgetVerticalAlignment.Bottom, true)
 
 do
 	local state = "In Main Menu"
@@ -23,6 +31,7 @@ do
 	Discord.SetActivity(state, details, large_image, large_text, true)
 end
 
+-- TODO/REMOVEME
 Input.Register("Server, please reload packages", "F5", "Reload Packages")
 Input.Bind("Server, please reload packages", InputEvent.Pressed, function()
 	Events.CallRemote("Server, please reload packages")
