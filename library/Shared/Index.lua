@@ -36,7 +36,7 @@ local CLIENT = type(Client) == "table"
 
 local package_metadata = require "metadata_gen"
 local package_path = package_metadata.path
-local is_preview = string.find(package_metadata.tag, "-", nil, true) ~= nil
+local is_preview = package_metadata.is_preview
 local function debug_print(...)
 	if is_preview then
 		print(string.format(...))

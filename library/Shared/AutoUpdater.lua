@@ -64,7 +64,7 @@ AutoUpdater.__index = AutoUpdater
 ---@param config AutoUpdaterConfig|nil Configuration options (uses defaults if nil)
 ---@return AutoUpdater updater The configured AutoUpdater instance
 function AutoUpdater.new(config)
-	local metadata = require "metadata_gen" ---@type metadata_gen
+	local metadata = require "metadata_gen" ---@type library.metadata_gen
 	return setmetatable({
 		config = {
 			owner = config and config.owner or metadata.owner,
@@ -87,7 +87,7 @@ function AutoUpdater.new(config)
 		remote_metadata = nil,
 		remote_version = nil,
 		latest_version = nil,
-		is_preview = string_find(metadata.tag, "-", nil, true) ~= nil,
+		is_preview = metadata.is_preview,
 	}, AutoUpdater)
 end
 
