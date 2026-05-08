@@ -1726,29 +1726,23 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.
 
 				this.isOpen = show;
 				if (show) {
+					// Open console
 					container.classList.add("open");
 					toggleBtn.style.opacity = "0";
 					toggleBtn.style.pointerEvents = "none";
 					setTimeout(() => {
 						if (input) input.focus();
-						if (window.ConsoleAPI && window.ConsoleAPI.OnConsoleOpened) {
-							window.ConsoleAPI.OnConsoleOpened();
-						}
-					}, 400);
+						// Notify Lua that console opened
+						Events.Call("OnConsoleOpened");
+					}, 50);
 				} else {
+					// Close console
 					container.classList.remove("open");
 					toggleBtn.style.opacity = "1";
 					toggleBtn.style.pointerEvents = "auto";
 					Autocomplete.hide();
-					// Call Lua to close console
-					if (window.ConsoleAPI && window.ConsoleAPI.CloseConsole) {
-						window.ConsoleAPI.CloseConsole();
-					}
-				}
-
-				// Notify Lua if available
-				if (window.ConsoleAPI && window.ConsoleAPI.OnToggle) {
-					window.ConsoleAPI.OnToggle(show);
+					// Notify Lua that console closed
+					Events.Call("OnConsoleClosed");
 				}
 			},
 		};
@@ -2153,18 +2147,10 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.
 
 			// Callbacks (to be set by Lua)
 			OnCommand: null,
-			OnToggle: () => {
-				Events.Call("OnToggle", ConsoleEngine.isOpen);
-			},
-			OnConsoleOpened: () => {
-				Events.Call("OnConsoleOpened");
-			},
-			OnConsoleClosed: () => {
-				Events.Call("OnConsoleClosed");
-			},
-			CloseConsole: () => {
-				Events.Call("CloseConsole");
-			},
+			OnToggle: null,
+			OnConsoleOpened: null,
+			OnConsoleClosed: null,
+			CloseConsole: null,
 		};
 
 		// Nanos World Events API
@@ -2180,7 +2166,6 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.
 		Events.Subscribe("Clear", () => ConsoleEngine.clear());
 		Events.Subscribe("Toggle", (show) => ConsoleEngine.toggle(show));
 		Events.Subscribe("SetTheme", (theme) => ThemeManager.set(theme));
-		Events.Subscribe("CloseConsole", () => ConsoleEngine.toggle(false));
 
 		// Command registration
 		Events.Subscribe("RegisterCommand", (name, desc) => {
@@ -2268,13 +2253,13 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.
 			// Keyboard shortcuts
 			document.addEventListener("keydown", (e) => {
 				if (e.key === "`" || e.key === "~") {
-					if (document.activeElement === input) {
+					// Prevent tilde from reaching input field when console is closed
+					if (!ConsoleEngine.isOpen) {
 						e.preventDefault();
-						ConsoleEngine.toggle(false);
-					} else {
-						e.preventDefault();
-						ConsoleEngine.toggle();
+						e.stopPropagation();
 					}
+					// Let Lua handle the toggle via key binding
+					return;
 				}
 				if (e.key === "Escape" && ConsoleEngine.isOpen) {
 					// Only close console if autocompletion is not visible
@@ -2428,9 +2413,15 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.
 				});
 
 				input.addEventListener("keydown", (e) => {
+					// Handle tilde key in input field
 					if (e.key === "`" || e.key === "~") {
 						e.preventDefault();
-						ConsoleEngine.toggle(false);
+						e.stopPropagation();
+						// Only allow tilde to close console if it's open
+						if (ConsoleEngine.isOpen) {
+							// Let Lua handle closing via key binding
+							ConsoleEngine.toggle(false);
+						}
 						return;
 					}
 					if (e.key === "Enter") {

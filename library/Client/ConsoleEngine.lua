@@ -251,7 +251,7 @@ function M.Initialize()
 
 		-- Handle toggle events from JS
 		ConsoleWebUI:Subscribe("OnToggle", function(isOpen)
-			-- print("TODO: Add custom logic when console opens/closes")
+			-- Simple state tracking - no complex logic needed
 		end)
 
 		-- Handle stats request from JS
@@ -302,35 +302,26 @@ function M.Initialize()
 		end)
 
 		ConsoleWebUI:Subscribe("OnConsoleOpened", function()
-			print("Console opened")
+			-- Console is now open and interactive
 			Input.SetInputEnabled(true)
 			Input.SetMouseEnabled(true)
 		end)
 
 		ConsoleWebUI:Subscribe("OnConsoleClosed", function()
-			print("Console closed")
-			-- Hide WebUI immediately
+			-- Console is now closed - hide it and disable mouse
 			ConsoleWebUI:SetVisibility(WidgetVisibility.Hidden)
-			ConsoleWebUI:SetFreeze(true)
 			Input.SetInputEnabled(true)
 			Input.SetMouseEnabled(false)
 		end)
 
 		ConsoleWebUI:Subscribe("CloseConsole", function()
-			-- print("CloseConsole called")
+			-- Just toggle closed - let JavaScript handle the UI state
 			M.Toggle(false)
 		end)
 	end)
 
 	Bind.RegisterCommand("console", function()
-		if ConsoleWebUI then
-			ConsoleWebUI:SetFreeze(false)
-			ConsoleWebUI:SetVisibility(WidgetVisibility.Visible)
-			ConsoleWebUI:BringToFront()
-			ConsoleWebUI:SetFocus()
-			ConsoleWebUI:OpenDevTools()
-			M.Toggle(true)
-		end
+		M.Toggle()
 	end, "Toggles the console")
 	Bind.BindKey("Tilde", "console", "Toggles the console")
 
@@ -384,6 +375,16 @@ end
 
 function M.Toggle(show)
 	if ConsoleWebUI then
+		if show == nil then
+			local currentVisibility = ConsoleWebUI:GetVisibility()
+			show = currentVisibility == WidgetVisibility.Hidden
+		end
+
+		if show then
+			ConsoleWebUI:SetVisibility(WidgetVisibility.Visible)
+			ConsoleWebUI:BringToFront()
+		end
+
 		ConsoleWebUI:CallEvent("Toggle", show)
 	end
 end
