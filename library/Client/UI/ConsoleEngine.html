@@ -280,7 +280,7 @@ License: MIT
 			--scrollbar-track: #0a0e18;
 			--scrollbar-thumb-hover: rgba(120, 200, 255, 0.8);
 			--scrollbar-thumb-active: rgba(140, 220, 255, 0.9);
-			--glow-color: rgba(0, 212, 255, 0.6);
+			--glow-color: rgba(0, 212, 255, 0.15);
 			--badge-bg: rgba(0, 212, 255, 0.6);
 			--overlay-bg: rgba(10, 14, 24, 0.6);
 			--header-bg: rgba(15, 25, 40, 0.6);
@@ -494,7 +494,19 @@ License: MIT
 
 		[data-theme="glass"] .console-container {
 			background: var(--bg-secondary);
+			position: relative;
+		}
+
+		[data-theme="glass"] .console-container::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: var(--bg-secondary);
 			backdrop-filter: blur(12px);
+			z-index: -1;
 		}
 
 		.console-container.open {
@@ -939,15 +951,16 @@ License: MIT
 			left: 3px;
 			top: 50%;
 			transform: translateY(-50%);
-			background: none;
+			background: var(--accent-dim);
 			border: none;
-			color: var(--text-muted);
+			color: var(--accent);
 			font-size: 12px;
 			cursor: pointer;
 			padding: 4px;
 			border-radius: 4px;
 			transition: all 0.2s;
-			opacity: 0.8;
+			opacity: 1;
+			font-weight: bold;
 		}
 
 		.search-icon-btn:hover {
@@ -1030,20 +1043,22 @@ License: MIT
 		}
 
 		.theme-dropdown {
-			position: absolute;
-			top: calc(100% + 6px);
-			right: 0;
+			position: fixed;
 			min-width: 170px;
 			border: 1px solid var(--border-color);
 			border-radius: 6px;
 			background: var(--bg-secondary);
 			box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-			z-index: 100;
+			z-index: 99999;
 			opacity: 0;
 			transform: translateY(-6px);
 			pointer-events: none;
 			transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 			overflow: hidden;
+		}
+
+		.theme-dropdown.position-left {
+			right: auto;
 		}
 
 		.theme-dropdown.open {
@@ -1492,7 +1507,7 @@ License: MIT
 		/* ========== Toast ========== */
 		.toast-container {
 			position: fixed;
-			top: 20px;
+			bottom: 20px;
 			right: 20px;
 			z-index: 2000;
 			display: flex;
@@ -1908,8 +1923,8 @@ License: MIT
 
 	//const clipboard_writeText = navigator.clipboard.writeText;
 	navigator.clipboard.writeText = (text) => {
-		window?.Events?.Call("ClipboardWrite", text);
-		return Promise.resolve(text);
+		Events.Call("CopyToClipboard", text);
+		//return Promise.resolve(text);
 	};
 
 	// Utility
@@ -1930,7 +1945,8 @@ License: MIT
 			const el = document.createElement("div");
 			el.className = "toast";
 			el.innerHTML = `<i class="fas ${icon}" style="color:var(--accent)"></i>${escHtml(msg)}`;
-			this.container.appendChild(el);
+			// Prepend to container so newest toast appears at top
+			this.container.prepend(el);
 			setTimeout(() => {
 				el.classList.add("removing");
 				el.addEventListener("animationend", () => el.remove());
@@ -1966,6 +1982,21 @@ License: MIT
 		show(element, text, position = 'top') {
 			if (!this.tooltip) this.init();
 
+			// Don't show tooltips when console is hidden
+			const container = $("#consoleContainer");
+			if (!container) {
+				return;
+			}
+
+			// Check console visibility using multiple methods for reliability
+			const isConsoleOpen = container.classList.contains("open") &&
+				container.style.opacity !== "0" &&
+				container.style.display !== "none";
+
+			if (!isConsoleOpen) {
+				return;
+			}
+
 			this.hide(); // Clear any existing tooltip
 
 			this.tooltip.textContent = text;
@@ -1982,7 +2013,14 @@ License: MIT
 
 			// Show with slight delay for better UX
 			this.showTimeout = setTimeout(() => {
-				this.tooltip.classList.add('visible');
+				// Double-check console visibility before showing
+				const container = $("#consoleContainer");
+				const isConsoleOpen = container && container.classList.contains("open") &&
+					container.style.opacity !== "0" &&
+					container.style.display !== "none";
+				if (isConsoleOpen && this.tooltip) {
+					this.tooltip.classList.add('visible');
+				}
 			}, 300);
 		},
 
@@ -2287,7 +2325,45 @@ License: MIT
 			const dd = $("#themeDropdown");
 			if (!dd) return;
 			const isOpen = dd.classList.contains("open");
+
+			if (!isOpen) {
+				// Calculate dropdown position with simple clamping to viewport bounds
+				const btn = $("#themeToggleBtn");
+				if (btn) {
+					const btnRect = btn.getBoundingClientRect();
+					const viewportWidth = window.innerWidth;
+					const viewportHeight = window.innerHeight;
+					const dropdownWidth = 170; // Approximate dropdown width
+					const dropdownHeight = 280; // Approximate dropdown height (8 options * ~35px each)
+					const margin = 10; // Safety margin from viewport edges
+
+					// Reset any custom styles
+					dd.classList.remove("position-left");
+					dd.style.width = '';
+					dd.style.maxHeight = '';
+					dd.style.overflowY = '';
+
+					// Simple positioning: position directly under button
+					let leftPos = btnRect.left;
+					let topPos = btnRect.bottom + 2;
+
+					// Ensure dropdown stays within viewport bounds
+					if (leftPos + dropdownWidth > viewportWidth) {
+						leftPos = viewportWidth - dropdownWidth - margin;
+					}
+					if (leftPos < margin) {
+						leftPos = margin;
+					}
+
+					// Apply position
+					dd.style.left = leftPos + 'px';
+					dd.style.top = topPos + 'px';
+					dd.style.right = 'auto';
+				}
+			}
+
 			dd.classList.toggle("open");
+
 			const btn = $("#themeToggleBtn");
 			if (btn) {
 				btn.setAttribute("aria-expanded", !isOpen);
@@ -2664,16 +2740,14 @@ License: MIT
 		copyMessage(btn) {
 			const entry = btn.closest(".msg-entry");
 			const text = entry.querySelector(".msg-text").textContent;
-			navigator.clipboard.writeText(text).then(() => {
-				Toast.show("Copied to clipboard", "fa-clipboard-check");
-			});
+			navigator.clipboard.writeText(text);
+			Toast.show("Copied to clipboard", "fa-clipboard-check");
 		},
 
 		copyAll() {
 			const text = this.messages.map((m) => `[${m.time}] [${m.type.toUpperCase()}] ${m.text}`).join("\n");
-			navigator.clipboard.writeText(text).then(() => {
-				Toast.show(`Copied ${this.messages.length} messages`, "fa-clipboard-check");
-			});
+			navigator.clipboard.writeText(text);
+			Toast.show(`Copied ${this.messages.length} message${(this.messages.length === 1 ? "" : "s")}`, "fa-clipboard-check");
 		},
 
 		clear() {
@@ -2777,24 +2851,14 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 				toggleBtn.style.transform = "scale(0.8)";
 				toggleBtn.style.pointerEvents = "none";
 
-				// Use requestAnimationFrame for better timing
-				const focusInput = () => {
+				// Notify Lua that console opened
+				setTimeout(() => {
 					if (input) {
 						input.focus();
 						//input.select();
 					}
-				};
-
-				requestAnimationFrame(() => {
-					focusInput();
-					// Fallback attempt
-					setTimeout(focusInput, 50);
-				});
-
-				// Notify Lua that console opened
-				setTimeout(() => {
 					Events.Call("OnConsoleOpened");
-				}, 50);
+				}, 100);
 			} else {
 				// Close console
 				container.classList.remove("open");
@@ -2802,6 +2866,10 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 				toggleBtn.style.transform = "scale(1)";
 				toggleBtn.style.pointerEvents = "auto";
 				Autocomplete.hide();
+				// Hide all tooltips when console is closed
+				$$(".custom-tooltip.visible").forEach(tooltip => {
+					tooltip.classList.remove("visible");
+				});
 				// Notify Lua that console closed
 				Events.Call("OnConsoleClosed");
 			}
@@ -3243,6 +3311,9 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 
 		// Restore saved console settings
 		ConsoleStorage.restore();
+
+		// Restore filter state (including regex mode and search icon state)
+		FilterManager.restoreState();
 
 		// Focus input if console is initially open
 		if (container && container.classList.contains("open")) {
@@ -3739,13 +3810,6 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 				} catch (e) {
 					console.warn("Failed to save auto-scroll state:", e);
 				}
-
-				// Update tooltip text based on state
-				if (ConsoleEngine.autoScroll) {
-					CustomTooltip.attach(autoScrollBtn, "Auto-scroll enabled");
-				} else {
-					CustomTooltip.attach(autoScrollBtn, "Auto-scroll disabled");
-				}
 			});
 
 			// Initial tooltip
@@ -3800,13 +3864,6 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 				} catch (e) {
 					console.warn("Failed to save timestamp state:", e);
 				}
-
-				// Update tooltip text based on state
-				if (ConsoleEngine.showTimestamps) {
-					CustomTooltip.attach(timestampBtn, "Timestamps enabled");
-				} else {
-					CustomTooltip.attach(timestampBtn, "Timestamps disabled");
-				}
 			});
 
 			// Initial tooltip
@@ -3821,6 +3878,22 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 				ThemeManager.toggleDropdown();
 			});
 		}
+
+		// Click-away functionality for theme dropdown - immediate on mousedown
+		document.addEventListener("mousedown", (e) => {
+			// Only respond to left clicks
+			if (e.button !== 0) return;
+
+			const themeDropdown = $("#themeDropdown");
+			const themeToggleBtn = $("#themeToggleBtn");
+
+			// Check if dropdown is open and if click is outside dropdown and toggle button
+			if (themeDropdown && themeDropdown.classList.contains("open") &&
+				!themeDropdown.contains(e.target) &&
+				!themeToggleBtn.contains(e.target)) {
+				ThemeManager.closeDropdown();
+			}
+		});
 
 		// Window dragging
 		const header = $(".console-header");
@@ -4038,18 +4111,132 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 					ConsoleEngine.insertMode ? "fa-i-cursor" : "fa-i-cursor");
 			};
 
-			// Keydown handler for insert/overwrite mode
+			// Keydown handler for insert/overwrite mode and other keys
 			input.addEventListener("keydown", (e) => {
+				// Handle tilde key in input field
+				if (e.key === "`" || e.key === "~") {
+					e.preventDefault();
+					e.stopPropagation();
+					// Only allow tilde to close console if it's open
+					if (ConsoleEngine.isOpen) {
+						// Let Lua handle closing via key binding
+						ConsoleEngine.toggle(false);
+					}
+					return;
+				}
+
+				// Handle Insert key
 				if (e.key === "Insert") {
 					e.preventDefault();
 					toggleInsertMode();
 					return;
 				}
 
-				// Handle overwrite mode
+				// Handle Enter key
+				if (e.key === "Enter") {
+					const val = input.value;
+					input.value = "";
+					// Trigger input event to ensure state update
+					input.dispatchEvent(new Event('input', {bubbles: true}));
+					Autocomplete.hide();
+					ConsoleEngine.execute(val);
+					// Double-check state update after command execution
+					if (enterBtn) setTimeout(updateEnterButtonState, 0);
+					return;
+				}
+
+				// Handle Tab key
+				if (e.key === "Tab") {
+					e.preventDefault();
+					if (Autocomplete.items.length > 0) {
+						// Complete the selected suggestion
+						Autocomplete.confirmSelection();
+					} else {
+						// Request suggestions if none are shown
+						Autocomplete.requestSuggestions(input);
+					}
+					return;
+				}
+
+				// Handle Arrow keys
+				if (e.key === "ArrowUp") {
+					e.preventDefault();
+					if (Autocomplete.items.length > 0) {
+						Autocomplete.navigate(-1);
+					} else {
+						const prev = HistoryManager.up();
+						if (prev !== null) {
+							input.value = prev;
+							// Update Enter button state after history navigation
+							if (enterBtn) updateEnterButtonState();
+						}
+					}
+					return;
+				}
+
+				if (e.key === "ArrowDown") {
+					e.preventDefault();
+					if (Autocomplete.items.length > 0) {
+						Autocomplete.navigate(1);
+					} else {
+						const next = HistoryManager.down();
+						if (next !== null) {
+							input.value = next;
+							// Update Enter button state after history navigation
+							if (enterBtn) updateEnterButtonState();
+						}
+					}
+					return;
+				}
+
+				// Handle Escape key
+				if (e.key === "Escape") {
+					e.preventDefault();
+					e.stopPropagation();
+					Autocomplete.hide();
+					return;
+				}
+
+				// Handle Backspace key
+				if (e.key === "Backspace") {
+					// Hide autocomplete when deleting
+					Autocomplete.hide();
+					return;
+				}
+
+				// Handle zoom shortcuts with CTRL
+				if (e.ctrlKey || e.metaKey) {
+					if (e.key === "=" || e.key === "+") {
+						e.preventDefault();
+						// Zoom in
+						if (currentZoom < 2.0) {
+							currentZoom = Math.min(2.0, currentZoom + 0.1);
+							updateZoom();
+						}
+						return;
+					}
+					if (e.key === "-") {
+						e.preventDefault();
+						// Zoom out
+						if (currentZoom > 0.5) {
+							currentZoom = Math.max(0.5, currentZoom - 0.1);
+							updateZoom();
+						}
+						return;
+					}
+					if (e.key === "0") {
+						e.preventDefault();
+						// Reset zoom
+						currentZoom = 1.0;
+						updateZoom();
+						return;
+					}
+				}
+
+				// Handle overwrite mode character input
 				if (!ConsoleEngine.insertMode && !e.ctrlKey && !e.metaKey && !e.altKey) {
 					// Only handle character input keys in overwrite mode
-					if (e.key.length === 1 || e.key === "Enter") {
+					if (e.key.length === 1) {
 						const start = input.selectionStart;
 						const end = input.selectionEnd;
 						const value = input.value;
@@ -4061,30 +4248,24 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 							input.setSelectionRange(start, start);
 						}
 
-						// Handle character overwrite
-						if (e.key === "Enter") {
-							// Don't overwrite with Enter, just submit
-							return;
+						// Overwrite the character at cursor position
+						if (start < value.length) {
+							const newValue = value.substring(0, start) + e.key + value.substring(start + 1);
+							input.value = newValue;
+							input.setSelectionRange(start + 1, start + 1);
 						} else {
-							// Overwrite the character at cursor position
-							if (start < value.length) {
-								const newValue = value.substring(0, start) + e.key + value.substring(start + 1);
-								input.value = newValue;
-								input.setSelectionRange(start + 1, start + 1);
-							} else {
-								// At end of input, just append
-								const newValue = value + e.key;
-								input.value = newValue;
-								input.setSelectionRange(start + 1, start + 1);
-							}
-							e.preventDefault();
+							// At end of input, just append
+							const newValue = value + e.key;
+							input.value = newValue;
+							input.setSelectionRange(start + 1, start + 1);
+						}
+						e.preventDefault();
 
-							// Trigger autocompletion update in overwrite mode
-							if (window.Autocomplete) {
-								setTimeout(() => {
-									window.Autocomplete.requestSuggestions(input);
-								}, 10);
-							}
+						// Trigger autocompletion update in overwrite mode
+						if (window.Autocomplete) {
+							setTimeout(() => {
+								window.Autocomplete.requestSuggestions(input);
+							}, 10);
 						}
 					}
 				}
@@ -4148,78 +4329,45 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 				Autocomplete.updateCaretPosition(input);
 			});
 
+			// Track whether we just handled a delete operation to prevent immediate resuggestion
+			let justDeleted = false;
+
 			input.addEventListener("keydown", (e) => {
-				// Handle tilde key in input field
-				if (e.key === "`" || e.key === "~") {
-					e.preventDefault();
-					e.stopPropagation();
-					// Only allow tilde to close console if it's open
-					if (ConsoleEngine.isOpen) {
-						// Let Lua handle closing via key binding
-						ConsoleEngine.toggle(false);
-					}
-					return;
-				}
-				if (e.key === "Enter") {
-					const val = input.value;
-					input.value = "";
-					// Trigger input event to ensure state update
-					input.dispatchEvent(new Event('input', {bubbles: true}));
-					Autocomplete.hide();
-					ConsoleEngine.execute(val);
-					// Double-check state update after command execution
-					if (enterBtn) setTimeout(updateEnterButtonState, 0);
-				} else if (e.key === "Tab") {
-					e.preventDefault();
-					if (Autocomplete.items.length > 0) {
-						// Complete the selected suggestion
-						Autocomplete.confirmSelection();
-					} else {
-						// Request suggestions if none are shown
-						Autocomplete.requestSuggestions(input);
-					}
-				} else if (e.key === "ArrowUp") {
-					e.preventDefault();
-					if (Autocomplete.items.length > 0) {
-						Autocomplete.navigate(-1);
-					} else {
-						const prev = HistoryManager.up();
-						if (prev !== null) {
-							input.value = prev;
-							// Update Enter button state after history navigation
-							if (enterBtn) updateEnterButtonState();
-						}
-					}
-				} else if (e.key === "ArrowDown") {
-					e.preventDefault();
-					if (Autocomplete.items.length > 0) {
-						Autocomplete.navigate(1);
-					} else {
-						const next = HistoryManager.down();
-						if (next !== null) {
-							input.value = next;
-							// Update Enter button state after history navigation
-							if (enterBtn) updateEnterButtonState();
-						}
-					}
-				} else if (e.key === "Escape") {
-					Autocomplete.hide();
-					e.stopPropagation();
-				} else if (e.key === "Backspace") {
-					// Hide autocomplete when deleting
-					Autocomplete.hide();
+				if (e.key === "Backspace" || e.key === "Delete") {
+					justDeleted = true;
+				} else {
+					justDeleted = false;
 				}
 			});
 
 			input.addEventListener("input", () => {
 				Autocomplete.updateCaretPosition(input);
 				const val = input.value;
+
+				// If we just deleted, hide autocomplete and don't immediately request new suggestions
+				if (justDeleted) {
+					Autocomplete.hide();
+					justDeleted = false;
+					// Wait a bit before allowing normal suggestions to resume
+					setTimeout(() => {
+						if (input.value.length >= 1) {
+							Autocomplete.requestSuggestions(input);
+						}
+					}, 50);
+					return;
+				}
+
 				if (val.length >= 1) {
 					// Request suggestions from Lua intellisense
 					Autocomplete.requestSuggestions(input);
 				} else {
 					Autocomplete.hide();
 				}
+			});
+
+			// Hide autocomplete when input loses focus
+			input.addEventListener("blur", () => {
+				Autocomplete.hide();
 			});
 		}
 

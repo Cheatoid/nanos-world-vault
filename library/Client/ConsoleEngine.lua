@@ -49,7 +49,20 @@ console:register({
 	name = "help",
 	desc = "Show available commands or get help for a specific command",
 	args = {
-		{ name = "command", type = "string", optional = true, desc = "Command name" }
+		{
+			name = "command",
+			type = "enum",
+			optional = true,
+			choices = function()
+				-- Get all registered command names dynamically
+				local command_names = {}
+				for name, cmd in next, console.commands do
+					command_names[#command_names + 1] = name -- or cmd.name
+				end
+				return command_names
+			end,
+			desc = "Command name"
+		}
 	},
 	handler = function(ctx, args)
 		local cmdName = args.command
@@ -125,6 +138,7 @@ console:register({
 	args = {
 		{ name = "text", type = "string", optional = true, desc = "Text to echo" }
 	},
+	no_arg_suggest = true, -- Disable argument autocompletion since echo accepts arbitrary varargs text
 	handler = function(ctx, args)
 		local result = args.text or ""
 		if args._rest then
@@ -184,7 +198,6 @@ console:register({
 	desc = "Clear console output",
 	aliases = { "cls" },
 	handler = function(ctx, args)
-		-- print("CLEARING...")
 		M.Clear()
 	end
 })
@@ -196,6 +209,7 @@ console:register({
 	args = {
 		{ name = "arg1", type = "string", optional = true, desc = "Test argument" }
 	},
+	no_arg_suggest = true,
 	handler = function(ctx, args)
 		M.Info("Test command executed with arg: " .. (args.arg1 or "nil"))
 	end
@@ -263,9 +277,7 @@ function M.Initialize()
 			M.Log(logType, text)
 		end)
 
-		ConsoleWebUI:Subscribe("ClipboardWrite", function(text)
-			Client.CopyToClipboard(text)
-		end)
+		ConsoleWebUI:Subscribe("CopyToClipboard", Client.CopyToClipboard)
 
 		-- Handle realm changes from JS
 		ConsoleWebUI:Subscribe("OnRealmChanged", function(realm)
@@ -293,15 +305,13 @@ function M.Initialize()
 
 			-- M.Info("DEBUG: console result - success: " .. tostring(success) .. ", result: " .. tostring(result))
 
-			if success then
-				-- Command was handled by console successfully
-				if result then
-					-- console returns the result from handler, not a boolean
-					if type(result) == "string" then
-						M.Info(result)
-					end
+			if success and result ~= nil then
+				-- Command was handled by console successfully and returned a result
+				if type(result) == "string" then
+					M.Info(result)
 				end
 			else
+				-- Either console execution failed, or command was unknown (result = nil)
 				-- Forward to Console.RunCommand for game console commands
 				-- M.Info("DEBUG: Forwarding to Console.RunCommand")
 				Console.RunCommand(fullCommand)
@@ -333,17 +343,17 @@ function M.Initialize()
 
 		-- Handle autocomplete requests from JS
 		ConsoleWebUI:Subscribe("GetAutocomplete", function(line, caret)
-			-- Use simple suggest function for now to avoid IntelliSense bugs
-			local suggestions = console:suggest(line, 8)
+			-- Use IntelliSense with proper caret position awareness
+			local suggestions = intellisense:suggest_at(line, caret)
 
-			-- Convert suggestions to the format expected by JavaScript
+			-- Convert IntelliSense suggestions to the format expected by JavaScript
 			local formatted_suggestions = {}
 			if suggestions then
 				for _, suggestion in next, suggestions do
 					if type(suggestion) == "table" and suggestion.key then
 						table.insert(formatted_suggestions, {
 							name = suggestion.key,
-							desc = suggestion.desc or "",
+							desc = suggestion.meta and suggestion.meta.desc or "",
 							start_pos = suggestion.start_pos,
 							end_pos = suggestion.end_pos,
 							replace = suggestion.replace
@@ -388,6 +398,7 @@ function M.Initialize()
 	--end)
 
 	Input.Subscribe("KeyPress", function(key_name, delta)
+		-- Block all keys that would interfere with console when it's open
 		if ConsoleWebUI:GetVisibility() == WidgetVisibility.Visible and not Input.IsInputEnabled() then
 			return false
 		end
