@@ -152,11 +152,11 @@ jobs:
           # Remove-Item .server\steamcmd.zip
           & ".server\steamcmd.exe" +quit
           # Run twice to handle SteamCMD first-run priming issue (missing steamapps configuration)
-          & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
-          & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
+          & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir ..\server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
+          & ".server\steamcmd.exe" +@sSteamCmdForcePlatformType windows +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 +force_install_dir ..\server +login anonymous +app_update 1936830 -beta bleeding-edge validate +quit
           # Get token from environment variable
           $token = $env:NANOS_PERSONAL_ACCESS_TOKEN
           # Run in-house packager (handles Config.toml generation automatically, because NanosWorldServer --cli does not respect --token)
           Push-Location "bin"
-          & ".\packager.exe" --release --upload-packages --cli "..\.server\server" --token "$token"
+          & ".\packager.exe" --release --upload-packages --cli "..\server" --token "$token"
           Pop-Location

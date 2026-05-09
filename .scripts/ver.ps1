@@ -187,7 +187,8 @@ if ($release)
 	}
 
 	# Switch to main and pull latest
-	git fetch --tags origin
+	#git fetch --tags origin
+	git fetch --tags --force origin
 	Test-GitSuccess "Failed to fetch tags from origin"
 	git fetch --prune origin
 	Test-GitSuccess "Failed to prune origin refs"

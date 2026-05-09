@@ -297,6 +297,9 @@ foreach (var dir in dirs)
 	// 2nd pass: fix all included (non-binary) files (remove UTF-8 BOM, remove \r)
 	foreach (var file in files)
 	{
+		// Skip Package.toml files from line-ending normalization
+		if (Path.GetFileName(file).Equals("Package.toml", StringComparison.Ordinal))
+			continue;
 		Span<byte> bytes = File.ReadAllBytes(file);
 		// Remove UTF-8 BOM
 		if (bytes is [0xEF, 0xBB, 0xBF, ..])
@@ -756,6 +759,14 @@ foreach (var dir in dirs)
 			? (Path.GetDirectoryName(vaultRoot) ?? vaultRoot) // assume it is in the upper directory
 			: cliMode;
 		var packagesDir = Path.Combine(serverRoot, "Packages");
+		try
+		{
+			Directory.CreateDirectory(packagesDir);
+		}
+		catch
+		{
+			// ignored
+		}
 		var publishDir = Path.Combine(vaultRoot, "publish");
 		var packagesJsonPathUpload = Path.Combine(vaultRoot, "packages.json");
 
@@ -1008,13 +1019,14 @@ foreach (var dir in dirs)
 				// ignored
 			}
 
-			c.WriteLine($"ℹ creating symbolic-link {packageName} folder");
+			c.WriteLine($"ℹ creating directory symbolic-link {packageName} folder");
 			try
 			{
 				// Use Junction for directories (works without admin on Windows)
-				var junction = new JunctionPoint(packagePath, packageRoot);
-				junction.Create();
-				c.WriteLine($"ℹ created symbolic-link: {packagePath} -> {packageRoot}");
+				//var junction = new JunctionPoint(packagePath, packageRoot);
+				//junction.Create();
+				Directory.CreateSymbolicLink(packagePath, packageRoot);
+				c.WriteLine($"ℹ created directory symbolic-link: {packagePath} -> {packageRoot}");
 			}
 			catch (Exception ex)
 			{
@@ -1690,8 +1702,8 @@ internal static partial class Program
 
 	static Program()
 	{
-		// Include .css, .html, .js, .lua, .toml but exclude .tests.lua using negative lookahead
-		ZipFilesFilterRegex = new(@"(?!.*\.tests?\.lua$)\.(css|html|js|lua|md|toml)$", RegexFlags);
+		// Include .css, .html, .js, .lua, .toml but exclude .tests.lua and .md files using negative lookahead
+		ZipFilesFilterRegex = new(@"(?!.*\.tests?\.lua$)\.(css|html|js|lua|toml)$", RegexFlags);
 		ZipAdditionalFilesRegex = new(@"/(LICENSE)$", RegexFlags); // |README\.md
 		ZipFilterRegexes = [ZipFilesFilterRegex, ZipAdditionalFilesRegex];
 		ZipCompileFilesFilterRegex = new(@"(?!.*(examples?|\.tests?)\.lua$)\.(css|html|js|lua|toml)$", RegexFlags);
