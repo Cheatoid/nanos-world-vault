@@ -13,8 +13,8 @@ do
 
 			echo "Stable tag detected: $TAG"
 
-			# Save the stable version to a file
-			echo "$TAG" > VERSION
+			# Save to stable version to a file (no trailing newline)
+			echo -n "$TAG" > VERSION
 
 			git add VERSION
 			git commit -m "Update version for tag: $TAG"

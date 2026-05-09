@@ -7,8 +7,8 @@ License: MIT
 <html lang="en">
 
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 	<style>
 		:root {
 			--panel-bg-0: #0f1113;
@@ -243,7 +243,7 @@ License: MIT
 			overflow: hidden;
 		}
 
-		#domMenu.open+#domMenuPanel,
+		#domMenu.open + #domMenuPanel,
 		#domMenuPanel.open {
 			transform: translateY(8px) scaleY(1) translateX(0);
 			opacity: 1;
@@ -291,20 +291,20 @@ License: MIT
 			transform: translateY(-2px) scale(1.01);
 		}
 
-		#domMenu.open+#domMenuPanel .menuItem {
+		#domMenu.open + #domMenuPanel .menuItem {
 			opacity: 1;
 			transform: translateY(0) scale(1);
 		}
 
-		#domMenu.open+#domMenuPanel .menuItem:nth-child(2) {
+		#domMenu.open + #domMenuPanel .menuItem:nth-child(2) {
 			transition-delay: 40ms
 		}
 
-		#domMenu.open+#domMenuPanel .menuItem:nth-child(3) {
+		#domMenu.open + #domMenuPanel .menuItem:nth-child(3) {
 			transition-delay: 80ms
 		}
 
-		#domMenu.open+#domMenuPanel .menuItem:nth-child(4) {
+		#domMenu.open + #domMenuPanel .menuItem:nth-child(4) {
 			transition-delay: 120ms
 		}
 
@@ -468,542 +468,542 @@ License: MIT
 </head>
 
 <body>
-	<canvas id="canvas" tabindex="0" aria-hidden="true"></canvas>
+<canvas id="canvas" tabindex="0" aria-hidden="true"></canvas>
 
-	<!-- world panel -->
-	<div id="worldPanel" role="region" aria-label="World panel">
-		<div class="panelInner" id="panelInner">
-			<button id="worldCat" type="button">🌟 CHEATOID 🚀</button>
-		</div>
+<!-- world panel -->
+<div id="worldPanel" role="region" aria-label="World panel">
+	<div class="panelInner" id="panelInner">
+		<button id="worldCat" type="button">🌟 CHEATOID 🚀</button>
 	</div>
+</div>
 
-	<!-- cool hamburger -->
-	<button id="domMenu" aria-label="Menu" aria-expanded="false" type="button">
+<!-- cool hamburger -->
+<button id="domMenu" aria-label="Menu" aria-expanded="false" type="button">
 		<span class="hamburger" aria-hidden="true">
 			<span class="line top"></span>
 			<span class="line mid"></span>
 			<span class="line bot"></span>
 		</span>
-	</button>
+</button>
 
-	<!-- quick menu -->
-	<div id="domMenuPanel" role="menu" aria-hidden="true">
-		<div class="menuHeader">
-			<div class="title">Quick</div>
-			<div class="sub">Menu</div>
-		</div>
-		<a class="menuItem" href="#" role="menuitem">Admin Menu</a>
-		<a class="menuItem" href="#" role="menuitem">Profile</a>
-		<a class="menuItem" href="#" role="menuitem">Inventory</a>
-		<a class="menuItem" href="#" role="menuitem">Settings</a>
+<!-- quick menu -->
+<div id="domMenuPanel" role="menu" aria-hidden="true">
+	<div class="menuHeader">
+		<div class="title">Quick</div>
+		<div class="sub">Menu</div>
 	</div>
+	<a class="menuItem" href="#" role="menuitem">Admin Menu</a>
+	<a class="menuItem" href="#" role="menuitem">Profile</a>
+	<a class="menuItem" href="#" role="menuitem">Inventory</a>
+	<a class="menuItem" href="#" role="menuitem">Settings</a>
+</div>
 
-	<!-- controls toggle + popup -->
-	<button id="controlsToggle" aria-label="Camera controls" aria-expanded="false" type="button">
-		<span class="gear" aria-hidden="true"></span>
-	</button>
+<!-- controls toggle + popup -->
+<button id="controlsToggle" aria-label="Camera controls" aria-expanded="false" type="button">
+	<span class="gear" aria-hidden="true"></span>
+</button>
 
-	<div id="controlsPopup" aria-hidden="true">
-		<div id="controls" role="dialog" aria-label="Camera controls panel">
-			<h3 style="margin:0 0 8px 0;color:#fff">Camera Controls</h3>
+<div id="controlsPopup" aria-hidden="true">
+	<div id="controls" role="dialog" aria-label="Camera controls panel">
+		<h3 style="margin:0 0 8px 0;color:#fff">Camera Controls</h3>
 
-			<div style="font-size:12px;color:#9fb">Mode</div>
-			<div class="control-row" style="margin-bottom:6px;">
-				<label>Orbit</label>
-				<input id="orbitToggle" type="checkbox" />
-				<div style="flex:1"></div>
-			</div>
+		<div style="font-size:12px;color:#9fb">Mode</div>
+		<div class="control-row" style="margin-bottom:6px;">
+			<label>Orbit</label>
+			<input id="orbitToggle" type="checkbox"/>
+			<div style="flex:1"></div>
+		</div>
 
-			<div style="font-size:12px;color:#9fb;margin-top:6px">Position (X Y Z)</div>
-			<div class="control-row">
-				<label>X</label>
-				<input id="posXRange" type="range" min="-20" max="20" step="0.1" />
-				<input id="posXNum" type="number" step="0.1" />
-			</div>
-			<div class="control-row">
-				<label>Y</label>
-				<input id="posYRange" type="range" min="-20" max="20" step="0.1" />
-				<input id="posYNum" type="number" step="0.1" />
-			</div>
-			<div class="control-row">
-				<label>Z</label>
-				<input id="posZRange" type="range" min="-40" max="40" step="0.1" />
-				<input id="posZNum" type="number" step="0.1" />
-			</div>
+		<div style="font-size:12px;color:#9fb;margin-top:6px">Position (X Y Z)</div>
+		<div class="control-row">
+			<label>X</label>
+			<input id="posXRange" type="range" min="-20" max="20" step="0.1"/>
+			<input id="posXNum" type="number" step="0.1"/>
+		</div>
+		<div class="control-row">
+			<label>Y</label>
+			<input id="posYRange" type="range" min="-20" max="20" step="0.1"/>
+			<input id="posYNum" type="number" step="0.1"/>
+		</div>
+		<div class="control-row">
+			<label>Z</label>
+			<input id="posZRange" type="range" min="-40" max="40" step="0.1"/>
+			<input id="posZNum" type="number" step="0.1"/>
+		</div>
 
-			<div style="font-size:12px;color:#9fb;margin-top:6px">Rotation (deg) Pitch / Yaw / Roll</div>
-			<div class="control-row">
-				<label>Pitch</label>
-				<input id="pitchRange" type="range" min="-90" max="90" step="0.5" />
-				<input id="pitchNum" type="number" step="0.5" />
-			</div>
-			<div class="control-row">
-				<label>Yaw</label>
-				<input id="yawRange" type="range" min="-180" max="180" step="0.5" />
-				<input id="yawNum" type="number" step="0.5" />
-			</div>
-			<div class="control-row">
-				<label>Roll</label>
-				<input id="rollRange" type="range" min="-180" max="180" step="0.5" />
-				<input id="rollNum" type="number" step="0.5" />
-			</div>
+		<div style="font-size:12px;color:#9fb;margin-top:6px">Rotation (deg) Pitch / Yaw / Roll</div>
+		<div class="control-row">
+			<label>Pitch</label>
+			<input id="pitchRange" type="range" min="-90" max="90" step="0.5"/>
+			<input id="pitchNum" type="number" step="0.5"/>
+		</div>
+		<div class="control-row">
+			<label>Yaw</label>
+			<input id="yawRange" type="range" min="-180" max="180" step="0.5"/>
+			<input id="yawNum" type="number" step="0.5"/>
+		</div>
+		<div class="control-row">
+			<label>Roll</label>
+			<input id="rollRange" type="range" min="-180" max="180" step="0.5"/>
+			<input id="rollNum" type="number" step="0.5"/>
+		</div>
 
-			<div class="controls-footer">
-				<button id="resetBtn" class="secondary">Reset</button>
-				<button id="applyBtn">Apply</button>
-			</div>
+		<div class="controls-footer">
+			<button id="resetBtn" class="secondary">Reset</button>
+			<button id="applyBtn">Apply</button>
 		</div>
 	</div>
+</div>
 
-	<button id="canvasToggle" aria-pressed="false" title="Toggle canvas interactivity"></button>
+<button id="canvasToggle" aria-pressed="false" title="Toggle canvas interactivity"></button>
 
-	<script>
-		(function () {
-			/* Elements */
-			const canvas = document.getElementById('canvas');
-			const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
-			const worldPanel = document.getElementById('worldPanel');
-			const panelInner = document.getElementById('panelInner');
-			const worldCat = document.getElementById('worldCat');
+<script>
+	(function () {
+		/* Elements */
+		const canvas = document.getElementById('canvas');
+		const ctx = canvas.getContext("2d", {alpha: true, desynchronized: true});
+		const worldPanel = document.getElementById('worldPanel');
+		const panelInner = document.getElementById('panelInner');
+		const worldCat = document.getElementById('worldCat');
 
-			const domMenuBtn = document.getElementById('domMenu');
-			const domMenuPanel = document.getElementById('domMenuPanel');
+		const domMenuBtn = document.getElementById('domMenu');
+		const domMenuPanel = document.getElementById('domMenuPanel');
 
-			const controlsToggle = document.getElementById('controlsToggle');
-			const controlsPopup = document.getElementById('controlsPopup');
+		const controlsToggle = document.getElementById('controlsToggle');
+		const controlsPopup = document.getElementById('controlsPopup');
 
-			const canvasToggle = document.getElementById('canvasToggle');
+		const canvasToggle = document.getElementById('canvasToggle');
 
-			/* Resize */
-			function resize() {
-				canvas.width = innerWidth;
-				canvas.height = innerHeight;
+		/* Resize */
+		function resize() {
+			canvas.width = innerWidth;
+			canvas.height = innerHeight;
+		}
+
+		resize();
+		window.addEventListener('resize', resize);
+
+		/* Camera state */
+		let camPos = {x: 2.6, y: 0, z: 6};
+		let camEuler = {pitch: 0, yaw: 180, roll: 0};
+		let orbit = false;
+		let orbitAzimuth = Math.PI, orbitElevation = 0;
+		let camDistance = 6.0;
+
+		/* Math helpers */
+		const toRad = d => d * Math.PI / 180;
+
+		function normalize(v) {
+			const L = Math.hypot(v.x, v.y, v.z) || 1;
+			return {x: v.x / L, y: v.y / L, z: v.z / L};
+		}
+
+		function cross(a, b) {
+			return {x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x};
+		}
+
+		function sub(a, b) {
+			return {x: a.x - b.x, y: a.y - b.y, z: a.z - b.z};
+		}
+
+		function dot(a, b) {
+			return a.x * b.x + a.y * b.y + a.z * b.z;
+		}
+
+		/* Camera computations */
+		function computeCameraFromXYZPYR(pos, euler) {
+			const pitch = toRad(euler.pitch), yaw = toRad(euler.yaw), roll = toRad(euler.roll);
+			const fx = Math.cos(pitch) * Math.sin(yaw);
+			const fy = Math.sin(pitch);
+			const fz = Math.cos(pitch) * Math.cos(yaw);
+			let forward = normalize({x: fx, y: fy, z: fz});
+			const worldUp = {x: 0, y: 1, z: 0};
+			let right = normalize(cross(forward, worldUp));
+			let up = cross(right, forward);
+			if (Math.abs(roll) > 1e-6) {
+				const c = Math.cos(roll), s = Math.sin(roll);
+				const rPrime = {x: right.x * c + up.x * s, y: right.y * c + up.y * s, z: right.z * c + up.z * s};
+				const uPrime = {x: up.x * c - right.x * s, y: up.y * c - right.y * s, z: up.z * c - right.z * s};
+				right = normalize(rPrime);
+				up = normalize(uPrime);
 			}
+			return {camPos: {x: pos.x, y: pos.y, z: pos.z}, forward, right, up};
+		}
 
-			resize();
-			window.addEventListener('resize', resize);
+		function computeCameraOrbit() {
+			const d = Math.max(1.0, Math.min(60.0, camDistance));
+			const cx = d * Math.cos(orbitElevation) * Math.sin(orbitAzimuth);
+			const cy = d * Math.sin(orbitElevation);
+			const cz = d * Math.cos(orbitElevation) * Math.cos(orbitAzimuth);
+			const camPosLocal = {x: cx, y: cy, z: cz};
+			const target = {x: 0, y: 0, z: 0};
+			const forward = normalize(sub(target, camPosLocal));
+			const worldUp = {x: 0, y: 1, z: 0};
+			const right = normalize(cross(forward, worldUp));
+			const up = cross(right, forward);
+			return {camPos: camPosLocal, forward, right, up};
+		}
 
-			/* Camera state */
-			let camPos = { x: 2.6, y: 0, z: 6 };
-			let camEuler = { pitch: 0, yaw: 180, roll: 0 };
-			let orbit = false;
-			let orbitAzimuth = Math.PI, orbitElevation = 0;
-			let camDistance = 6.0;
+		function computeCamera() {
+			return orbit ? computeCameraOrbit() : computeCameraFromXYZPYR(camPos, camEuler);
+		}
 
-			/* Math helpers */
-			const toRad = d => d * Math.PI / 180;
+		/* Panel facing effect (stronger, no skew) */
+		let targetRotX = 0, targetRotY = 0;
+		let currentRotX = 0, currentRotY = 0;
+		const maxRotY = 28, maxRotX = 18;
+		const smoothing = 0.14;
+		let targetTiltScale = 1.0, currentTiltScale = 1.0;
 
-			function normalize(v) {
-				const L = Math.hypot(v.x, v.y, v.z) || 1;
-				return { x: v.x / L, y: v.y / L, z: v.z / L };
+		function updatePointerTilt(clientX, clientY) {
+			const rect = panelInner.getBoundingClientRect();
+			if (!rect.width || !rect.height) {
+				targetRotX = 0;
+				targetRotY = 0;
+				targetTiltScale = 1.0;
+				panelInner.classList.remove('highlight');
+				return;
 			}
+			const cx = rect.left + rect.width / 2;
+			const cy = rect.top + rect.height / 2;
+			const dx = clientX - cx;
+			const dy = clientY - cy;
+			const nx = dx / (rect.width * 0.5);
+			const ny = dy / (rect.height * 0.5);
+			const cxn = Math.max(-1, Math.min(1, nx));
+			const cyn = Math.max(-1, Math.min(1, ny));
+			const signX = Math.sign(cxn) || 1;
+			const signY = Math.sign(cyn) || 1;
+			const intensityX = Math.pow(Math.abs(cxn), 1.15) * signX;
+			const intensityY = Math.pow(Math.abs(cyn), 1.15) * signY;
+			targetRotY = intensityX * maxRotY;
+			targetRotX = -intensityY * maxRotX;
+			const distanceFactor = Math.min(1, Math.hypot(cxn, cyn) / Math.SQRT2);
+			targetTiltScale = 1 + distanceFactor * 0.08;
+			const centerProximity = 1 - Math.min(1, Math.hypot(cxn, cyn));
+			if (centerProximity > 0.6) panelInner.classList.add('highlight'); else panelInner.classList.remove('highlight');
+		}
 
-			function cross(a, b) {
-				return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x };
-			}
+		window.addEventListener('mousemove', (e) => updatePointerTilt(e.clientX, e.clientY), {passive: true});
+		window.addEventListener('touchstart', (e) => {
+			if (e.touches[0]) updatePointerTilt(e.touches[0].clientX, e.touches[0].clientY);
+		}, {passive: true});
+		window.addEventListener('touchmove', (e) => {
+			if (e.touches[0]) updatePointerTilt(e.touches[0].clientX, e.touches[0].clientY);
+		}, {passive: true});
 
-			function sub(a, b) {
-				return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
-			}
+		/* Render loop: compute camera, position panel, apply transforms in stable order */
+		let last = 0;
 
-			function dot(a, b) {
-				return a.x * b.x + a.y * b.y + a.z * b.z;
-			}
+		function draw(t) {
+			const dt = (t - last) / 1000 || 0;
+			last = t;
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-			/* Camera computations */
-			function computeCameraFromXYZPYR(pos, euler) {
-				const pitch = toRad(euler.pitch), yaw = toRad(euler.yaw), roll = toRad(euler.roll);
-				const fx = Math.cos(pitch) * Math.sin(yaw);
-				const fy = Math.sin(pitch);
-				const fz = Math.cos(pitch) * Math.cos(yaw);
-				let forward = normalize({ x: fx, y: fy, z: fz });
-				const worldUp = { x: 0, y: 1, z: 0 };
-				let right = normalize(cross(forward, worldUp));
-				let up = cross(right, forward);
-				if (Math.abs(roll) > 1e-6) {
-					const c = Math.cos(roll), s = Math.sin(roll);
-					const rPrime = { x: right.x * c + up.x * s, y: right.y * c + up.y * s, z: right.z * c + up.z * s };
-					const uPrime = { x: up.x * c - right.x * s, y: up.y * c - right.y * s, z: up.z * c - right.z * s };
-					right = normalize(rPrime);
-					up = normalize(uPrime);
-				}
-				return { camPos: { x: pos.x, y: pos.y, z: pos.z }, forward, right, up };
-			}
+			const cam = computeCamera();
+			const worldObject = {x: 0, y: 0, z: 0};
+			const rel = sub(worldObject, cam.camPos);
+			const camX = dot(rel, cam.right);
+			const camY = dot(rel, cam.up);
+			const camZ = dot(rel, cam.forward);
 
-			function computeCameraOrbit() {
-				const d = Math.max(1.0, Math.min(60.0, camDistance));
-				const cx = d * Math.cos(orbitElevation) * Math.sin(orbitAzimuth);
-				const cy = d * Math.sin(orbitElevation);
-				const cz = d * Math.cos(orbitElevation) * Math.cos(orbitAzimuth);
-				const camPosLocal = { x: cx, y: cy, z: cz };
-				const target = { x: 0, y: 0, z: 0 };
-				const forward = normalize(sub(target, camPosLocal));
-				const worldUp = { x: 0, y: 1, z: 0 };
-				const right = normalize(cross(forward, worldUp));
-				const up = cross(right, forward);
-				return { camPos: camPosLocal, forward, right, up };
-			}
+			if (camZ <= 0.05) {
+				worldPanel.style.opacity = '0';
+				worldPanel.style.pointerEvents = 'none';
+			} else {
+				worldPanel.style.opacity = '1';
+				worldPanel.style.pointerEvents = 'auto';
+				const fov = 500;
+				const screenX = canvas.width / 2 + (camX * fov) / camZ;
+				const screenY = canvas.height / 2 + (camY * fov) / camZ;
+				const scale = Math.max(0.6, Math.min(1.22, 6.0 / camZ));
+				const translateZ = (8 - Math.min(8, camZ)) * 6;
+				worldPanel.style.left = `${screenX}px`;
+				worldPanel.style.top = `${screenY}px`;
 
-			function computeCamera() {
-				return orbit ? computeCameraOrbit() : computeCameraFromXYZPYR(camPos, camEuler);
-			}
+				currentRotX += (targetRotX - currentRotX) * smoothing;
+				currentRotY += (targetRotY - currentRotY) * smoothing;
+				currentTiltScale += (targetTiltScale - currentTiltScale) * (smoothing * 0.9);
 
-			/* Panel facing effect (stronger, no skew) */
-			let targetRotX = 0, targetRotY = 0;
-			let currentRotX = 0, currentRotY = 0;
-			const maxRotY = 28, maxRotX = 18;
-			const smoothing = 0.14;
-			let targetTiltScale = 1.0, currentTiltScale = 1.0;
-
-			function updatePointerTilt(clientX, clientY) {
-				const rect = panelInner.getBoundingClientRect();
-				if (!rect.width || !rect.height) {
-					targetRotX = 0;
-					targetRotY = 0;
-					targetTiltScale = 1.0;
-					panelInner.classList.remove('highlight');
-					return;
-				}
-				const cx = rect.left + rect.width / 2;
-				const cy = rect.top + rect.height / 2;
-				const dx = clientX - cx;
-				const dy = clientY - cy;
-				const nx = dx / (rect.width * 0.5);
-				const ny = dy / (rect.height * 0.5);
-				const cxn = Math.max(-1, Math.min(1, nx));
-				const cyn = Math.max(-1, Math.min(1, ny));
-				const signX = Math.sign(cxn) || 1;
-				const signY = Math.sign(cyn) || 1;
-				const intensityX = Math.pow(Math.abs(cxn), 1.15) * signX;
-				const intensityY = Math.pow(Math.abs(cyn), 1.15) * signY;
-				targetRotY = intensityX * maxRotY;
-				targetRotX = -intensityY * maxRotX;
-				const distanceFactor = Math.min(1, Math.hypot(cxn, cyn) / Math.SQRT2);
-				targetTiltScale = 1 + distanceFactor * 0.08;
-				const centerProximity = 1 - Math.min(1, Math.hypot(cxn, cyn));
-				if (centerProximity > 0.6) panelInner.classList.add('highlight'); else panelInner.classList.remove('highlight');
-			}
-
-			window.addEventListener('mousemove', (e) => updatePointerTilt(e.clientX, e.clientY), { passive: true });
-			window.addEventListener('touchstart', (e) => {
-				if (e.touches[0]) updatePointerTilt(e.touches[0].clientX, e.touches[0].clientY);
-			}, { passive: true });
-			window.addEventListener('touchmove', (e) => {
-				if (e.touches[0]) updatePointerTilt(e.touches[0].clientX, e.touches[0].clientY);
-			}, { passive: true });
-
-			/* Render loop: compute camera, position panel, apply transforms in stable order */
-			let last = 0;
-
-			function draw(t) {
-				const dt = (t - last) / 1000 || 0;
-				last = t;
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-				const cam = computeCamera();
-				const worldObject = { x: 0, y: 0, z: 0 };
-				const rel = sub(worldObject, cam.camPos);
-				const camX = dot(rel, cam.right);
-				const camY = dot(rel, cam.up);
-				const camZ = dot(rel, cam.forward);
-
-				if (camZ <= 0.05) {
-					worldPanel.style.opacity = '0';
-					worldPanel.style.pointerEvents = 'none';
-				} else {
-					worldPanel.style.opacity = '1';
-					worldPanel.style.pointerEvents = 'auto';
-					const fov = 500;
-					const screenX = canvas.width / 2 + (camX * fov) / camZ;
-					const screenY = canvas.height / 2 + (camY * fov) / camZ;
-					const scale = Math.max(0.6, Math.min(1.22, 6.0 / camZ));
-					const translateZ = (8 - Math.min(8, camZ)) * 6;
-					worldPanel.style.left = `${screenX}px`;
-					worldPanel.style.top = `${screenY}px`;
-
-					currentRotX += (targetRotX - currentRotX) * smoothing;
-					currentRotY += (targetRotY - currentRotY) * smoothing;
-					currentTiltScale += (targetTiltScale - currentTiltScale) * (smoothing * 0.9);
-
-					// Apply rotateX then rotateY then translateZ then scale to avoid skew
-					panelInner.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg) translateZ(${translateZ}px) scale(${scale * currentTiltScale})`;
-				}
-
-				requestAnimationFrame(draw);
+				// Apply rotateX then rotateY then translateZ then scale to avoid skew
+				panelInner.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg) translateZ(${translateZ}px) scale(${scale * currentTiltScale})`;
 			}
 
 			requestAnimationFrame(draw);
+		}
 
-			/* worldCat follow-pointer */
-			let tX = 0, tY = 0, cX = 0, cY = 0, followSmoothing = 0.16, pointerInside = false;
+		requestAnimationFrame(draw);
 
-			function setTargetFromClient(cxClient, cyClient) {
-				const rect = panelInner.getBoundingClientRect();
-				const localX = cxClient - rect.left, localY = cyClient - rect.top;
-				const btnRect = worldCat.getBoundingClientRect();
-				const btnW = btnRect.width, btnH = btnRect.height;
-				const minX = btnW / 2, minY = btnH / 2, maxX = rect.width - btnW / 2, maxY = rect.height - btnH / 2;
-				const clampedX = Math.max(minX, Math.min(maxX, localX));
-				const clampedY = Math.max(minY, Math.min(maxY, localY));
-				tX = clampedX - rect.width / 2;
-				tY = clampedY - rect.height / 2;
-			}
+		/* worldCat follow-pointer */
+		let tX = 0, tY = 0, cX = 0, cY = 0, followSmoothing = 0.16, pointerInside = false;
 
-			panelInner.addEventListener('pointerenter', (e) => {
-				pointerInside = true;
-				panelInner.setPointerCapture?.(e.pointerId);
-				setTargetFromClient(e.clientX, e.clientY);
-			});
-			panelInner.addEventListener('pointermove', (e) => {
-				if (!pointerInside) return;
-				setTargetFromClient(e.clientX, e.clientY);
-			});
-			panelInner.addEventListener('pointerleave', (e) => {
-				pointerInside = false;
-				tX = 0;
-				tY = 0;
-				panelInner.releasePointerCapture?.(e.pointerId);
-			});
+		function setTargetFromClient(cxClient, cyClient) {
+			const rect = panelInner.getBoundingClientRect();
+			const localX = cxClient - rect.left, localY = cyClient - rect.top;
+			const btnRect = worldCat.getBoundingClientRect();
+			const btnW = btnRect.width, btnH = btnRect.height;
+			const minX = btnW / 2, minY = btnH / 2, maxX = rect.width - btnW / 2, maxY = rect.height - btnH / 2;
+			const clampedX = Math.max(minX, Math.min(maxX, localX));
+			const clampedY = Math.max(minY, Math.min(maxY, localY));
+			tX = clampedX - rect.width / 2;
+			tY = clampedY - rect.height / 2;
+		}
 
-			function followLoop() {
-				cX += (tX - cX) * followSmoothing;
-				cY += (tY - cY) * followSmoothing;
-				worldCat.style.left = `calc(50% + ${cX}px)`;
-				worldCat.style.top = `calc(50% + ${cY}px)`;
-				requestAnimationFrame(followLoop);
-			}
+		panelInner.addEventListener('pointerenter', (e) => {
+			pointerInside = true;
+			panelInner.setPointerCapture?.(e.pointerId);
+			setTargetFromClient(e.clientX, e.clientY);
+		});
+		panelInner.addEventListener('pointermove', (e) => {
+			if (!pointerInside) return;
+			setTargetFromClient(e.clientX, e.clientY);
+		});
+		panelInner.addEventListener('pointerleave', (e) => {
+			pointerInside = false;
+			tX = 0;
+			tY = 0;
+			panelInner.releasePointerCapture?.(e.pointerId);
+		});
 
+		function followLoop() {
+			cX += (tX - cX) * followSmoothing;
+			cY += (tY - cY) * followSmoothing;
+			worldCat.style.left = `calc(50% + ${cX}px)`;
+			worldCat.style.top = `calc(50% + ${cY}px)`;
 			requestAnimationFrame(followLoop);
-			worldCat.addEventListener('click', (e) => {
-				e.stopPropagation();
-				//alert('hi');
-				console.log('!HIDE');
-			});
+		}
 
-			/* hamburger + quick menu logic */
-			function setDomMenuOpen(open) {
-				domMenuBtn.classList.toggle('open', open);
-				domMenuPanel.classList.toggle('open', open);
-				domMenuBtn.setAttribute('aria-expanded', String(open));
-				domMenuPanel.setAttribute('aria-hidden', String(!open));
-				if (open) domMenuPanel.querySelector('a')?.focus();
+		requestAnimationFrame(followLoop);
+		worldCat.addEventListener('click', (e) => {
+			e.stopPropagation();
+			//alert('hi');
+			console.log('!HIDE');
+		});
+
+		/* hamburger + quick menu logic */
+		function setDomMenuOpen(open) {
+			domMenuBtn.classList.toggle('open', open);
+			domMenuPanel.classList.toggle('open', open);
+			domMenuBtn.setAttribute('aria-expanded', String(open));
+			domMenuPanel.setAttribute('aria-hidden', String(!open));
+			if (open) domMenuPanel.querySelector('a')?.focus();
+		}
+
+		domMenuBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			if (controlsToggle.classList.contains('open')) setControlsOpen(false);
+			domMenuBtn.classList.add('ripple');
+			setTimeout(() => domMenuBtn.classList.remove('ripple'), 520);
+			setDomMenuOpen(!domMenuBtn.classList.contains('open'));
+		});
+		document.addEventListener('pointerup', (ev) => {
+			if (domMenuBtn.classList.contains('open')) {
+				if (!domMenuBtn.contains(ev.target) && !domMenuPanel.contains(ev.target)) setDomMenuOpen(false);
 			}
+		});
 
-			domMenuBtn.addEventListener('click', (e) => {
-				e.stopPropagation();
-				if (controlsToggle.classList.contains('open')) setControlsOpen(false);
-				domMenuBtn.classList.add('ripple');
-				setTimeout(() => domMenuBtn.classList.remove('ripple'), 520);
-				setDomMenuOpen(!domMenuBtn.classList.contains('open'));
-			});
-			document.addEventListener('pointerup', (ev) => {
-				if (domMenuBtn.classList.contains('open')) {
-					if (!domMenuBtn.contains(ev.target) && !domMenuPanel.contains(ev.target)) setDomMenuOpen(false);
-				}
-			});
+		/* controls popup logic */
+		function setControlsOpen(open) {
+			controlsToggle.classList.toggle('open', open);
+			controlsPopup.classList.toggle('open', open);
+			controlsToggle.setAttribute('aria-expanded', String(open));
+			controlsPopup.setAttribute('aria-hidden', String(!open));
+			if (open) document.querySelector('#controls input, #controls button')?.focus();
+		}
 
-			/* controls popup logic */
-			function setControlsOpen(open) {
-				controlsToggle.classList.toggle('open', open);
-				controlsPopup.classList.toggle('open', open);
-				controlsToggle.setAttribute('aria-expanded', String(open));
-				controlsPopup.setAttribute('aria-hidden', String(!open));
-				if (open) document.querySelector('#controls input, #controls button')?.focus();
+		controlsToggle.addEventListener('click', (e) => {
+			e.stopPropagation();
+			if (domMenuBtn.classList.contains('open')) setDomMenuOpen(false);
+			setControlsOpen(!controlsToggle.classList.contains('open'));
+		});
+		document.addEventListener('pointerup', (ev) => {
+			if (controlsToggle.classList.contains('open')) {
+				if (!controlsToggle.contains(ev.target) && !controlsPopup.contains(ev.target)) setControlsOpen(false);
 			}
+		});
 
-			controlsToggle.addEventListener('click', (e) => {
-				e.stopPropagation();
-				if (domMenuBtn.classList.contains('open')) setDomMenuOpen(false);
-				setControlsOpen(!controlsToggle.classList.contains('open'));
+		/* canvas interactivity toggle */
+		let interactive = false;
+
+		function onCanvasWheel(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			let delta = e.deltaY;
+			if (e.deltaMode === 1) delta *= 16;
+			if (e.deltaMode === 2) delta *= 800;
+			const sensitivity = 0.0025;
+			camDistance = Math.max(1.0, Math.min(60.0, camDistance + delta * sensitivity));
+			camPos.z = camDistance;
+			syncUI();
+		}
+
+		function setInteractive(on) {
+			interactive = !!on;
+			canvasToggle.setAttribute('aria-pressed', String(interactive));
+			canvasToggle.classList.toggle('active', interactive);
+			canvasToggle.textContent = interactive ? 'Disable Something' : 'Enable Something';
+			if (interactive) {
+				canvas.addEventListener('wheel', onCanvasWheel, {passive: false});
+			} else {
+				canvas.removeEventListener('wheel', onCanvasWheel, {passive: false});
+			}
+		}
+
+		canvasToggle.addEventListener('click', () => setInteractive(!interactive));
+
+		// Keyboard event listener on canvas - always active
+		canvas.addEventListener('keydown', (e) => {
+			console.log("Canvas keydown:" + e.key);
+			if (e.key === "Escape") {
+				console.log("!HIDE from canvas");
+			}
+		});
+
+		// Focus canvas on load to ensure it can receive keyboard events
+		canvas.focus();
+
+		setInteractive(false);
+
+		/* camera controls wiring (UI) */
+		const orbitToggle = document.getElementById('orbitToggle');
+		const posXRange = document.getElementById('posXRange'), posXNum = document.getElementById('posXNum');
+		const posYRange = document.getElementById('posYRange'), posYNum = document.getElementById('posYNum');
+		const posZRange = document.getElementById('posZRange'), posZNum = document.getElementById('posZNum');
+		const pitchRange = document.getElementById('pitchRange'), pitchNum = document.getElementById('pitchNum');
+		const yawRange = document.getElementById('yawRange'), yawNum = document.getElementById('yawNum');
+		const rollRange = document.getElementById('rollRange'), rollNum = document.getElementById('rollNum');
+		const resetBtn = document.getElementById('resetBtn'), applyBtn = document.getElementById('applyBtn');
+
+		function syncUI() {
+			posXRange.value = camPos.x;
+			posXNum.value = camPos.x;
+			posYRange.value = camPos.y;
+			posYNum.value = camPos.y;
+			posZRange.value = camPos.z;
+			posZNum.value = camPos.z;
+			pitchRange.value = camEuler.pitch;
+			pitchNum.value = camEuler.pitch;
+			yawRange.value = camEuler.yaw;
+			yawNum.value = camEuler.yaw;
+			rollRange.value = camEuler.roll;
+			rollNum.value = camEuler.roll;
+			orbitToggle.checked = orbit;
+			const disabled = orbit;
+			[posXRange, posYRange, posZRange, pitchRange, yawRange, rollRange,
+				posXNum, posYNum, posZNum, pitchNum, yawNum, rollNum].forEach(el => el.disabled = disabled);
+		}
+
+		function initRanges() {
+			posXRange.min = -20;
+			posXRange.max = 20;
+			posXRange.step = 0.1;
+			posYRange.min = -20;
+			posYRange.max = 20;
+			posYRange.step = 0.1;
+			posZRange.min = -40;
+			posZRange.max = 40;
+			posZRange.step = 0.1;
+			pitchRange.min = -90;
+			pitchRange.max = 90;
+			pitchRange.step = 0.5;
+			yawRange.min = -180;
+			yawRange.max = 180;
+			yawRange.step = 0.5;
+			rollRange.min = -180;
+			rollRange.max = 180;
+			rollRange.step = 0.5;
+			syncUI();
+		}
+
+		initRanges();
+
+		function wirePair(rangeEl, numEl, onChange) {
+			rangeEl.addEventListener('input', () => {
+				numEl.value = rangeEl.value;
+				onChange(Number(rangeEl.value));
 			});
-			document.addEventListener('pointerup', (ev) => {
-				if (controlsToggle.classList.contains('open')) {
-					if (!controlsToggle.contains(ev.target) && !controlsPopup.contains(ev.target)) setControlsOpen(false);
-				}
+			numEl.addEventListener('change', () => {
+				let v = Number(numEl.value);
+				numEl.value = v;
+				rangeEl.value = v;
+				onChange(v);
 			});
+		}
 
-			/* canvas interactivity toggle */
-			let interactive = false;
+		wirePair(posXRange, posXNum, (v) => {
+			camPos.x = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(posYRange, posYNum, (v) => {
+			camPos.y = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(posZRange, posZNum, (v) => {
+			camPos.z = v;
+			camDistance = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(pitchRange, pitchNum, (v) => {
+			camEuler.pitch = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(yawRange, yawNum, (v) => {
+			camEuler.yaw = v;
+			orbit = false;
+			syncUI();
+		});
+		wirePair(rollRange, rollNum, (v) => {
+			camEuler.roll = v;
+			orbit = false;
+			syncUI();
+		});
 
-			function onCanvasWheel(e) {
-				e.preventDefault();
-				e.stopPropagation();
-				let delta = e.deltaY;
-				if (e.deltaMode === 1) delta *= 16;
-				if (e.deltaMode === 2) delta *= 800;
-				const sensitivity = 0.0025;
-				camDistance = Math.max(1.0, Math.min(60.0, camDistance + delta * sensitivity));
+		orbitToggle.addEventListener('change', () => {
+			orbit = orbitToggle.checked;
+			if (orbit) {
+				orbitAzimuth = toRad(camEuler.yaw);
+				orbitElevation = toRad(camEuler.pitch);
+				camDistance = camPos.z;
+			} else {
 				camPos.z = camDistance;
-				syncUI();
 			}
+			syncUI();
+		});
 
-			function setInteractive(on) {
-				interactive = !!on;
-				canvasToggle.setAttribute('aria-pressed', String(interactive));
-				canvasToggle.classList.toggle('active', interactive);
-				canvasToggle.textContent = interactive ? 'Disable Something' : 'Enable Something';
-				if (interactive) {
-					canvas.addEventListener('wheel', onCanvasWheel, { passive: false });
-				} else {
-					canvas.removeEventListener('wheel', onCanvasWheel, { passive: false });
-				}
+		resetBtn.addEventListener('click', () => {
+			camPos = {x: 2.6, y: 0, z: 6};
+			camEuler = {pitch: 0, yaw: 180, roll: 0};
+			camDistance = camPos.z;
+			orbit = false;
+			syncUI();
+		});
+		applyBtn.addEventListener('click', () => {
+			orbit = false;
+			camDistance = camPos.z;
+			syncUI();
+		});
+
+		/* expose debug helpers */
+		window._debug = {
+			setInteractive,
+			setDomMenuOpen: (v) => setDomMenuOpen(!!v),
+			setControlsOpen: (v) => setControlsOpen(!!v),
+			getCameraState: () => ({pos: {...camPos}, euler: {...camEuler}, orbit, camDistance})
+		};
+
+		/*document.addEventListener("keydown", (e) => {
+			console.log("keydown:" + e.key);
+			if (e.key === "Escape") {
+				console.log("!HIDE");
 			}
+		});*/
 
-			canvasToggle.addEventListener('click', () => setInteractive(!interactive));
-
-			// Keyboard event listener on canvas - always active
-			canvas.addEventListener('keydown', (e) => {
-				console.log("Canvas keydown:" + e.key);
-				if (e.key === "Escape") {
-					console.log("!HIDE from canvas");
-				}
-			});
-
-			// Focus canvas on load to ensure it can receive keyboard events
-			canvas.focus();
-
-			setInteractive(false);
-
-			/* camera controls wiring (UI) */
-			const orbitToggle = document.getElementById('orbitToggle');
-			const posXRange = document.getElementById('posXRange'), posXNum = document.getElementById('posXNum');
-			const posYRange = document.getElementById('posYRange'), posYNum = document.getElementById('posYNum');
-			const posZRange = document.getElementById('posZRange'), posZNum = document.getElementById('posZNum');
-			const pitchRange = document.getElementById('pitchRange'), pitchNum = document.getElementById('pitchNum');
-			const yawRange = document.getElementById('yawRange'), yawNum = document.getElementById('yawNum');
-			const rollRange = document.getElementById('rollRange'), rollNum = document.getElementById('rollNum');
-			const resetBtn = document.getElementById('resetBtn'), applyBtn = document.getElementById('applyBtn');
-
-			function syncUI() {
-				posXRange.value = camPos.x;
-				posXNum.value = camPos.x;
-				posYRange.value = camPos.y;
-				posYNum.value = camPos.y;
-				posZRange.value = camPos.z;
-				posZNum.value = camPos.z;
-				pitchRange.value = camEuler.pitch;
-				pitchNum.value = camEuler.pitch;
-				yawRange.value = camEuler.yaw;
-				yawNum.value = camEuler.yaw;
-				rollRange.value = camEuler.roll;
-				rollNum.value = camEuler.roll;
-				orbitToggle.checked = orbit;
-				const disabled = orbit;
-				[posXRange, posYRange, posZRange, pitchRange, yawRange, rollRange,
-					posXNum, posYNum, posZNum, pitchNum, yawNum, rollNum].forEach(el => el.disabled = disabled);
-			}
-
-			function initRanges() {
-				posXRange.min = -20;
-				posXRange.max = 20;
-				posXRange.step = 0.1;
-				posYRange.min = -20;
-				posYRange.max = 20;
-				posYRange.step = 0.1;
-				posZRange.min = -40;
-				posZRange.max = 40;
-				posZRange.step = 0.1;
-				pitchRange.min = -90;
-				pitchRange.max = 90;
-				pitchRange.step = 0.5;
-				yawRange.min = -180;
-				yawRange.max = 180;
-				yawRange.step = 0.5;
-				rollRange.min = -180;
-				rollRange.max = 180;
-				rollRange.step = 0.5;
-				syncUI();
-			}
-
-			initRanges();
-
-			function wirePair(rangeEl, numEl, onChange) {
-				rangeEl.addEventListener('input', () => {
-					numEl.value = rangeEl.value;
-					onChange(Number(rangeEl.value));
-				});
-				numEl.addEventListener('change', () => {
-					let v = Number(numEl.value);
-					numEl.value = v;
-					rangeEl.value = v;
-					onChange(v);
-				});
-			}
-
-			wirePair(posXRange, posXNum, (v) => {
-				camPos.x = v;
-				orbit = false;
-				syncUI();
-			});
-			wirePair(posYRange, posYNum, (v) => {
-				camPos.y = v;
-				orbit = false;
-				syncUI();
-			});
-			wirePair(posZRange, posZNum, (v) => {
-				camPos.z = v;
-				camDistance = v;
-				orbit = false;
-				syncUI();
-			});
-			wirePair(pitchRange, pitchNum, (v) => {
-				camEuler.pitch = v;
-				orbit = false;
-				syncUI();
-			});
-			wirePair(yawRange, yawNum, (v) => {
-				camEuler.yaw = v;
-				orbit = false;
-				syncUI();
-			});
-			wirePair(rollRange, rollNum, (v) => {
-				camEuler.roll = v;
-				orbit = false;
-				syncUI();
-			});
-
-			orbitToggle.addEventListener('change', () => {
-				orbit = orbitToggle.checked;
-				if (orbit) {
-					orbitAzimuth = toRad(camEuler.yaw);
-					orbitElevation = toRad(camEuler.pitch);
-					camDistance = camPos.z;
-				} else {
-					camPos.z = camDistance;
-				}
-				syncUI();
-			});
-
-			resetBtn.addEventListener('click', () => {
-				camPos = { x: 2.6, y: 0, z: 6 };
-				camEuler = { pitch: 0, yaw: 180, roll: 0 };
-				camDistance = camPos.z;
-				orbit = false;
-				syncUI();
-			});
-			applyBtn.addEventListener('click', () => {
-				orbit = false;
-				camDistance = camPos.z;
-				syncUI();
-			});
-
-			/* expose debug helpers */
-			window._debug = {
-				setInteractive,
-				setDomMenuOpen: (v) => setDomMenuOpen(!!v),
-				setControlsOpen: (v) => setControlsOpen(!!v),
-				getCameraState: () => ({ pos: { ...camPos }, euler: { ...camEuler }, orbit, camDistance })
-			};
-
-			/*document.addEventListener("keydown", (e) => {
-				console.log("keydown:" + e.key);
-				if (e.key === "Escape") {
-					console.log("!HIDE");
-				}
-			});*/
-
-		})();
-	</script>
+	})();
+</script>
 </body>
 
 </html>

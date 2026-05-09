@@ -1691,11 +1691,11 @@ internal static partial class Program
 	static Program()
 	{
 		// Include .css, .html, .js, .lua, .toml but exclude .tests.lua using negative lookahead
-		ZipFilesFilterRegex = new(@"(?!.*\.tests?\.lua$)\.(css|html|js|lua|toml)$", RegexFlags); // TODO/CONS: add .md?
-		ZipAdditionalFilesRegex = new(@"/(LICENSE|README\.md)$", RegexFlags);
+		ZipFilesFilterRegex = new(@"(?!.*\.tests?\.lua$)\.(css|html|js|lua|md|toml)$", RegexFlags);
+		ZipAdditionalFilesRegex = new(@"/(LICENSE)$", RegexFlags); // |README\.md
 		ZipFilterRegexes = [ZipFilesFilterRegex, ZipAdditionalFilesRegex];
 		ZipCompileFilesFilterRegex = new(@"(?!.*(examples?|\.tests?)\.lua$)\.(css|html|js|lua|toml)$", RegexFlags);
-		ZipCompileAdditionalFilesRegex = new("/(LICENSE)$", RegexFlags);
+		ZipCompileAdditionalFilesRegex = new(@"/(LICENSE)$", RegexFlags);
 		ZipCompileModeFilterRegexes = [ZipCompileFilesFilterRegex, ZipCompileAdditionalFilesRegex];
 		var executingAssembly = Assembly.GetExecutingAssembly();
 		ToolVersion =

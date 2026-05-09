@@ -16,6 +16,11 @@ local ConsoleWebUI = _G.ConsoleWebUI
 
 -- Create Console instance
 local console = console_lib.Console.new()
+-- Create IntelliSense instance for the console
+local intellisense = console_lib.IntelliSense.new(console)
+
+-- Realm management
+local currentRealm = "client" -- Default to client realm
 
 -- Define themes for theme command
 local themes = { "amber", "arctic", "aurora", "bloodmoon", "cyberpunk", "matrix", "midnight", "glass" }
@@ -28,8 +33,8 @@ console:register({
 		{ name = "name", type = "enum", optional = true, choices = themes, desc = "Theme name" }
 	},
 	handler = function(ctx, args)
-		local themeName = args.name
-		if not themeName then
+		local themeName = args.name and args.name:match("^%s*(.-)%s*$") or ""
+		if not themeName or themeName == "" then
 			M.Info("Available themes: " .. table.concat(themes, ", "))
 			return
 		end
@@ -85,7 +90,7 @@ console:register({
 	name = "version",
 	desc = "Show version info",
 	handler = function(ctx, args)
-		M.Info("Console Engine v0.1")
+		M.Info("Console Engine v0.2")
 	end
 })
 
@@ -108,7 +113,7 @@ console:register({
 	name = "about",
 	desc = "About this console",
 	handler = function(ctx, args)
-		M.Info("Console Engine v0.1")
+		M.Info("Console Engine v0.2")
 		M.Info("Press Tab for autocomplete, Up/Down arrow for history.")
 	end
 })
@@ -118,10 +123,58 @@ console:register({
 	name = "echo",
 	desc = "Print text to console",
 	args = {
-		{ name = "text", type = "string", optional = false, desc = "Text to echo" }
+		{ name = "text", type = "string", optional = true, desc = "Text to echo" }
 	},
 	handler = function(ctx, args)
-		M.Info(args.text or "")
+		local result = args.text or ""
+		if args._rest then
+			result = result .. " " .. table.concat(args._rest, " ")
+		end
+		M.Info(result)
+	end
+})
+
+-- Register realm command
+console:register({
+	name = "realm",
+	desc = "Switch between CLIENT and SERVER output realms",
+	aliases = { "client", "server" },
+	args = {
+		{ name = "name", type = "enum", optional = true, choices = { "client", "server" }, desc = "Realm name (client or server)" }
+	},
+	handler = function(ctx, args)
+		-- Handle aliases - if command is "client" or "server", switch to that realm directly
+		local cmdName = ctx.command or "realm"
+		if cmdName == "client" then
+			if ConsoleWebUI then
+				ConsoleWebUI:CallEvent("OnRealmChanged", "client")
+			end
+			M.Success("Switched to CLIENT realm")
+			return
+		elseif cmdName == "server" then
+			if ConsoleWebUI then
+				ConsoleWebUI:CallEvent("OnRealmChanged", "server")
+			end
+			M.Success("Switched to SERVER realm")
+			return
+		end
+
+		-- Handle regular realm command with arguments
+		if not args.name then
+			M.Info("Current realm: " .. currentRealm:upper())
+			M.Info("Available realms: client, server")
+			M.Info("Usage: realm <client|server>")
+			M.Info("Shorthands: 'client' or 'server' commands")
+		else
+			if args.name == "client" or args.name == "server" then
+				if ConsoleWebUI then
+					ConsoleWebUI:CallEvent("OnRealmChanged", args.name)
+				end
+				M.Success("Switched to " .. args.name:upper() .. " realm")
+			else
+				M.Error("Invalid realm. Use 'client' or 'server'")
+			end
+		end
 	end
 })
 
@@ -214,6 +267,12 @@ function M.Initialize()
 			Client.CopyToClipboard(text)
 		end)
 
+		-- Handle realm changes from JS
+		ConsoleWebUI:Subscribe("OnRealmChanged", function(realm)
+			currentRealm = realm
+			-- M.Info("Realm changed to: " .. realm)
+		end)
+
 		-- Handle command execution from JS
 		ConsoleWebUI:Subscribe("OnCommand", function(name, args)
 			-- Debug: Log command execution attempt
@@ -274,8 +333,8 @@ function M.Initialize()
 
 		-- Handle autocomplete requests from JS
 		ConsoleWebUI:Subscribe("GetAutocomplete", function(line, caret)
+			-- Use simple suggest function for now to avoid IntelliSense bugs
 			local suggestions = console:suggest(line, 8)
-			-- print("Autocomplete requested: line=" .. line .. " caret=" .. caret .. " suggestions=" .. #suggestions)
 
 			-- Convert suggestions to the format expected by JavaScript
 			local formatted_suggestions = {}
@@ -303,13 +362,15 @@ function M.Initialize()
 
 		ConsoleWebUI:Subscribe("OnConsoleOpened", function()
 			-- Console is now open and interactive
-			Input.SetInputEnabled(true)
+			-- Disable game input to prevent interference
+			Input.SetInputEnabled(false)
 			Input.SetMouseEnabled(true)
 		end)
 
 		ConsoleWebUI:Subscribe("OnConsoleClosed", function()
 			-- Console is now closed - hide it and disable mouse
 			ConsoleWebUI:SetVisibility(WidgetVisibility.Hidden)
+			-- Re-enable game input
 			Input.SetInputEnabled(true)
 			Input.SetMouseEnabled(false)
 		end)
@@ -318,6 +379,18 @@ function M.Initialize()
 			-- Just toggle closed - let JavaScript handle the UI state
 			M.Toggle(false)
 		end)
+	end)
+
+	--Input.Subscribe("KeyDown", function(key_name, delta)
+	--	if ConsoleWebUI:GetVisibility() == WidgetVisibility.Visible and not Input.IsInputEnabled() then
+	--		return false
+	--	end
+	--end)
+
+	Input.Subscribe("KeyPress", function(key_name, delta)
+		if ConsoleWebUI:GetVisibility() == WidgetVisibility.Visible and not Input.IsInputEnabled() then
+			return false
+		end
 	end)
 
 	Bind.RegisterCommand("console", function()
@@ -330,40 +403,89 @@ function M.Initialize()
 end
 
 -- Logging functions
-function M.Log(type, text)
+function M.Log(type, text, realm)
 	if ConsoleWebUI then
-		ConsoleWebUI:CallEvent("log", type, text)
+		ConsoleWebUI:CallEvent("log", type, text, realm or currentRealm)
 	end
 end
 
-function M.Info(text)
+function M.Info(text, realm)
 	if ConsoleWebUI then
-		ConsoleWebUI:CallEvent("info", text)
+		ConsoleWebUI:CallEvent("info", text, realm or currentRealm)
 	end
 end
 
-function M.Warn(text)
+function M.Warn(text, realm)
 	if ConsoleWebUI then
-		ConsoleWebUI:CallEvent("warn", text)
+		ConsoleWebUI:CallEvent("warn", text, realm or currentRealm)
 	end
 end
 
-function M.Error(text)
+function M.Error(text, realm)
 	if ConsoleWebUI then
-		ConsoleWebUI:CallEvent("error", text)
+		ConsoleWebUI:CallEvent("error", text, realm or currentRealm)
 	end
 end
 
-function M.Debug(text)
+function M.Debug(text, realm)
 	if ConsoleWebUI then
-		ConsoleWebUI:CallEvent("debug", text)
+		ConsoleWebUI:CallEvent("debug", text, realm or currentRealm)
 	end
 end
 
-function M.Success(text)
+function M.Success(text, realm)
 	if ConsoleWebUI then
-		ConsoleWebUI:CallEvent("success", text)
+		ConsoleWebUI:CallEvent("success", text, realm or currentRealm)
 	end
+end
+
+-- Realm-specific logging functions
+function M.ClientLog(type, text)
+	M.Log(type, text, "client")
+end
+
+function M.ClientInfo(text)
+	M.Info(text, "client")
+end
+
+function M.ClientWarn(text)
+	M.Warn(text, "client")
+end
+
+function M.ClientError(text)
+	M.Error(text, "client")
+end
+
+function M.ClientDebug(text)
+	M.Debug(text, "client")
+end
+
+function M.ClientSuccess(text)
+	M.Success(text, "client")
+end
+
+function M.ServerLog(type, text)
+	M.Log(type, text, "server")
+end
+
+function M.ServerInfo(text)
+	M.Info(text, "server")
+end
+
+function M.ServerWarn(text)
+	M.Warn(text, "server")
+end
+
+function M.ServerError(text)
+	M.Error(text, "server")
+end
+
+function M.ServerDebug(text)
+	M.Debug(text, "server")
+end
+
+function M.ServerSuccess(text)
+	M.Success(text, "server")
 end
 
 -- Console control

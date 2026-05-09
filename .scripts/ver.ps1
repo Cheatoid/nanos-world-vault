@@ -228,7 +228,9 @@ if ($release)
 	$versionFile = Join-Path $PSScriptRoot "..\VERSION"
 	if (Test-Path $versionFile)
 	{
-		Set-Content $versionFile "$LatestTag" -NoNewline
+		# Ensure no trailing newline
+		$LatestTag = $LatestTag.Trim()
+		Set-Content $versionFile $LatestTag -NoNewline
 		git add $versionFile
 		git commit -m "Update VERSION for release: $LatestTag"
 		Write-Host "Updated VERSION file to: $LatestTag"

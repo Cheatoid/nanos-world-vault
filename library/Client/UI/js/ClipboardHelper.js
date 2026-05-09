@@ -49,7 +49,7 @@
 	// Normalize clipboard item to a friendly object
 	async function normalizeClipboardData(clipboardData) {
 		// clipboardData may be DataTransfer (paste event) or array of ClipboardItem (navigator.clipboard.read)
-		const out = { text: null, html: null, items: [], raw: clipboardData };
+		const out = {text: null, html: null, items: [], raw: clipboardData};
 		try {
 			if (!clipboardData) return out;
 
@@ -75,7 +75,7 @@
 						if (t === 'text/plain' || t === 'text/html') continue;
 						try {
 							const d = clipboardData.getData(t);
-							if (d) out.items.push({ kind: 'string', type: t, data: d });
+							if (d) out.items.push({kind: 'string', type: t, data: d});
 						} catch (e) { /* ignore */
 						}
 					}
@@ -94,9 +94,9 @@
 								const txt = await blob.text();
 								if (type === 'text/html') out.html = out.html || txt;
 								else out.text = out.text || txt;
-								out.items.push({ kind: 'string', type, data: txt });
+								out.items.push({kind: 'string', type, data: txt});
 							} else {
-								out.items.push({ kind: 'blob', type, blob });
+								out.items.push({kind: 'blob', type, blob});
 							}
 						} catch (e) {
 							// ignore individual type failures
@@ -224,7 +224,7 @@
 		}
 
 		// 4) Nothing worked
-		const empty = { text: null, html: null, items: [], source: 'unavailable', timestamp: Date.now() };
+		const empty = {text: null, html: null, items: [], source: 'unavailable', timestamp: Date.now()};
 		lastClipboard = empty;
 		emitter.emit('read', empty);
 		return empty;
@@ -242,7 +242,7 @@
 			// optional: warm up permission query (non-blocking)
 			if (navigator.permissions && navigator.clipboard && navigator.clipboard.readText) {
 				try {
-					navigator.permissions.query({ name: 'clipboard-read' }).then(() => {
+					navigator.permissions.query({name: 'clipboard-read'}).then(() => {
 					}).catch(() => {
 					});
 				} catch (e) { /* ignore */

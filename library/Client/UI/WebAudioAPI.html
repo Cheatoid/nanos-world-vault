@@ -128,7 +128,7 @@ License: MIT
 				const buffer = await this.loadSoundToCache(url);
 
 				// Virtualization: if initial position is far, we can mark as virtual
-				const initialPos = options.position || { x: 0, y: 0, z: 0 };
+				const initialPos = options.position || {x: 0, y: 0, z: 0};
 				const dist = Math.hypot(initialPos.x, initialPos.y, initialPos.z);
 				const isVirtual = dist > this.virtualizationDistance;
 
@@ -204,7 +204,7 @@ License: MIT
 				if (this.reverbIRCache.has(name)) {
 					return this.reverbIRCache.get(name);
 				}
-				const { irUrl } = this.acousticSpaces[name];
+				const {irUrl} = this.acousticSpaces[name];
 				const res = await fetch(irUrl);
 				const buf = await res.arrayBuffer();
 				const audioBuf = await this.ctx.decodeAudioData(buf);
@@ -222,14 +222,14 @@ License: MIT
 
 				this.source = null;
 
-				this.position = { x: 0, y: 0, z: 0 };
+				this.position = {x: 0, y: 0, z: 0};
 				if (options.position) {
 					this.position.x = options.position.x || 0;
 					this.position.y = options.position.y || 0;
 					this.position.z = options.position.z || 0;
 				}
 
-				this.velocity = { x: 0, y: 0, z: 0 }; // for Doppler
+				this.velocity = {x: 0, y: 0, z: 0}; // for Doppler
 
 				this.loop = options.loop ?? false;
 				this.pitch = options.pitch ?? 1.0;

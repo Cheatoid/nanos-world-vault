@@ -7,12 +7,12 @@ License: MIT
 <html lang="en">
 
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<link
 		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
-		rel="stylesheet" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+		rel="stylesheet"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
 	<style>
 		/* ========== CSS Variables / Theme System ========== */
 		:root {
@@ -108,6 +108,8 @@ License: MIT
 			--cmd-color: #00d4aa;
 			--scrollbar-thumb: #1e2d3a;
 			--scrollbar-track: #0f1419;
+			--scrollbar-thumb-hover: #2a3d4e;
+			--scrollbar-thumb-active: #3a4d5e;
 			--glow-color: #00d4aa15;
 			--badge-bg: #00d4aa20;
 			--overlay-bg: #0f1419e0;
@@ -139,12 +141,19 @@ License: MIT
 			--cmd-color: #ff2020;
 			--scrollbar-thumb: #3d1515;
 			--scrollbar-track: #0a0404;
+			--scrollbar-thumb-hover: #5d2020;
+			--scrollbar-thumb-active: #7d3030;
 			--glow-color: #ff2008;
 			--badge-bg: #ff202018;
 			--overlay-bg: #0a0404e0;
 			--header-bg: linear-gradient(180deg, #1a0a0a 0%, #0a0404 100%);
 			--particle-color: #ff2020;
 			--selection-color: #ff202040;
+		}
+
+		/* Fix bloodmoon theme hover brightness */
+		[data-theme="bloodmoon"] .msg-entry:hover {
+			background: rgba(255, 32, 32, 0.1);
 		}
 
 		/* Theme: Cyberpunk */
@@ -170,6 +179,8 @@ License: MIT
 			--cmd-color: #e040fb;
 			--scrollbar-thumb: #2a1a3d;
 			--scrollbar-track: #08080f;
+			--scrollbar-thumb-hover: #3a2a4d;
+			--scrollbar-thumb-active: #4a3a5d;
 			--glow-color: #e040fb10;
 			--badge-bg: #e040fb20;
 			--overlay-bg: #08080fe0;
@@ -201,6 +212,8 @@ License: MIT
 			--cmd-color: #00ff41;
 			--scrollbar-thumb: #003a00;
 			--scrollbar-track: #000a00;
+			--scrollbar-thumb-hover: #004a00;
+			--scrollbar-thumb-active: #005a00;
 			--glow-color: #00ff4108;
 			--badge-bg: #00ff4118;
 			--overlay-bg: #000a00e0;
@@ -232,6 +245,8 @@ License: MIT
 			--cmd-color: #007acc;
 			--scrollbar-thumb: #2a2c2f;
 			--scrollbar-track: #121315;
+			--scrollbar-thumb-hover: #3a3c3f;
+			--scrollbar-thumb-active: #4a4c4f;
 			--glow-color: #4fc1ff12;
 			--badge-bg: #007acc25;
 			--overlay-bg: #121315e0;
@@ -263,6 +278,8 @@ License: MIT
 			--cmd-color: #00d4ff;
 			--scrollbar-thumb: rgba(100, 180, 255, 0.6);
 			--scrollbar-track: #0a0e18;
+			--scrollbar-thumb-hover: rgba(120, 200, 255, 0.8);
+			--scrollbar-thumb-active: rgba(140, 220, 255, 0.9);
 			--glow-color: rgba(0, 212, 255, 0.6);
 			--badge-bg: rgba(0, 212, 255, 0.6);
 			--overlay-bg: rgba(10, 14, 24, 0.6);
@@ -278,6 +295,36 @@ License: MIT
 			box-sizing: border-box;
 			margin: 0;
 			padding: 0;
+		}
+
+		/* Disable user selection on non-input controls */
+		button, .header-btn, .filter-chip, .theme-toggle-btn,
+		.auto-scroll-toggle, .regex-toggle, .console-toggle,
+		.msg-action-btn, .welcome-close, .theme-option,
+		.welcome-banner, .welcome-banner h2, .welcome-banner p,
+		.welcome-banner kbd, .console-header, .header-stats,
+		.console-toolbar, .search-box, .input-wrapper,
+		.input-prompt, .enter-button, .empty-state {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+
+		/* Allow selection only on actual message text and input content */
+		.msg-text, .console-input:focus, .console-input:not(:placeholder-shown) {
+			-webkit-user-select: text;
+			-moz-user-select: text;
+			-ms-user-select: text;
+			user-select: text;
+		}
+
+		/* Prevent selection of placeholder text */
+		.console-input::placeholder, .search-input::placeholder {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
 		}
 
 		/* ========== Text Selection ========== */
@@ -297,7 +344,7 @@ License: MIT
 			font-family: var(--console-font);
 			color: var(--text-primary);
 			transition: background var(--transition-speed),
-				color var(--transition-speed);
+			color var(--transition-speed);
 		}
 
 		/* ========== Scrollbar ========== */
@@ -350,7 +397,7 @@ License: MIT
 			position: fixed;
 			bottom: 24px;
 			right: 24px;
-			z-index: 1000;
+			z-index: 1001;
 			width: 52px;
 			height: 52px;
 			border: 1px solid var(--border-color);
@@ -364,7 +411,7 @@ License: MIT
 			justify-content: center;
 			transition: all var(--transition-speed);
 			box-shadow: 0 0 20px var(--glow-color),
-				0 4px 12px rgba(0, 0, 0, 0.4);
+			0 4px 12px rgba(0, 0, 0, 0.4);
 		}
 
 		.console-toggle:hover {
@@ -372,7 +419,7 @@ License: MIT
 			border-color: var(--accent);
 			transform: scale(1.08);
 			box-shadow: 0 0 30px var(--border-glow),
-				0 4px 16px rgba(0, 0, 0, 0.5);
+			0 4px 16px rgba(0, 0, 0, 0.5);
 		}
 
 		.console-toggle .badge {
@@ -399,16 +446,38 @@ License: MIT
 			transform: scale(1);
 		}
 
+		/* Hide toggle button when console is open */
+		.console-container.open {
+			/* Console is open - hide toggle button */
+		}
+
+		.console-container.open ~ .console-toggle,
+		body > .console-toggle {
+			opacity: 0;
+			transform: scale(0.8);
+			pointer-events: none;
+		}
+
+		/* Show toggle button when console is closed */
+		.console-container:not(.open) ~ .console-toggle,
+		.console-container:not(.open) + .console-toggle {
+			opacity: 1;
+			transform: scale(1);
+			pointer-events: all;
+		}
+
 		/* ========== Console Container ========== */
 		.console-container {
 			position: fixed;
 			bottom: -70vh;
 			left: calc(50% - min(48vw, 550px));
 			width: min(96vw, 1100px);
+			min-width: 640px;
 			height: 70vh;
 			min-height: 400px;
 			max-height: 85vh;
 			z-index: 999;
+			pointer-events: auto;
 			display: flex;
 			flex-direction: column;
 			border: 1px solid var(--border-color);
@@ -416,10 +485,9 @@ License: MIT
 			border-radius: var(--console-radius) var(--console-radius) 0 0;
 			background: var(--bg-primary);
 			box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6),
-				0 0 60px var(--glow-color),
-				inset 0 1px 0 var(--border-glow);
-			transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-				opacity 0.4s ease;
+			0 0 60px var(--glow-color),
+			inset 0 1px 0 var(--border-glow);
+			transition: opacity 0.4s ease;
 			opacity: 0;
 			overflow: hidden;
 		}
@@ -432,6 +500,97 @@ License: MIT
 		.console-container.open {
 			bottom: 0;
 			opacity: 1;
+		}
+
+		/* Resize handles */
+		.resize-handle {
+			position: absolute;
+			background: transparent;
+			z-index: 1001;
+		}
+
+		.resize-handle.resize-n {
+			top: 0;
+			left: 8px;
+			right: 8px;
+			height: 4px;
+			cursor: ns-resize;
+		}
+
+		.resize-handle.resize-ne {
+			top: 0;
+			right: 0;
+			width: 8px;
+			height: 8px;
+			cursor: nesw-resize;
+		}
+
+		.resize-handle.resize-e {
+			top: 8px;
+			right: 0;
+			bottom: 8px;
+			width: 4px;
+			cursor: ew-resize;
+		}
+
+		.resize-handle.resize-se {
+			bottom: 0;
+			right: 0;
+			width: 8px;
+			height: 8px;
+			cursor: nwse-resize;
+		}
+
+		.resize-handle.resize-s {
+			bottom: 0;
+			left: 8px;
+			right: 8px;
+			height: 4px;
+			cursor: ns-resize;
+		}
+
+		.resize-handle.resize-sw {
+			bottom: 0;
+			left: 0;
+			width: 8px;
+			height: 8px;
+			cursor: nesw-resize;
+		}
+
+		.resize-handle.resize-w {
+			top: 8px;
+			left: 0;
+			bottom: 8px;
+			width: 4px;
+			cursor: ew-resize;
+		}
+
+		.resize-handle.resize-nw {
+			top: 0;
+			left: 0;
+			width: 8px;
+			height: 8px;
+			cursor: nwse-resize;
+		}
+
+		/* Hide resize handles when maximized */
+		.console-container.maximized .resize-handle {
+			display: none;
+		}
+
+		/* Add visual feedback on hover */
+		.resize-handle:hover {
+			background: var(--accent-dim);
+		}
+
+		.resize-handle.resize-n:hover,
+		.resize-handle.resize-s:hover {
+			background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+		}
+
+		.resize-handle.resize-e:hover,
+		.resize-handle.resize-w:hover {
+			background: linear-gradient(180deg, transparent, var(--accent-dim), transparent);
 		}
 
 		.console-container.maximized {
@@ -561,6 +720,168 @@ License: MIT
 			border-color: #ff202030;
 		}
 
+		.header-btn#clearBtn:hover {
+			color: #ff8c00;
+			background: #ff8c0015;
+			border-color: #ff8c0030;
+		}
+
+		/* ========== Client/Server Toggle ========== */
+		.realm-toggle {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 4px 8px;
+			border-radius: 4px;
+			background: var(--bg-tertiary);
+			border: 1px solid var(--border-color);
+			margin-left: 12px;
+		}
+
+		.realm-toggle-label {
+			font-size: 10px;
+			font-weight: 600;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		.realm-toggle-checkbox {
+			position: relative;
+			width: 60px;
+			height: 24px;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border-color);
+			border-radius: 12px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.realm-toggle-checkbox:hover {
+			border-color: var(--accent);
+		}
+
+		.realm-toggle-slider {
+			position: absolute;
+			top: 1px;
+			left: 2px;
+			width: 20px;
+			height: 20px;
+			background: var(--text-muted);
+			border-radius: 50%;
+			transition: all 0.3s ease;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 10px;
+			font-weight: 700;
+			color: var(--bg-primary);
+		}
+
+		.realm-toggle-checkbox.server .realm-toggle-slider {
+			left: 38px;
+			background: var(--accent);
+		}
+
+		.realm-toggle-checkbox.client .realm-toggle-slider {
+			left: 2px;
+			background: var(--info-color);
+		}
+
+		/* ========== Enhanced Scrollbar ========== */
+		.console-output {
+			scrollbar-width: thick;
+			scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+		}
+
+		.console-output::-webkit-scrollbar {
+			width: 12px;
+		}
+
+		.console-output::-webkit-scrollbar-track {
+			background: var(--scrollbar-track);
+			border-radius: 6px;
+		}
+
+		.console-output::-webkit-scrollbar-thumb {
+			background: var(--scrollbar-thumb);
+			border-radius: 6px;
+			border: 2px solid var(--scrollbar-track);
+			transition: all 0.3s ease;
+			opacity: 0.7;
+		}
+
+		.console-output::-webkit-scrollbar-thumb:hover {
+			background: var(--scrollbar-thumb-hover);
+			opacity: 1;
+		}
+
+		.console-output::-webkit-scrollbar-thumb:active {
+			background: var(--scrollbar-thumb-active);
+		}
+
+		/* Scrollbar fade animation */
+		.console-output.fade-scrollbar::-webkit-scrollbar-thumb {
+			opacity: 0.3;
+			transition: opacity 0.5s ease;
+		}
+
+		.console-output.fade-scrollbar:hover::-webkit-scrollbar-thumb {
+			opacity: 0.7;
+		}
+
+		.console-output.fade-scrollbar::-webkit-scrollbar-thumb:hover {
+			opacity: 1;
+		}
+
+		/* ========== Custom Tooltip ========== */
+		.custom-tooltip {
+			position: absolute;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border-color);
+			border-radius: var(--console-radius);
+			padding: 6px 10px;
+			font-size: 11px;
+			font-family: var(--console-font);
+			font-weight: 500;
+			color: var(--text-secondary);
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4),
+			0 0 0 1px var(--border-glow),
+			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+			z-index: 10000;
+			opacity: 0;
+			transform: translateY(-8px) scale(0.95);
+			transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+			transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+			pointer-events: none;
+			white-space: nowrap;
+			max-width: 300px;
+			backdrop-filter: blur(8px);
+		}
+
+		.custom-tooltip.visible {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+		}
+
+
+		/* Theme-specific tooltip enhancements */
+		[data-theme="glass"] .custom-tooltip {
+			background: rgba(20, 20, 30, 0.9);
+			backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+
+		[data-theme="matrix"] .custom-tooltip {
+			background: #0a0a0a;
+			border-color: #00ff41;
+			color: #00ff41;
+			box-shadow: 0 0 20px rgba(0, 255, 65, 0.3),
+			0 0 0 1px #00ff41;
+		}
+
+
 		/* ========== Toolbar ========== */
 		.console-toolbar {
 			display: flex;
@@ -609,24 +930,42 @@ License: MIT
 
 		.search-box {
 			flex: 1;
-			min-width: 140px;
+			min-width: 220px;
 			position: relative;
 		}
 
-		.search-box i {
+		.search-icon-btn {
 			position: absolute;
-			left: 10px;
+			left: 3px;
 			top: 50%;
 			transform: translateY(-50%);
+			background: none;
+			border: none;
 			color: var(--text-muted);
 			font-size: 12px;
-			pointer-events: none;
-			transition: color 0.2s;
+			cursor: pointer;
+			padding: 4px;
+			border-radius: 4px;
+			transition: all 0.2s;
+			opacity: 0.8;
+		}
+
+		.search-icon-btn:hover {
+			color: var(--accent);
+			background: var(--accent-dim);
+			opacity: 1;
+		}
+
+		.search-icon-btn.regex-active {
+			color: var(--accent);
+			background: var(--accent-dim);
+			opacity: 1;
+			font-weight: bold;
 		}
 
 		.search-box input {
 			width: 100%;
-			padding: 5px 10px 5px 30px;
+			padding: 5px 15px 5px 40px;
 			border: 1px solid var(--border-color);
 			border-radius: 4px;
 			background: var(--bg-input);
@@ -646,8 +985,8 @@ License: MIT
 			box-shadow: 0 0 0 2px var(--accent-dim);
 		}
 
-		.search-box input:focus+i,
-		.search-box input:focus~i {
+		.search-box input:focus + i,
+		.search-box input:focus ~ i {
 			color: var(--accent);
 		}
 
@@ -763,13 +1102,40 @@ License: MIT
 			background: var(--accent-dim);
 		}
 
+		.timestamp-toggle {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			padding: 4px 10px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-primary);
+			color: var(--text-muted);
+			font-size: 11px;
+			cursor: pointer;
+			transition: all 0.2s;
+			white-space: nowrap;
+			user-select: none;
+		}
+
+
+		.timestamp-toggle.active {
+			color: var(--accent);
+			border-color: var(--accent);
+			background: var(--accent-dim);
+		}
+
 		/* ========== Output Area ========== */
 		.console-output {
 			flex: 1;
-			overflow-y: auto;
+			overflow-y: scroll;
 			overflow-x: hidden;
 			padding: 8px 0;
 			scroll-behavior: smooth;
+			position: relative;
+			z-index: 1;
+			/* Force scrolling to be visible */
+			min-height: 200px;
 		}
 
 		/* ========== Message Entry ========== */
@@ -944,6 +1310,8 @@ License: MIT
 			border-top: 1px solid var(--border-color);
 			background: var(--bg-secondary);
 			flex-shrink: 0;
+			position: relative;
+			z-index: 2;
 		}
 
 		.input-prompt {
@@ -958,10 +1326,13 @@ License: MIT
 		.input-wrapper {
 			flex: 1;
 			position: relative;
+			display: flex;
+			align-items: center;
+			gap: 6px;
 		}
 
 		.console-input {
-			width: 100%;
+			flex: 1;
 			padding: 6px 12px;
 			border: 1px solid var(--border-color);
 			border-radius: 4px;
@@ -981,7 +1352,86 @@ License: MIT
 		.console-input:focus {
 			border-color: var(--accent);
 			box-shadow: 0 0 0 2px var(--accent-dim),
-				0 0 16px var(--glow-color);
+			0 0 16px var(--glow-color);
+		}
+
+		.console-input.insert-mode {
+			caret-shape: bar;
+		}
+
+		.console-input.overwrite-mode {
+			caret-shape: block;
+		}
+
+		.enter-button {
+			padding: 6px 12px;
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
+			background: var(--bg-secondary);
+			color: var(--text-secondary);
+			font-family: var(--console-font);
+			font-size: 12px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			white-space: nowrap;
+			user-select: none;
+			min-width: 70px;
+			justify-content: center;
+		}
+
+		.enter-button:hover {
+			border-color: var(--accent);
+			background: var(--accent-dim);
+			color: var(--accent);
+			transform: translateY(-1px);
+			box-shadow: 0 2px 8px var(--glow-color);
+		}
+
+		.enter-button:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 4px var(--glow-color);
+		}
+
+		.enter-button i {
+			font-size: 11px;
+		}
+
+		.enter-button:disabled,
+		.enter-button.disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+			pointer-events: none;
+		}
+
+		.enter-button:disabled:hover,
+		.enter-button.disabled:hover {
+			border-color: var(--border-color);
+			background: var(--bg-secondary);
+			color: var(--text-secondary);
+			transform: none;
+			box-shadow: none;
+		}
+
+		/* Responsive adjustments for mobile */
+		@media (max-width: 640px) {
+			.enter-button {
+				padding: 5px 8px;
+				font-size: 11px;
+				min-width: 60px;
+			}
+
+			.enter-button span {
+				display: none;
+			}
+
+			.console-input-area {
+				padding: 6px 10px;
+				gap: 6px;
+			}
 		}
 
 		/* Autocomplete */
@@ -997,7 +1447,7 @@ License: MIT
 			border-radius: 4px;
 			background: var(--bg-secondary);
 			box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-			z-index: 50;
+			z-index: 10;
 			opacity: 0;
 			transform: translateY(4px);
 			pointer-events: none;
@@ -1048,6 +1498,7 @@ License: MIT
 			display: flex;
 			flex-direction: column;
 			gap: 8px;
+			user-select: none;
 		}
 
 		.toast {
@@ -1063,6 +1514,7 @@ License: MIT
 			display: flex;
 			align-items: center;
 			gap: 8px;
+			user-select: none;
 		}
 
 		.toast.removing {
@@ -1096,6 +1548,8 @@ License: MIT
 			border-radius: 6px;
 			background: var(--bg-secondary);
 			animation: msg-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+			max-width: calc(100% - 32px); /* Prevent overflow beyond container */
+			box-sizing: border-box;
 		}
 
 		.welcome-banner h2 {
@@ -1162,6 +1616,24 @@ License: MIT
 			opacity: 0.4;
 		}
 
+		/* ========== Theme Dropdown Chevron Animation ========== */
+		.theme-btn .fa-chevron-up {
+			transition: transform 0.3s ease;
+		}
+
+		.theme-btn[aria-expanded="true"] .fa-chevron-up {
+			animation: chevronRotate 0.3s ease forwards;
+		}
+
+		@keyframes chevronRotate {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(180deg);
+			}
+		}
+
 		/* ========== Reduced Motion ========== */
 		@media (prefers-reduced-motion: reduce) {
 
@@ -1219,407 +1691,958 @@ License: MIT
 </head>
 
 <body data-theme="amber">
-	<!-- Background particle canvas -->
-	<canvas id="bgCanvas" aria-hidden="true"></canvas>
+<!-- Background particle canvas -->
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-	<!-- Toggle button -->
-	<button class="console-toggle" id="toggleBtn" aria-label="Toggle console">
-		<i class="fas fa-terminal"></i>
-		<span class="badge" id="errorBadge">0</span>
-	</button>
+<!-- Toggle button -->
+<button class="console-toggle" id="toggleBtn" aria-label="Toggle console">
+	<i class="fas fa-terminal"></i>
+	<span class="badge" id="errorBadge">0</span>
+</button>
 
-	<!-- Console Container -->
-	<div class="console-container open" id="consoleContainer" role="log" aria-label="Game Console">
-		<!-- Header -->
-		<header class="console-header">
-			<span class="console-title"><span class="dot"></span>Console</span>
-			<div class="header-stats" id="headerStats">
-				<div class="stat-item" title="Total messages">
-					<i class="fas fa-bars-staggered" style="font-size: 10px"></i>
-					<span class="count" id="statTotal">0</span>
-				</div>
-				<div class="stat-item warn-stat" title="Warnings">
-					<i class="fas fa-triangle-exclamation" style="font-size: 10px"></i>
-					<span class="count" id="statWarn">0</span>
-				</div>
-				<div class="stat-item error-stat" title="Errors">
-					<i class="fas fa-circle-xmark" style="font-size: 10px"></i>
-					<span class="count" id="statError">0</span>
-				</div>
-			</div>
-			<div class="header-actions">
-				<button class="header-btn" id="copyAllBtn" title="Copy all logs" aria-label="Copy all logs">
-					<i class="fas fa-copy"></i>
-				</button>
-				<button class="header-btn" id="maximizeBtn" title="Maximize" aria-label="Toggle maximize">
-					<i class="fas fa-expand"></i>
-				</button>
-				<button class="header-btn close-btn" id="closeBtn" title="Close" aria-label="Close console">
-					<i class="fas fa-xmark"></i>
-				</button>
-			</div>
-		</header>
-
-		<!-- Toolbar -->
-		<nav class="console-toolbar" aria-label="Console filters">
-			<button class="filter-chip active" data-filter="all">All</button>
-			<button class="filter-chip" data-filter="log">
-				<span class="chip-dot" style="background: var(--log-color)"></span>Log
-			</button>
-			<button class="filter-chip" data-filter="info">
-				<span class="chip-dot" style="background: var(--info-color)"></span>Info
-			</button>
-			<button class="filter-chip" data-filter="warn">
-				<span class="chip-dot" style="background: var(--warn-color)"></span>Warn
-			</button>
-			<button class="filter-chip" data-filter="error">
-				<span class="chip-dot" style="background: var(--error-color)"></span>Error
-			</button>
-			<button class="filter-chip" data-filter="debug">
-				<span class="chip-dot" style="background: var(--debug-color)"></span>Debug
-			</button>
-			<button class="filter-chip" data-filter="success">
-				<span class="chip-dot" style="background: var(--success-color)"></span>Success
-			</button>
-			<button class="filter-chip" data-filter="cmd">
-				<span class="chip-dot" style="background: var(--cmd-color)"></span>CMD
-			</button>
-
-			<div class="toolbar-sep"></div>
-
-			<div class="search-box">
-				<input type="text" id="searchInput" placeholder="Search logs..." aria-label="Search logs" />
-				<i class="fas fa-search"></i>
-			</div>
-
-			<div class="toolbar-sep"></div>
-
-			<button class="auto-scroll-toggle active" id="autoScrollBtn" aria-label="Toggle auto-scroll">
-				<i class="fas fa-arrow-down" style="font-size: 10px"></i>
-				Auto-scroll
-			</button>
-
-			<div class="theme-selector">
-				<button class="theme-btn" id="themeToggleBtn" aria-label="Select theme" aria-haspopup="true"
-					aria-expanded="false">
-					<span class="theme-swatch" id="currentSwatch" style="background: #d4a017"></span>
-					Theme
-					<i class="fas fa-chevron-up" style="font-size: 9px"></i>
-				</button>
-				<div class="theme-dropdown" id="themeDropdown" role="menu">
-					<div class="theme-option active" data-theme="amber" role="menuitem">
-						<span class="swatch" style="background: #d4a017"></span> Amber
-					</div>
-					<div class="theme-option" data-theme="arctic" role="menuitem">
-						<span class="swatch" style="background: #0891b2"></span> Arctic
-					</div>
-					<div class="theme-option" data-theme="aurora" role="menuitem">
-						<span class="swatch" style="background: #00d4aa"></span> Aurora
-					</div>
-					<div class="theme-option" data-theme="bloodmoon" role="menuitem">
-						<span class="swatch" style="background: #ff2020"></span> Blood Moon
-					</div>
-					<div class="theme-option" data-theme="cyberpunk" role="menuitem">
-						<span class="swatch" style="background: #e040fb"></span> Cyberpunk
-					</div>
-					<div class="theme-option" data-theme="matrix" role="menuitem">
-						<span class="swatch" style="background: #00ff41"></span> Matrix
-					</div>
-					<div class="theme-option" data-theme="midnight" role="menuitem">
-						<span class="swatch" style="background: #4fc1ff"></span> Midnight
-					</div>
-					<div class="theme-option" data-theme="glass" role="menuitem">
-						<span class="swatch" style="background: #00d4ff"></span> Glass
-					</div>
-				</div>
-			</div>
-		</nav>
-
-		<!-- Output -->
-		<main class="console-output" id="consoleOutput" aria-live="polite"></main>
-
-		<!-- Input -->
-		<div class="console-input-area">
-			<span class="input-prompt">&gt;</span>
-			<div class="input-wrapper">
-				<input type="text" class="console-input" id="consoleInput" placeholder="Type a command..."
-					autocomplete="off" spellcheck="false" aria-label="Command input" />
-				<div class="autocomplete" id="autocomplete" role="listbox"></div>
+<!-- Console Container -->
+<div class="console-container open" id="consoleContainer" role="log" aria-label="Game Console">
+	<!-- Resize handles -->
+	<div class="resize-handle resize-n" data-direction="n"></div>
+	<div class="resize-handle resize-ne" data-direction="ne"></div>
+	<div class="resize-handle resize-e" data-direction="e"></div>
+	<div class="resize-handle resize-se" data-direction="se"></div>
+	<div class="resize-handle resize-s" data-direction="s"></div>
+	<div class="resize-handle resize-sw" data-direction="sw"></div>
+	<div class="resize-handle resize-w" data-direction="w"></div>
+	<div class="resize-handle resize-nw" data-direction="nw"></div>
+	<!-- Header -->
+	<header class="console-header">
+		<span class="console-title"><span class="dot"></span>Console</span>
+		<div class="realm-toggle">
+			<span class="realm-toggle-label">Realm:</span>
+			<div class="realm-toggle-checkbox client" id="realmToggle"
+			     title="Switch between CLIENT and SERVER output realms">
+				<div class="realm-toggle-slider">C</div>
 			</div>
 		</div>
+		<div class="header-stats" id="headerStats">
+			<div class="stat-item" title="Total messages">
+				<i class="fas fa-bars-staggered" style="font-size: 10px"></i>
+				<span class="count" id="statTotal">0</span>
+			</div>
+			<div class="stat-item warn-stat" title="Warnings">
+				<i class="fas fa-triangle-exclamation" style="font-size: 10px"></i>
+				<span class="count" id="statWarn">0</span>
+			</div>
+			<div class="stat-item error-stat" title="Errors">
+				<i class="fas fa-circle-xmark" style="font-size: 10px"></i>
+				<span class="count" id="statError">0</span>
+			</div>
+		</div>
+		<div class="header-actions">
+			<button class="header-btn" id="clearBtn" title="Double-click to clear console"
+			        aria-label="Double-click to clear console">
+				<i class="fas fa-trash"></i>
+			</button>
+			<button class="header-btn" id="copyAllBtn" title="Copy all logs" aria-label="Copy all logs">
+				<i class="fas fa-copy"></i>
+			</button>
+			<button class="header-btn" id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">
+				<i class="fas fa-search-minus"></i>
+			</button>
+			<button class="header-btn" id="zoomInBtn" title="Zoom in" aria-label="Zoom in">
+				<i class="fas fa-search-plus"></i>
+			</button>
+			<button class="header-btn" id="maximizeBtn" title="Maximize" aria-label="Toggle maximize">
+				<i class="fas fa-expand"></i>
+			</button>
+			<button class="header-btn close-btn" id="closeBtn" title="Close" aria-label="Close console">
+				<i class="fas fa-xmark"></i>
+			</button>
+		</div>
+	</header>
+
+	<!-- Toolbar -->
+	<nav class="console-toolbar" aria-label="Console filters">
+		<button class="filter-chip active" data-filter="all">All</button>
+		<button class="filter-chip" data-filter="log">
+			<span class="chip-dot" style="background: var(--log-color)"></span>Log
+		</button>
+		<button class="filter-chip" data-filter="info">
+			<span class="chip-dot" style="background: var(--info-color)"></span>Info
+		</button>
+		<button class="filter-chip" data-filter="warn">
+			<span class="chip-dot" style="background: var(--warn-color)"></span>Warn
+		</button>
+		<button class="filter-chip" data-filter="error">
+			<span class="chip-dot" style="background: var(--error-color)"></span>Error
+		</button>
+		<button class="filter-chip" data-filter="debug">
+			<span class="chip-dot" style="background: var(--debug-color)"></span>Debug
+		</button>
+		<button class="filter-chip" data-filter="success">
+			<span class="chip-dot" style="background: var(--success-color)"></span>Success
+		</button>
+		<button class="filter-chip" data-filter="cmd">
+			<span class="chip-dot" style="background: var(--cmd-color)"></span>CMD
+		</button>
+
+		<div class="toolbar-sep"></div>
+
+		<div class="search-box">
+			<button class="search-icon-btn" id="searchIcon" title="Toggle regex search"
+			        aria-label="Toggle regex search">
+				<i class="fas fa-search"></i>
+			</button>
+			<input type="text" id="searchInput" placeholder="Search logs..." aria-label="Search logs"/>
+		</div>
+
+		<div class="toolbar-sep"></div>
+
+		<button class="auto-scroll-toggle active" id="autoScrollBtn" aria-label="Toggle auto-scroll">
+			<i class="fas fa-arrow-down" style="font-size: 10px"></i>
+			Auto-scroll
+		</button>
+
+		<button class="timestamp-toggle active" id="timestampBtn" aria-label="Toggle timestamps">
+			<i class="fas fa-clock" style="font-size: 10px"></i>
+			Timestamps
+		</button>
+
+		<div class="theme-selector">
+			<button class="theme-btn" id="themeToggleBtn" aria-label="Select theme" aria-haspopup="true"
+			        aria-expanded="false">
+				<span class="theme-swatch" id="currentSwatch" style="background: #d4a017"></span>
+				Theme
+				<i class="fas fa-chevron-up" style="font-size: 9px"></i>
+			</button>
+			<div class="theme-dropdown" id="themeDropdown" role="menu">
+				<div class="theme-option active" data-theme="amber" role="menuitem">
+					<span class="swatch" style="background: #d4a017"></span> Amber
+				</div>
+				<div class="theme-option" data-theme="arctic" role="menuitem">
+					<span class="swatch" style="background: #0891b2"></span> Arctic
+				</div>
+				<div class="theme-option" data-theme="aurora" role="menuitem">
+					<span class="swatch" style="background: #00d4aa"></span> Aurora
+				</div>
+				<div class="theme-option" data-theme="bloodmoon" role="menuitem">
+					<span class="swatch" style="background: #ff2020"></span> Blood Moon
+				</div>
+				<div class="theme-option" data-theme="cyberpunk" role="menuitem">
+					<span class="swatch" style="background: #e040fb"></span> Cyberpunk
+				</div>
+				<div class="theme-option" data-theme="matrix" role="menuitem">
+					<span class="swatch" style="background: #00ff41"></span> Matrix
+				</div>
+				<div class="theme-option" data-theme="midnight" role="menuitem">
+					<span class="swatch" style="background: #4fc1ff"></span> Midnight
+				</div>
+				<div class="theme-option" data-theme="glass" role="menuitem">
+					<span class="swatch" style="background: #00d4ff"></span> Glass
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Output -->
+	<main class="console-output" id="consoleOutput" aria-live="polite"></main>
+
+	<!-- Input -->
+	<div class="console-input-area">
+		<span class="input-prompt">&gt;</span>
+		<div class="input-wrapper">
+			<input type="text" class="console-input" id="consoleInput" placeholder="Type a client command..."
+			       autocomplete="off" spellcheck="false" aria-label="Command input"/>
+			<button class="enter-button" id="enterBtn" aria-label="Send command">
+				<i class="fas fa-paper-plane"></i>
+				<span>Enter</span>
+			</button>
+			<div class="autocomplete" id="autocomplete" role="listbox"></div>
+		</div>
 	</div>
+</div>
 
-	<!-- Toast container -->
-	<div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer" aria-live="assertive"></div>
 
-	<script>
-		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
-		// Using 'const' or 'let' would cause a redeclaration error.
-		// noinspection ES6ConvertVarToLetConst
-		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
-		var Events = window.Events || {
-			// NOTE: These are placeholders for the actual events.
-			// They will be replaced by the actual events when the window.Events object is available.
-			// This is a fallback for when the window.Events object is not available (when using OS web browser).
-			Call: function (event, ...args) {
-				// console.log(`Calling Lua event: ${event}`, ...args);
+<script>
+	// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
+	// Using 'const' or 'let' would cause a redeclaration error.
+	// noinspection ES6ConvertVarToLetConst
+	/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
+	var Events = window.Events || {
+		// NOTE: These are placeholders for the actual events.
+		// They will be replaced by the actual events when the window.Events object is available.
+		// This is a fallback for when the window.Events object is not available (when using OS web browser).
+		Call: function (event, ...args) {
+			// console.log(`Calling Lua event: ${event}`, ...args);
 
-				// Simulate autocomplete response for browser testing
-				if (event === "GetAutocomplete") {
-					setTimeout(() => {
-						const [line, caret] = args;
-						// console.log(`Simulating autocomplete response for: "${line}"`);
-
-						// Simple mock suggestions
-						const suggestions = ["help", "clear", "cls", "echo", "time", "date", "version", "theme"]
-							.filter(cmd => cmd.startsWith(line.toLowerCase()))
-							.map(cmd => ({ name: cmd, desc: `Mock ${cmd} command` }));
-
-						// Trigger the AutocompleteSuggestions handler
-						const handlers = this._subscriptions?.["AutocompleteSuggestions"] || [];
-						handlers.forEach(handler => {
-							try {
-								handler(suggestions);
-							} catch (e) {
-								console.error("Error in AutocompleteSuggestions handler:", e);
-							}
-						});
-					}, 100); // Simulate network delay
-				}
-			},
-			Subscribe: function (event, callback) {
-				// console.log(`Subscribed to event: ${event}`, callback);
-				if (!this._subscriptions) this._subscriptions = {};
-				if (!this._subscriptions[event]) this._subscriptions[event] = [];
-				this._subscriptions[event].push(callback);
-			}
-		};
-
-		//const clipboard_writeText = navigator.clipboard.writeText;
-		navigator.clipboard.writeText = (text) => {
-			Events?.Call("ClipboardWrite", text);
-			return Promise.resolve(text);
-		};
-
-		// Utility
-		const $ = (sel, ctx = document) => ctx.querySelector(sel);
-		const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
-		const escHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-		const now = () => {
-			const d = new Date();
-			return [d.getHours(), d.getMinutes(), d.getSeconds()].map((v) => String(v).padStart(2, "0")).join(":");
-		};
-		const getCS = (prop) => getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
-
-		// Toast System
-		const Toast = {
-			container: null,
-			show(msg, icon = "fa-check", duration = 2500) {
-				if (!this.container) this.container = $("#toastContainer");
-				const el = document.createElement("div");
-				el.className = "toast";
-				el.innerHTML = `<i class="fas ${icon}" style="color:var(--accent)"></i>${escHtml(msg)}`;
-				this.container.appendChild(el);
+			// Simulate autocomplete response for browser testing
+			if (event === "GetAutocomplete") {
 				setTimeout(() => {
-					el.classList.add("removing");
-					el.addEventListener("animationend", () => el.remove());
-				}, duration);
-			},
-		};
-		window.Toast = Toast;
+					const [line, caret] = args;
+					// console.log(`Simulating autocomplete response for: "${line}"`);
 
-		// Theme Manager
-		const ThemeManager = {
-			current: "amber",
-			swatches: {
-				amber: "#d4a017",
-				arctic: "#0891b2",
-				aurora: "#00d4aa",
-				bloodmoon: "#ff2020",
-				cyberpunk: "#e040fb",
-				matrix: "#00ff41",
-				midnight: "#4fc1ff",
-				glass: "#00d4ff",
-			},
-			set(name) {
-				if (!this.swatches[name]) return;
-				this.current = name;
-				document.body.setAttribute("data-theme", name);
-				const swatch = $("#currentSwatch");
-				if (swatch) swatch.style.background = this.swatches[name];
-				$$(".theme-option").forEach((o) => o.classList.toggle("active", o.dataset.theme === name));
-				if (typeof Particles !== "undefined") Particles.updateColor();
-			},
-			toggleDropdown() {
-				const dd = $("#themeDropdown");
-				if (!dd) return;
-				const isOpen = dd.classList.contains("open");
-				dd.classList.toggle("open");
-				const btn = $("#themeToggleBtn");
-				if (btn) btn.setAttribute("aria-expanded", !isOpen);
-			},
-			closeDropdown() {
-				const dd = $("#themeDropdown");
-				if (dd) dd.classList.remove("open");
-				const btn = $("#themeToggleBtn");
-				if (btn) btn.setAttribute("aria-expanded", "false");
-			},
-		};
-		window.ThemeManager = ThemeManager;
+					// Simple mock suggestions
+					const suggestions = ["help", "clear", "cls", "echo", "time", "date", "version", "theme", "reset"]
+						.filter(cmd => cmd.startsWith(line.toLowerCase()))
+						.map(cmd => ({name: cmd, desc: `Mock ${cmd} command`}));
 
-		// History Manager
-		const HistoryManager = {
-			entries: [],
-			index: -1,
-			push(cmd) {
-				if (cmd && cmd !== this.entries[this.entries.length - 1]) {
-					this.entries.push(cmd);
-					if (this.entries.length > 200) this.entries.shift();
-				}
-				this.index = this.entries.length;
-			},
-			up() {
-				if (this.index > 0) {
-					this.index--;
-					return this.entries[this.index];
-				}
-				return null;
-			},
-			down() {
-				if (this.index < this.entries.length - 1) {
-					this.index++;
-					return this.entries[this.index];
-				}
-				this.index = this.entries.length;
-				return "";
-			},
-		};
-		window.HistoryManager = HistoryManager;
-
-		// Command Registry
-		const CommandRegistry = {
-			commands: {},
-			register(name, desc, fn, opts = {}) {
-				this.commands[name] = { desc, fn, alias: opts.alias || [], args: opts.args || "" };
-				if (opts.alias)
-					opts.alias.forEach((a) => {
-						this.commands[a] = this.commands[name];
+					// Trigger the AutocompleteSuggestions handler
+					const handlers = this._subscriptions?.["AutocompleteSuggestions"] || [];
+					handlers.forEach(handler => {
+						try {
+							handler(suggestions);
+						} catch (e) {
+							console.error("Error in AutocompleteSuggestions handler:", e);
+						}
 					});
-			},
-			get(name) {
-				return this.commands[name];
-			},
-			getAll() {
-				return Object.entries(this.commands).filter(
-					([k, v]) => k === Object.keys(this.commands).find((kk) => this.commands[kk] === v),
-				);
-			},
-			match(prefix) {
-				return this.getAll()
-					.filter(([name]) => name.startsWith(prefix.toLowerCase()))
-					.map(([name, cmd]) => ({ name, desc: cmd.desc, args: cmd.args }))
-					.slice(0, 8);
-			},
-			init() {
-				// No commands to register - all moved to Lua
-			},
-		};
-		window.CommandRegistry = CommandRegistry;
+				}, 100); // Simulate network delay
+			}
+		},
+		Subscribe: function (event, callback) {
+			// console.log(`Subscribed to event: ${event}`, callback);
+			if (!this._subscriptions) this._subscriptions = {};
+			if (!this._subscriptions[event]) this._subscriptions[event] = [];
+			this._subscriptions[event].push(callback);
+		}
+	};
+	window.Events = window.Events || Events;
 
-		// Search / Filter
-		const FilterManager = {
-			activeFilter: "all",
-			searchQuery: "",
-			setFilter(type) {
-				this.activeFilter = type;
-				$$(".filter-chip").forEach((c) => c.classList.toggle("active", c.dataset.filter === type));
-				this.apply();
-			},
-			setSearch(q) {
-				this.searchQuery = q.toLowerCase().trim();
-				this.apply();
-			},
-			apply() {
-				const entries = $$(".msg-entry");
-				let visible = 0;
-				entries.forEach((el) => {
-					const type = el.dataset.type;
-					const text = el.dataset.text || "";
-					const matchFilter = this.activeFilter === "all" || type === this.activeFilter;
-					const matchSearch = !this.searchQuery || text.includes(this.searchQuery);
-					const show = matchFilter && matchSearch;
-					el.classList.toggle("hidden", !show);
-					if (show) {
-						visible++;
-						if (this.searchQuery) {
-							const textEl = el.querySelector(".msg-text");
-							if (textEl) {
-								const raw = textEl.textContent;
-								const regex = new RegExp(
+	//const clipboard_writeText = navigator.clipboard.writeText;
+	navigator.clipboard.writeText = (text) => {
+		window?.Events?.Call("ClipboardWrite", text);
+		return Promise.resolve(text);
+	};
+
+	// Utility
+	const $ = (sel, ctx = document) => ctx.querySelector(sel);
+	const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+	const escHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	const now = () => {
+		const d = new Date();
+		return [d.getHours(), d.getMinutes(), d.getSeconds()].map((v) => String(v).padStart(2, "0")).join(":");
+	};
+	const getCS = (prop) => getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
+
+	// Toast System
+	const Toast = {
+		container: null,
+		show(msg, icon = "fa-check", duration = 2500) {
+			if (!this.container) this.container = $("#toastContainer");
+			const el = document.createElement("div");
+			el.className = "toast";
+			el.innerHTML = `<i class="fas ${icon}" style="color:var(--accent)"></i>${escHtml(msg)}`;
+			this.container.appendChild(el);
+			setTimeout(() => {
+				el.classList.add("removing");
+				el.addEventListener("animationend", () => el.remove());
+			}, duration);
+		},
+	};
+	window.Toast = Toast;
+
+	// Custom Tooltip System
+	const CustomTooltip = {
+		tooltip: null,
+		target: null,
+		showTimeout: null,
+		hideTimeout: null,
+
+		init() {
+			this.tooltip = document.createElement('div');
+			this.tooltip.className = 'custom-tooltip';
+			document.body.appendChild(this.tooltip);
+		},
+
+		getZoomLevel() {
+			// Get browser zoom level using multiple methods for better compatibility
+			const zoomLevel =
+				window.devicePixelRatio &&
+				window.devicePixelRatio !== 1 ? window.devicePixelRatio :
+					window.outerWidth / window.innerWidth;
+
+			// Fallback to 1 if detection fails
+			return zoomLevel || 1;
+		},
+
+		show(element, text, position = 'top') {
+			if (!this.tooltip) this.init();
+
+			this.hide(); // Clear any existing tooltip
+
+			this.tooltip.textContent = text;
+			document.body.appendChild(this.tooltip);
+
+			const tooltipRect = this.tooltip.getBoundingClientRect();
+
+			// Store current mouse position and element reference
+			this.target = element;
+			this.currentPosition = position;
+
+			// Position tooltip relative to cursor
+			this.updateCursorPosition();
+
+			// Show with slight delay for better UX
+			this.showTimeout = setTimeout(() => {
+				this.tooltip.classList.add('visible');
+			}, 300);
+		},
+
+		updateCursorPosition() {
+			if (!this.tooltip || !this.target) return;
+
+			const tooltipRect = this.tooltip.getBoundingClientRect();
+			const mouseX = this.lastMouseX || 0;
+			const mouseY = this.lastMouseY || 0;
+
+			// Always position below cursor with small offset
+			const offsetY = 25;
+
+			// Calculate initial position - centered below cursor
+			let left = mouseX - (tooltipRect.width / 2) + window.scrollX;
+			let top = mouseY + offsetY + window.scrollY;
+
+			// Ensure tooltip stays within viewport
+			const viewportWidth = window.innerWidth;
+			const viewportHeight = window.innerHeight;
+
+			if (left < 10) left = 10;
+			if (left + tooltipRect.width > viewportWidth - 10) {
+				left = viewportWidth - tooltipRect.width - 10;
+			}
+			if (top < 10) top = 10;
+			if (top + tooltipRect.height > viewportHeight - 10) {
+				top = mouseY - tooltipRect.height - 10 + window.scrollY;
+			}
+
+			this.tooltip.style.left = left + 'px';
+			this.tooltip.style.top = top + 'px';
+		},
+
+		hide() {
+			if (this.showTimeout) {
+				clearTimeout(this.showTimeout);
+				this.showTimeout = null;
+			}
+
+			if (this.hideTimeout) {
+				clearTimeout(this.hideTimeout);
+				this.hideTimeout = null;
+			}
+
+			if (this.tooltip && this.tooltip.classList.contains('visible')) {
+				this.tooltip.classList.remove('visible');
+				this.hideTimeout = setTimeout(() => {
+					if (this.tooltip && this.tooltip.parentNode) {
+						this.tooltip.parentNode.removeChild(this.tooltip);
+					}
+				}, 200);
+			}
+		},
+
+		attach(element, text, position = 'top') {
+			const tooltip = this;
+
+			const handleMouseEnter = (e) => {
+				tooltip.lastMouseX = e.clientX;
+				tooltip.lastMouseY = e.clientY;
+				tooltip.show(element, text, position);
+			};
+
+			const handleMouseMove = (e) => {
+				if (tooltip.target === element) {
+					tooltip.lastMouseX = e.clientX;
+					tooltip.lastMouseY = e.clientY;
+					tooltip.updateCursorPosition();
+				}
+			};
+
+			const handleMouseLeave = () => {
+				tooltip.hide();
+			};
+
+			element.addEventListener('mouseenter', handleMouseEnter);
+			element.addEventListener('mousemove', handleMouseMove);
+			element.addEventListener('mouseleave', handleMouseLeave);
+			element.addEventListener('focus', () => {
+				tooltip.show(element, text, position);
+			});
+			element.addEventListener('blur', () => {
+				this.hide();
+			});
+		}
+	};
+	window.CustomTooltip = CustomTooltip;
+
+	// Console Storage Manager
+	const ConsoleStorage = {
+		STORAGE_KEY: "console_settings",
+
+		// Clamp console to viewport boundaries
+		clampToViewport(container, rect = null) {
+			if (!container) return null;
+
+			const currentRect = rect || container.getBoundingClientRect();
+			const screenWidth = window.innerWidth;
+			const screenHeight = window.innerHeight;
+			const minWidth = 640;
+			const minHeight = 400; // Matches CSS min-height: 400px
+
+			// Calculate clamped dimensions
+			let width = Math.max(minWidth, Math.min(currentRect.width, screenWidth));
+			let height = Math.max(minHeight, Math.min(currentRect.height, screenHeight));
+
+			// Calculate clamped position
+			let left = Math.max(0, Math.min(currentRect.left, screenWidth - width));
+			let top = Math.max(0, Math.min(currentRect.top, screenHeight - height));
+
+			return {
+				left: left,
+				top: top,
+				width: width,
+				height: height,
+				right: left + width,
+				bottom: top + height
+			};
+		},
+
+		// Apply clamped dimensions to container
+		applyClampedDimensions(container, clampedRect) {
+			if (!container || !clampedRect) return;
+
+			container.style.transition = "none";
+			container.style.left = clampedRect.left + "px";
+			container.style.top = clampedRect.top + "px";
+			container.style.width = clampedRect.width + "px";
+			container.style.height = clampedRect.height + "px";
+			container.style.bottom = "auto";
+
+			// Restore transition after a short delay
+			setTimeout(() => {
+				container.style.transition = "";
+			}, 100);
+		},
+
+		// Get current console state
+		getCurrentState() {
+			const container = $("#consoleContainer");
+			if (!container) return null;
+
+			const rect = container.getBoundingClientRect();
+			const isMaximized = container.classList.contains("maximized");
+
+			return {
+				position: {
+					left: rect.left,
+					top: rect.top,
+					right: rect.right,
+					bottom: rect.bottom
+				},
+				size: {
+					width: rect.width,
+					height: rect.height
+				},
+				maximized: isMaximized,
+				theme: ThemeManager.current,
+				autoScroll: ConsoleEngine.autoScroll,
+				realm: ConsoleEngine.currentRealm
+			};
+		},
+
+		// Save current state to localStorage
+		save() {
+			try {
+				const state = this.getCurrentState();
+				if (state) {
+					localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
+				}
+			} catch (e) {
+				console.warn("Failed to save console settings:", e);
+			}
+		},
+
+		// Load state from localStorage
+		load() {
+			try {
+				const saved = localStorage.getItem(this.STORAGE_KEY);
+				return saved ? JSON.parse(saved) : null;
+			} catch (e) {
+				console.warn("Failed to load console settings:", e);
+				return null;
+			}
+		},
+
+		// Apply saved state to console
+		restore() {
+			const state = this.load();
+			if (!state) return;
+
+			const container = $("#consoleContainer");
+			if (!container) return;
+
+			// Restore theme first
+			if (state.theme && ThemeManager.swatches[state.theme]) {
+				ThemeManager.set(state.theme);
+			}
+
+			// Restore auto-scroll state
+			if (typeof state.autoScroll === "boolean") {
+				ConsoleEngine.autoScroll = state.autoScroll;
+				const autoScrollBtn = $("#autoScrollBtn");
+				if (autoScrollBtn) {
+					autoScrollBtn.classList.toggle("active", state.autoScroll);
+				}
+			}
+
+			// Restore realm state
+			if (state.realm && (state.realm === "client" || state.realm === "server")) {
+				ConsoleEngine.currentRealm = state.realm;
+				// Update realm toggle UI if it exists
+				const realmToggle = $("#realmToggle");
+				if (realmToggle) {
+					const slider = realmToggle.querySelector(".realm-toggle-slider");
+					if (state.realm === "server") {
+						realmToggle.classList.remove("client");
+						realmToggle.classList.add("server");
+						slider.textContent = "S";
+						realmToggle.title = "Switch to CLIENT output realm";
+					} else {
+						realmToggle.classList.remove("server");
+						realmToggle.classList.add("client");
+						slider.textContent = "C";
+						realmToggle.title = "Switch to SERVER output realm";
+					}
+				}
+			}
+
+			// Restore maximize state
+			if (state.maximized) {
+				container.classList.add("maximized");
+				const maximizeBtn = $("#maximizeBtn");
+				if (maximizeBtn) {
+					maximizeBtn.innerHTML = '<i class="fas fa-compress"></i>';
+				}
+			} else {
+				container.classList.remove("maximized");
+				const maximizeBtn = $("#maximizeBtn");
+				if (maximizeBtn) {
+					maximizeBtn.innerHTML = '<i class="fas fa-expand"></i>';
+				}
+
+				// Restore position and size only if not maximized
+				if (state.position && state.size) {
+					// Create a temporary rect from saved state
+					const savedRect = {
+						left: state.position.left,
+						top: state.position.top,
+						width: state.size.width,
+						height: state.size.height,
+						right: state.position.left + state.size.width,
+						bottom: state.position.top + state.size.height
+					};
+
+					// Clamp to current viewport
+					const clampedRect = this.clampToViewport(container, savedRect);
+
+					// Apply clamped dimensions
+					this.applyClampedDimensions(container, clampedRect);
+				}
+			}
+		},
+
+		// Clear saved settings
+		clear() {
+			try {
+				localStorage.removeItem(this.STORAGE_KEY);
+			} catch (e) {
+				console.warn("Failed to clear console settings:", e);
+			}
+		}
+	};
+	window.ConsoleStorage = ConsoleStorage;
+
+	// Theme Manager
+	const ThemeManager = {
+		current: "amber",
+		swatches: {
+			amber: "#d4a017",
+			arctic: "#0891b2",
+			aurora: "#00d4aa",
+			bloodmoon: "#ff2020",
+			cyberpunk: "#e040fb",
+			matrix: "#00ff41",
+			midnight: "#4fc1ff",
+			glass: "#00d4ff",
+		},
+		set(name) {
+			if (!this.swatches[name]) return;
+			this.current = name;
+			document.body.setAttribute("data-theme", name);
+			const swatch = $("#currentSwatch");
+			if (swatch) swatch.style.background = this.swatches[name];
+			$$(".theme-option").forEach((o) => o.classList.toggle("active", o.dataset.theme === name));
+			if (typeof Particles !== "undefined") Particles.updateColor();
+			// Save settings when theme changes
+			ConsoleStorage.save();
+		},
+		toggleDropdown() {
+			const dd = $("#themeDropdown");
+			if (!dd) return;
+			const isOpen = dd.classList.contains("open");
+			dd.classList.toggle("open");
+			const btn = $("#themeToggleBtn");
+			if (btn) {
+				btn.setAttribute("aria-expanded", !isOpen);
+				// Trigger animation by removing and re-adding the class
+				const chevron = btn.querySelector(".fa-chevron-up");
+				if (chevron) {
+					if (!isOpen) {
+						// Opening: trigger animation
+						chevron.style.animation = 'none';
+						chevron.offsetHeight; // Force reflow
+						chevron.style.animation = '';
+					} else {
+						// Closing: reset rotation
+						chevron.style.animation = 'none';
+						chevron.style.transform = 'rotate(0deg)';
+					}
+				}
+			}
+		},
+		closeDropdown() {
+			const dd = $("#themeDropdown");
+			if (dd) dd.classList.remove("open");
+			const btn = $("#themeToggleBtn");
+			if (btn) {
+				btn.setAttribute("aria-expanded", "false");
+				// Reset chevron rotation when closing
+				const chevron = btn.querySelector(".fa-chevron-up");
+				if (chevron) {
+					chevron.style.animation = 'none';
+					chevron.style.transform = 'rotate(0deg)';
+				}
+			}
+		},
+	};
+	window.ThemeManager = ThemeManager;
+
+	// History Manager
+	const HistoryManager = {
+		entries: [],
+		index: -1,
+		push(cmd) {
+			if (cmd && cmd !== this.entries[this.entries.length - 1]) {
+				this.entries.push(cmd);
+				if (this.entries.length > 200) this.entries.shift();
+			}
+			this.index = this.entries.length;
+		},
+		up() {
+			if (this.index > 0) {
+				this.index--;
+				return this.entries[this.index];
+			}
+			return null;
+		},
+		down() {
+			if (this.index < this.entries.length - 1) {
+				this.index++;
+				return this.entries[this.index];
+			}
+			this.index = this.entries.length;
+			return "";
+		},
+	};
+	window.HistoryManager = HistoryManager;
+
+	// Command Registry
+	const CommandRegistry = {
+		commands: {},
+		register(name, desc, fn, opts = {}) {
+			this.commands[name] = {desc, fn, alias: opts.alias || [], args: opts.args || ""};
+			if (opts.alias)
+				opts.alias.forEach((a) => {
+					this.commands[a] = this.commands[name];
+				});
+		},
+		get(name) {
+			return this.commands[name];
+		},
+		getAll() {
+			return Object.entries(this.commands).filter(
+				([k, v]) => k === Object.keys(this.commands).find((kk) => this.commands[kk] === v),
+			);
+		},
+		match(prefix) {
+			return this.getAll()
+				.filter(([name]) => name.startsWith(prefix.toLowerCase()))
+				.map(([name, cmd]) => ({name, desc: cmd.desc, args: cmd.args}))
+				.slice(0, 8);
+		},
+		init() {
+			// No commands to register - all moved to Lua
+		},
+	};
+	window.CommandRegistry = CommandRegistry;
+
+	// Search / Filter
+	const FilterManager = {
+		activeFilters: new Set(["all"]), // Default to all filters active
+		searchQuery: "",
+		regexMode: false,
+
+		setFilter(type) {
+			if (type === "all") {
+				// If "all" is clicked, activate only "all"
+				this.activeFilters.clear();
+				this.activeFilters.add("all");
+			} else {
+				// If specific filter is clicked, toggle it and remove "all"
+				this.activeFilters.delete("all");
+				if (this.activeFilters.has(type)) {
+					this.activeFilters.delete(type);
+				} else {
+					this.activeFilters.add(type);
+				}
+
+				// If no specific filters are active, activate "all"
+				if (this.activeFilters.size === 0) {
+					this.activeFilters.add("all");
+				}
+			}
+
+			// Update UI
+			$$(".filter-chip").forEach((c) => {
+				c.classList.toggle("active", this.activeFilters.has(c.dataset.filter));
+			});
+
+			this.apply();
+			this.saveState();
+		},
+
+		setSearch(q) {
+			this.searchQuery = q.trim();
+			this.apply();
+		},
+
+		setRegexMode(enabled) {
+			this.regexMode = enabled;
+			this.apply();
+			this.saveState();
+		},
+		apply() {
+			const entries = $$(".msg-entry");
+			let visible = 0;
+			entries.forEach((el) => {
+				const type = el.dataset.type;
+				const text = el.dataset.text || "";
+				// Inclusive filtering: show entry if any active filter matches
+				const matchFilter = this.activeFilters.has("all") || this.activeFilters.has(type);
+
+				let matchSearch = !this.searchQuery;
+				if (this.searchQuery) {
+					if (this.regexMode) {
+						try {
+							const regex = new RegExp(this.searchQuery, 'i');
+							matchSearch = regex.test(text);
+						} catch (e) {
+							// Invalid regex, fallback to literal search
+							matchSearch = text.toLowerCase().includes(this.searchQuery.toLowerCase());
+						}
+					} else {
+						matchSearch = text.toLowerCase().includes(this.searchQuery.toLowerCase());
+					}
+				}
+
+				const show = matchFilter && matchSearch;
+				el.classList.toggle("hidden", !show);
+				if (show) {
+					visible++;
+					if (this.searchQuery) {
+						const textEl = el.querySelector(".msg-text");
+						if (textEl) {
+							const raw = textEl.textContent;
+							let regex;
+							if (this.regexMode) {
+								try {
+									regex = new RegExp(`(${this.searchQuery})`, 'gi');
+								} catch (e) {
+									// Invalid regex, fallback to literal search
+									regex = new RegExp(
+										`(${this.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+										"gi",
+									);
+								}
+							} else {
+								regex = new RegExp(
 									`(${this.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
 									"gi",
 								);
-								textEl.innerHTML = escHtml(raw).replace(regex, '<span class="highlight">$1</span>');
 							}
-						} else {
-							const textEl = el.querySelector(".msg-text");
-							if (textEl && textEl.querySelector(".highlight")) {
-								textEl.innerHTML = escHtml(textEl.textContent);
+							textEl.innerHTML = escHtml(raw).replace(regex, '<span class="highlight">$1</span>');
+						}
+					} else {
+						const textEl = el.querySelector(".msg-text");
+						if (textEl && textEl.querySelector(".highlight")) {
+							textEl.innerHTML = escHtml(textEl.textContent);
+						}
+					}
+				}
+			});
+			const empty = $(".empty-state");
+			if (visible === 0 && entries.length > 0) {
+				if (!empty) {
+					const e = document.createElement("div");
+					e.className = "empty-state";
+					e.innerHTML = '<i class="fas fa-filter"></i><span>No matching messages</span>';
+					const output = $("#consoleOutput");
+					if (output) output.appendChild(e);
+				}
+			} else if (empty) {
+				empty.remove();
+			}
+		},
+
+		saveState() {
+			try {
+				const state = {
+					activeFilters: Array.from(this.activeFilters),
+					regexMode: this.regexMode,
+					searchQuery: this.searchQuery || ""
+				};
+				localStorage.setItem('console_filter_state', JSON.stringify(state));
+			} catch (e) {
+				console.warn("Failed to save filter state:", e);
+			}
+		},
+
+		restoreState() {
+			try {
+				const saved = localStorage.getItem('console_filter_state');
+				if (saved) {
+					const state = JSON.parse(saved);
+
+					// Restore active filters
+					if (state.activeFilters && Array.isArray(state.activeFilters)) {
+						this.activeFilters = new Set(state.activeFilters);
+					} else {
+						this.activeFilters = new Set(["all"]);
+					}
+
+					// Restore regex mode
+					this.regexMode = state.regexMode || false;
+
+					// Restore search query
+					this.searchQuery = state.searchQuery || "";
+
+					// Update UI
+					$$(".filter-chip").forEach((c) => {
+						c.classList.toggle("active", this.activeFilters.has(c.dataset.filter));
+					});
+
+					// Update search icon state
+					const searchIcon = $("#searchIcon");
+					if (searchIcon) {
+						const iconElement = searchIcon.querySelector("i");
+						if (iconElement) {
+							if (this.regexMode) {
+								iconElement.classList.remove("fa-search");
+								iconElement.classList.add("fa-asterisk");
+								searchIcon.classList.add("regex-active");
+							} else {
+								iconElement.classList.remove("fa-asterisk");
+								iconElement.classList.remove("regex-active");
+								iconElement.classList.add("fa-search");
 							}
 						}
 					}
-				});
-				const empty = $(".empty-state");
-				if (visible === 0 && entries.length > 0) {
-					if (!empty) {
-						const e = document.createElement("div");
-						e.className = "empty-state";
-						e.innerHTML = '<i class="fas fa-filter"></i><span>No matching messages</span>';
-						const output = $("#consoleOutput");
-						if (output) output.appendChild(e);
+
+					// Update search input and placeholder
+					const searchInput = $("#searchInput");
+					if (searchInput) {
+						searchInput.value = this.searchQuery;
+						searchInput.placeholder = this.regexMode ? "Search logs (regex)..." : "Search logs...";
 					}
-				} else if (empty) {
-					empty.remove();
+
+					// Update search icon tooltip to match restored state
+					if (searchIcon) {
+						CustomTooltip.attach(searchIcon, this.regexMode ? "Regex search enabled (click to disable)" : "Enable regex search");
+					}
 				}
-			},
-		};
-		window.FilterManager = FilterManager;
+			} catch (e) {
+				console.warn("Failed to restore filter state:", e);
+				// Fallback to default state
+				this.activeFilters = new Set(["all"]);
+				this.regexMode = false;
+				this.searchQuery = "";
+			}
+		},
+	};
+	window.FilterManager = FilterManager;
 
-		// Console Engine
-		const ConsoleEngine = {
-			messages: [],
-			stats: { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 },
-			maxMessages: 2000,
-			autoScroll: true,
-			isOpen: false,
+	// Console Engine
+	const ConsoleEngine = {
+		clientMessages: [],
+		serverMessages: [],
+		clientStats: {total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0},
+		serverStats: {total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0},
+		maxMessages: 2000,
+		autoScroll: true,
+		isOpen: false,
+		currentRealm: "client",
 
-			log(type, text) {
-				const entry = { type, text: String(text), time: now() };
-				this.messages.push(entry);
-				if (this.messages.length > this.maxMessages) this.messages.shift();
-				this.stats.total++;
-				this.stats[type] = (this.stats[type] || 0) + 1;
-				this.renderEntry(entry);
+		get messages() {
+			return this.currentRealm === "client" ? this.clientMessages : this.serverMessages;
+		},
+
+		get stats() {
+			return this.currentRealm === "client" ? this.clientStats : this.serverStats;
+		},
+
+		setRealm(realm) {
+			if (realm === "client" || realm === "server") {
+				this.currentRealm = realm;
 				this.updateStats();
-			},
+				this.renderMessages();
+			}
+		},
 
-			renderEntry(entry) {
-				const output = $("#consoleOutput");
-				if (!output) return;
-				const empty = output.querySelector(".empty-state");
-				if (empty) empty.remove();
+		getRealm() {
+			return this.currentRealm;
+		},
 
-				const div = document.createElement("div");
-				div.className = "msg-entry";
-				div.dataset.type = entry.type;
-				div.dataset.text = entry.text.toLowerCase();
+		log(type, text, realm = null) {
+			// Use provided realm or current realm
+			const targetRealm = realm || this.currentRealm;
+			const isClient = targetRealm === "client";
 
-				const textClass = ["warn", "error", "debug", "success", "cmd", "info"].includes(entry.type)
-					? `${entry.type}-text`
-					: "";
+			const messages = isClient ? this.clientMessages : this.serverMessages;
+			const stats = isClient ? this.clientStats : this.serverStats;
 
-				div.innerHTML = `
-<span class="msg-timestamp">${entry.time}</span>
+			const entry = {type, text: String(text), time: now(), realm: targetRealm};
+			messages.push(entry);
+			if (messages.length > this.maxMessages) messages.shift();
+			stats.total++;
+			stats[type] = (stats[type] || 0) + 1;
+			this.renderEntry(entry);
+			this.updateStats();
+		},
+
+		renderEntry(entry) {
+			const output = $("#consoleOutput");
+			if (!output) return;
+			const empty = output.querySelector(".empty-state");
+			if (empty) empty.remove();
+
+			const div = document.createElement("div");
+			div.className = "msg-entry";
+			div.dataset.type = entry.type;
+			div.dataset.text = entry.text.toLowerCase();
+
+			const textClass = ["warn", "error", "debug", "success", "cmd", "info"].includes(entry.type)
+				? `${entry.type}-text`
+				: "";
+
+			div.innerHTML = `
+<span class="msg-timestamp" style="display: ${this.showTimestamps ? 'inline-block' : 'none'}">${entry.time}</span>
 <span class="msg-badge ${entry.type}">${entry.type}</span>
 <span class="msg-text ${textClass}">${escHtml(entry.text)}</span>
 <span class="msg-actions">
@@ -1628,894 +2651,1745 @@ License: MIT
 </button>
 </span>
 `;
-				output.appendChild(div);
+			output.appendChild(div);
 
-				const children = output.children;
-				while (children.length > this.maxMessages) children[0].remove();
+			const children = output.children;
+			while (children.length > this.maxMessages) children[0].remove();
 
-				if (this.autoScroll) {
-					output.scrollTop = output.scrollHeight;
+			if (this.autoScroll) {
+				output.scrollTop = output.scrollHeight;
+			}
+		},
+
+		copyMessage(btn) {
+			const entry = btn.closest(".msg-entry");
+			const text = entry.querySelector(".msg-text").textContent;
+			navigator.clipboard.writeText(text).then(() => {
+				Toast.show("Copied to clipboard", "fa-clipboard-check");
+			});
+		},
+
+		copyAll() {
+			const text = this.messages.map((m) => `[${m.time}] [${m.type.toUpperCase()}] ${m.text}`).join("\n");
+			navigator.clipboard.writeText(text).then(() => {
+				Toast.show(`Copied ${this.messages.length} messages`, "fa-clipboard-check");
+			});
+		},
+
+		clear() {
+			// Clear only the current realm
+			if (this.currentRealm === "client") {
+				this.clientMessages = [];
+				this.clientStats = {total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0};
+			} else {
+				this.serverMessages = [];
+				this.serverStats = {total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0};
+			}
+			const output = $("#consoleOutput");
+			if (output) output.innerHTML = "";
+			this.updateStats();
+			this.showWelcome();
+			Toast.show(`${this.currentRealm.toUpperCase()} realm cleared`, "fa-broom");
+		},
+
+		updateStats() {
+			const statTotal = $("#statTotal");
+			const statWarn = $("#statWarn");
+			const statError = $("#statError");
+			if (statTotal) statTotal.textContent = this.stats.total;
+			if (statWarn) statWarn.textContent = this.stats.warn;
+			if (statError) statError.textContent = this.stats.error;
+			const badge = $("#errorBadge");
+			if (badge) {
+				if (this.stats.error > 0) {
+					badge.textContent = this.stats.error;
+					badge.classList.add("visible");
+				} else {
+					badge.classList.remove("visible");
 				}
-			},
+			}
+		},
 
-			copyMessage(btn) {
-				const entry = btn.closest(".msg-entry");
-				const text = entry.querySelector(".msg-text").textContent;
-				navigator.clipboard.writeText(text).then(() => {
-					Toast.show("Copied to clipboard", "fa-clipboard-check");
-				});
-			},
+		execute(input) {
+			const trimmed = input.trim();
+			if (!trimmed) return;
+			HistoryManager.push(trimmed);
+			this.log("cmd", trimmed);
+			const parts = trimmed.split(/\s+/);
+			const cmdName = parts[0].toLowerCase();
+			const args = parts.slice(1);
 
-			copyAll() {
-				const text = this.messages.map((m) => `[${m.time}] [${m.type.toUpperCase()}] ${m.text}`).join("\n");
-				navigator.clipboard.writeText(text).then(() => {
-					Toast.show(`Copied ${this.messages.length} messages`, "fa-clipboard-check");
-				});
-			},
+			// Always send to Lua since all commands are now handled by chat_commander
+			Events.Call("OnCommand", cmdName, args);
+		},
 
-			clear() {
-				this.messages = [];
-				this.stats = { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 };
-				const output = $("#consoleOutput");
-				if (output) output.innerHTML = "";
-				this.updateStats();
-				this.showWelcome();
-				Toast.show("Console cleared", "fa-broom");
-			},
-
-			updateStats() {
-				const statTotal = $("#statTotal");
-				const statWarn = $("#statWarn");
-				const statError = $("#statError");
-				if (statTotal) statTotal.textContent = this.stats.total;
-				if (statWarn) statWarn.textContent = this.stats.warn;
-				if (statError) statError.textContent = this.stats.error;
-				const badge = $("#errorBadge");
-				if (badge) {
-					if (this.stats.error > 0) {
-						badge.textContent = this.stats.error;
-						badge.classList.add("visible");
-					} else {
-						badge.classList.remove("visible");
-					}
-				}
-			},
-
-			execute(input) {
-				const trimmed = input.trim();
-				if (!trimmed) return;
-				HistoryManager.push(trimmed);
-				this.log("cmd", trimmed);
-				const parts = trimmed.split(/\s+/);
-				const cmdName = parts[0].toLowerCase();
-				const args = parts.slice(1);
-
-				// Always send to Lua since all commands are now handled by chat_commander
-				Events.Call("OnCommand", cmdName, args);
-			},
-
-			showWelcome() {
-				const output = $("#consoleOutput");
-				if (!output) return;
-				const banner = document.createElement("div");
-				banner.className = "welcome-banner";
-				banner.innerHTML = `
+		showWelcome() {
+			const output = $("#consoleOutput");
+			if (!output) return;
+			const banner = document.createElement("div");
+			banner.className = "welcome-banner";
+			banner.innerHTML = `
 <button class="welcome-close" title="Dismiss">&times;</button>
-<h2>Console Engine v0.1</h2>
+<h2>Console Engine v0.2 - ${this.currentRealm.toUpperCase()} Realm</h2>
 <p>
 Type <kbd>help</kbd> for commands &middot; <kbd>Tab</kbd> to autocomplete &middot; <kbd>&uarr;</kbd><kbd>&darr;</kbd> for history<br>
 Use the filter chips above to narrow by type, or search to find specific messages.<br>
-Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.
+Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
+<em>Currently viewing ${this.currentRealm.toUpperCase()} output realm. Use the toggle in the header to switch realms.</em>
 </p>
 `;
-				banner.querySelector(".welcome-close").addEventListener("click", () => {
-					banner.remove();
+			banner.querySelector(".welcome-close").addEventListener("click", () => {
+				banner.remove();
+			});
+			output.appendChild(banner);
+		},
+
+		renderMessages() {
+			const output = $("#consoleOutput");
+			if (!output) return;
+			output.innerHTML = "";
+
+			// Show welcome if no messages
+			if (this.messages.length === 0) {
+				this.showWelcome();
+				return;
+			}
+
+			// Render all messages for current stream
+			this.messages.forEach(entry => this.renderEntry(entry));
+		},
+
+		toggle(show) {
+			const container = $("#consoleContainer");
+			const toggleBtn = $("#toggleBtn");
+			const input = $("#consoleInput");
+			if (!container || !toggleBtn) return;
+
+			if (show === undefined) {
+				show = !this.isOpen;
+			}
+
+			this.isOpen = show;
+			if (show) {
+				// Open console
+				container.classList.add("open");
+				toggleBtn.style.opacity = "0";
+				toggleBtn.style.transform = "scale(0.8)";
+				toggleBtn.style.pointerEvents = "none";
+
+				// Use requestAnimationFrame for better timing
+				const focusInput = () => {
+					if (input) {
+						input.focus();
+						//input.select();
+					}
+				};
+
+				requestAnimationFrame(() => {
+					focusInput();
+					// Fallback attempt
+					setTimeout(focusInput, 50);
 				});
-				output.appendChild(banner);
-			},
 
-			toggle(show) {
-				const container = $("#consoleContainer");
-				const toggleBtn = $("#toggleBtn");
-				const input = $("#consoleInput");
-				if (!container || !toggleBtn) return;
+				// Notify Lua that console opened
+				setTimeout(() => {
+					Events.Call("OnConsoleOpened");
+				}, 50);
+			} else {
+				// Close console
+				container.classList.remove("open");
+				toggleBtn.style.opacity = "1";
+				toggleBtn.style.transform = "scale(1)";
+				toggleBtn.style.pointerEvents = "auto";
+				Autocomplete.hide();
+				// Notify Lua that console closed
+				Events.Call("OnConsoleClosed");
+			}
+		},
+	};
+	window.ConsoleEngine = ConsoleEngine;
 
-				if (show === undefined) {
-					show = !this.isOpen;
-				}
+	// Autocomplete Provider (for custom autocomplete items)
+	const AutocompleteProvider = {
+		items: [],
 
-				this.isOpen = show;
-				if (show) {
-					// Open console
-					container.classList.add("open");
-					toggleBtn.style.opacity = "0";
-					toggleBtn.style.pointerEvents = "none";
-					setTimeout(() => {
-						if (input) input.focus();
-						// Notify Lua that console opened
-						Events.Call("OnConsoleOpened");
-					}, 50);
-				} else {
-					// Close console
-					container.classList.remove("open");
-					toggleBtn.style.opacity = "1";
-					toggleBtn.style.pointerEvents = "auto";
-					Autocomplete.hide();
-					// Notify Lua that console closed
-					Events.Call("OnConsoleClosed");
-				}
-			},
-		};
-		window.ConsoleEngine = ConsoleEngine;
+		register(name, desc, type = "command", category = null) {
+			this.items.push({name, desc, type, category});
+		},
 
-		// Autocomplete Provider (for custom autocomplete items)
-		const AutocompleteProvider = {
-			items: [],
+		unregister(name) {
+			this.items = this.items.filter((item) => item.name !== name);
+		},
 
-			register(name, desc, type = "command", category = null) {
-				this.items.push({ name, desc, type, category });
-			},
+		clear() {
+			this.items = [];
+		},
 
-			unregister(name) {
-				this.items = this.items.filter((item) => item.name !== name);
-			},
+		match(prefix) {
+			return this.items
+				.filter((item) => item.name.toLowerCase().startsWith(prefix.toLowerCase()))
+				.map((item) => ({name: item.name, desc: item.desc, type: item.type, category: item.category}))
+				.slice(0, 8);
+		},
 
-			clear() {
-				this.items = [];
-			},
+		getAll() {
+			return this.items;
+		},
+	};
+	window.AutocompleteProvider = AutocompleteProvider;
 
-			match(prefix) {
-				return this.items
-					.filter((item) => item.name.toLowerCase().startsWith(prefix.toLowerCase()))
-					.map((item) => ({ name: item.name, desc: item.desc, type: item.type, category: item.category }))
-					.slice(0, 8);
-			},
+	// Autocomplete
+	const Autocomplete = {
+		el: null,
+		items: [],
+		selected: -1,
+		caretPosition: 0, // Track caret position
+		loading: false,
 
-			getAll() {
-				return this.items;
-			},
-		};
-		window.AutocompleteProvider = AutocompleteProvider;
-
-		// Autocomplete
-		const Autocomplete = {
-			el: null,
-			items: [],
-			selected: -1,
-			caretPosition: 0, // Track caret position
-			loading: false,
-
-			show(matches) {
-				// console.log("DEBUG: Autocomplete.show() called with", matches.length, "items:", matches);
-				if (!this.el) this.el = $("#autocomplete");
-				this.items = matches;
-				this.selected = matches.length > 0 ? 0 : -1;
-				if (matches.length === 0) {
-					// console.log("DEBUG: No matches, hiding autocomplete");
-					this.hide();
-					return;
-				}
-				// console.log("DEBUG: Building autocomplete HTML with", matches.length, "items");
-				this.el.innerHTML = matches
-					.map((m, i) => {
-						const text = typeof m === "string" ? m : m.name || "";
-						const desc = typeof m === "string" ? "" : m.desc || "";
-						return `
+		show(matches) {
+			// console.log("DEBUG: Autocomplete.show() called with", matches.length, "items:", matches);
+			if (!this.el) this.el = $("#autocomplete");
+			this.items = matches;
+			this.selected = matches.length > 0 ? 0 : -1;
+			if (matches.length === 0) {
+				// console.log("DEBUG: No matches, hiding autocomplete");
+				this.hide();
+				return;
+			}
+			// console.log("DEBUG: Building autocomplete HTML with", matches.length, "items");
+			this.el.innerHTML = matches
+				.map((m, i) => {
+					const text = typeof m === "string" ? m : m.name || "";
+					const desc = typeof m === "string" ? "" : m.desc || "";
+					return `
 <div class="autocomplete-item${i === this.selected ? " selected" : ""}" data-index="${i}" role="option">
 <span class="cmd-name">${escHtml(text)}</span>${desc ? `<span class="cmd-hint">${escHtml(desc)}</span>` : ""}
 </div>
 `;
-					})
-					.join("");
-				// console.log("DEBUG: Setting autocomplete HTML, adding visible class");
-				this.el.classList.add("visible");
-				$$(".autocomplete-item", this.el).forEach((item) => {
-					item.addEventListener("mousedown", (e) => {
-						e.preventDefault();
-						this.select(parseInt(item.dataset.index));
-					});
+				})
+				.join("");
+			// console.log("DEBUG: Setting autocomplete HTML, adding visible class");
+			this.el.classList.add("visible");
+			$$(".autocomplete-item", this.el).forEach((item) => {
+				item.addEventListener("mousedown", (e) => {
+					e.preventDefault();
+					this.select(parseInt(item.dataset.index));
 				});
-				// console.log(
-				// 	"DEBUG: Autocomplete show() completed, element visible:",
-				// 	this.el.classList.contains("visible"),
-				// );
-			},
-
-			hide() {
-				if (!this.el) return;
-				this.el.classList.remove("visible");
-				this.items = [];
-				this.selected = -1;
-			},
-
-			navigate(dir) {
-				if (this.items.length === 0) return;
-
-				// Initialize selection if needed
-				if (this.selected < 0) {
-					this.selected = dir > 0 ? 0 : this.items.length - 1;
-				} else {
-					this.selected += dir;
-				}
-
-				// Wrap around
-				if (this.selected < 0) this.selected = this.items.length - 1;
-				if (this.selected >= this.items.length) this.selected = 0;
-
-				$$(".autocomplete-item", this.el).forEach((item, i) => {
-					item.classList.toggle("selected", i === this.selected);
-				});
-
-				// Ensure selected item is visible
-				const selectedItem = this.el.querySelector(".autocomplete-item.selected");
-				if (selectedItem) {
-					selectedItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
-				}
-			},
-
-			confirmSelection() {
-				// If nothing is selected, default to the first item
-				if (this.selected < 0 || this.selected >= this.items.length) {
-					this.selected = 0;
-				}
-				this.select(this.selected);
-				return true;
-			},
-
-			select(index) {
-				const item = this.items[index];
-				if (!item) return;
-				const input = $("#consoleInput");
-				if (input) {
-					const text = typeof item === "string" ? item : item.name || "";
-					const caret = input.selectionStart;
-
-					// Check if suggestion has position metadata for context-aware replacement
-					if (item.start_pos !== undefined && item.end_pos !== undefined) {
-						// Convert Lua's 1-based indexing to JavaScript's 0-based indexing
-						const startPos = item.start_pos - 1;
-						const endPos = item.end_pos - 1;
-						// Replace only the specified range
-						const before = input.value.substring(0, startPos);
-						const after = input.value.substring(endPos);
-						input.value = before + text + after;
-						// Move caret to after the inserted text
-						input.selectionStart = input.selectionEnd = startPos + text.length;
-					} else {
-						// Fallback: replace only the word at caret position
-						const value = input.value;
-						const beforeCaret = value.substring(0, caret);
-						const afterCaret = value.substring(caret);
-
-						// Find word boundary before caret
-						let wordStart = caret;
-						while (wordStart > 0 && /\w/.test(value[wordStart - 1])) {
-							wordStart--;
-						}
-
-						// Find word boundary after caret
-						let wordEnd = caret;
-						while (wordEnd < value.length && /\w/.test(value[wordEnd])) {
-							wordEnd++;
-						}
-
-						// Replace the word at caret
-						const before = value.substring(0, wordStart);
-						const after = value.substring(wordEnd);
-						input.value = before + text + after;
-
-						// Move caret to after the inserted text
-						input.selectionStart = input.selectionEnd = wordStart + text.length;
-					}
-
-					this.hide();
-					input.focus();
-				}
-			},
-
-			// Get all autocomplete suggestions (commands + custom items)
-			getSuggestions(prefix) {
-				const commandMatches = CommandRegistry.match(prefix);
-				const customMatches = AutocompleteProvider.match(prefix);
-
-				// Combine and deduplicate
-				const all = [...commandMatches, ...customMatches];
-				const seen = new Set();
-				const unique = [];
-
-				for (const item of all) {
-					if (!seen.has(item.name)) {
-						seen.add(item.name);
-						unique.push(item);
-					}
-				}
-
-				return unique.slice(0, 8);
-			},
-
-			// Update caret position from input
-			updateCaretPosition(input) {
-				this.caretPosition = input.selectionStart;
-			},
-
-			// Get current caret position
-			getCaretPosition() {
-				return this.caretPosition;
-			},
-
-			// Get the word before the caret
-			getWordBeforeCaret(input) {
-				const text = input.value.substring(0, this.caretPosition);
-				const match = text.match(/(\w+)$/);
-				return match ? match[1] : "";
-			},
-
-			// Simple JavaScript autocompletion
-			getSimpleSuggestions(line, caret) {
-				const themes = [
-					"amber",
-					"arctic",
-					"aurora",
-					"bloodmoon",
-					"cyberpunk",
-					"matrix",
-					"midnight",
-					"glass",
-				];
-				const commands = ["help", "clear", "cls", "echo", "time", "date", "version", "theme"];
-
-				// Check if we're after "theme " command
-				const beforeCaret = line.substring(0, caret);
-				const themeMatch = beforeCaret.match(/^theme\s+(\w*)$/i);
-
-				if (themeMatch) {
-					// Suggest themes
-					const themePrefix = themeMatch[1].toLowerCase();
-					return themes
-						.filter((theme) => theme.toLowerCase().startsWith(themePrefix))
-						.map((theme) => ({
-							name: theme,
-							desc: `Switch to ${theme} theme`,
-							type: "theme",
-						}))
-						.slice(0, 8);
-				}
-
-				// Suggest commands
-				const lastWord = beforeCaret.split(/\s+/).pop();
-				if (lastWord) {
-					return commands
-						.filter((cmd) => cmd.toLowerCase().startsWith(lastWord.toLowerCase()))
-						.map((cmd) => ({
-							name: cmd,
-							desc: CommandRegistry.commands[cmd]?.desc || "",
-							type: "command",
-						}))
-						.slice(0, 8);
-				}
-
-				return [];
-			},
-
-			// Request suggestions from Lua ChatCommander
-			requestSuggestions(input) {
-				// console.log("DEBUG: requestSuggestions called, loading:", this.loading, "value:", input.value);
-				if (this.loading) {
-					// console.log("DEBUG: Skipping request because already loading");
-					return;
-				}
-
-				const line = input.value;
-				const caret = input.selectionStart + 1; // Lua uses 1-based indexing
-
-				// Request suggestions from Lua ChatCommander
-				this.loading = true;
-				// console.log("DEBUG: Calling GetAutocomplete with:", line, caret);
-				Events.Call("GetAutocomplete", line, caret);
-
-				// Add timeout to reset loading state if Lua doesn't respond
-				setTimeout(() => {
-					if (this.loading) {
-						// console.log("DEBUG: Autocomplete request timed out, resetting loading state");
-						this.loading = false;
-					}
-				}, 1000); // 1 second timeout
-			},
-		};
-		window.Autocomplete = Autocomplete;
-
-		// Particle Background
-		const Particles = {
-			canvas: null,
-			ctx: null,
-			particles: [],
-			color: "#d4a017",
-			running: true,
-
-			init() {
-				this.canvas = $("#bgCanvas");
-				if (!this.canvas) return;
-				this.ctx = this.canvas.getContext("2d", { alpha: true });
-				this.resize();
-				window.addEventListener("resize", () => this.resize());
-				this.createParticles();
-				this.animate();
-			},
-
-			resize() {
-				if (!this.canvas) return;
-				this.canvas.width = window.innerWidth;
-				this.canvas.height = window.innerHeight;
-			},
-
-			updateColor() {
-				this.color = getCS("--particle-color") || "#d4a017";
-			},
-
-			createParticles() {
-				this.particles = [];
-				const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 12000), 120);
-				for (let i = 0; i < count; i++) {
-					this.particles.push({
-						x: Math.random() * this.canvas.width,
-						y: Math.random() * this.canvas.height,
-						vx: (Math.random() - 0.5) * 0.3,
-						vy: -Math.random() * 0.4 - 0.1,
-						size: Math.random() * 2 + 0.5,
-						opacity: Math.random() * 0.5 + 0.1,
-						life: Math.random(),
-					});
-				}
-			},
-
-			animate() {
-				if (!this.running || !this.ctx) return;
-				this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-				this.color = getCS("--particle-color") || "#d4a017";
-
-				for (const p of this.particles) {
-					p.x += p.vx;
-					p.y += p.vy;
-					p.life += 0.002;
-
-					if (p.y < -10 || p.life > 1) {
-						p.x = Math.random() * this.canvas.width;
-						p.y = this.canvas.height + 10;
-						p.life = 0;
-						p.opacity = Math.random() * 0.5 + 0.1;
-					}
-
-					const alpha = p.opacity * Math.sin(p.life * Math.PI);
-					this.ctx.beginPath();
-					this.ctx.arc(p.x, p.y, Math.max(0.1, p.size), 0, Math.PI * 2);
-					this.ctx.fillStyle = this.color;
-					this.ctx.globalAlpha = Math.max(0, alpha);
-					this.ctx.fill();
-				}
-				this.ctx.globalAlpha = 1;
-				requestAnimationFrame(() => this.animate());
-			},
-		};
-		window.Particles = Particles;
-
-		// Public API for Lua
-		window.ConsoleAPI = {
-			// Logging
-			log(type, text) {
-				ConsoleEngine.log(type, text);
-			},
-			info(text) {
-				ConsoleEngine.log("info", text);
-			},
-			warn(text) {
-				ConsoleEngine.log("warn", text);
-			},
-			error(text) {
-				ConsoleEngine.log("error", text);
-			},
-			debug(text) {
-				ConsoleEngine.log("debug", text);
-			},
-			success(text) {
-				ConsoleEngine.log("success", text);
-			},
-
-			// Console control
-			clear() {
-				ConsoleEngine.clear();
-			},
-			toggle(show) {
-				ConsoleEngine.toggle(show);
-			},
-			setTheme(theme) {
-				ThemeManager.set(theme);
-			},
-
-			// Command registration
-			registerCommand(name, desc, handler) {
-				CommandRegistry.register(name, desc, (args) => {
-					// Call Lua handler via event if available
-					if (window.ConsoleAPI.OnCommand) {
-						const result = window.ConsoleAPI.OnCommand(name, args);
-						if (result) return result;
-					}
-					// Fallback to JS handler
-					if (handler) return handler(args);
-					return null;
-				});
-			},
-
-			// Callbacks (to be set by Lua)
-			OnCommand: null,
-			OnToggle: null,
-			OnConsoleOpened: null,
-			OnConsoleClosed: null,
-			CloseConsole: null,
-		};
-
-		// Nanos World Events API
-		// Logging events
-		Events.Subscribe("log", (type, text) => ConsoleEngine.log(type, text));
-		Events.Subscribe("info", (text) => ConsoleEngine.log("info", text));
-		Events.Subscribe("warn", (text) => ConsoleEngine.log("warn", text));
-		Events.Subscribe("error", (text) => ConsoleEngine.log("error", text));
-		Events.Subscribe("debug", (text) => ConsoleEngine.log("debug", text));
-		Events.Subscribe("success", (text) => ConsoleEngine.log("success", text));
-
-		// Control events
-		Events.Subscribe("Clear", () => ConsoleEngine.clear());
-		Events.Subscribe("Toggle", (show) => ConsoleEngine.toggle(show));
-		Events.Subscribe("SetTheme", (theme) => ThemeManager.set(theme));
-
-		// Command registration
-		Events.Subscribe("RegisterCommand", (name, desc) => {
-			CommandRegistry.register(name, desc, (args) => {
-				// Call back to Lua for execution
-				Events.Call("OnCommand", name, args);
-				return null;
 			});
-		});
+			// console.log(
+			// 	"DEBUG: Autocomplete show() completed, element visible:",
+			// 	this.el.classList.contains("visible"),
+			// );
+		},
 
-		// Autocomplete provider events
-		Events.Subscribe("RegisterAutocomplete", (name, desc, type, category) => {
-			AutocompleteProvider.register(name, desc, type, category);
-		});
+		hide() {
+			if (!this.el) return;
+			this.el.classList.remove("visible");
+			this.items = [];
+			this.selected = -1;
+		},
 
-		Events.Subscribe("UnregisterAutocomplete", (name) => {
-			AutocompleteProvider.unregister(name);
-		});
+		navigate(dir) {
+			if (this.items.length === 0) return;
 
-		Events.Subscribe("ClearAutocomplete", () => {
-			AutocompleteProvider.clear();
-		});
+			// Initialize selection if needed
+			if (this.selected < 0) {
+				this.selected = dir > 0 ? 0 : this.items.length - 1;
+			} else {
+				this.selected += dir;
+			}
 
-		// Caret position events
-		Events.Subscribe("GetCaretPosition", () => {
+			// Wrap around
+			if (this.selected < 0) this.selected = this.items.length - 1;
+			if (this.selected >= this.items.length) this.selected = 0;
+
+			$$(".autocomplete-item", this.el).forEach((item, i) => {
+				item.classList.toggle("selected", i === this.selected);
+			});
+
+			// Ensure selected item is visible
+			const selectedItem = this.el.querySelector(".autocomplete-item.selected");
+			if (selectedItem) {
+				selectedItem.scrollIntoView({block: "nearest", behavior: "smooth"});
+			}
+		},
+
+		confirmSelection() {
+			// If nothing is selected, default to the first item
+			if (this.selected < 0 || this.selected >= this.items.length) {
+				this.selected = 0;
+			}
+			this.select(this.selected);
+			return true;
+		},
+
+		select(index) {
+			const item = this.items[index];
+			if (!item) return;
 			const input = $("#consoleInput");
 			if (input) {
-				Autocomplete.updateCaretPosition(input);
-				Events.Call(
-					"CaretPosition",
-					Autocomplete.getCaretPosition(),
-					input.value,
-					Autocomplete.getWordBeforeCaret(input),
-				);
-			}
-		});
+				const text = typeof item === "string" ? item : item.name || "";
+				const caret = input.selectionStart;
 
-		// Stats request event
-		Events.Subscribe("GetStats", () => {
-			Events.Call("StatsResponse", ConsoleEngine.stats);
-		});
+				// Check if suggestion has position metadata for context-aware replacement
+				if (item.start_pos !== undefined && item.end_pos !== undefined) {
+					// Convert Lua's 1-based indexing to JavaScript's 0-based indexing
+					const startPos = item.start_pos - 1;
+					const endPos = item.end_pos - 1;
+					// Replace only the specified range
+					const before = input.value.substring(0, startPos);
+					const after = input.value.substring(endPos);
+					input.value = before + text + after;
+					// Move caret to after the inserted text
+					input.selectionStart = input.selectionEnd = startPos + text.length;
+				} else {
+					// Fallback: replace only the word at caret position
+					const value = input.value;
+					const beforeCaret = value.substring(0, caret);
+					const afterCaret = value.substring(caret);
 
-		// Autocomplete suggestions from Lua
-		Events.Subscribe("AutocompleteSuggestions", (suggestions) => {
-			Autocomplete.loading = false;
-			// console.log("DEBUG: Received suggestions from Lua:", suggestions);
-			if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
-				// console.log("DEBUG: Showing autocomplete with", suggestions.length, "items");
-				// Ensure suggestions are in the correct format
-				const formattedSuggestions = suggestions.map((s) => {
-					if (typeof s === "string") {
-						return { name: s, desc: "" };
+					// Find word boundary before caret
+					let wordStart = caret;
+					while (wordStart > 0 && /\w/.test(value[wordStart - 1])) {
+						wordStart--;
 					}
-					if (typeof s === "object" && s.name) {
-						return { name: s.name, desc: s.desc || "" };
+
+					// Find word boundary after caret
+					let wordEnd = caret;
+					while (wordEnd < value.length && /\w/.test(value[wordEnd])) {
+						wordEnd++;
 					}
-					return { name: String(s), desc: "" };
-				});
-				Autocomplete.show(formattedSuggestions);
-			} else {
-				// console.log("DEBUG: Hiding autocomplete, no suggestions");
-				Autocomplete.hide();
+
+					// Replace the word at caret
+					const before = value.substring(0, wordStart);
+					const after = value.substring(wordEnd);
+					input.value = before + text + after;
+
+					// Move caret to after the inserted text
+					input.selectionStart = input.selectionEnd = wordStart + text.length;
+				}
+
+				this.hide();
+				input.focus();
 			}
-		});
+		},
 
-		// Initialization
-		document.addEventListener("DOMContentLoaded", () => {
-			CommandRegistry.init();
-			//Particles.init();
-			ConsoleEngine.showWelcome();
+		// Get all autocomplete suggestions (commands + custom items)
+		getSuggestions(prefix) {
+			// Use only Lua autocomplete - remove JavaScript logic
+			return [];
+		},
 
-			const container = $("#consoleContainer");
-			const toggleBtn = $("#toggleBtn");
-			const input = $("#consoleInput");
+		// Update caret position from input
+		updateCaretPosition(input) {
+			this.caretPosition = input.selectionStart;
+		},
 
-			if (!input) {
+		// Get current caret position
+		getCaretPosition() {
+			return this.caretPosition;
+		},
+
+		// Get the word before the caret
+		getWordBeforeCaret(input) {
+			const text = input.value.substring(0, this.caretPosition);
+			const match = text.match(/(\w+)$/);
+			return match ? match[1] : "";
+		},
+
+		// Request suggestions from Lua IntelliSense
+		requestSuggestions(input) {
+			// console.log("DEBUG: requestSuggestions called, loading:", this.loading, "value:", input.value);
+			if (this.loading) {
+				// console.log("DEBUG: Skipping request because already loading");
 				return;
 			}
 
-			// Toggle console
-			toggleBtn.addEventListener("click", () => ConsoleEngine.toggle(true));
-			const closeBtn = $("#closeBtn");
-			if (closeBtn) closeBtn.addEventListener("click", () => ConsoleEngine.toggle(false));
+			const line = input.value;
+			const caret = input.selectionStart + 1; // Lua uses 1-based indexing
 
-			// Keyboard shortcuts
-			document.addEventListener("keydown", (e) => {
-				if (e.key === "`" || e.key === "~") {
-					// Prevent tilde from reaching input field when console is closed
-					if (!ConsoleEngine.isOpen) {
-						e.preventDefault();
-						e.stopPropagation();
-					}
-					// Let Lua handle the toggle via key binding
-					return;
+			// Request suggestions from Lua IntelliSense
+			this.loading = true;
+			Events.Call("GetAutocomplete", line, caret);
+
+			// Add timeout to reset loading state if Lua doesn't respond
+			setTimeout(() => {
+				if (this.loading) {
+					// console.log("DEBUG: Autocomplete request timed out, resetting loading state");
+					this.loading = false;
 				}
-				if (e.key === "Escape" && ConsoleEngine.isOpen) {
-					// Only close console if autocompletion is not visible
-					const autocompleteVisible = Autocomplete.el && Autocomplete.el.classList.contains("visible");
-					// console.log("DEBUG: Escape pressed - autocomplete visible:", autocompleteVisible);
-					if (!autocompleteVisible) {
-						// console.log("DEBUG: Closing console");
-						ConsoleEngine.toggle(false);
-					} else {
-						// console.log("DEBUG: Autocomplete visible, not closing console");
-					}
+			}, 1000); // 1 second timeout
+		},
+	};
+	window.Autocomplete = Autocomplete;
+
+	// Particle Background
+	const Particles = {
+		canvas: null,
+		ctx: null,
+		particles: [],
+		color: "#d4a017",
+		running: true,
+
+		init() {
+			this.canvas = $("#bgCanvas");
+			if (!this.canvas) return;
+			this.ctx = this.canvas.getContext("2d", {alpha: true});
+			this.resize();
+			window.addEventListener("resize", () => this.resize());
+			this.createParticles();
+			this.animate();
+		},
+
+		resize() {
+			if (!this.canvas) return;
+			this.canvas.width = window.innerWidth;
+			this.canvas.height = window.innerHeight;
+		},
+
+		updateColor() {
+			this.color = getCS("--particle-color") || "#d4a017";
+		},
+
+		createParticles() {
+			this.particles = [];
+			const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 12000), 120);
+			for (let i = 0; i < count; i++) {
+				this.particles.push({
+					x: Math.random() * this.canvas.width,
+					y: Math.random() * this.canvas.height,
+					vx: (Math.random() - 0.5) * 0.3,
+					vy: -Math.random() * 0.4 - 0.1,
+					size: Math.random() * 2 + 0.5,
+					opacity: Math.random() * 0.5 + 0.1,
+					life: Math.random(),
+				});
+			}
+		},
+
+		animate() {
+			if (!this.running || !this.ctx) return;
+			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			this.color = getCS("--particle-color") || "#d4a017";
+
+			for (const p of this.particles) {
+				p.x += p.vx;
+				p.y += p.vy;
+				p.life += 0.002;
+
+				if (p.y < -10 || p.life > 1) {
+					p.x = Math.random() * this.canvas.width;
+					p.y = this.canvas.height + 10;
+					p.life = 0;
+					p.opacity = Math.random() * 0.5 + 0.1;
 				}
+
+				const alpha = p.opacity * Math.sin(p.life * Math.PI);
+				this.ctx.beginPath();
+				this.ctx.arc(p.x, p.y, Math.max(0.1, p.size), 0, Math.PI * 2);
+				this.ctx.fillStyle = this.color;
+				this.ctx.globalAlpha = Math.max(0, alpha);
+				this.ctx.fill();
+			}
+			this.ctx.globalAlpha = 1;
+			requestAnimationFrame(() => this.animate());
+		},
+	};
+	window.Particles = Particles;
+
+	// Public API for Lua
+	window.ConsoleAPI = {
+		// Logging
+		log(type, text, realm) {
+			ConsoleEngine.log(type, text, realm);
+		},
+		info(text, realm) {
+			ConsoleEngine.log("info", text, realm);
+		},
+		warn(text, realm) {
+			ConsoleEngine.log("warn", text, realm);
+		},
+		error(text, realm) {
+			ConsoleEngine.log("error", text, realm);
+		},
+		debug(text, realm) {
+			ConsoleEngine.log("debug", text, realm);
+		},
+		success(text, realm) {
+			ConsoleEngine.log("success", text, realm);
+		},
+
+		// Console control
+		clear() {
+			ConsoleEngine.clear();
+		},
+		toggle(show) {
+			ConsoleEngine.toggle(show);
+		},
+		setTheme(theme) {
+			ThemeManager.set(theme);
+		},
+
+		// Command registration
+		registerCommand(name, desc, handler) {
+			CommandRegistry.register(name, desc, (args) => {
+				// Call Lua handler via event if available
+				if (window.ConsoleAPI.OnCommand) {
+					const result = window.ConsoleAPI.OnCommand(name, args);
+					if (result) return result;
+				}
+				// Fallback to JS handler
+				if (handler) return handler(args);
+				return null;
 			});
+		},
 
-			// Maximize
-			let isMaximized = false;
-			const maximizeBtn = $("#maximizeBtn");
-			if (maximizeBtn) {
-				maximizeBtn.addEventListener("click", () => {
-					// console.log("DEBUG: Maximize button clicked, current state:", isMaximized);
-					isMaximized = !isMaximized;
-					// console.log("DEBUG: New maximized state:", isMaximized);
-					container.classList.toggle("maximized", isMaximized);
-					// console.log("DEBUG: Container classes after toggle:", container.className);
-					maximizeBtn.innerHTML = isMaximized
-						? '<i class="fas fa-compress"></i>'
-						: '<i class="fas fa-expand"></i>';
-					// console.log("DEBUG: Maximize button HTML updated to:", maximizeBtn.innerHTML);
-				});
-			}
+		// Callbacks (to be set by Lua)
+		OnCommand: null,
+		OnToggle: null,
+		OnConsoleOpened: null,
+		OnConsoleClosed: null,
+		CloseConsole: null,
+	};
 
-			// Copy all
-			const copyAllBtn = $("#copyAllBtn");
-			if (copyAllBtn) copyAllBtn.addEventListener("click", () => ConsoleEngine.copyAll());
+	// Nanos World Events API
+	// Logging events
+	Events.Subscribe("log", (type, text, realm) => ConsoleEngine.log(type, text, realm));
+	Events.Subscribe("info", (text, realm) => ConsoleEngine.log("info", text, realm));
+	Events.Subscribe("warn", (text, realm) => ConsoleEngine.log("warn", text, realm));
+	Events.Subscribe("error", (text, realm) => ConsoleEngine.log("error", text, realm));
+	Events.Subscribe("debug", (text, realm) => ConsoleEngine.log("debug", text, realm));
+	Events.Subscribe("success", (text, realm) => ConsoleEngine.log("success", text, realm));
 
-			// Filter chips
-			$$(".filter-chip").forEach((chip) => {
-				chip.addEventListener("click", () => FilterManager.setFilter(chip.dataset.filter));
+	// Control events
+	Events.Subscribe("Clear", () => ConsoleEngine.clear());
+	Events.Subscribe("Toggle", (show) => ConsoleEngine.toggle(show));
+	Events.Subscribe("SetTheme", (theme) => ThemeManager.set(theme));
+
+	// Command registration
+	Events.Subscribe("RegisterCommand", (name, desc) => {
+		CommandRegistry.register(name, desc, (args) => {
+			// Call back to Lua for execution
+			Events.Call("OnCommand", name, args);
+			return null;
+		});
+	});
+
+	// Autocomplete provider events
+	Events.Subscribe("RegisterAutocomplete", (name, desc, type, category) => {
+		AutocompleteProvider.register(name, desc, type, category);
+	});
+
+	Events.Subscribe("UnregisterAutocomplete", (name) => {
+		AutocompleteProvider.unregister(name);
+	});
+
+	Events.Subscribe("ClearAutocomplete", () => {
+		AutocompleteProvider.clear();
+	});
+
+	// Caret position events
+	Events.Subscribe("GetCaretPosition", () => {
+		const input = $("#consoleInput");
+		if (input) {
+			Autocomplete.updateCaretPosition(input);
+			Events.Call(
+				"CaretPosition",
+				Autocomplete.getCaretPosition(),
+				input.value,
+				Autocomplete.getWordBeforeCaret(input),
+			);
+		}
+	});
+
+	// Stats request event
+	Events.Subscribe("GetStats", () => {
+		Events.Call("StatsResponse", ConsoleEngine.stats);
+	});
+
+	// Autocomplete suggestions from Lua
+	Events.Subscribe("AutocompleteSuggestions", (suggestions) => {
+		Autocomplete.loading = false;
+		if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
+			// Ensure suggestions are in the correct format
+			const formattedSuggestions = suggestions.map((s) => {
+				if (typeof s === "string") {
+					return {name: s, desc: ""};
+				}
+				if (typeof s === "object" && s.name) {
+					return {name: s.name, desc: s.desc || ""};
+				}
+				return {name: String(s), desc: ""};
 			});
+			Autocomplete.show(formattedSuggestions);
+		} else {
+			Autocomplete.hide();
+		}
+	});
 
-			// Search
-			let searchTimeout;
-			const searchInput = $("#searchInput");
-			if (searchInput) {
-				searchInput.addEventListener("input", (e) => {
-					clearTimeout(searchTimeout);
-					searchTimeout = setTimeout(() => FilterManager.setSearch(e.target.value), 150);
-				});
-			}
+	// Initialization
+	document.addEventListener("DOMContentLoaded", () => {
+		CommandRegistry.init();
+		//Particles.init();
+		ConsoleEngine.showWelcome();
 
-			// Auto-scroll toggle
-			const autoScrollBtn = $("#autoScrollBtn");
-			let isUserScrolling = false;
-			let scrollTimeout;
+		const container = $("#consoleContainer");
+		const toggleBtn = $("#toggleBtn");
+		const input = $("#consoleInput");
 
-			if (autoScrollBtn) {
-				autoScrollBtn.addEventListener("click", () => {
-					ConsoleEngine.autoScroll = !ConsoleEngine.autoScroll;
-					autoScrollBtn.classList.toggle("active", ConsoleEngine.autoScroll);
-					if (ConsoleEngine.autoScroll) {
-						const output = $("#consoleOutput");
-						if (output) output.scrollTop = output.scrollHeight;
-					}
-				});
-			}
+		if (!input) {
+			return;
+		}
 
-			// Theme dropdown
-			const themeToggleBtn = $("#themeToggleBtn");
-			if (themeToggleBtn) {
-				themeToggleBtn.addEventListener("click", (e) => {
-					e.stopPropagation();
-					ThemeManager.toggleDropdown();
-				});
-			}
+		// Restore saved console settings
+		ConsoleStorage.restore();
 
-			// Window dragging
-			const header = $(".console-header");
-			let isDragging = false;
-			let dragOffset = { x: 0, y: 0 };
+		// Focus input if console is initially open
+		if (container && container.classList.contains("open")) {
+			setTimeout(() => {
+				if (input) {
+					input.focus();
+					//input.select();
+				}
+			}, 50);
+		}
 
-			if (header) {
-				header.addEventListener("mousedown", (e) => {
-					// Don't allow dragging when maximized
-					if (container.classList.contains("maximized")) return;
+		// Initialize zoom variable and related elements before restoration
+		let currentZoom = 1.0;
+		const zoomInBtn = $("#zoomInBtn");
+		const zoomOutBtn = $("#zoomOutBtn");
+		const consoleOutput = $("#consoleOutput");
 
-					if (e.button === 0) { // Left mouse button
-						isDragging = true;
-						// Get current position accounting for transform
-						const rect = container.getBoundingClientRect();
+		// Initialize resize variables before they're used
+		let isResizing = false;
+		let resizeDirection = "";
+		let startRect = {width: 0, height: 0, left: 0, top: 0};
+		let startMouse = {x: 0, y: 0};
 
-						// Switch to absolute pixel positions, override CSS centering
-						container.style.transition = "none"; // disable animation while dragging
-						container.style.left = rect.left + "px";
-						container.style.top = rect.top + "px";
-						container.style.bottom = "auto"; // unset bottom property so top takes over
-
-						dragOffset.x = e.clientX - rect.left;
-						dragOffset.y = e.clientY - rect.top;
-						header.style.cursor = "grabbing";
-						e.preventDefault();
-					}
-				});
-
-				document.addEventListener("mousemove", (e) => {
-					if (isDragging) {
-						const newX = e.clientX - dragOffset.x;
-						const newY = e.clientY - dragOffset.y;
-
-						// Constrain to window bounds
-						const maxX = window.innerWidth - container.offsetWidth;
-						const maxY = window.innerHeight - container.offsetHeight;
-
-						const constrainedX = Math.max(0, Math.min(newX, maxX));
-						const constrainedY = Math.max(0, Math.min(newY, maxY));
-						container.style.left = constrainedX + "px";
-						container.style.top = constrainedY + "px";
-					}
-				});
-
-				document.addEventListener("mouseup", () => {
-					if (isDragging) {
-						isDragging = false;
-						// Restore transition so open/close animations work later
-						container.style.transition = "";
-						header.style.cursor = "default";
-					}
-				});
-			}
-			$$(".theme-option").forEach((opt) => {
-				opt.addEventListener("click", () => {
-					ThemeManager.set(opt.dataset.theme);
-					ThemeManager.closeDropdown();
-					Toast.show(`Theme: ${opt.textContent.trim()}`, "fa-palette");
-				});
-			});
-			document.addEventListener("click", () => ThemeManager.closeDropdown());
-
-			// Command input
-			if (input) {
-				// Track caret position on click and keyup
-				input.addEventListener("click", () => {
-					Autocomplete.updateCaretPosition(input);
-				});
-
-				input.addEventListener("keyup", () => {
-					Autocomplete.updateCaretPosition(input);
-				});
-
-				input.addEventListener("select", () => {
-					Autocomplete.updateCaretPosition(input);
-				});
-
-				input.addEventListener("keydown", (e) => {
-					// Handle tilde key in input field
-					if (e.key === "`" || e.key === "~") {
-						e.preventDefault();
-						e.stopPropagation();
-						// Only allow tilde to close console if it's open
-						if (ConsoleEngine.isOpen) {
-							// Let Lua handle closing via key binding
-							ConsoleEngine.toggle(false);
-						}
-						return;
-					}
-					if (e.key === "Enter") {
-						// Only try to confirm selection if autocomplete is visible
-						if (Autocomplete.el && Autocomplete.el.classList.contains("visible") && Autocomplete.confirmSelection()) {
-							return;
-						}
-						const val = input.value;
-						input.value = "";
-						Autocomplete.hide();
-						ConsoleEngine.execute(val);
-					} else if (e.key === "Tab") {
-						e.preventDefault();
-						// If autocomplete is already visible, try to confirm selection
-						if (Autocomplete.items.length > 0) {
-							Autocomplete.confirmSelection();
-						} else {
-							// Always request suggestions from Lua intellisense, even if empty
-							Autocomplete.requestSuggestions(input);
-						}
-					} else if (e.key === "ArrowUp") {
-						e.preventDefault();
-						if (Autocomplete.items.length > 0) {
-							Autocomplete.navigate(-1);
-						} else {
-							const prev = HistoryManager.up();
-							if (prev !== null) input.value = prev;
-						}
-					} else if (e.key === "ArrowDown") {
-						e.preventDefault();
-						if (Autocomplete.items.length > 0) {
-							Autocomplete.navigate(1);
-						} else {
-							const next = HistoryManager.down();
-							if (next !== null) input.value = next;
-						}
-					} else if (e.key === "Escape") {
-						Autocomplete.hide();
-						e.stopPropagation();
-					}
-				});
-
-				input.addEventListener("input", () => {
-					Autocomplete.updateCaretPosition(input);
-					const val = input.value.trim();
-					if (val.length >= 1) {
-						// Request suggestions from Lua intellisense
-						Autocomplete.requestSuggestions(input);
-					} else {
-						Autocomplete.hide();
-					}
-				});
-			}
-
-			// Manual scroll detection
-			const consoleOutput = $("#consoleOutput");
+		function updateZoom() {
 			if (consoleOutput) {
-				// Detect user-initiated scrolling vs auto-scrolling
-				consoleOutput.addEventListener("wheel", () => {
-					isUserScrolling = true;
-					clearTimeout(scrollTimeout);
-					scrollTimeout = setTimeout(() => {
-						isUserScrolling = false;
-					}, 150);
-				});
+				// Apply zoom to all console content areas
+				consoleOutput.style.zoom = currentZoom;
+				const inputArea = $(".console-input-area");
+				if (inputArea) inputArea.style.zoom = currentZoom;
+				const toolbar = $(".console-toolbar");
+				if (toolbar) toolbar.style.zoom = currentZoom;
+				const header = $(".console-header");
+				if (header) header.style.zoom = currentZoom;
 
-				consoleOutput.addEventListener("touchstart", () => {
-					isUserScrolling = true;
-					clearTimeout(scrollTimeout);
-					scrollTimeout = setTimeout(() => {
-						isUserScrolling = false;
-					}, 150);
-				});
+				// Scale minimum dimensions proportionally
+				const baseMinWidth = 640;
+				const baseMinHeight = 400;
+				const scaledMinWidth = baseMinWidth * currentZoom;
+				const scaledMinHeight = baseMinHeight * currentZoom;
+				container.style.minWidth = scaledMinWidth + 'px';
+				container.style.minHeight = scaledMinHeight + 'px';
+			}
 
-				consoleOutput.addEventListener("scroll", () => {
-					// Only disable auto-scroll if user is actually scrolling and not at bottom
-					if (isUserScrolling && ConsoleEngine.autoScroll) {
-						const atBottom =
-							consoleOutput.scrollHeight - consoleOutput.scrollTop - consoleOutput.clientHeight < 50;
-						if (!atBottom) {
-							ConsoleEngine.autoScroll = false;
-							if (autoScrollBtn) autoScrollBtn.classList.remove("active");
-						}
+			// Update button states
+			if (zoomInBtn) {
+				zoomInBtn.disabled = currentZoom >= 2.0;
+				zoomInBtn.style.opacity = currentZoom >= 2.0 ? '0.5' : '1';
+			}
+			if (zoomOutBtn) {
+				zoomOutBtn.disabled = currentZoom <= 0.5;
+				zoomOutBtn.style.opacity = currentZoom <= 0.5 ? '0.5' : '1';
+			}
+
+			// Save zoom level to local storage
+			try {
+				localStorage.setItem('console_zoom', currentZoom.toString());
+			} catch (e) {
+				console.warn("Failed to save zoom level:", e);
+			}
+		}
+
+		// Restore individual settings that might not be in main storage
+		// (these will override main storage if they exist)
+
+		// Restore zoom level from local storage
+		try {
+			const savedZoom = localStorage.getItem('console_zoom');
+			if (savedZoom) {
+				currentZoom = Math.max(0.5, Math.min(2.0, parseFloat(savedZoom)));
+				updateZoom();
+			}
+		} catch (e) {
+			console.warn("Failed to restore zoom level:", e);
+		}
+
+		// Restore auto-scroll state from individual storage (overrides main storage if exists)
+		try {
+			const savedAutoScroll = localStorage.getItem('console_auto_scroll');
+			if (savedAutoScroll) {
+				ConsoleEngine.autoScroll = savedAutoScroll === 'true';
+				const autoScrollBtn = $("#autoScrollBtn");
+				if (autoScrollBtn) {
+					autoScrollBtn.classList.toggle("active", ConsoleEngine.autoScroll);
+				}
+			}
+		} catch (e) {
+			console.warn("Failed to restore auto-scroll state:", e);
+		}
+
+		// Set initial toggle button visibility based on console state
+		function updateToggleButtonVisibility() {
+			if (toggleBtn && container) {
+				const isOpen = container.classList.contains("open");
+				if (isOpen) {
+					toggleBtn.style.opacity = "0";
+					toggleBtn.style.transform = "scale(0.8)";
+					toggleBtn.style.pointerEvents = "none";
+				} else {
+					toggleBtn.style.opacity = "1";
+					toggleBtn.style.transform = "scale(1)";
+					toggleBtn.style.pointerEvents = "all";
+				}
+			}
+		}
+
+		// Set initial visibility
+		updateToggleButtonVisibility();
+
+		// Add window resize listener for viewport clamping
+		let resizeTimeout;
+		window.addEventListener("resize", () => {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(() => {
+				if (container && !container.classList.contains("maximized")) {
+					// Clamp to viewport on window resize
+					const clampedRect = ConsoleStorage.clampToViewport(container);
+					if (clampedRect) {
+						ConsoleStorage.applyClampedDimensions(container, clampedRect);
+						// Save the new clamped position
+						ConsoleStorage.save();
 					}
-				});
+				}
+			}, 250); // Debounce resize events
+		});
+
+		// Toggle console
+		toggleBtn.addEventListener("click", () => ConsoleEngine.toggle(true));
+		const closeBtn = $("#closeBtn");
+		if (closeBtn) {
+			closeBtn.addEventListener("click", () => ConsoleEngine.toggle(false));
+			CustomTooltip.attach(closeBtn, "Close console (Escape key)");
+		}
+
+		// Keyboard shortcuts
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "`" || e.key === "~") {
+				// Prevent tilde from reaching input field when console is closed
+				if (!ConsoleEngine.isOpen) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+				// Let Lua handle the toggle via key binding
+				return;
+			}
+			if (e.key === "Escape" && ConsoleEngine.isOpen) {
+				// Only close console if autocompletion is not visible and input is not focused
+				const autocompleteVisible = Autocomplete.el && Autocomplete.el.classList.contains("visible");
+				const inputFocused = document.activeElement === input;
+				if (!autocompleteVisible && !inputFocused) {
+					ConsoleEngine.toggle(false);
+				}
 			}
 		});
 
-		// ConsoleReady event - signal Lua that JS is ready
-		const onReady = () => {
-			Events.Call("ConsoleReady");
+		// Maximize
+		let isMaximized = false;
+		const maximizeBtn = $("#maximizeBtn");
+		if (maximizeBtn) {
+			maximizeBtn.addEventListener("click", () => {
+				// console.log("DEBUG: Maximize button clicked, current state:", isMaximized);
+				isMaximized = !isMaximized;
+				// console.log("DEBUG: New maximized state:", isMaximized);
+				container.classList.toggle("maximized", isMaximized);
+				// console.log("DEBUG: Container classes after toggle:", container.className);
+				maximizeBtn.innerHTML = isMaximized
+					? '<i class="fas fa-compress"></i>'
+					: '<i class="fas fa-expand"></i>';
+				// console.log("DEBUG: Maximize button HTML updated to:", maximizeBtn.innerHTML);
+				// Save settings when maximize state changes
+				ConsoleStorage.save();
+
+				// Update tooltip text based on state
+				if (isMaximized) {
+					CustomTooltip.attach(maximizeBtn, "Restore window size");
+				} else {
+					CustomTooltip.attach(maximizeBtn, "Maximize console");
+				}
+			});
+
+			// Initial tooltip
+			CustomTooltip.attach(maximizeBtn, "Maximize console");
+		}
+
+		// Zoom functionality (moved to initialization section)
+
+		if (zoomInBtn) {
+			zoomInBtn.addEventListener("click", () => {
+				if (currentZoom < 2.0) {
+					currentZoom += 0.1;
+					updateZoom();
+					Toast.show(`Zoom: ${Math.round(currentZoom * 100)}%`, "fa-search-plus");
+				}
+			});
+			CustomTooltip.attach(zoomInBtn, "Zoom in (Ctrl+Plus)");
+		}
+
+		if (zoomOutBtn) {
+			zoomOutBtn.addEventListener("click", () => {
+				if (currentZoom > 0.5) {
+					currentZoom -= 0.1;
+					updateZoom();
+					Toast.show(`Zoom: ${Math.round(currentZoom * 100)}%`, "fa-search-minus");
+				}
+			});
+			CustomTooltip.attach(zoomOutBtn, "Zoom out (Ctrl+Minus)");
+		}
+
+		// Mouse wheel zoom functionality when CTRL is held down
+		// document.addEventListener("wheel", (e) => {
+		// 	if (e.ctrlKey || e.metaKey) {
+		// 		e.preventDefault();
+		//
+		// 		const delta = e.deltaY > 0 ? -0.1 : 0.1;
+		// 		const newZoom = Math.max(0.5, Math.min(2.0, currentZoom + delta));
+		//
+		// 		if (newZoom !== currentZoom) {
+		// 			currentZoom = newZoom;
+		// 			updateZoom();
+		// 			Toast.show(`Zoom: ${Math.round(currentZoom * 100)}%`, delta > 0 ? "fa-search-minus" : "fa-search-plus");
+		// 		}
+		// 	}
+		// });
+
+		// Keyboard shortcuts for zoom
+		document.addEventListener("keydown", (e) => {
+			if (e.ctrlKey || e.metaKey) {
+				if (e.key === "=" || e.key === "+") {
+					e.preventDefault();
+					if (currentZoom < 2.0) {
+						const previousZoom = currentZoom;
+						currentZoom += 0.1;
+						if (currentZoom !== previousZoom) {
+							updateZoom();
+							Toast.show(`Zoom: ${Math.round(currentZoom * 100)}%`, "fa-search-plus");
+						}
+					}
+				} else if (e.key === "-") {
+					e.preventDefault();
+					if (currentZoom > 0.5) {
+						const previousZoom = currentZoom;
+						currentZoom -= 0.1;
+						if (currentZoom !== previousZoom) {
+							updateZoom();
+							Toast.show(`Zoom: ${Math.round(currentZoom * 100)}%`, "fa-search-minus");
+						}
+					}
+				} else if (e.key === "0") {
+					e.preventDefault();
+					const previousZoom = currentZoom;
+					currentZoom = 1.0;
+					if (currentZoom !== previousZoom) {
+						updateZoom();
+						Toast.show("Zoom: 100%", "fa-compress");
+					}
+				}
+			}
+		});
+
+		// Initialize zoom (already restored in main initialization)
+		updateZoom();
+
+		// Clear console
+		const clearBtn = $("#clearBtn");
+		if (clearBtn) {
+			clearBtn.addEventListener("dblclick", () => {
+				ConsoleEngine.clear();
+			});
+
+			// Apply custom tooltip
+			CustomTooltip.attach(clearBtn, "Double-click to clear console");
+		}
+
+		// Copy all
+		const copyAllBtn = $("#copyAllBtn");
+		if (copyAllBtn) {
+			copyAllBtn.addEventListener("click", () => ConsoleEngine.copyAll());
+			CustomTooltip.attach(copyAllBtn, "Copy all logs to clipboard");
+		}
+
+		// Filter chips
+		$$(".filter-chip").forEach((chip) => {
+			chip.addEventListener("click", () => FilterManager.setFilter(chip.dataset.filter));
+
+			// Add tooltips based on filter type
+			const filterType = chip.dataset.filter;
+			let tooltipText = "";
+
+			switch (filterType) {
+				case "all":
+					tooltipText = "Show all message types";
+					break;
+				case "log":
+					tooltipText = "Toggle log messages";
+					break;
+				case "info":
+					tooltipText = "Toggle info messages";
+					break;
+				case "warn":
+					tooltipText = "Toggle warning messages";
+					break;
+				case "error":
+					tooltipText = "Toggle error messages";
+					break;
+				case "debug":
+					tooltipText = "Toggle debug messages";
+					break;
+				case "success":
+					tooltipText = "Toggle success messages";
+					break;
+				case "cmd":
+					tooltipText = "Toggle command messages";
+					break;
+				default:
+					tooltipText = `Toggle ${filterType} messages`;
+			}
+
+			CustomTooltip.attach(chip, tooltipText);
+		});
+
+		// Restore filter state
+		FilterManager.restoreState();
+
+		// Search
+		let searchTimeout;
+		const searchInput = $("#searchInput");
+		if (searchInput) {
+			searchInput.addEventListener("input", (e) => {
+				clearTimeout(searchTimeout);
+				searchTimeout = setTimeout(() => FilterManager.setSearch(e.target.value), 150);
+			});
+		}
+
+		// Function to update input placeholder based on realm
+		const updateInputPlaceholder = () => {
+			const input = $("#consoleInput");
+			if (input) {
+				const realm = ConsoleEngine.getRealm();
+				input.placeholder = realm === "server" ? "Type a server command..." : "Type a client command...";
+			}
 		};
-		window.onload = onReady;
-	</script>
+
+		// Realm toggle functionality
+		const realmToggle = $("#realmToggle");
+
+		if (realmToggle) {
+			// Initialize realm state from localStorage
+			try {
+				const savedRealm = localStorage.getItem('console_realm');
+				if (savedRealm && (savedRealm === "client" || savedRealm === "server")) {
+					ConsoleEngine.setRealm(savedRealm);
+				}
+			} catch (e) {
+				console.warn("Failed to restore realm state:", e);
+			}
+
+			// Sync ConsoleEngine realm with UI
+			ConsoleEngine.setRealm(ConsoleEngine.currentRealm);
+
+			realmToggle.addEventListener("click", () => {
+				// Toggle between client and server
+				const newRealm = ConsoleEngine.currentRealm === "client" ? "server" : "client";
+				ConsoleEngine.setRealm(newRealm);
+
+				// Save realm state to localStorage
+				try {
+					localStorage.setItem('console_realm', newRealm);
+					// Also save to main console settings
+					ConsoleStorage.save();
+				} catch (e) {
+					console.warn("Failed to save realm state:", e);
+				}
+
+				// Notify Lua about realm change
+				Events.Call("OnRealmChanged", newRealm);
+
+				// Scroll to bottom when switching realms
+				const output = $("#consoleOutput");
+				if (output) {
+					output.scrollTop = output.scrollHeight;
+				}
+
+				// Show toast notification
+				Toast.show(`Switched to ${newRealm.toUpperCase()} realm`,
+					newRealm === "client" ? "fa-user" : "fa-server");
+			});
+
+			// Update UI when ConsoleEngine realm changes
+			function updateRealmToggleUI() {
+				const slider = realmToggle.querySelector(".realm-toggle-slider");
+				if (ConsoleEngine.currentRealm === "server") {
+					realmToggle.classList.remove("client");
+					realmToggle.classList.add("server");
+					slider.textContent = "S";
+					realmToggle.title = "Switch to CLIENT output realm";
+				} else {
+					realmToggle.classList.remove("server");
+					realmToggle.classList.add("client");
+					slider.textContent = "C";
+					realmToggle.title = "Switch to SERVER output realm";
+				}
+			}
+
+			// Override ConsoleEngine.setRealm to update UI
+			const originalSetRealm = ConsoleEngine.setRealm;
+			ConsoleEngine.setRealm = function (realm) {
+				originalSetRealm.call(this, realm);
+				updateRealmToggleUI();
+				updateInputPlaceholder();
+				// Reapply filters after switching realms
+				FilterManager.apply();
+			};
+
+			// Initial UI update
+			updateRealmToggleUI();
+			updateInputPlaceholder();
+		}
+
+		// Regex toggle via search icon button
+		const searchIcon = $("#searchIcon");
+		if (searchIcon) {
+			searchIcon.addEventListener("click", () => {
+				const isRegexMode = FilterManager.regexMode;
+				FilterManager.setRegexMode(!isRegexMode);
+				const newRegexMode = FilterManager.regexMode; // Get the new state after toggle
+
+				// Update icon and class
+				const iconElement = searchIcon.querySelector("i");
+				if (iconElement) {
+					if (newRegexMode) {
+						iconElement.classList.remove("fa-search");
+						iconElement.classList.add("fa-asterisk");
+						searchIcon.classList.add("regex-active");
+					} else {
+						iconElement.classList.remove("fa-asterisk");
+						iconElement.classList.remove("regex-active");
+						iconElement.classList.add("fa-search");
+					}
+				}
+
+				// Update placeholder to indicate mode
+				if (searchInput) {
+					searchInput.placeholder = newRegexMode ? "Search logs (regex)..." : "Search logs...";
+				}
+
+				// Show toast notification
+				Toast.show(newRegexMode ? "Regex search enabled" : "Regex search disabled", "fa-asterisk");
+
+				// Update tooltip text based on state
+				if (newRegexMode) {
+					CustomTooltip.attach(searchIcon, "Regex search enabled (click to disable)");
+				} else {
+					CustomTooltip.attach(searchIcon, "Enable regex search");
+				}
+
+				// Also update existing tooltip content if it's visible
+				if (CustomTooltip.tooltip && CustomTooltip.tooltip.classList.contains('visible')) {
+					CustomTooltip.tooltip.textContent = newRegexMode ? "Regex search enabled (click to disable)" : "Enable regex search";
+				}
+			});
+		}
+
+		// Auto-scroll toggle
+		const autoScrollBtn = $("#autoScrollBtn");
+		let isUserScrolling = false;
+		let scrollTimeout;
+
+		if (autoScrollBtn) {
+			autoScrollBtn.addEventListener("click", () => {
+				ConsoleEngine.autoScroll = !ConsoleEngine.autoScroll;
+				autoScrollBtn.classList.toggle("active", ConsoleEngine.autoScroll);
+
+				// Show notification for manual toggle
+				if (ConsoleEngine.autoScroll) {
+					// Always scroll to bottom when enabling auto-scroll
+					const output = $("#consoleOutput");
+					if (output) {
+						// Force scroll to bottom immediately
+						output.scrollTop = output.scrollHeight;
+						// Double-check scroll position in case of timing issues
+						setTimeout(() => {
+							output.scrollTop = output.scrollHeight;
+						}, 10);
+					}
+					Toast.show("Auto-scroll enabled", "fa-arrow-down", 1500);
+				} else {
+					Toast.show("Auto-scroll disabled", "fa-arrow-up", 1500);
+				}
+
+				// Save auto-scroll state to local storage
+				try {
+					localStorage.setItem('console_auto_scroll', ConsoleEngine.autoScroll.toString());
+					// Also save to main console settings
+					ConsoleStorage.save();
+				} catch (e) {
+					console.warn("Failed to save auto-scroll state:", e);
+				}
+
+				// Update tooltip text based on state
+				if (ConsoleEngine.autoScroll) {
+					CustomTooltip.attach(autoScrollBtn, "Auto-scroll enabled");
+				} else {
+					CustomTooltip.attach(autoScrollBtn, "Auto-scroll disabled");
+				}
+			});
+
+			// Initial tooltip
+			CustomTooltip.attach(autoScrollBtn, "Toggle auto-scroll");
+		}
+
+		// Timestamp toggle
+		const timestampBtn = $("#timestampBtn");
+		ConsoleEngine.showTimestamps = true; // Default to showing timestamps
+
+		// Restore timestamp state from individual storage (overrides main storage if exists)
+		try {
+			const savedTimestamps = localStorage.getItem('console_show_timestamps');
+			if (savedTimestamps) {
+				ConsoleEngine.showTimestamps = savedTimestamps === 'true';
+			}
+		} catch (e) {
+			console.warn("Failed to restore timestamp state:", e);
+		}
+
+		if (timestampBtn) {
+			// Apply restored state to button
+			timestampBtn.classList.toggle("active", ConsoleEngine.showTimestamps);
+			timestampBtn.addEventListener("click", () => {
+				ConsoleEngine.showTimestamps = !ConsoleEngine.showTimestamps;
+				timestampBtn.classList.toggle("active", ConsoleEngine.showTimestamps);
+
+				// Update all existing messages
+				const output = $("#consoleOutput");
+				if (output) {
+					const messages = output.querySelectorAll(".msg-entry");
+					messages.forEach(msg => {
+						const timestamp = msg.querySelector(".msg-timestamp");
+						if (timestamp) {
+							timestamp.style.display = ConsoleEngine.showTimestamps ? "inline-block" : "none";
+						}
+					});
+				}
+
+				// Show notification for manual toggle
+				if (ConsoleEngine.showTimestamps) {
+					Toast.show("Timestamps enabled", "fa-clock", 1500);
+				} else {
+					Toast.show("Timestamps disabled", "fa-clock", 1500);
+				}
+
+				// Save timestamp state to local storage
+				try {
+					localStorage.setItem('console_show_timestamps', ConsoleEngine.showTimestamps.toString());
+					// Also save to main console settings
+					ConsoleStorage.save();
+				} catch (e) {
+					console.warn("Failed to save timestamp state:", e);
+				}
+
+				// Update tooltip text based on state
+				if (ConsoleEngine.showTimestamps) {
+					CustomTooltip.attach(timestampBtn, "Timestamps enabled");
+				} else {
+					CustomTooltip.attach(timestampBtn, "Timestamps disabled");
+				}
+			});
+
+			// Initial tooltip
+			CustomTooltip.attach(timestampBtn, "Toggle timestamps");
+		}
+
+		// Theme dropdown
+		const themeToggleBtn = $("#themeToggleBtn");
+		if (themeToggleBtn) {
+			themeToggleBtn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				ThemeManager.toggleDropdown();
+			});
+		}
+
+		// Window dragging
+		const header = $(".console-header");
+		let isDragging = false;
+		let dragOffset = {x: 0, y: 0};
+
+		if (header) {
+			header.addEventListener("mousedown", (e) => {
+				// Don't allow dragging when maximized
+				if (container.classList.contains("maximized")) return;
+
+				if (e.button === 0) { // Left mouse button
+					isDragging = true;
+					// Get current position accounting for transform and zoom
+					const rect = container.getBoundingClientRect();
+					// Account for zoom scale when calculating positions
+					const zoomScale = currentZoom || 1.0;
+
+					// Switch to absolute pixel positions, override CSS centering
+					container.style.transition = "none"; // disable animation while dragging
+					container.style.left = rect.left + "px";
+					container.style.top = rect.top + "px";
+					container.style.bottom = "auto"; // unset bottom property so top takes over
+
+					// Account for zoom scale when calculating drag offset
+					dragOffset.x = e.clientX - rect.left;
+					dragOffset.y = e.clientY - rect.top;
+					header.style.cursor = "grabbing";
+					e.preventDefault();
+				}
+			});
+
+			document.addEventListener("mousemove", (e) => {
+				if (isDragging) {
+					// Calculate new position based on mouse movement
+					const newX = e.clientX - dragOffset.x;
+					const newY = e.clientY - dragOffset.y;
+
+					// Create temporary rect for clamping, accounting for zoom scale
+					const zoomScale = currentZoom || 1.0;
+					const tempRect = {
+						left: newX,
+						top: newY,
+						width: container.offsetWidth / zoomScale,
+						height: container.offsetHeight / zoomScale,
+						right: newX + (container.offsetWidth / zoomScale),
+						bottom: newY + (container.offsetHeight / zoomScale)
+					};
+
+					// Clamp to viewport
+					const clampedRect = ConsoleStorage.clampToViewport(container, tempRect);
+					if (clampedRect) {
+						container.style.left = clampedRect.left + "px";
+						container.style.top = clampedRect.top + "px";
+					}
+				}
+			});
+
+			document.addEventListener("mouseup", () => {
+				if (isDragging) {
+					isDragging = false;
+					// Restore transition so open/close animations work later
+					container.style.transition = "";
+					header.style.cursor = "default";
+					// Save settings when dragging ends
+					ConsoleStorage.save();
+				}
+			});
+		}
+
+		// Window resizing
+
+		const resizeHandles = $$(".resize-handle");
+		resizeHandles.forEach(handle => {
+			handle.addEventListener("mousedown", (e) => {
+				// Don't allow resizing when maximized
+				if (container.classList.contains("maximized")) return;
+
+				if (e.button === 0) { // Left mouse button
+					isResizing = true;
+					resizeDirection = handle.dataset.direction;
+
+					const rect = container.getBoundingClientRect();
+					const zoomScale = currentZoom || 1.0;
+					startRect = {
+						width: rect.width / zoomScale,
+						height: rect.height / zoomScale,
+						left: rect.left,
+						top: rect.top
+					};
+					startMouse = {x: e.clientX, y: e.clientY};
+
+					// Switch to absolute positioning if not already
+					if (container.style.bottom !== "auto") {
+						container.style.transition = "none";
+						container.style.left = rect.left + "px";
+						container.style.top = rect.top + "px";
+						container.style.bottom = "auto";
+					}
+
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			});
+		});
+
+		document.addEventListener("mousemove", (e) => {
+			if (isResizing) {
+				const deltaX = e.clientX - startMouse.x;
+				const deltaY = e.clientY - startMouse.y;
+
+				let newWidth = startRect.width;
+				let newHeight = startRect.height;
+				let newLeft = startRect.left;
+				let newTop = startRect.top;
+
+				// Handle different resize directions
+				if (resizeDirection.includes('e')) {
+					newWidth = startRect.width + deltaX;
+				}
+				if (resizeDirection.includes('w')) {
+					newWidth = startRect.width - deltaX;
+					newLeft = startRect.left + deltaX;
+				}
+				if (resizeDirection.includes('s')) {
+					newHeight = startRect.height + deltaY;
+				}
+				if (resizeDirection.includes('n')) {
+					newHeight = startRect.height - deltaY;
+					newTop = startRect.top + deltaY;
+				}
+
+				// Create temporary rect for clamping, accounting for zoom scale
+				const zoomScale = currentZoom || 1.0;
+				const tempRect = {
+					left: newLeft,
+					top: newTop,
+					width: newWidth / zoomScale,
+					height: newHeight / zoomScale,
+					right: newLeft + (newWidth / zoomScale),
+					bottom: newTop + (newHeight / zoomScale)
+				};
+
+				// Clamp to viewport
+				const clampedRect = ConsoleStorage.clampToViewport(container, tempRect);
+				if (clampedRect) {
+					// Apply the clamped dimensions and position
+					container.style.width = clampedRect.width + "px";
+					container.style.height = clampedRect.height + "px";
+					container.style.left = clampedRect.left + "px";
+					container.style.top = clampedRect.top + "px";
+				}
+			}
+		});
+
+		document.addEventListener("mouseup", () => {
+			if (isResizing) {
+				isResizing = false;
+				resizeDirection = "";
+				// Restore transition so open/close animations work later
+				container.style.transition = "";
+				// Save settings when resizing ends
+				ConsoleStorage.save();
+			}
+		});
+
+		$$(".theme-option").forEach((opt) => {
+			opt.addEventListener("click", () => {
+				ThemeManager.set(opt.dataset.theme);
+				ThemeManager.closeDropdown();
+				Toast.show(`Theme: ${opt.textContent.trim()}`, "fa-palette");
+			});
+		});
+		document.addEventListener("click", () => ThemeManager.closeDropdown());
+
+		// Command input
+		if (input) {
+			// Add click-to-focus as fallback
+			input.addEventListener("click", () => {
+				if (!input.matches(":focus")) {
+					input.focus();
+				}
+			});
+
+			// Insert/Overwrite mode functionality
+			ConsoleEngine.insertMode = true; // Default to insert mode
+
+			// Function to update cursor style based on mode
+			const updateCursorStyle = () => {
+				if (ConsoleEngine.insertMode) {
+					input.classList.remove('overwrite-mode');
+					input.classList.add('insert-mode');
+					input.style.caretShape = 'bar'; // Insert mode cursor (I-beam)
+				} else {
+					input.classList.remove('insert-mode');
+					input.classList.add('overwrite-mode');
+					input.style.caretShape = 'block'; // Overwrite mode cursor (block)
+				}
+			};
+
+			// Function to toggle insert/overwrite mode
+			const toggleInsertMode = () => {
+				ConsoleEngine.insertMode = !ConsoleEngine.insertMode;
+				updateCursorStyle();
+
+				// Save mode to local storage
+				try {
+					localStorage.setItem('console_insert_mode', ConsoleEngine.insertMode.toString());
+				} catch (e) {
+					console.warn("Failed to save insert mode state:", e);
+				}
+
+				// Show toast notification
+				Toast.show(ConsoleEngine.insertMode ? "Insert mode" : "Overwrite mode",
+					ConsoleEngine.insertMode ? "fa-i-cursor" : "fa-i-cursor");
+			};
+
+			// Keydown handler for insert/overwrite mode
+			input.addEventListener("keydown", (e) => {
+				if (e.key === "Insert") {
+					e.preventDefault();
+					toggleInsertMode();
+					return;
+				}
+
+				// Handle overwrite mode
+				if (!ConsoleEngine.insertMode && !e.ctrlKey && !e.metaKey && !e.altKey) {
+					// Only handle character input keys in overwrite mode
+					if (e.key.length === 1 || e.key === "Enter") {
+						const start = input.selectionStart;
+						const end = input.selectionEnd;
+						const value = input.value;
+
+						// If we have a selection, delete it first
+						if (start !== end) {
+							const newValue = value.substring(0, start) + value.substring(end);
+							input.value = newValue;
+							input.setSelectionRange(start, start);
+						}
+
+						// Handle character overwrite
+						if (e.key === "Enter") {
+							// Don't overwrite with Enter, just submit
+							return;
+						} else {
+							// Overwrite the character at cursor position
+							if (start < value.length) {
+								const newValue = value.substring(0, start) + e.key + value.substring(start + 1);
+								input.value = newValue;
+								input.setSelectionRange(start + 1, start + 1);
+							} else {
+								// At end of input, just append
+								const newValue = value + e.key;
+								input.value = newValue;
+								input.setSelectionRange(start + 1, start + 1);
+							}
+							e.preventDefault();
+
+							// Trigger autocompletion update in overwrite mode
+							if (window.Autocomplete) {
+								setTimeout(() => {
+									window.Autocomplete.requestSuggestions(input);
+								}, 10);
+							}
+						}
+					}
+				}
+			});
+
+			// Restore insert mode from local storage
+			try {
+				const savedInsertMode = localStorage.getItem('console_insert_mode');
+				if (savedInsertMode) {
+					ConsoleEngine.insertMode = savedInsertMode === 'true';
+					updateCursorStyle();
+				}
+			} catch (e) {
+				console.warn("Failed to restore insert mode state:", e);
+			}
+
+			// Enter button functionality
+			const enterBtn = $("#enterBtn");
+
+			// Function to update Enter button state
+			const updateEnterButtonState = () => {
+				if (enterBtn) {
+					const trimmedValue = input.value.trim();
+					const hasContent = trimmedValue.length > 0;
+					enterBtn.disabled = !hasContent;
+					enterBtn.classList.toggle("disabled", !hasContent);
+				}
+			};
+
+			if (enterBtn) {
+				// Initial state
+				updateEnterButtonState();
+
+				// Update state on input
+				input.addEventListener("input", updateEnterButtonState);
+
+				enterBtn.addEventListener("click", () => {
+					const val = input.value.trim();
+					if (val.length > 0) {
+						input.value = "";
+						// Trigger input event to ensure state update
+						input.dispatchEvent(new Event('input', {bubbles: true}));
+						Autocomplete.hide();
+						ConsoleEngine.execute(val);
+						// Double-check state update after command execution
+						setTimeout(updateEnterButtonState, 0);
+					}
+				});
+			}
+
+			// Track caret position on click and keyup
+			input.addEventListener("click", () => {
+				Autocomplete.updateCaretPosition(input);
+			});
+
+			input.addEventListener("keyup", () => {
+				Autocomplete.updateCaretPosition(input);
+			});
+
+			input.addEventListener("select", () => {
+				Autocomplete.updateCaretPosition(input);
+			});
+
+			input.addEventListener("keydown", (e) => {
+				// Handle tilde key in input field
+				if (e.key === "`" || e.key === "~") {
+					e.preventDefault();
+					e.stopPropagation();
+					// Only allow tilde to close console if it's open
+					if (ConsoleEngine.isOpen) {
+						// Let Lua handle closing via key binding
+						ConsoleEngine.toggle(false);
+					}
+					return;
+				}
+				if (e.key === "Enter") {
+					const val = input.value;
+					input.value = "";
+					// Trigger input event to ensure state update
+					input.dispatchEvent(new Event('input', {bubbles: true}));
+					Autocomplete.hide();
+					ConsoleEngine.execute(val);
+					// Double-check state update after command execution
+					if (enterBtn) setTimeout(updateEnterButtonState, 0);
+				} else if (e.key === "Tab") {
+					e.preventDefault();
+					if (Autocomplete.items.length > 0) {
+						// Complete the selected suggestion
+						Autocomplete.confirmSelection();
+					} else {
+						// Request suggestions if none are shown
+						Autocomplete.requestSuggestions(input);
+					}
+				} else if (e.key === "ArrowUp") {
+					e.preventDefault();
+					if (Autocomplete.items.length > 0) {
+						Autocomplete.navigate(-1);
+					} else {
+						const prev = HistoryManager.up();
+						if (prev !== null) {
+							input.value = prev;
+							// Update Enter button state after history navigation
+							if (enterBtn) updateEnterButtonState();
+						}
+					}
+				} else if (e.key === "ArrowDown") {
+					e.preventDefault();
+					if (Autocomplete.items.length > 0) {
+						Autocomplete.navigate(1);
+					} else {
+						const next = HistoryManager.down();
+						if (next !== null) {
+							input.value = next;
+							// Update Enter button state after history navigation
+							if (enterBtn) updateEnterButtonState();
+						}
+					}
+				} else if (e.key === "Escape") {
+					Autocomplete.hide();
+					e.stopPropagation();
+				} else if (e.key === "Backspace") {
+					// Hide autocomplete when deleting
+					Autocomplete.hide();
+				}
+			});
+
+			input.addEventListener("input", () => {
+				Autocomplete.updateCaretPosition(input);
+				const val = input.value;
+				if (val.length >= 1) {
+					// Request suggestions from Lua intellisense
+					Autocomplete.requestSuggestions(input);
+				} else {
+					Autocomplete.hide();
+				}
+			});
+		}
+
+		// Manual scroll detection
+		if (consoleOutput) {
+			// Scrollbar fade animation
+			let scrollbarFadeTimeout;
+			let isScrollbarVisible = true;
+			let isWheelScrolling = false; // Track if scroll was caused by wheel
+
+			// Function to check if scrollbar should be visible
+			function updateScrollbarVisibility() {
+				const hasScrollableContent = consoleOutput.scrollHeight > consoleOutput.clientHeight;
+				if (!hasScrollableContent) {
+					hideScrollbar();
+				} else {
+					showScrollbar();
+				}
+			}
+
+			function showScrollbar() {
+				consoleOutput.classList.remove("fade-scrollbar");
+				isScrollbarVisible = true;
+				clearTimeout(scrollbarFadeTimeout);
+			}
+
+			function hideScrollbar() {
+				consoleOutput.classList.add("fade-scrollbar");
+				isScrollbarVisible = false;
+			}
+
+			// Show scrollbar when hovering over console output
+			consoleOutput.addEventListener("mouseenter", showScrollbar);
+			consoleOutput.addEventListener("mouseleave", () => {
+				// Hide scrollbar after 2 seconds of inactivity
+				scrollbarFadeTimeout = setTimeout(hideScrollbar, 2000);
+			});
+
+			// Update scrollbar visibility on content changes
+			const observer = new MutationObserver(() => {
+				updateScrollbarVisibility();
+			});
+			observer.observe(consoleOutput, {
+				childList: true,
+				subtree: true,
+				attributes: false
+			});
+
+			// Initial scrollbar visibility check
+			updateScrollbarVisibility();
+
+			// Handle wheel events to detect scroll direction and disable auto-scroll when scrolling up
+			consoleOutput.addEventListener("wheel", (e) => {
+				// Detect scroll direction
+				const scrollDirection = e.deltaY;
+
+				// Check if there's actually scrollable content (not at the top)
+				const hasScrollableContent = consoleOutput.scrollTop > 0;
+
+				// Check if this is an actual scroll event (not just wheel press)
+				const isActualScroll = Math.abs(e.deltaY) > 0;
+
+				// Only disable auto-scroll if:
+				// 1. Auto-scroll is enabled
+				// 2. User is actually scrolling (not just pressing wheel)
+				// 3. There's scrollable content to scroll through
+				// 4. User is scrolling up
+				if (ConsoleEngine.autoScroll && isActualScroll && hasScrollableContent && scrollDirection < 0) {
+					ConsoleEngine.autoScroll = false;
+					if (autoScrollBtn) autoScrollBtn.classList.remove("active");
+
+					// Show feedback that auto-scroll was disabled
+					Toast.show("Auto-scroll disabled", "fa-arrow-up", 1500);
+
+					// Save auto-scroll state
+					try {
+						localStorage.setItem('console_auto_scroll', ConsoleEngine.autoScroll.toString());
+						ConsoleStorage.save();
+					} catch (e) {
+						console.warn("Failed to save auto-scroll state:", e);
+					}
+				}
+
+				// Set wheel scrolling flag to prevent scroll event handler from triggering
+				isWheelScrolling = true;
+				isUserScrolling = true;
+				showScrollbar();
+				clearTimeout(scrollTimeout);
+				scrollTimeout = setTimeout(() => {
+					isUserScrolling = false;
+					isWheelScrolling = false; // Reset flag after delay
+				}, 150);
+
+				// Hide scrollbar after scrolling stops
+				clearTimeout(scrollbarFadeTimeout);
+				scrollbarFadeTimeout = setTimeout(hideScrollbar, 2000);
+			});
+
+			consoleOutput.addEventListener("touchstart", () => {
+				isUserScrolling = true;
+				showScrollbar();
+				clearTimeout(scrollTimeout);
+				scrollTimeout = setTimeout(() => {
+					isUserScrolling = false;
+				}, 150);
+
+				// Hide scrollbar after touch scrolling stops
+				clearTimeout(scrollbarFadeTimeout);
+				scrollbarFadeTimeout = setTimeout(hideScrollbar, 2000);
+			});
+
+			// Show scrollbar when mouse moves over console output
+			consoleOutput.addEventListener("mousemove", () => {
+				if (!isScrollbarVisible) {
+					showScrollbar();
+				}
+				clearTimeout(scrollbarFadeTimeout);
+				scrollbarFadeTimeout = setTimeout(hideScrollbar, 2000);
+			});
+
+			consoleOutput.addEventListener("scroll", () => {
+				// Ignore scroll events caused by wheel scrolling to prevent spam
+				if (isWheelScrolling) return;
+
+				const atBottom =
+					consoleOutput.scrollHeight - consoleOutput.scrollTop - consoleOutput.clientHeight < 50;
+
+				// Only disable auto-scroll if user is actually scrolling and not at bottom
+				if (isUserScrolling && ConsoleEngine.autoScroll && !atBottom) {
+					ConsoleEngine.autoScroll = false;
+					if (autoScrollBtn) autoScrollBtn.classList.remove("active");
+
+					// Show subtle feedback that auto-scroll was disabled
+					Toast.show("Auto-scroll disabled", "fa-arrow-up", 1500);
+
+					// Save auto-scroll state
+					try {
+						localStorage.setItem('console_auto_scroll', ConsoleEngine.autoScroll.toString());
+						ConsoleStorage.save();
+					} catch (e) {
+						console.warn("Failed to save auto-scroll state:", e);
+					}
+				}
+
+				// Automatically re-enable auto-scroll when user scrolls to bottom
+				if (isUserScrolling && !ConsoleEngine.autoScroll && atBottom) {
+					ConsoleEngine.autoScroll = true;
+					if (autoScrollBtn) autoScrollBtn.classList.add("active");
+
+					// Show subtle feedback that auto-scroll was re-enabled
+					Toast.show("Auto-scroll enabled", "fa-arrow-down", 1500);
+
+					// Save auto-scroll state
+					try {
+						localStorage.setItem('console_auto_scroll', ConsoleEngine.autoScroll.toString());
+						ConsoleStorage.save();
+					} catch (e) {
+						console.warn("Failed to save auto-scroll state:", e);
+					}
+				}
+			});
+		}
+	});
+
+	// ConsoleReady event - signal Lua that JS is ready
+	const onReady = () => {
+		Events.Call("ConsoleReady");
+	};
+	window.onload = onReady;
+</script>
 </body>
 
 </html>
