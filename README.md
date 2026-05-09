@@ -36,14 +36,17 @@ For complete documentation on:
   Bucket)
 - **Net wrapper**: binary serialization library for network communication with support for various data types
   (bits, boolean, byte, integers, floats, double, string) and structured schema-based serialization
+- **Better Console**: WebUI-based modern feature-rich console interface using smart IntelliSense autocompletion
+  engine, also offers filtering, regex search, and themes (open it by entering `console` or `bind Tilde console` and
+  then press <kbd>~</kbd> key)
 - **Chrome Web Browser (client-side): play Neo Wars, check out various demos such as NeoUI and Console, chat with your
-  favorite AI, or simply browse the internet (use `browser_open` console command)**
+  favorite AI, or simply browse the internet (use `browser` console command)**
 - **WebAudio API (client-side)**: audio playback and spatial audio with listener transform, gain control, and filter
   effects (bridged via WebUI)
 - **WebSocket API (client-side)**: connect, send/receive socket messages (bridged via WebUI)
 - **Regex API (client-side)**: true regular expression engine (bridged via WebUI)
 - **Hash API (client-side)**: common hashing functions CRC32/MD5/SHA* (bridged via WebUI)
-- **Bind library (client-side)**: Source-engine inspired bind system for console commands (e.g. `bind F9 browser_open`)
+- **Bind library (client-side)**: Source-engine inspired bind system for console commands (e.g. `bind F9 browser`)
 - **LINQ library**
 - **Benchmark library**: diagnose performance bottlenecks, measure code performance with statistical analysis,
   comparison tools, and multiple timing modes

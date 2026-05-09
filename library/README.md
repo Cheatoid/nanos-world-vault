@@ -10,6 +10,7 @@
 
 - [Overview](#overview)
 - [Features](#features)
+    - [ConsoleEngine](#consoleengine)
     - [WebBrowser](#webbrowser)
     - [Bind](#bind)
     - [ConVar](#convar)
@@ -53,12 +54,26 @@ configuration management, file I/O with virtual file system support, HTTP wrappe
 
 ## Features
 
+### ConsoleEngine
+
+<a href="https://github.com/Cheatoid/nanos-world-vault/raw/main/.resources/better-console.jpg">
+<img align="center" src="../.resources/better-console.jpg" alt="screenshot">
+</a>
+
+Also known as Better Console.  
+This is a WebUI-based modern feature-rich console interface using smart IntelliSense autocompletion engine, also offers
+filtering, regex search, and themes (open it by entering `console` command, or `bind Tilde console` and then
+press <kbd>~</kbd> key).
+
+Module
+file: [Client/ConsoleEngine.lua](https://github.com/Cheatoid/nanos-world-vault/blob/main/library/Client/ConsoleEngine.lua)
+
 ### WebBrowser
 
 A *functional* client-side multi-tab Chrome web browser for all your internet surfing needs while playing nanos world.  
-Open it by entering `browser_open` console command.  
-Alternatively, you can make a keybind: `bind F9 browser_open` and then simply press <kbd>F9</kbd>.  
-To open developer tools for the current tab, you can run `browser_devtools` console command (or bind it to key).  
+Open it by entering `browser` console command.  
+Alternatively, you can make a keybind: `bind F9 browser` and then simply press <kbd>F9</kbd>.  
+To open developer tools for the current tab, you can run `browser_devtools` console command (or bind it to a key).  
 Enjoy a beautiful New Tab experience, you can customize the background gradient, or use an image and much more...
 
 Module

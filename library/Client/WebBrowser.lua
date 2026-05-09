@@ -221,17 +221,19 @@ end
 -- Track tab WebUI instances
 local function createTabWebUI(tabId)
 	local screen_size = Viewport.GetViewportSize()
+	local toolbar_height = 93 * (screen_size.Y / 1080)
 	local tabWebUI = WebUI(
 		Package.GetName() .. ":webbrowser.tab." .. tabId,
 		NEW_TAB_PAGE_URL,
-		WidgetVisibility.Hidden, true, false, screen_size.X, screen_size.Y - 93
+		WidgetVisibility.Hidden, true, false, screen_size.X, screen_size.Y - toolbar_height
 	)
 
-	-- Position tab below chrome toolbar (start at y=93)
-	tabWebUI:SetLayout(Vector2D(0, 93), Vector2D(0, 0), Vector2D(0, 0), Vector2D(1, 1), Vector2D(0.5, 0))
+	-- Position tab below chrome toolbar (start at y=toolbar_height)
+	tabWebUI:SetLayout(Vector2D(0, toolbar_height), Vector2D(0, 0), Vector2D(0, 0), Vector2D(1, 1), Vector2D(0.5, 0))
 	local resizeCallback = Viewport.Subscribe("Resize", function(new_size)
 		-- new_size.X, new_size.Y
-		tabWebUI:SetLayout(Vector2D(0, 93), Vector2D(0, 0), Vector2D(0, 0), Vector2D(1, 1), Vector2D(0.5, 0))
+		local new_toolbar_height = 93 * (new_size.Y / 1080)
+		tabWebUI:SetLayout(Vector2D(0, new_toolbar_height), Vector2D(0, 0), Vector2D(0, 0), Vector2D(1, 1), Vector2D(0.5, 0))
 	end)
 	tabWebUI:Subscribe("Destroy", function()
 		Viewport.Unsubscribe("Resize", resizeCallback)
