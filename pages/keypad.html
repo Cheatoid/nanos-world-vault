@@ -1,0 +1,1183 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Keypad</title>
+	<style>
+		*,
+		*::before,
+		*::after {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			user-select: none;
+			-webkit-user-select: none;
+		}
+
+		:root {
+			--bg-primary: #0a0e17;
+			--bg-secondary: #111827;
+			--bg-tertiary: #1a2332;
+			--accent-primary: #00d4ff;
+			--accent-secondary: #0099cc;
+			--accent-glow: rgba(0, 212, 255, 0.4);
+			--text-primary: #e0f7ff;
+			--text-secondary: #8b9bb4;
+			--text-dim: #4a5568;
+			--error: #ff4757;
+			--error-glow: rgba(255, 71, 87, 0.4);
+			--success: #00ff88;
+			--success-glow: rgba(0, 255, 136, 0.4);
+			--warn: #ffa500;
+			--warn-glow: rgba(255, 165, 0, 0.4);
+
+			--key-size: 56px;
+			--gap: 8px;
+			--border-radius: 8px;
+			--transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+			--transition-medium: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		body {
+			font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+			background: var(--bg-primary);
+			color: var(--text-primary);
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+		}
+
+		.scanlines {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 1000;
+			background: repeating-linear-gradient(0deg,
+					transparent,
+					transparent 2px,
+					rgba(0, 0, 0, 0.03) 2px,
+					rgba(0, 0, 0, 0.03) 4px);
+			opacity: 0.5;
+		}
+
+		.keypad-wrapper {
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			overflow: hidden;
+		}
+
+		.keypad-container {
+			position: relative;
+			width: 360px;
+			height: 480px;
+			background: var(--bg-secondary);
+			border: 1px solid rgba(0, 212, 255, 0.15);
+			border-radius: 16px;
+			padding: 16px;
+			box-shadow:
+				0 0 0 1px rgba(0, 212, 255, 0.1),
+				0 20px 60px rgba(0, 0, 0, 0.8),
+				0 0 40px rgba(0, 212, 255, 0.05) inset;
+			backdrop-filter: blur(10px);
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: column;
+			animation: containerEntry 0.6s ease-out;
+		}
+
+		.keypad-container.scrambled {
+			border-color: rgba(255, 165, 0, 0.25);
+			box-shadow:
+				0 0 0 1px rgba(255, 165, 0, 0.15),
+				0 20px 60px rgba(0, 0, 0, 0.8),
+				0 0 40px rgba(255, 165, 0, 0.05) inset;
+		}
+
+		@keyframes containerEntry {
+			from {
+				opacity: 0;
+				transform: scale(0.95) translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: scale(1) translateY(0);
+			}
+		}
+
+		.keypad-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 12px;
+			padding-bottom: 10px;
+			border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+			flex-shrink: 0;
+		}
+
+		.keypad-container.scrambled .keypad-header {
+			border-bottom-color: rgba(255, 165, 0, 0.2);
+		}
+
+		.keypad-title {
+			font-size: 13px;
+			font-weight: 600;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: var(--accent-primary);
+			text-shadow: 0 0 10px var(--accent-glow);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.keypad-container.scrambled .keypad-title {
+			color: var(--warn);
+			text-shadow: 0 0 10px var(--warn-glow);
+		}
+
+		.scramble-badge {
+			font-size: 9px;
+			padding: 2px 6px;
+			border-radius: 4px;
+			background: rgba(255, 165, 0, 0.15);
+			border: 1px solid rgba(255, 165, 0, 0.3);
+			color: var(--warn);
+			letter-spacing: 1px;
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+
+		.keypad-container.scrambled .scramble-badge {
+			opacity: 1;
+		}
+
+		.status-indicator {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--success);
+			box-shadow: 0 0 8px var(--success-glow);
+			animation: pulse 2s infinite;
+			flex-shrink: 0;
+		}
+
+		@keyframes pulse {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0.5;
+			}
+		}
+
+		.display-screen {
+			background: var(--bg-primary);
+			border: 1px solid rgba(0, 212, 255, 0.2);
+			border-radius: var(--border-radius);
+			padding: 14px;
+			margin-bottom: 12px;
+			position: relative;
+			overflow: hidden;
+			height: 68px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.keypad-container.scrambled .display-screen {
+			border-color: rgba(255, 165, 0, 0.2);
+		}
+
+		.display-screen::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.05), transparent);
+			animation: scan 3s infinite;
+			pointer-events: none;
+		}
+
+		@keyframes scan {
+			0% {
+				left: -100%;
+			}
+
+			100% {
+				left: 100%;
+			}
+		}
+
+		.display-label {
+			font-size: 10px;
+			color: var(--text-dim);
+			text-transform: uppercase;
+			letter-spacing: 1.5px;
+			margin-bottom: 4px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.display-toggles {
+			display: flex;
+			gap: 6px;
+			align-items: center;
+		}
+
+		.scramble-toggle,
+		.protected-toggle {
+			position: relative;
+			z-index: 1;
+			font-size: 9px;
+			padding: 3px 8px;
+			border-radius: 4px;
+			cursor: pointer;
+			letter-spacing: 1px;
+			transition: var(--transition-fast);
+			border: 1px solid;
+			font-family: inherit;
+		}
+
+		.scramble-toggle {
+			background: rgba(255, 165, 0, 0.1);
+			border-color: rgba(255, 165, 0, 0.2);
+			color: var(--warn);
+		}
+
+		.scramble-toggle:hover {
+			background: rgba(255, 165, 0, 0.2);
+		}
+
+		.scramble-toggle.active {
+			background: rgba(255, 165, 0, 0.25);
+			border-color: var(--warn);
+		}
+
+		.protected-toggle {
+			background: rgba(0, 212, 255, 0.1);
+			border-color: rgba(0, 212, 255, 0.2);
+			color: var(--accent-primary);
+		}
+
+		.protected-toggle:hover {
+			background: rgba(0, 212, 255, 0.2);
+		}
+
+		.protected-toggle.active {
+			background: rgba(0, 212, 255, 0.25);
+			border-color: var(--accent-primary);
+		}
+
+		.display-value {
+			font-size: 20px;
+			font-weight: 300;
+			letter-spacing: 6px;
+			color: var(--text-primary);
+			text-shadow: 0 0 20px var(--accent-glow);
+			transition: var(--transition-fast);
+			font-family: 'Courier New', monospace;
+			height: 28px;
+			line-height: 28px;
+			display: flex;
+			align-items: center;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			padding-top: 2px;
+		}
+
+		.display-value.error {
+			color: var(--error);
+			text-shadow: 0 0 20px var(--error-glow);
+			animation: shake 0.4s ease-in-out;
+		}
+
+		.display-value.success {
+			color: var(--success);
+			text-shadow: 0 0 20px var(--success-glow);
+		}
+
+		.display-value.error .cursor,
+		.display-value.success .cursor {
+			display: none;
+		}
+
+		@keyframes shake {
+
+			0%,
+			100% {
+				transform: translateX(0);
+			}
+
+			20% {
+				transform: translateX(-10px);
+			}
+
+			40% {
+				transform: translateX(10px);
+			}
+
+			60% {
+				transform: translateX(-5px);
+			}
+
+			80% {
+				transform: translateX(5px);
+			}
+		}
+
+		.cursor {
+			display: inline-block;
+			width: 2px;
+			height: 20px;
+			background: var(--accent-primary);
+			margin-left: 4px;
+			animation: blink 1s infinite;
+			vertical-align: middle;
+			flex-shrink: 0;
+		}
+
+		@keyframes blink {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0;
+			}
+		}
+
+		.keypad-grid {
+			display: grid;
+			grid-template-columns: repeat(3, var(--key-size));
+			justify-content: center;
+			gap: var(--gap);
+			flex-shrink: 0;
+		}
+
+		.key {
+			aspect-ratio: 1;
+			background: var(--bg-tertiary);
+			border: 1px solid rgba(0, 212, 255, 0.1);
+			border-radius: var(--border-radius);
+			color: var(--text-primary);
+			font-size: 16px;
+			font-weight: 500;
+			cursor: pointer;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			position: relative;
+			overflow: hidden;
+			transition: var(--transition-fast);
+			outline: none;
+			-webkit-tap-highlight-color: transparent;
+		}
+
+		.key::before {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 0;
+			height: 0;
+			border-radius: 50%;
+			background: var(--accent-primary);
+			opacity: 0.2;
+			transform: translate(-50%, -50%);
+			transition: width 0.3s, height 0.3s;
+		}
+
+		.key:hover {
+			border-color: rgba(0, 212, 255, 0.3);
+			background: rgba(0, 212, 255, 0.05);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		}
+
+		.key:active,
+		.key.pressed {
+			transform: translateY(1px);
+			background: rgba(0, 212, 255, 0.15);
+			border-color: var(--accent-primary);
+		}
+
+		.key:active::before,
+		.key.pressed::before {
+			width: 200%;
+			height: 200%;
+		}
+
+		.key.function {
+			background: rgba(0, 212, 255, 0.08);
+			border-color: rgba(0, 212, 255, 0.2);
+		}
+
+		.key.function:hover {
+			background: rgba(0, 212, 255, 0.15);
+		}
+
+		.key.enter {
+			grid-column: 1 / -1;
+			aspect-ratio: auto;
+			height: 40px;
+			font-size: 14px;
+			font-weight: 600;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			background: rgba(0, 255, 136, 0.08);
+			border-color: rgba(0, 255, 136, 0.2);
+			color: var(--success);
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.key.enter:hover {
+			background: rgba(0, 255, 136, 0.15);
+			box-shadow: 0 0 20px var(--success-glow);
+		}
+
+		.key:disabled,
+		.key.disabled {
+			opacity: 0.35;
+			pointer-events: none;
+			cursor: not-allowed;
+			box-shadow: none;
+		}
+
+		.key.clear {
+			background: rgba(255, 71, 87, 0.08);
+			border-color: rgba(255, 71, 87, 0.2);
+			color: var(--error);
+		}
+
+		.key.clear:hover {
+			background: rgba(255, 71, 87, 0.15);
+			box-shadow: 0 0 20px var(--error-glow);
+		}
+
+		.key.backspace {
+			font-size: 14px;
+		}
+
+		.keypad-container.scrambled .key[data-key] {
+			border-color: rgba(255, 165, 0, 0.15);
+		}
+
+		.keypad-container.scrambled .key[data-key]:hover {
+			border-color: rgba(255, 165, 0, 0.35);
+			background: rgba(255, 165, 0, 0.05);
+		}
+
+		.keypad-container.scrambled .key[data-key]:active,
+		.keypad-container.scrambled .key[data-key].pressed {
+			border-color: var(--warn);
+			background: rgba(255, 165, 0, 0.15);
+		}
+
+		.keypad-container.scrambled .key[data-key]::before {
+			background: var(--warn);
+		}
+
+		.keypad-footer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-top: 12px;
+			padding-top: 10px;
+			border-top: 1px solid rgba(0, 212, 255, 0.1);
+			flex-shrink: 0;
+		}
+
+		.keypad-container.scrambled .keypad-footer {
+			border-top-color: rgba(255, 165, 0, 0.15);
+		}
+
+		.hint-text {
+			font-size: 10px;
+			color: var(--text-dim);
+			letter-spacing: 1px;
+		}
+
+		.version-tag {
+			font-size: 9px;
+			color: var(--text-dim);
+			font-family: monospace;
+		}
+
+		.ripple {
+			position: absolute;
+			border-radius: 50%;
+			background: rgba(0, 212, 255, 0.3);
+			transform: scale(0);
+			animation: rippleEffect 0.6s ease-out;
+			pointer-events: none;
+		}
+
+		@keyframes rippleEffect {
+			to {
+				transform: scale(4);
+				opacity: 0;
+			}
+		}
+
+		.keypad-container.effects-disabled .key,
+		.keypad-container.effects-disabled .key::before {
+			transition: none !important;
+		}
+
+		.keypad-container.effects-disabled .key:hover {
+			transform: none;
+			box-shadow: none;
+			background: var(--bg-tertiary);
+			border-color: rgba(0, 212, 255, 0.1);
+		}
+
+		.keypad-container.effects-disabled .key:active,
+		.keypad-container.effects-disabled .key.pressed {
+			transform: none;
+			box-shadow: none;
+			background: rgba(0, 212, 255, 0.08);
+			border-color: rgba(0, 212, 255, 0.2);
+		}
+
+		.keypad-container.effects-disabled .key::before {
+			display: none;
+		}
+
+		.keypad-container.effects-disabled .key.enter:hover {
+			background: rgba(0, 255, 136, 0.08);
+			box-shadow: none;
+		}
+
+		.keypad-container.effects-disabled .key.clear:hover {
+			background: rgba(255, 71, 87, 0.08);
+			box-shadow: none;
+		}
+
+		.keypad-container.effects-disabled .ripple {
+			display: none;
+		}
+
+		.keypad-container.effects-disabled.keypad-container.scrambled .key[data-key]:hover {
+			background: var(--bg-tertiary);
+			border-color: rgba(255, 165, 0, 0.15);
+		}
+
+		.keypad-container.effects-disabled.keypad-container.scrambled .key[data-key]:active,
+		.keypad-container.effects-disabled.keypad-container.scrambled .key[data-key].pressed {
+			background: rgba(255, 165, 0, 0.08);
+			border-color: rgba(255, 165, 0, 0.2);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			*,
+			*::before,
+			*::after {
+				animation-duration: 0.01ms !important;
+				transition-duration: 0.01ms !important;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="scanlines"></div>
+
+	<div class="keypad-wrapper">
+		<div class="keypad-container" id="keypad">
+			<div class="keypad-header">
+				<div class="keypad-title">
+					<span id="keypadTitle">Secure Access</span>
+					<span class="scramble-badge">SCRAMBLED</span>
+				</div>
+				<div class="status-indicator" id="status"></div>
+			</div>
+
+			<div class="display-screen">
+				<div class="display-label">
+					<span>Enter Passcode</span>
+					<div class="display-toggles">
+						<button class="scramble-toggle" id="scrambleToggle">SCRAMBLE</button>
+						<button class="protected-toggle active" id="protectedToggle">•••</button>
+					</div>
+				</div>
+				<div class="display-value" id="display">
+					<span id="displayText"></span><span class="cursor"></span>
+				</div>
+			</div>
+
+			<div class="keypad-grid" id="grid">
+				<button class="key" data-key="1">1</button>
+				<button class="key" data-key="2">2</button>
+				<button class="key" data-key="3">3</button>
+				<button class="key" data-key="4">4</button>
+				<button class="key" data-key="5">5</button>
+				<button class="key" data-key="6">6</button>
+				<button class="key" data-key="7">7</button>
+				<button class="key" data-key="8">8</button>
+				<button class="key" data-key="9">9</button>
+				<button class="key clear disabled" data-action="clear" disabled>C</button>
+				<button class="key" data-key="0">0</button>
+				<button class="key backspace function disabled" data-action="backspace" disabled>⌫</button>
+				<button class="key enter disabled" data-action="enter" disabled>ENTER</button>
+			</div>
+
+			<div class="keypad-footer">
+				<div class="hint-text" id="footerHint">KEYPAD v0.1 // by Cheatoid</div>
+				<div class="version-tag" id="versionTag">BUILD 2026.05</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const KeypadUI = (function () {
+			'use strict';
+
+			const CONFIG = {
+				maxLength: 8,
+				/*
+				Circular: • ● ○ ◉ - Classic round bullets, the most common choice
+				Square: ■ □ ▪ ▫ - Sharp, modern appearance for technical content
+				Diamond: ◆ ◇ ⬥ - Elegant, distinctive markers for special emphasis
+				Triangular: ▴
+				Star: ★ ☆ ✦ - Eye-catching bullets for highlights or favorites
+				Decorative: ✱
+				*/
+				maskCharacter: '○',
+				protectedMode: true,
+				cefBridgeEnabled: true,
+				soundEnabled: false,
+				autoResetDelay: 2000,
+				debugMode: true,
+				scrambleDigits: false,
+				enableEffects: true
+			};
+
+			const state = {
+				input: '',
+				isLocked: false,
+				lastKeyTime: 0
+			};
+
+			const elements = {
+				display: document.getElementById('display'),
+				displayText: document.getElementById('displayText'),
+				status: document.getElementById('status'),
+				container: document.getElementById('keypad'),
+				grid: document.getElementById('grid'),
+				scrambleToggle: document.getElementById('scrambleToggle'),
+				protectedToggle: document.getElementById('protectedToggle'),
+				enterKey: document.querySelector('.key.enter'),
+				clearKey: document.querySelector('.key.clear'),
+				backspaceKey: document.querySelector('.key.backspace'),
+				keypadTitle: document.getElementById('keypadTitle'),
+				footerHint: document.getElementById('footerHint'),
+				versionTag: document.getElementById('versionTag'),
+				allKeys: document.querySelectorAll('.key')
+			};
+
+			const originalDigitMap = new Map();
+
+			const CEFBridge = {
+				send: function (message) {
+					const payload = JSON.stringify({
+						type: 'keypad_event',
+						timestamp: Date.now(),
+						...message
+					});
+
+					if (CONFIG.cefBridgeEnabled && window.cefQuery) {
+						window.cefQuery({
+							request: payload,
+							onSuccess: (response) => this.log('CEF Response:', response),
+							onFailure: (errorCode, errorMessage) => this.log('CEF Error:', errorCode, errorMessage)
+						});
+					} else if (window.chrome && window.chrome.webview) {
+						window.chrome.webview.postMessage(payload);
+					} else {
+						this.log('CEF Bridge (simulated):', payload);
+					}
+				},
+
+				log: function (...args) {
+					if (CONFIG.debugMode) console.log('[Keypad]', ...args);
+				}
+			};
+
+			const AudioManager = {
+				play: function (type) {
+					if (!CONFIG.soundEnabled) return;
+					CEFBridge.send({ event: 'sound_request', soundType: type });
+				}
+			};
+
+			const ScaleManager = {
+				baseWidth: 360,
+				baseHeight: 480,
+
+				init: function () {
+					this.update();
+					window.addEventListener('resize', () => this.update());
+				},
+
+				update: function () {
+					const scale = Math.min(
+						window.innerWidth / this.baseWidth,
+						window.innerHeight / this.baseHeight
+					);
+					elements.container.style.transform = `scale(${scale})`;
+				}
+			};
+
+			const ScrambleManager = {
+				enabled: false,
+
+				init: function () {
+					const digitButtons = Array.from(document.querySelectorAll('.key[data-key]'))
+						.filter(btn => !btn.dataset.action);
+
+					digitButtons.forEach(btn => {
+						originalDigitMap.set(btn, btn.dataset.key);
+					});
+
+					if (CONFIG.scrambleDigits) {
+						this.shuffle();
+					}
+				},
+
+				toggle: function () {
+					this.enabled = !this.enabled;
+					if (this.enabled) {
+						this.shuffle();
+					} else {
+						this.restore();
+					}
+
+					elements.container.classList.toggle('scrambled', this.enabled);
+					elements.scrambleToggle.classList.toggle('active', this.enabled);
+					CEFBridge.send({ event: 'scramble_toggled', enabled: this.enabled });
+				},
+
+				shuffle: function () {
+					const buttons = Array.from(originalDigitMap.keys());
+					const digits = buttons.map(btn => btn.dataset.key);
+
+					for (let i = digits.length - 1; i > 0; i--) {
+						const j = Math.floor(Math.random() * (i + 1));
+						[digits[i], digits[j]] = [digits[j], digits[i]];
+					}
+
+					buttons.forEach((btn, index) => {
+						const newDigit = digits[index];
+						btn.dataset.key = newDigit;
+						btn.textContent = newDigit;
+					});
+
+					this.enabled = true;
+					elements.container.classList.add('scrambled');
+				},
+
+				restore: function () {
+					originalDigitMap.forEach((digit, btn) => {
+						btn.dataset.key = digit;
+						btn.textContent = digit;
+					});
+
+					this.enabled = false;
+					elements.container.classList.remove('scrambled');
+				}
+			};
+
+			const DisplayManager = {
+				update: function () {
+					const display = CONFIG.protectedMode
+						? state.input.split('').map(() => CONFIG.maskCharacter).join('')
+						: state.input;
+
+					elements.displayText.textContent = display;
+					elements.display.classList.remove('error', 'success');
+					this.updateButtonStates();
+				},
+
+				showError: function (message = 'Invalid') {
+					elements.displayText.textContent = message;
+					elements.display.classList.add('error');
+					elements.display.classList.remove('success');
+					AudioManager.play('error');
+					this.updateButtonStates();
+
+					setTimeout(() => this.clear(), CONFIG.autoResetDelay);
+				},
+
+				showSuccess: function (message = 'Access Granted') {
+					elements.displayText.textContent = message;
+					elements.display.classList.add('success');
+					elements.display.classList.remove('error');
+					AudioManager.play('success');
+					this.updateButtonStates();
+
+					setTimeout(() => this.clear(), CONFIG.autoResetDelay);
+				},
+
+				clear: function () {
+					state.input = '';
+					state.isLocked = false;
+					this.update();
+					elements.display.classList.remove('error', 'success');
+				},
+
+				toggleProtected: function () {
+					CONFIG.protectedMode = !CONFIG.protectedMode;
+					this.updateProtectedToggle();
+					this.update();
+					CEFBridge.send({ event: 'protected_mode_changed', enabled: CONFIG.protectedMode });
+				},
+
+				setProtected: function (enabled) {
+					CONFIG.protectedMode = !!enabled;
+					this.updateProtectedToggle();
+					this.update();
+					CEFBridge.send({ event: 'protected_mode_changed', enabled: CONFIG.protectedMode });
+				},
+
+				updateProtectedToggle: function () {
+					elements.protectedToggle.classList.toggle('active', CONFIG.protectedMode);
+					elements.protectedToggle.textContent = CONFIG.protectedMode ? '•••' : 'ABC';
+				},
+
+				updateButtonStates: function () {
+					const hasInput = state.input.length > 0;
+					const isLocked = state.isLocked;
+
+					// Explicitly set states for enter/clear/backspace first
+					elements.enterKey.disabled = !hasInput || isLocked;
+					elements.enterKey.classList.toggle('disabled', !hasInput || isLocked);
+
+					elements.clearKey.disabled = !hasInput || isLocked;
+					elements.clearKey.classList.toggle('disabled', !hasInput || isLocked);
+
+					elements.backspaceKey.disabled = !hasInput || isLocked;
+					elements.backspaceKey.classList.toggle('disabled', !hasInput || isLocked);
+
+					// For other keys, only apply the locked state so we don't override above settings
+					elements.allKeys.forEach(key => {
+						if (key === elements.enterKey || key === elements.clearKey || key === elements.backspaceKey) return;
+						key.disabled = isLocked;
+						key.classList.toggle('disabled', isLocked);
+					});
+				}
+			};
+
+			const InputHandler = {
+				addDigit: function (digit) {
+					if (state.isLocked) return;
+					if (state.input.length >= CONFIG.maxLength) {
+						AudioManager.play('deny');
+						return;
+					}
+
+					state.input += digit;
+					DisplayManager.update();
+					AudioManager.play('click');
+					CEFBridge.send({ event: 'digit_entered', digit: digit });
+				},
+
+				backspace: function () {
+					if (state.isLocked || state.input.length === 0) return;
+					state.input = state.input.slice(0, -1);
+					DisplayManager.update();
+					AudioManager.play('click');
+				},
+
+				clear: function () {
+					if (state.isLocked) return;
+					state.input = '';
+					DisplayManager.update();
+					AudioManager.play('click');
+					CEFBridge.send({ event: 'cleared' });
+				},
+
+				submit: function () {
+					if (state.isLocked || state.input.length === 0) return;
+
+					state.isLocked = true;
+					const code = state.input;
+					DisplayManager.updateButtonStates();
+
+					if (ScrambleManager.enabled) {
+						ScrambleManager.shuffle();
+					}
+
+					CEFBridge.send({
+						event: 'code_submitted',
+						code: code,
+						length: code.length
+					});
+
+					this.validateCode(code);
+				},
+
+				validateCode: function (code) {
+					setTimeout(() => {
+						if (code === '1234') {
+							DisplayManager.showSuccess();
+							CEFBridge.send({ event: 'code_accepted', code: code });
+						} else {
+							DisplayManager.showError('Access Denied');
+							CEFBridge.send({ event: 'code_rejected', code: code });
+						}
+					}, 500);
+				}
+			};
+
+			const EventManager = {
+				init: function () {
+					elements.container.addEventListener('click', this.handleClick.bind(this));
+					elements.container.addEventListener('mousedown', this.createRipple.bind(this));
+
+					elements.scrambleToggle.addEventListener('click', (e) => {
+						e.stopPropagation();
+						ScrambleManager.toggle();
+					});
+
+					elements.protectedToggle.addEventListener('click', (e) => {
+						e.stopPropagation();
+						DisplayManager.toggleProtected();
+					});
+
+					document.addEventListener('keydown', this.handleKeydown.bind(this));
+					document.addEventListener('keyup', this.handleKeyup.bind(this));
+
+					document.addEventListener('visibilitychange', () => {
+						CEFBridge.send({ event: 'visibility_change', hidden: document.hidden });
+					});
+				},
+
+				handleClick: function (e) {
+					const key = e.target.closest('.key');
+					if (!key) return;
+
+					const digit = key.dataset.key;
+					const action = key.dataset.action;
+
+					if (digit !== undefined) {
+						InputHandler.addDigit(digit);
+					} else if (action) {
+						switch (action) {
+							case 'clear': InputHandler.clear(); break;
+							case 'backspace': InputHandler.backspace(); break;
+							case 'enter': InputHandler.submit(); break;
+						}
+					}
+				},
+
+				handleKeydown: function (e) {
+					if (e.repeat) return;
+
+					let digit = null;
+					const key = e.key;
+					const code = e.code;
+
+					if (code && code.startsWith('Numpad')) {
+						const numpadVal = code.replace('Numpad', '');
+						if (/^[0-9]$/.test(numpadVal)) {
+							digit = numpadVal;
+						}
+					}
+
+					if (digit === null && /^[0-9]$/.test(key)) {
+						digit = key;
+					}
+
+					if (digit !== null) {
+						e.preventDefault();
+						InputHandler.addDigit(digit);
+						this.highlightKey(digit);
+						return;
+					}
+
+					if (key === 'Backspace' || key === 'Delete') {
+						e.preventDefault();
+						InputHandler.backspace();
+						this.highlightAction('backspace');
+						return;
+					}
+
+					if (key === 'Enter' || code === 'NumpadEnter') {
+						e.preventDefault();
+						InputHandler.submit();
+						this.highlightAction('enter');
+						return;
+					}
+
+					if (key === 'Escape') {
+						e.preventDefault();
+						InputHandler.clear();
+						this.highlightAction('clear');
+						return;
+					}
+				},
+
+				handleKeyup: function (e) {
+					document.querySelectorAll('.key.pressed').forEach(k => k.classList.remove('pressed'));
+				},
+
+				highlightKey: function (digit) {
+					const key = document.querySelector(`.key[data-key="${digit}"]`);
+					if (key) {
+						key.classList.add('pressed');
+						setTimeout(() => key.classList.remove('pressed'), 150);
+					}
+				},
+
+				highlightAction: function (action) {
+					const key = document.querySelector(`.key[data-action="${action}"]`);
+					if (key) {
+						key.classList.add('pressed');
+						setTimeout(() => key.classList.remove('pressed'), 150);
+					}
+				},
+
+				createRipple: function (e) {
+					if (!CONFIG.enableEffects) return;
+
+					const key = e.target.closest('.key');
+					if (!key) return;
+
+					const rect = key.getBoundingClientRect();
+					const ripple = document.createElement('span');
+					const size = Math.max(rect.width, rect.height);
+
+					ripple.style.width = ripple.style.height = size + 'px';
+					ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+					ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+					ripple.classList.add('ripple');
+
+					key.appendChild(ripple);
+					setTimeout(() => ripple.remove(), 600);
+				}
+			};
+
+			return {
+				init: function (options = {}) {
+					Object.assign(CONFIG, options);
+					ScrambleManager.init();
+					EventManager.init();
+					ScaleManager.init();
+					this.setEffects(CONFIG.enableEffects);
+					DisplayManager.updateProtectedToggle();
+					DisplayManager.updateButtonStates();
+					CEFBridge.send({ event: 'keypad_initialized' });
+					console.log('Keypad initialized.');
+				},
+
+				setCode: function (code) {
+					state.input = String(code).slice(0, CONFIG.maxLength);
+					DisplayManager.update();
+				},
+
+				getCode: function () {
+					return state.input;
+				},
+
+				clear: function () {
+					DisplayManager.clear();
+				},
+
+				setConfig: function (newConfig) {
+					Object.assign(CONFIG, newConfig);
+				},
+
+				toggleScramble: function () {
+					ScrambleManager.toggle();
+				},
+
+				toggleProtected: function () {
+					DisplayManager.toggleProtected();
+				},
+
+				setProtected: function (enabled) {
+					DisplayManager.setProtected(enabled);
+				},
+
+				setEffects: function (enabled) {
+					CONFIG.enableEffects = enabled;
+					elements.container.classList.toggle('effects-disabled', !enabled);
+					CEFBridge.send({ event: 'effects_changed', enabled: enabled });
+				},
+
+				setTitle: function (text) {
+					elements.keypadTitle.textContent = text;
+					CEFBridge.send({ event: 'title_changed', text: text });
+				},
+
+				setFooterHint: function (text) {
+					elements.footerHint.textContent = text;
+					CEFBridge.send({ event: 'footer_hint_changed', text: text });
+				},
+
+				setVersionTag: function (text) {
+					elements.versionTag.textContent = text;
+					CEFBridge.send({ event: 'version_tag_changed', text: text });
+				},
+
+				onCefMessage: function (message) {
+					try {
+						const data = typeof message === 'string' ? JSON.parse(message) : message;
+						CEFBridge.log('Received from host:', data);
+
+						if (data.action === 'set_code') this.setCode(data.value);
+						if (data.action === 'clear') this.clear();
+						if (data.action === 'set_max_length') CONFIG.maxLength = data.value;
+						if (data.action === 'toggle_scramble') this.toggleScramble();
+						if (data.action === 'set_effects') this.setEffects(data.value);
+						if (data.action === 'toggle_protected') this.toggleProtected();
+						if (data.action === 'set_protected') this.setProtected(data.value);
+						if (data.action === 'set_title') this.setTitle(data.value);
+						if (data.action === 'set_footer_hint') this.setFooterHint(data.value);
+						if (data.action === 'set_version_tag') this.setVersionTag(data.value);
+					} catch (e) {
+						CEFBridge.log('Invalid CEF message:', e);
+					}
+				}
+			};
+		})();
+
+		document.addEventListener('DOMContentLoaded', () => {
+			KeypadUI.init({
+				protectedMode: true,
+				debugMode: true,
+				enableEffects: true,
+			});
+
+			window.Keypad = KeypadUI;
+		});
+	</script>
+</body>
+
+</html>

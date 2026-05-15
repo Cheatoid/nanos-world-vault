@@ -7,6 +7,7 @@
 local error = error
 local next = next
 local type = type
+local string_upper = string.upper
 
 -- Import dependencies
 local printf = require "@cheatoid/standalone/printf"
@@ -92,12 +93,21 @@ end
 --- Bind.ListActions()
 --- ```
 function M.ListActions()
-	if next(actions) == nil then
+	local actionNames = {}
+
+	-- Collect action names using pairs, filtering out metamethods
+	for k, v in pairs(actions) do
+		if k ~= "__index" and k ~= "__newindex" then
+			actionNames[#actionNames + 1] = k
+		end
+	end
+
+	if #actionNames == 0 then
 		print("No actions available")
 		return
 	end
+
 	print("Available actions:")
-	local actionNames = table_keys(actions)
 	table_sort(actionNames)
 	for _, name in next, actionNames do
 		printf("  %s", name)
@@ -110,12 +120,21 @@ end
 --- Bind.ListBindings()
 --- ```
 function M.ListBindings()
-	if next(keyBindings) == nil then
+	local bindingKeys = {}
+
+	-- Collect keys using pairs, filtering out metamethods
+	for k, v in pairs(keyBindings) do
+		if k ~= "__index" and k ~= "__newindex" then
+			bindingKeys[#bindingKeys + 1] = k
+		end
+	end
+
+	if #bindingKeys == 0 then
 		print("No key bindings available")
 		return
 	end
+
 	print("Current key bindings:")
-	local bindingKeys = table_keys(keyBindings)
 	table_sort(bindingKeys)
 	for _, key in next, bindingKeys do
 		printf("  %s: %s", key, keyBindings[key])
@@ -126,37 +145,36 @@ end
 ---@param key string The key to bind (e.g., "F10", "Space", "A")
 ---@param action string The action name to bind to
 ---@param description string|nil The action description to display in the tooltip
+---@param force boolean|nil Whether to force the binding even if the action doesn't exist (default: false)
 ---@return boolean success Whether the binding was successful
 ---@usage <br>
 --- ```
---- Bind.BindKey("F10", "browser_toggle")
+--- Bind.BindKey("F9", "browser")
 --- ```
-function M.BindKey(key, action, description)
-	if not key or not action then
-		print("Usage: bind <key> <action>")
-		return false
+function M.BindKey(key, action, description, force)
+	if not key or not action or #key == 0 or #action == 0 then
+		return false, "Usage: bind <key> <action>"
 	end
 
-	if not actions[action] then
-		print("Unknown action: " .. action)
-		return false
+	local resolvedAction = actions[action]
+	if not resolvedAction and not force then
+		return false, "Unknown action: " .. action
 	end
 
 	-- Unbind existing key if any
-	local oldAction = keyBindings[key]
-	if oldAction then
-		Input.Unbind(BIND_PREFIX .. oldAction, InputEvent.Pressed)
+	local binding = keyBindings[key]
+	if binding then
+		Input.Unbind(BIND_PREFIX .. binding, InputEvent.Pressed, resolvedAction)
 	end
 
 	-- Register the keybinding
 	local bindingName = BIND_PREFIX .. action
-	Input.Register(bindingName, key, description or ("Bind: " .. action))
-	Input.Bind(bindingName, InputEvent.Pressed, actions[action])
+	Input.Register(bindingName, key, description or bindingName)
+	Input.Bind(bindingName, InputEvent.Pressed, resolvedAction)
 
 	-- Store the binding
 	keyBindings[key] = action
 
-	printf("Bound %q to %q", key, action)
 	return true
 end
 
@@ -167,25 +185,37 @@ M.Bind = M.BindKey
 ---@return boolean success Whether the unbinding was successful
 ---@usage <br>
 --- ```
---- Bind.UnbindKey("F10")
+--- Bind.UnbindKey("F9")
 --- ```
 function M.UnbindKey(key)
-	if not key then
-		print("Usage: unbind <key>")
-		return false
+	if not key or #key == 0 then
+		return false, "Usage: unbind <key>"
 	end
 
-	if not keyBindings[key] then
-		printf("Key %q is not bound to any action", key)
-		return false
+	local binding = keyBindings[key]
+	if not binding then
+		return false, "Key \"" .. key .. "\" is not bound to any action"
 	end
 
-	local action = keyBindings[key]
-	Input.Unbind(BIND_PREFIX .. action, InputEvent.Pressed)
-	keyBindings[key] = nil
+	local callback = actions[binding]
+	if not callback then
+		return false, "Key \"" .. key .. "\" is not bound to any action"
+	end
+	printf("DEBUG: Unbinding key \"" .. key .. "\" from action \"" .. binding .. "\"")
+	print("callback: " .. tostring(callback))
 
-	printf("Unbound %q from %q", key, action)
-	return true
+	Input.Unbind(BIND_PREFIX .. binding, InputEvent.Pressed, callback)
+	Input.Unregister(BIND_PREFIX .. binding, key)
+
+	-- Find the actual key in the table (case-insensitive) and remove it
+	for k, v in pairs(keyBindings) do
+		if k ~= "__index" and k ~= "__newindex" and string_upper(k) == string_upper(key) then
+			keyBindings[k] = nil
+			return true, binding
+		end
+	end
+
+	return false
 end
 
 M.Unbind = M.UnbindKey
@@ -195,25 +225,29 @@ M.Unbind = M.UnbindKey
 ---@return boolean success Whether the unregistration was successful
 ---@usage <br>
 --- ```
---- Bind.Unregister("F10")
+--- Bind.Unregister("F9")
 --- ```
 function M.Unregister(key)
-	if not key then
-		print("Usage: unregister <key>")
-		return false
+	if not key or #key == 0 then
+		return false, "Usage: unregister <key>"
 	end
 
-	if not keyBindings[key] then
-		printf("Key %q is not bound to any action", key)
-		return false
+	local binding = keyBindings[key]
+	if not binding then
+		return false, "Key \"" .. key .. "\" is not bound to any action"
 	end
 
-	local action = keyBindings[key]
-	Input.Unregister(BIND_PREFIX .. action, key)
-	keyBindings[key] = nil
+	Input.Unregister(BIND_PREFIX .. binding, key)
 
-	printf("Unregistered %q from %q", key, action)
-	return true
+	-- Find the actual key in the table (case-insensitive) and remove it
+	for k, v in pairs(keyBindings) do
+		if k ~= "__index" and k ~= "__newindex" and string_upper(k) == string_upper(key) then
+			keyBindings[k] = nil
+			return true, binding
+		end
+	end
+
+	return false
 end
 
 local function PreProcessArgs(...)
@@ -230,7 +264,9 @@ local function PreProcessArgs(...)
 end
 
 local function RunCommand(...)
-	Console.RunCommand(table_concat({ ... }, " "))
+	local cmd = table_concat({ ... }, " ")
+	Console.RunCommand(cmd)
+	--return cmd
 end
 
 -- I had run into a case where input was glitched and prevented me from playing... This command rescued me.
@@ -242,23 +278,99 @@ end
 function M.Initialize()
 	-- Register builtin commands and actions
 	Console.RegisterCommand("action", function(name, ...)
+		if not name or name == "" then
+			print("Usage: action <name> <command>")
+			return
+		end
 		local command = table_concat({ ... }, " ")
-		M.RegisterAction(name, function(...)
-			RunCommand(command, ...)
-		end)
+
+		-- If command is empty, remove the action if it exists
+		if command == "" then
+			if actions[name] then
+				-- Find the actual key in the case-insensitive table and remove it
+				for k, v in pairs(actions) do
+					if k ~= "__index" and k ~= "__newindex" and string_upper(k) == string_upper(name) then
+						actions[k] = nil
+						printf("Removed action %q", name)
+						break
+					end
+				end
+			else
+				printf("Action %q does not exist", name)
+			end
+			return
+		end
+
+		local callback = function(...)
+			-- Use delayed execution to avoid Lua stack issues
+			Timer.SetTimeout(function()
+				Console.RunCommand(command)
+			end, 0)
+		end
+		local actionExists = actions[name] ~= nil
+		local ok, err = pcall(M.RegisterAction, name, callback)
+		if ok then
+			if actionExists then
+				printf("Replaced action %q with command: %s", name, command)
+			else
+				printf("Created action %q for command: %s", name, command)
+			end
+		else
+			printf("Failed to create action %q: %s", name, err)
+		end
 	end, "Creates an action for a command")
 	Console.RegisterCommand("alias", function(name, ...)
+		if not name or name == "" then
+			print("Usage: alias <name> <command>")
+			return
+		end
 		local command = table_concat({ ... }, " ")
-		Console.RegisterCommand(name, function(...)
-			RunCommand(command)
-		end)
+		local callback = function(...)
+			-- Use delayed execution to avoid Lua stack issues
+			Timer.SetTimeout(function()
+				Console.RunCommand(command)
+			end, 0)
+		end
+		local ok, err = pcall(Console.RegisterCommand, name, callback)
+		if ok then
+			printf("Created alias %q for command: %s", name, command)
+		else
+			printf("Failed to create alias %q: %s", name, err)
+		end
 	end, "Creates an alias for a command")
 	Console.RegisterCommand("bind", function(key, ...)
 		local action = table_concat({ ... }, " ")
-		M.BindKey(key, action)
+		local ok, success, err = pcall(M.BindKey, key, action)
+		if ok then
+			if success then
+				printf("Bound %q to %q", key, action)
+			else
+				printf("Failed to bind %q: %s", key, err or "unknown error")
+			end
+		else
+			printf("Failed to bind %q: %s", key, success or "unknown error")
+		end
 	end, "Binds a key to an action")
-	Console.RegisterCommand("unbind", M.UnbindKey, "Unbinds a key from its action")
-	Console.RegisterCommand("unregister", M.Unregister, "Unregisters a keybinding")
+	Console.RegisterCommand("unbind", function(key)
+		local ok, success, result = pcall(M.UnbindKey, key)
+		if ok then
+			if success then
+				printf("Unbound %q from %q", key, result)
+			else
+				print(result or "Failed to unbind key")
+			end
+		else
+			print("Failed to unbind key: " .. (success or "unknown error"))
+		end
+	end, "Unbinds a key from its action")
+	Console.RegisterCommand("unregister", function(key)
+		local ok, result = M.Unregister(key)
+		if ok then
+			printf("Unregistered %q from %q", key, result)
+		else
+			print(result or "Failed to unregister key")
+		end
+	end, "Unregisters a keybinding")
 	Console.RegisterCommand("actions", M.ListActions, "Lists all available actions")
 	Console.RegisterCommand("bindlist", M.ListBindings, "Lists all key bindings")
 	M.RegisterCommand("run", RunCommand, "Runs the given input as a console command")
@@ -267,7 +379,26 @@ function M.Initialize()
 	M.RegisterCommand("disconnect", Client.Disconnect, "Disconnects from the server")
 
 	-- NOTE: This must be on the bottom!
-	M.Initialize = function() end
+	M.Initialize = function()
+		for bind, t in next, Input.GetScriptingKeyBindings() do
+			local actionName = string.match(bind, "^" .. BIND_PREFIX .. "(.+)$")
+			if actionName then
+				for i = 1, #t do
+					local key = t[i]
+					--local action = actions[actionName]
+					--if action then
+					--	keyBindings[key] = actionName
+					--	Input.Bind(bind, InputEvent.Pressed, action)
+					--	printf("Loaded key binding: %q -> %q", key, actionName)
+					--else
+					--	printf("Warning: No action found for binding %q (key: %q)", bind, key)
+					--end
+					M.BindKey(key, actionName)
+				end
+			end
+		end
+	end
+	M.Initialize()
 end
 
 -- Export the API to be accessed by other packages

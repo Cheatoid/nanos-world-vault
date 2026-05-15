@@ -1020,11 +1020,6 @@ do
 		isBrowserOpen = not isBrowserOpen
 	end
 	Bind.RegisterCommand("browser_toggle", ToggleWebBrowser, "Toggle web browser visibility")
-
-	-- Register F9 keybinding to open WebBrowser (default)
-	--Input.Register("WebBrowser.Toggle", "F9", "Toggle WebBrowser")
-	--Input.Bind("WebBrowser.Toggle", InputEvent.Pressed, ToggleWebBrowser)
-
 	Bind.RegisterCommand("browser_devtools", function()
 		local tab = tabs[activeTabId]
 		if tab and tab.webui then

@@ -1,0 +1,4272 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>VisualScript Editor</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+	<style>
+		:root {
+			--bg-deep: #08080d;
+			--bg-main: #0d0d14;
+			--bg-surface: #14141e;
+			--bg-elevated: #1c1c2a;
+			--border: #2a2a3d;
+			--border-hover: #3d3d55;
+			--text: #e8e8f0;
+			--text-sec: #a0a0b8;
+			--text-muted: #666680;
+			--accent: #ff6b35;
+			--accent-hover: #ff8555;
+			--accent-dim: rgba(255, 107, 53, .12);
+			--success: #00e5a0;
+			--danger: #ff3366;
+			--warning: #ffbb33;
+			--info: #44aaff;
+			--cat-value: #ff6b35;
+			--cat-math: #00e5a0;
+			--cat-logic: #ff3366;
+			--cat-output: #44aaff;
+			--cat-color: #ffbb33;
+			--port-number: #00e5a0;
+			--port-string: #ff6b35;
+			--port-boolean: #ff3366;
+			--port-any: #8888aa;
+			--port-color: #ffbb33;
+			--font-mono: 'JetBrains Mono', monospace;
+			--font-ui: 'Space Grotesk', sans-serif;
+			--node-w: 210px;
+			--radius: 6px;
+			--radius-lg: 10px;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: var(--font-ui);
+			background: var(--bg-deep);
+			color: var(--text);
+			overflow: hidden;
+			height: 100vh;
+			width: 100vw;
+			display: flex;
+			flex-direction: column;
+		}
+
+		::selection {
+			background: var(--accent);
+			color: #fff;
+		}
+
+		::-webkit-scrollbar {
+			width: 5px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: var(--border);
+			border-radius: 3px;
+		}
+
+		#toolbar {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 0 16px;
+			height: 46px;
+			background: var(--bg-surface);
+			border-bottom: 1px solid var(--border);
+			z-index: 100;
+			flex-shrink: 0;
+		}
+
+		.logo {
+			font-weight: 700;
+			font-size: 16px;
+			letter-spacing: -.5px;
+			color: var(--accent);
+			margin-right: 6px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.logo i {
+			font-size: 14px;
+		}
+
+		.tb-sep {
+			width: 1px;
+			height: 22px;
+			background: var(--border);
+		}
+
+		.tb-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 5px 12px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: var(--bg-elevated);
+			color: var(--text-sec);
+			font-family: var(--font-ui);
+			font-size: 12px;
+			cursor: pointer;
+			transition: all .15s;
+			white-space: nowrap;
+		}
+
+		.tb-btn:hover {
+			border-color: var(--border-hover);
+			color: var(--text);
+			background: #22222f;
+		}
+
+		.tb-btn.primary {
+			border-color: var(--accent);
+			color: var(--accent);
+			background: var(--accent-dim);
+		}
+
+		.tb-btn.primary:hover {
+			background: rgba(255, 107, 53, .22);
+		}
+
+		.tb-btn.active {
+			border-color: var(--accent);
+			color: var(--accent);
+			background: var(--accent-dim);
+		}
+
+		.tb-btn.danger:hover {
+			border-color: var(--danger);
+			color: var(--danger);
+		}
+
+		#zoom-display {
+			font-size: 11px;
+			color: var(--text-muted);
+			font-family: var(--font-mono);
+			min-width: 48px;
+			text-align: center;
+		}
+
+		.spacer {
+			flex: 1;
+		}
+
+		.status {
+			font-size: 11px;
+			color: var(--text-muted);
+			font-family: var(--font-mono);
+		}
+
+		#main {
+			display: flex;
+			flex: 1;
+			overflow: hidden;
+			position: relative;
+		}
+
+		#sidebar {
+			width: 220px;
+			background: var(--bg-surface);
+			border-right: 1px solid var(--border);
+			display: flex;
+			flex-direction: column;
+			flex-shrink: 0;
+			z-index: 50;
+		}
+
+		#sidebar-header {
+			padding: 12px 14px 8px;
+			font-weight: 600;
+			font-size: 13px;
+			color: var(--text-sec);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		#node-search {
+			margin: 0 10px 8px;
+			padding: 6px 10px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: var(--bg-main);
+			color: var(--text);
+			font-family: var(--font-ui);
+			font-size: 12px;
+			outline: none;
+			width: calc(100% - 20px);
+		}
+
+		#node-search:focus {
+			border-color: var(--accent);
+		}
+
+		#node-search::placeholder {
+			color: var(--text-muted);
+		}
+
+		#palette {
+			flex: 1;
+			overflow-y: auto;
+			padding: 4px 10px 12px;
+		}
+
+		.cat-group {
+			margin-bottom: 6px;
+		}
+
+		.cat-label {
+			font-size: 10px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: .8px;
+			padding: 6px 4px 4px;
+			color: var(--text-muted);
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			user-select: none;
+		}
+
+		.cat-label i {
+			font-size: 8px;
+			transition: transform .2s;
+		}
+
+		.cat-label.collapsed i {
+			transform: rotate(-90deg);
+		}
+
+		.cat-items {
+			overflow: hidden;
+			transition: max-height .25s ease;
+		}
+
+		.cat-items.collapsed {
+			max-height: 0 !important;
+		}
+
+		.palette-item {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 5px 8px;
+			border-radius: var(--radius);
+			cursor: pointer;
+			font-size: 12px;
+			color: var(--text-sec);
+			transition: all .12s;
+			user-select: none;
+		}
+
+		.palette-item:hover {
+			background: var(--bg-elevated);
+			color: var(--text);
+		}
+
+		.palette-item .dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		#canvas-container {
+			flex: 1;
+			position: relative;
+			overflow: hidden;
+			background-color: var(--bg-deep);
+			background-image: radial-gradient(circle, rgba(255, 255, 255, .04) 1px, transparent 1px);
+			background-size: 30px 30px;
+		}
+
+		#console-panel {
+			height: 200px;
+			min-height: 80px;
+			background: var(--bg-surface);
+			border-top: 1px solid var(--border);
+			display: flex;
+			flex-direction: column;
+			z-index: 5;
+		}
+
+		#viewport {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+		}
+
+		#transform {
+			position: absolute;
+			top: 0;
+			left: 0;
+			transform-origin: 0 0;
+			width: 0;
+			height: 0;
+		}
+
+		#conn-svg {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 1px;
+			height: 1px;
+			overflow: visible;
+			pointer-events: none;
+			z-index: 1;
+		}
+
+		#conn-svg g {
+			transition: z-index 0.15s;
+		}
+
+		#conn-svg g:hover {
+			z-index: 20;
+		}
+
+		#conn-svg path {
+			fill: none;
+			stroke-width: 2.2;
+			stroke-linecap: round;
+		}
+
+		#conn-svg path.edge-hit {
+			stroke-width: 20;
+			stroke: transparent;
+			pointer-events: stroke;
+			cursor: pointer;
+			z-index: 2;
+		}
+
+		#conn-svg path.edge-line {
+			pointer-events: none;
+			z-index: 3;
+		}
+
+		#conn-svg-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 1px;
+			height: 1px;
+			overflow: visible;
+			pointer-events: none;
+			z-index: 50; /* Above nodes layer (40) when connections are selected */
+			background: transparent;
+		}
+
+		#conn-svg-overlay g {
+			pointer-events: auto;
+		}
+
+		#conn-svg-overlay path {
+			fill: none;
+			stroke-width: 2.2;
+			stroke-linecap: round;
+		}
+
+		#conn-svg g.selected path.edge-line,
+		#conn-svg-overlay g.selected path.edge-line {
+			stroke-width: 4;
+			filter: drop-shadow(0 0 6px currentColor);
+		}
+
+		#conn-svg-overlay g.selected {
+			z-index: 10; /* Ensure selected connections are on top within overlay */
+		}
+
+		#conn-svg g.selected path.edge-hit,
+		#conn-svg-overlay g.selected path.edge-hit {
+			stroke-width: 20;
+		}
+
+		#conn-svg g.connected-to-selected {
+			z-index: 25; /* between regular connections and overlay (45) */
+		}
+
+		.selection-rectangle {
+			position: absolute;
+			border: 1px solid var(--accent);
+			background: rgba(255, 107, 53, 0.1);
+			pointer-events: none;
+			z-index: 1000;
+		}
+
+		#conn-svg path.temp-conn {
+			stroke-dasharray: 6 4;
+			opacity: .7;
+			pointer-events: none;
+			z-index: 4;
+		}
+
+		#nodes-layer {
+			position: absolute;
+			top: 0;
+			left: 0;
+			z-index: 40; /* Below selected connections but above regular connections */
+		}
+
+		.node {
+			position: absolute;
+			z-index: 1; /* base z-index */
+			width: var(--node-w);
+			border-radius: var(--radius-lg);
+			background: var(--bg-surface);
+			border: 1.5px solid var(--border);
+			box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+			user-select: none;
+		}
+
+		.node.selected {
+			z-index: 50; /* selected nodes appear above overlay SVG (35) */
+		}
+
+		.node.dragging {
+			transition: none !important;
+			z-index: 100;
+			box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
+		}
+
+		.node.dragging .node-header {
+			cursor: grabbing;
+		}
+
+		@keyframes nodeIn {
+			from {
+				opacity: 0;
+				transform: scale(.92);
+			}
+			to {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+
+		.node:hover {
+			border-color: var(--border-hover);
+		}
+
+		.node.selected {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px var(--accent-dim), 0 4px 24px rgba(0, 0, 0, .5);
+			transition: none;
+		}
+
+		.node.executing {
+			animation: nodePulse .4s ease;
+		}
+
+		.node.step-executing {
+			border-color: var(--warning);
+			box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.3), 0 4px 24px rgba(0, 0, 0, .5);
+			animation: stepPulse 1s ease-in-out infinite;
+		}
+
+		@keyframes nodePulse {
+			0%, 100% {
+				box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+			}
+			50% {
+				box-shadow: 0 0 24px rgba(0, 229, 160, .3);
+			}
+		}
+
+		@keyframes stepPulse {
+			0%, 100% {
+				box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.3), 0 4px 24px rgba(0, 0, 0, .5);
+			}
+			50% {
+				box-shadow: 0 0 0 6px rgba(255, 187, 51, 0.6), 0 4px 24px rgba(0, 0, 0, .5);
+			}
+		}
+
+		.tb-btn.step-active {
+			border-color: var(--warning);
+			color: var(--warning);
+			background: rgba(255, 187, 51, 0.12);
+		}
+
+		.tb-btn.step-active:hover {
+			background: rgba(255, 187, 51, 0.22);
+		}
+
+		.node-header {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			padding: 8px 10px;
+			border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+			cursor: grab;
+			position: relative;
+			overflow: hidden;
+			background: var(--bg-elevated);
+		}
+
+		.node.collapsed .node-header {
+			border-radius: var(--radius-lg);
+		}
+
+		.node-header:active {
+			cursor: grabbing;
+		}
+
+		.node-header .color-strip {
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 3px;
+		}
+
+		.node-header .title {
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text);
+			flex: 1;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			padding-left: 4px;
+		}
+
+		.node-header .delete-btn {
+			background: none;
+			border: none;
+			color: var(--text-muted);
+			cursor: pointer;
+			font-size: 11px;
+			opacity: 0;
+			transition: opacity .15s, color .15s;
+			padding: 2px;
+		}
+
+		.node:hover .delete-btn {
+			opacity: 1;
+		}
+
+		.node:hover .collapse-btn {
+			opacity: 1;
+		}
+
+		.node-header .delete-btn:hover {
+			color: var(--danger);
+		}
+
+		.collapse-btn {
+			background: none;
+			border: none;
+			color: var(--text-sec);
+			cursor: pointer;
+			font-size: 11px;
+			padding: 2px;
+			opacity: 0;
+			transition: opacity .15s, color .15s, transform .2s;
+		}
+
+		.collapse-btn:hover {
+			color: var(--text);
+		}
+
+		.node.collapsed .node-body {
+			display: none;
+		}
+
+		.node.collapsed .collapse-btn i {
+			transform: rotate(180deg);
+		}
+
+		.node-body {
+			padding: 6px 0 8px;
+		}
+
+		.node-row {
+			display: flex;
+			align-items: center;
+			min-height: 26px;
+			padding: 2px 0;
+		}
+
+		.node-row.input-row {
+			justify-content: flex-start;
+		}
+
+		.node-row.output-row {
+			justify-content: flex-end;
+		}
+
+		.port-dot {
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			border: 2px solid var(--bg-surface);
+			cursor: crosshair;
+			position: relative;
+			z-index: 5;
+			transition: transform .12s, box-shadow .12s;
+			flex-shrink: 0;
+		}
+
+		.port-dot:hover {
+			transform: scale(1.4);
+			box-shadow: 0 0 8px currentColor;
+		}
+
+		.port-dot.highlight {
+			transform: scale(1.5);
+			box-shadow: 0 0 12px currentColor;
+			animation: portPulse .6s infinite alternate;
+		}
+
+		@keyframes portPulse {
+			from {
+				box-shadow: 0 0 6px currentColor;
+			}
+			to {
+				box-shadow: 0 0 14px currentColor;
+			}
+		}
+
+		.input-row .port-dot {
+			margin-left: -5px;
+			margin-right: 6px;
+		}
+
+		.output-row .port-dot {
+			margin-right: -5px;
+			margin-left: 6px;
+		}
+
+		.port-label {
+			font-size: 11px;
+			color: var(--text-sec);
+		}
+
+		.port-input {
+			flex: 1;
+			min-width: 0;
+			margin: 0 6px;
+			padding: 3px 6px;
+			border: 1px solid var(--border);
+			border-radius: 4px;
+			background: var(--bg-main);
+			color: var(--text);
+			font-family: var(--font-mono);
+			font-size: 11px;
+			outline: none;
+		}
+
+		.port-input:focus {
+			border-color: var(--accent);
+		}
+
+		.port-input[readonly] {
+			background: var(--bg-elevated);
+			color: var(--text-sec);
+			cursor: not-allowed;
+			border-color: var(--border);
+		}
+
+		.port-input[readonly]:hover {
+			border-color: var(--border);
+		}
+
+		.node-display {
+			margin: 2px 10px;
+			padding: 4px 8px;
+			background: var(--bg-main);
+			border-radius: 4px;
+			font-family: var(--font-mono);
+			font-size: 11px;
+			color: var(--success);
+			min-height: 22px;
+			word-break: break-all;
+			border: 1px solid var(--border);
+			width: calc(100% - 20px);
+			box-sizing: border-box;
+			resize: none;
+			outline: none;
+		}
+
+		.node-display:focus {
+			border-color: var(--border);
+		}
+
+		.node-display[readonly] {
+			background: var(--bg-elevated);
+			color: var(--text-sec);
+			cursor: text;
+		}
+
+		.node-toggle {
+			width: 32px;
+			height: 16px;
+			border-radius: 8px;
+			background: var(--border);
+			cursor: pointer;
+			position: relative;
+			margin: 0 6px;
+			transition: background .2s;
+			border: none;
+			flex-shrink: 0;
+		}
+
+		.node-toggle.active {
+			background: var(--success);
+		}
+
+		.node-toggle::after {
+			content: '';
+			position: absolute;
+			top: 2px;
+			left: 2px;
+			width: 12px;
+			height: 12px;
+			border-radius: 50%;
+			background: #fff;
+			transition: left .2s;
+		}
+
+		.node-toggle.active::after {
+			left: 18px;
+		}
+
+		.node-toggle:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+
+		.node-toggle:disabled:hover {
+			transform: none;
+		}
+
+		.node-group {
+			margin: 2px 10px;
+			padding: 6px 10px;
+			background: var(--bg-elevated);
+			border-radius: 4px;
+			font-family: var(--font-ui);
+			font-size: 12px;
+			color: var(--text-sec);
+			cursor: pointer;
+			border: 1px solid var(--border);
+			transition: all .2s;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.node-group:hover {
+			background: var(--bg-main);
+			border-color: var(--border-hover);
+			color: var(--text);
+		}
+
+		.node-group.collapsed {
+			background: var(--bg-surface);
+		}
+
+		.node-group .group-icon {
+			font-size: 10px;
+			transition: transform .2s;
+		}
+
+		.node-group.collapsed .group-icon {
+			transform: rotate(-90deg);
+		}
+
+		.node-group-container {
+			position: absolute;
+			border: 2px dashed var(--border);
+			border-radius: var(--radius-lg);
+			background: rgba(255, 107, 53, 0.05);
+			pointer-events: auto;
+			z-index: 0;
+			transition: all .3s ease;
+		}
+
+		.node-group-container:hover {
+			border-color: var(--border-hover);
+			background: rgba(255, 107, 53, 0.08);
+		}
+
+		.node-group-container.collapsed {
+			border-color: var(--accent);
+			background: rgba(255, 107, 53, 0.1);
+		}
+
+		.node-group-container .resize-handle {
+			position: absolute;
+			width: 12px;
+			height: 12px;
+			background: var(--accent);
+			border: 2px solid var(--bg-surface);
+			border-radius: 50%;
+			opacity: 0;
+			transition: opacity .2s;
+			cursor: nwse-resize;
+		}
+
+		.node-group-container:hover .resize-handle {
+			opacity: 0.7;
+		}
+
+		.node-group-container .resize-handle:hover {
+			opacity: 1;
+		}
+
+		.node-group-container .resize-handle.se {
+			bottom: -6px;
+			right: -6px;
+		}
+
+		.node-grouped-collapsed {
+			opacity: 0.3 !important;
+			pointer-events: none !important;
+			filter: grayscale(0.5);
+		}
+
+		#inspector {
+			width: 240px;
+			background: var(--bg-surface);
+			border-left: 1px solid var(--border);
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: column;
+			overflow-y: auto;
+			z-index: 50;
+		}
+
+		#inspector-header {
+			padding: 12px 14px 8px;
+			font-weight: 600;
+			font-size: 13px;
+			color: var(--text-sec);
+			border-bottom: 1px solid var(--border);
+		}
+
+		#inspector-body {
+			padding: 12px 14px;
+		}
+
+		.insp-empty {
+			color: var(--text-muted);
+			font-size: 12px;
+			text-align: center;
+			padding: 30px 0;
+		}
+
+		.insp-field {
+			margin-bottom: 12px;
+		}
+
+		.insp-label {
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: .6px;
+			color: var(--text-muted);
+			margin-bottom: 4px;
+			font-weight: 600;
+		}
+
+		.insp-value {
+			font-size: 13px;
+			color: var(--text);
+			font-family: var(--font-mono);
+		}
+
+		.insp-input {
+			width: 100%;
+			padding: 5px 8px;
+			background: var(--bg-main);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			color: var(--text);
+			font-family: var(--font-mono);
+			font-size: 12px;
+			outline: none;
+		}
+
+		.insp-input:focus {
+			border-color: var(--accent);
+		}
+
+		.insp-input[readonly] {
+			background: var(--bg-elevated);
+			color: var(--text-sec);
+			cursor: not-allowed;
+			border-color: var(--border);
+		}
+
+		.insp-input[readonly]:hover {
+			border-color: var(--border);
+		}
+
+		#context-menu {
+			position: fixed;
+			background: var(--bg-elevated);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			box-shadow: 0 8px 30px rgba(0, 0, 0, .5);
+			z-index: 1000;
+			min-width: 160px;
+			padding: 4px;
+			display: none;
+		}
+
+		.ctx-item {
+			padding: 6px 12px;
+			font-size: 12px;
+			color: var(--text-sec);
+			cursor: pointer;
+			border-radius: 4px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			user-select: none;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+		}
+
+		.ctx-item:hover {
+			background: var(--accent-dim);
+			color: var(--accent);
+		}
+
+		.ctx-item.danger:hover {
+			background: rgba(255, 51, 102, .12);
+			color: var(--danger);
+		}
+
+		.ctx-sep {
+			height: 1px;
+			background: var(--border);
+			margin: 4px 0;
+		}
+
+		#toast-container {
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			z-index: 2000;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			pointer-events: none;
+		}
+
+		.toast {
+			padding: 12px 18px;
+			background: linear-gradient(135deg, var(--bg-elevated), var(--bg-surface));
+			border: 1px solid var(--border);
+			border-radius: var(--radius-lg);
+			font-size: 12px;
+			color: var(--text);
+			font-weight: 500;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, .3),
+			0 2px 8px rgba(0, 0, 0, .2),
+			inset 0 1px 0 rgba(255, 255, 255, .05);
+			backdrop-filter: blur(8px);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			min-width: 280px;
+			max-width: 400px;
+			pointer-events: auto;
+			cursor: pointer;
+			position: relative;
+			overflow: hidden;
+			transform-origin: right center;
+			opacity: 0;
+			will-change: transform, opacity;
+		}
+
+		.toast::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 2px;
+			background: linear-gradient(90deg, transparent, currentColor, transparent);
+			opacity: 0;
+			transform: scaleX(0);
+			transform-origin: left;
+			transition: transform 0.3s ease, opacity 0.3s ease;
+		}
+
+		.toast:hover::before {
+			opacity: 0.6;
+			transform: scaleX(1);
+		}
+
+		.toast::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .03), transparent);
+			transition: left 0.6s ease;
+		}
+
+		.toast:hover::after {
+			left: 100%;
+		}
+
+		.toast.success {
+			border-color: var(--success);
+			color: var(--success);
+			background: linear-gradient(135deg, var(--bg-elevated), rgba(0, 229, 160, .08));
+		}
+
+		.toast.error {
+			border-color: var(--danger);
+			color: var(--danger);
+			background: linear-gradient(135deg, var(--bg-elevated), rgba(255, 51, 102, .08));
+		}
+
+		.toast.info {
+			border-color: var(--info);
+			color: var(--info);
+			background: linear-gradient(135deg, var(--bg-elevated), rgba(68, 170, 255, .08));
+		}
+
+		.toast.warning {
+			border-color: var(--warning);
+			color: var(--warning);
+			background: linear-gradient(135deg, var(--bg-elevated), rgba(255, 187, 51, .08));
+		}
+
+		.toast-icon {
+			font-size: 14px;
+			animation: iconPulse 2s ease-in-out infinite;
+		}
+
+		@keyframes iconPulse {
+			0%, 100% {
+				transform: scale(1);
+			}
+			50% {
+				transform: scale(1.1);
+			}
+		}
+
+		.toast-progress {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			height: 2px;
+			background: currentColor;
+			opacity: 0.3;
+			transform-origin: left;
+			transform: scaleX(1);
+			transition: transform linear;
+		}
+
+		.toast.removing {
+			animation: toastOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		}
+
+		@keyframes toastIn {
+			0% {
+				opacity: 0;
+				transform: translateX(100px) scale(0.8) rotate(-4deg);
+			}
+			50% {
+				opacity: 0.8;
+				transform: translateX(-10px) scale(0.95) rotate(2deg);
+			}
+			100% {
+				opacity: 1;
+				transform: translateX(0) scale(1) rotate(0deg);
+			}
+		}
+
+		@keyframes toastOut {
+			0% {
+				opacity: 1;
+				transform: translateX(0) scale(1) rotate(0deg);
+			}
+			50% {
+				transform: translateX(-10px) scale(0.95) rotate(-2deg);
+			}
+			100% {
+				opacity: 0;
+				transform: translateX(100px) scale(0.8) rotate(4deg);
+			}
+		}
+
+		.console-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 6px 12px;
+			background: var(--bg-elevated);
+			border-bottom: 1px solid var(--border);
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text-sec);
+		}
+
+		.console-header span {
+			flex: 1;
+		}
+
+		.console-actions {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.console-clear-btn {
+			background: none;
+			border: 1px solid var(--border);
+			border-radius: 4px;
+			padding: 2px 8px;
+			color: var(--text-muted);
+			cursor: pointer;
+			font-family: var(--font-ui);
+			font-size: 11px;
+			transition: all .15s;
+		}
+
+		.console-clear-btn:hover {
+			color: var(--danger);
+			border-color: var(--danger);
+		}
+
+		#console-output {
+			flex: 1;
+			overflow-y: auto;
+			padding: 8px 12px;
+			font-family: var(--font-mono);
+			font-size: 12px;
+			color: var(--text);
+			background: var(--bg-main);
+			white-space: pre-wrap;
+		}
+
+		.hidden {
+			display: none !important;
+		}
+	</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div id="toolbar">
+	<div class="logo"><i class="fa-solid fa-project-diagram"></i> VisualScript</div>
+	<div class="tb-sep"></div>
+	<button class="tb-btn primary" id="btn-run" title="Execute Graph (Ctrl+Enter)"><i class="fa-solid fa-play"></i> Run
+	</button>
+	<button class="tb-btn" id="btn-step" title="Step Execution (Ctrl+Shift+Enter)"><i
+		class="fa-solid fa-step-forward"></i> Step
+	</button>
+	<button class="tb-btn" id="btn-live-mode" title="Toggle Live Mode"><i class="fa-solid fa-bolt"></i>
+		Live
+	</button>
+	<button class="tb-btn" id="btn-strict-mode" title="Toggle Strict Mode"><i class="fa-solid fa-shield-halved"></i>
+		Strict
+	</button>
+	<button class="tb-btn" id="btn-save" title="Save JSON"><i class="fa-solid fa-download"></i> Save</button>
+	<button class="tb-btn" id="btn-load" title="Load JSON"><i class="fa-solid fa-upload"></i> Load</button>
+	<button class="tb-btn danger" id="btn-clear" title="Clear All"><i class="fa-solid fa-trash"></i> Clear</button>
+	<div class="tb-sep"></div>
+	<button class="tb-btn" id="btn-zoom-out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+	<div id="zoom-display">100%</div>
+	<button class="tb-btn" id="btn-zoom-in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+	<button class="tb-btn" id="btn-fit"><i class="fa-solid fa-expand"></i> Fit</button>
+	<div class="spacer"></div>
+	<div class="status" id="status-text">Ready</div>
+</div>
+
+<!-- Main Layout -->
+<div id="main">
+	<!-- Sidebar Palette -->
+	<div id="sidebar">
+		<div id="sidebar-header">
+			<span><i class="fa-solid fa-cubes"></i> Nodes</span>
+		</div>
+		<input type="text" id="node-search" placeholder="Search nodes...">
+		<div id="palette"></div>
+	</div>
+
+	<!-- Viewport -->
+	<div id="viewport">
+		<div id="canvas-container">
+			<div id="transform">
+				<svg id="conn-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+				<svg id="conn-svg-overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+				<div id="nodes-layer"></div>
+			</div>
+		</div>
+		<div id="console-panel">
+			<div class="console-header">
+				<span>Console</span>
+				<div class="console-actions">
+					<button class="console-clear-btn" id="btn-clear-console" title="Clear console">Clear</button>
+				</div>
+			</div>
+			<div id="console-output"></div>
+		</div>
+	</div>
+
+	<!-- Inspector -->
+	<div id="inspector">
+		<div id="inspector-header">Inspector</div>
+		<div id="inspector-body">
+			<div class="insp-empty">Select a node to inspect</div>
+		</div>
+	</div>
+</div>
+
+<!-- Context Menu -->
+<div id="context-menu">
+	<div class="ctx-item" data-action="duplicate"><i class="fa-solid fa-copy"></i> Duplicate</div>
+	<div class="ctx-item danger" data-action="delete"><i class="fa-solid fa-trash"></i> Delete</div>
+	<div class="ctx-sep"></div>
+	<div class="ctx-item" data-action="disconnect"><i class="fa-solid fa-unlink"></i> Disconnect All</div>
+</div>
+
+<!-- Toasts -->
+<div id="toast-container"></div>
+
+<!-- Hidden file input -->
+<input type="file" id="file-input" accept=".json" class="hidden">
+
+<script>
+	/**
+	 * VisualScript Editor
+	 * Architecture: Graph Model, Renderer, Engine (Worker), Serializer, Plugin API
+	 */
+
+		// Utilities
+	const uid = () => Math.random().toString(36).substr(2, 9);
+	const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+	// Toast System
+	class ToastManager {
+		constructor() {
+			this.container = document.getElementById('toast-container');
+			this.toasts = new Map();
+			this.queue = [];
+			this.maxToasts = 5;
+			this.defaultDuration = 4000;
+		}
+
+		show(message, type = 'info', options = {}) {
+			const toast = {
+				id: uid(),
+				message,
+				type,
+				duration: options.duration || this.defaultDuration,
+				persistent: options.persistent || false,
+				icon: options.icon || this._getIcon(type)
+			};
+
+			// Add to queue
+			this.queue.push(toast);
+			this._processQueue();
+			return toast.id;
+		}
+
+		_getIcon(type) {
+			const icons = {
+				success: 'check-circle',
+				error: 'exclamation-triangle',
+				warning: 'exclamation-circle',
+				info: 'info-circle'
+			};
+			return icons[type] || 'info-circle';
+		}
+
+		_processQueue() {
+			if (this.queue.length === 0) return;
+
+			// Remove oldest toasts if we hit the limit
+			if (this.toasts.size >= this.maxToasts) {
+				const oldestId = this.toasts.keys().next().value;
+				this._removeToast(oldestId, true);
+			}
+
+			const toast = this.queue.shift();
+			this._createToast(toast);
+		}
+
+		_createToast(toast) {
+			const el = document.createElement('div');
+			el.className = `toast ${toast.type || 'info'}`;
+			el.dataset.toastId = toast.id;
+			el.innerHTML = `
+				<i class="fa-solid fa-${toast.icon || 'info-circle'} toast-icon"></i>
+				<span class="toast-message">${toast.message || ''}</span>
+				${!toast.persistent ? '<div class="toast-progress"></div>' : ''}
+			`;
+
+			// Add click to dismiss
+			el.addEventListener('click', () => this._removeToast(toast.id));
+
+			// Add element to toast object before animation
+			toast.element = el;
+
+			// Add to container
+			this.container.appendChild(el);
+			this.toasts.set(toast.id, {element: el, ...toast});
+
+			// Use CSS animation for entry
+			el.style.animation = 'toastIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+
+			// Auto-remove if not persistent
+			if (!toast.persistent) {
+				// Use CSS transition for progress bar instead of rAF
+				const progressBar = el.querySelector('.toast-progress');
+				if (progressBar) {
+					progressBar.style.transition = `transform ${toast.duration}ms linear`;
+					// Force reflow
+					progressBar.offsetHeight;
+					progressBar.style.transform = 'scaleX(0)';
+				}
+
+				toast.timeoutId = setTimeout(() => {
+					this._removeToast(toast.id);
+				}, toast.duration);
+			}
+		}
+
+		_removeToast(toastId, immediate = false) {
+			const toast = this.toasts.get(toastId);
+			if (!toast || toast.removing) return;
+
+			toast.removing = true;
+
+			// Clear timeout if exists
+			if (toast.timeoutId) {
+				clearTimeout(toast.timeoutId);
+			}
+
+			if (immediate) {
+				this._completeRemoval(toastId);
+			} else {
+				this._animateOut(toast);
+			}
+		}
+
+		_animateOut(toast) {
+			const el = toast.element;
+			el.classList.add('removing');
+			el.style.animation = 'toastOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+
+			// Remove after animation completes
+			setTimeout(() => {
+				this._completeRemoval(toast.id);
+			}, 400);
+		}
+
+		_completeRemoval(toastId) {
+			const toast = this.toasts.get(toastId);
+			if (!toast) return;
+
+			// Remove from DOM
+			if (toast.element && toast.element.parentNode) {
+				toast.element.remove();
+			}
+
+			// Remove from tracking
+			this.toasts.delete(toastId);
+
+			// Process queue
+			this._processQueue();
+		}
+
+		clear() {
+			// Remove all toasts
+			this.toasts.forEach((toast, id) => {
+				this._removeToast(id, true);
+			});
+			this.queue = [];
+		}
+	}
+
+	// Global toast manager instance
+	const toastManager = new ToastManager();
+
+	// Simplified toast function for backward compatibility
+	function toast(msg, type = 'info', options = {}) {
+		return toastManager.show(msg, type, options);
+	}
+
+	// Plugin API
+	const NodeTypes = {};
+
+	function registerNodeType(type, def) {
+		NodeTypes[type] = {
+			title: def.title || type,
+			category: def.category || 'default',
+			inputs: def.inputs || [],
+			outputs: def.outputs || [],
+			calculate: def.calculate || (() => ({})),
+			defaults: def.defaults || {},
+			widget: def.widget || null // 'display' | 'toggle' | null
+		};
+	}
+
+	// Built-in Node Plugins
+	registerNodeType('value/number', {
+		title: 'Number', category: 'Value',
+		inputs: [{id: 'value', type: 'number', label: 'Value', default: 0}],
+		outputs: [{id: 'out', type: 'number', label: 'Out'}],
+		calculate: (inputs) => ({out: Number(inputs.value) || 0})
+	});
+
+	registerNodeType('value/string', {
+		title: 'Text', category: 'Value',
+		inputs: [{id: 'value', type: 'string', label: 'Text', default: 'hello'}],
+		outputs: [{id: 'out', type: 'string', label: 'Out'}],
+		calculate: (inputs) => ({out: String(inputs.value)})
+	});
+
+	registerNodeType('value/boolean', {
+		title: 'Boolean', category: 'Value',
+		inputs: [{id: 'value', type: 'boolean', label: 'Value', default: false}],
+		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		widget: 'toggle',
+		calculate: (inputs) => ({out: !!inputs.value})
+	});
+
+	registerNodeType('math/add', {
+		title: 'Add', category: 'Math',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'sum', type: 'number', label: 'Sum'}],
+		calculate: (inputs) => ({sum: (Number(inputs.a) || 0) + (Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('math/subtract', {
+		title: 'Subtract', category: 'Math',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'diff', type: 'number', label: 'Diff'}],
+		calculate: (inputs) => ({diff: (Number(inputs.a) || 0) - (Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('math/multiply', {
+		title: 'Multiply', category: 'Math',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'product', type: 'number', label: 'Result'}],
+		calculate: (inputs) => ({product: (Number(inputs.a) || 0) * (Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('math/divide', {
+		title: 'Divide', category: 'Math',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 1}, {id: 'b', type: 'number', label: 'B', default: 1}],
+		outputs: [{id: 'quotient', type: 'number', label: 'Result'}],
+		calculate: (inputs) => {
+			const b = Number(inputs.b) || 1;
+			return {quotient: b !== 0 ? (Number(inputs.a) || 0) / b : 0};
+		}
+	});
+
+	registerNodeType('math/modulo', {
+		title: 'Modulo', category: 'Math',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 1}],
+		outputs: [{id: 'remainder', type: 'number', label: 'A % B'}],
+		calculate: (inputs) => {
+			const b = Number(inputs.b) || 1;
+			return {remainder: b !== 0 ? (Number(inputs.a) || 0) % b : 0};
+		}
+	});
+
+	registerNodeType('math/power', {
+		title: 'Power', category: 'Math',
+		inputs: [{id: 'base', type: 'number', label: 'Base', default: 2}, {
+			id: 'exp',
+			type: 'number',
+			label: 'Exponent',
+			default: 1
+		}],
+		outputs: [{id: 'result', type: 'number', label: 'Base^Exp'}],
+		calculate: (inputs) => ({result: Math.pow(Number(inputs.base) || 0, Number(inputs.exp) || 0)})
+	});
+
+	registerNodeType('math/sqrt', {
+		title: 'Square Root', category: 'Math',
+		inputs: [{id: 'value', type: 'number', label: 'Value', default: 0}],
+		outputs: [{id: 'result', type: 'number', label: '√Value'}],
+		calculate: (inputs) => ({result: Math.sqrt(Math.max(0, Number(inputs.value) || 0))})
+	});
+
+	registerNodeType('math/min', {
+		title: 'Min', category: 'Math',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'result', type: 'number', label: 'Min(A,B)'}],
+		calculate: (inputs) => ({result: Math.min(Number(inputs.a) || 0, Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('math/max', {
+		title: 'Max', category: 'Math',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'result', type: 'number', label: 'Max(A,B)'}],
+		calculate: (inputs) => ({result: Math.max(Number(inputs.a) || 0, Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('logic/and', {
+		title: 'AND Gate', category: 'Logic',
+		inputs: [{id: 'a', type: 'boolean', label: 'A', default: false}, {
+			id: 'b',
+			type: 'boolean',
+			label: 'B',
+			default: false
+		}],
+		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		widget: 'toggle',
+		calculate: (inputs) => ({out: !!inputs.a && !!inputs.b})
+	});
+
+	registerNodeType('logic/or', {
+		title: 'OR Gate', category: 'Logic',
+		inputs: [{id: 'a', type: 'boolean', label: 'A', default: false}, {
+			id: 'b',
+			type: 'boolean',
+			label: 'B',
+			default: false
+		}],
+		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		widget: 'toggle',
+		calculate: (inputs) => ({out: !!inputs.a || !!inputs.b})
+	});
+
+	registerNodeType('logic/not', {
+		title: 'NOT Gate', category: 'Logic',
+		inputs: [{id: 'input', type: 'boolean', label: 'Input', default: false}],
+		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		widget: 'toggle',
+		calculate: (inputs) => ({out: !inputs.input})
+	});
+
+	registerNodeType('logic/xor', {
+		title: 'XOR Gate', category: 'Logic',
+		inputs: [{id: 'a', type: 'boolean', label: 'A', default: false}, {
+			id: 'b',
+			type: 'boolean',
+			label: 'B',
+			default: false
+		}],
+		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		widget: 'toggle',
+		calculate: (inputs) => ({out: (!!inputs.a !== !!inputs.b)})
+	});
+
+	registerNodeType('logic/equals', {
+		title: 'Equals (A==B)', category: 'Logic',
+		inputs: [{id: 'a', type: 'any', label: 'A', default: 0}, {id: 'b', type: 'any', label: 'B', default: 0}],
+		outputs: [{id: 'result', type: 'boolean', label: 'A == B'}],
+		calculate: (inputs) => ({result: inputs.a == inputs.b})
+	});
+
+	registerNodeType('logic/not-equals', {
+		title: 'Not Equals (A!=B)', category: 'Logic',
+		inputs: [{id: 'a', type: 'any', label: 'A', default: 0}, {id: 'b', type: 'any', label: 'B', default: 0}],
+		outputs: [{id: 'result', type: 'boolean', label: 'A != B'}],
+		calculate: (inputs) => ({result: inputs.a != inputs.b})
+	});
+
+	registerNodeType('logic/less', {
+		title: 'Less Than (A&lt;B)', category: 'Logic',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'result', type: 'boolean', label: 'A &lt; B'}],
+		calculate: (inputs) => ({result: (Number(inputs.a) || 0) < (Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('logic/less-equals', {
+		title: 'Less Equals (A≤B)', category: 'Logic',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'result', type: 'boolean', label: 'A ≤ B'}],
+		calculate: (inputs) => ({result: (Number(inputs.a) || 0) <= (Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('logic/greater', {
+		title: 'Greater Than (A&gt;B)', category: 'Logic',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'result', type: 'boolean', label: 'A &gt; B'}],
+		calculate: (inputs) => ({result: (Number(inputs.a) || 0) > (Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('logic/greater-equals', {
+		title: 'Greater Equals (A≥B)', category: 'Logic',
+		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
+		outputs: [{id: 'result', type: 'boolean', label: 'A ≥ B'}],
+		calculate: (inputs) => ({result: (Number(inputs.a) || 0) >= (Number(inputs.b) || 0)})
+	});
+
+	registerNodeType('control-flow/if', {
+		title: 'If Condition', category: 'Control Flow',
+		inputs: [
+			{id: 'condition', type: 'boolean', label: 'Condition', default: false},
+			{id: 'true', type: 'any', label: 'If True', default: 0},
+			{id: 'false', type: 'any', label: 'If False', default: 0}
+		],
+		outputs: [{id: 'result', type: 'any', label: 'Result'}],
+		calculate: (inputs) => {
+			// Convert string boolean inputs to actual boolean
+			let condition = inputs.condition;
+			if (typeof condition === 'string') {
+				condition = condition.toLowerCase() === 'true';
+			}
+			return {result: condition ? inputs['true'] : inputs['false']};
+		}
+	});
+
+	registerNodeType('control-flow/switch', {
+		title: 'Switch Case', category: 'Control Flow',
+		inputs: [
+			{id: 'input', type: 'any', label: 'Input', default: 0},
+			{id: 'case1', type: 'any', label: 'Case 1', default: 0},
+			{id: 'case2', type: 'any', label: 'Case 2', default: 0},
+			{id: 'case3', type: 'any', label: 'Case 3', default: 0},
+			{id: 'case4', type: 'any', label: 'Case 4', default: 0},
+		],
+		outputs: [{id: 'result', type: 'any', label: 'Result'}],
+		calculate: (inputs) => {
+			const index = Math.max(1, Math.min(4, Math.floor(Number(inputs.input) || 1)));
+			return {result: inputs[`case${index}`] || 0};
+		}
+	});
+
+	registerNodeType('control-flow/for-loop', {
+		title: 'For Loop', category: 'Control Flow',
+		inputs: [
+			{id: 'start', type: 'number', label: 'Start', default: 0},
+			{id: 'end', type: 'number', label: 'End', default: 10},
+			{id: 'step', type: 'number', label: 'Step', default: 1}
+		],
+		outputs: [
+			{id: 'index', type: 'number', label: 'Index'},
+			{id: 'done', type: 'boolean', label: 'Done'}
+		],
+		widget: 'display',
+		calculate: (inputs) => {
+			const start = Number(inputs.start) || 0;
+			const end = Number(inputs.end) || 10;
+			const step = Number(inputs.step) || 1;
+			const index = start;
+			const done = step > 0 ? index >= end : index <= end;
+			return {index, done, _display: `${index} / ${end}`};
+		}
+	});
+
+	registerNodeType('control-flow/while-loop', {
+		title: 'While Loop', category: 'Control Flow',
+		inputs: [
+			{id: 'condition', type: 'boolean', label: 'Condition', default: true},
+			{id: 'value', type: 'any', label: 'Value', default: 0}
+		],
+		outputs: [
+			{id: 'value', type: 'any', label: 'Value'},
+			{id: 'continue', type: 'boolean', label: 'Continue'}
+		],
+		calculate: (inputs) => ({value: inputs.value, continue: !!inputs.condition})
+	});
+
+	registerNodeType('control/merge', {
+		title: 'Merge', category: 'Control',
+		inputs: [
+			{id: 'input1', type: 'any', label: 'Input 1', default: 0},
+			{id: 'input2', type: 'any', label: 'Input 2', default: 0},
+			{id: 'input3', type: 'any', label: 'Input 3', default: 0},
+			{id: 'input4', type: 'any', label: 'Input 4', default: 0}
+		],
+		outputs: [{id: 'result', type: 'any', label: 'Result'}],
+		calculate: (inputs) => ({result: inputs.input1 || inputs.input2 || inputs.input3 || inputs.input4})
+	});
+
+	registerNodeType('control/counter', {
+		title: 'Counter', category: 'Control',
+		inputs: [
+			{id: 'increment', type: 'number', label: 'Increment', default: 1},
+			{id: 'reset', type: 'boolean', label: 'Reset', default: false}
+		],
+		outputs: [
+			{id: 'count', type: 'number', label: 'Count'}
+		],
+		widget: 'display',
+		calculate: (inputs) => {
+			const increment = Number(inputs.increment) || 1;
+			const reset = !!inputs.reset;
+			const count = reset ? 0 : (inputs._count || 0) + increment;
+			return {count, _count: count, _display: String(count)};
+		}
+	});
+
+	registerNodeType('control/range', {
+		title: 'Range', category: 'Control',
+		inputs: [
+			{id: 'min', type: 'number', label: 'Min', default: 0},
+			{id: 'max', type: 'number', label: 'Max', default: 100},
+			{id: 'value', type: 'number', label: 'Value', default: 50}
+		],
+		outputs: [
+			{id: 'clamped', type: 'number', label: 'Clamped'},
+			{id: 'normalized', type: 'number', label: 'Normalized (0-1)'}
+		],
+		calculate: (inputs) => {
+			const min = Number(inputs.min) || 0;
+			const max = Number(inputs.max) || 100;
+			const value = Number(inputs.value) || 0;
+			const clamped = Math.max(min, Math.min(max, value));
+			const range = max - min;
+			const normalized = range !== 0 ? (clamped - min) / range : 0;
+			return {clamped, normalized};
+		}
+	});
+
+	registerNodeType('control/delay', {
+		title: 'Delay', category: 'Control',
+		inputs: [
+			{id: 'value', type: 'any', label: 'Value', default: 0},
+			{id: 'ms', type: 'number', label: 'Delay (ms)', default: 1000}
+		],
+		outputs: [
+			{id: 'value', type: 'any', label: 'Delayed Value'}
+		],
+		widget: 'display',
+		calculate: (inputs) => ({value: inputs.value, _display: `${inputs.ms}ms delay`})
+	});
+
+	registerNodeType('control/variable-gate', {
+		title: 'Variable Gate', category: 'Control',
+		inputs: [
+			{id: 'type', type: 'string', label: 'Type', default: 'any'},
+			{id: 'set', type: 'any', label: 'Set Value', default: 0},
+			{id: 'reset', type: 'boolean', label: 'Reset', default: false}
+		],
+		outputs: [
+			{id: 'value', type: 'any', label: 'Stored Value'}
+		],
+		widget: 'display',
+		calculate: (inputs) => {
+			const reset = !!inputs.reset;
+			const type = inputs.type || 'any';
+			let storedValue = reset ? inputs.set : (inputs._stored !== undefined ? inputs._stored : inputs.set);
+
+			// Type conversion based on selected type
+			switch (type) {
+				case 'number':
+					storedValue = Number(storedValue) || 0;
+					break;
+				case 'string':
+					storedValue = String(storedValue);
+					break;
+				case 'boolean':
+					storedValue = !!storedValue;
+					break;
+				default:
+					// 'any' - pass through as-is
+					break;
+			}
+
+			return {value: storedValue, _stored: storedValue, _display: `${type}: ${String(storedValue)}`};
+		}
+	});
+
+	registerNodeType('output/display', {
+		title: 'Display', category: 'Output',
+		inputs: [{id: 'value', type: 'any', label: 'Value'}],
+		outputs: [{id: 'out', type: 'any', label: 'Out'}],
+		widget: 'display',
+		calculate: (inputs) => ({
+			_display: inputs.value !== undefined ? String(inputs.value) : '-',
+			out: inputs.value
+		})
+	});
+
+	registerNodeType('output/print', {
+		title: 'Print', category: 'Output',
+		inputs: [{id: 'value', type: 'any', label: 'Value'}],
+		calculate: (inputs) => ({_print: String(inputs.value !== undefined ? inputs.value : '-')})
+	});
+
+	registerNodeType('color/mix', {
+		title: 'Mix Color', category: 'Color',
+		inputs: [
+			{id: 'c1', type: 'string', label: 'Color 1', default: '#ff6b35'},
+			{id: 'c2', type: 'string', label: 'Color 2', default: '#00e5a0'},
+			{id: 't', type: 'number', label: 'Mix (0-1)', default: 0.5}
+		],
+		outputs: [{id: 'out', type: 'string', label: 'Result'}],
+		calculate: (inputs) => {
+			try {
+				const hex = (s) => parseInt(s.replace('#', ''), 16);
+				const r1 = (hex(inputs.c1) >> 16) & 255, g1 = (hex(inputs.c1) >> 8) & 255, b1 = hex(inputs.c1) & 255;
+				const r2 = (hex(inputs.c2) >> 16) & 255, g2 = (hex(inputs.c2) >> 8) & 255, b2 = hex(inputs.c2) & 255;
+				const t = clamp(Number(inputs.t) || 0, 0, 1);
+				const mix = (a, b) => Math.round(a + (b - a) * t);
+				const rh = mix(r1, r2).toString(16).padStart(2, '0');
+				const gh = mix(g1, g2).toString(16).padStart(2, '0');
+				const bh = mix(b1, b2).toString(16).padStart(2, '0');
+				return {out: `#${rh}${gh}${bh}`};
+			} catch (e) {
+				return {out: '#888888'};
+			}
+		}
+	});
+
+	registerNodeType('control/group', {
+		title: 'Group Box', category: 'Control',
+		inputs: [],
+		outputs: [],
+		widget: 'group',
+		calculate: (inputs) => ({_display: inputs.collapsed ? '▶ Group' : '▼ Group'}),
+		defaults: {collapsed: false}
+	});
+
+	const typeColorMap = {
+		number: 'var(--port-number)',
+		string: 'var(--port-string)',
+		boolean: 'var(--port-boolean)',
+		any: 'var(--port-any)',
+		color: 'var(--port-color)'
+	};
+	const categoryColors = {
+		Value: 'var(--cat-value)',
+		Math: 'var(--cat-math)',
+		Logic: 'var(--cat-logic)',
+		Control: 'var(--accent)',
+		Output: 'var(--cat-output)',
+		Color: 'var(--cat-color)'
+	};
+
+	// Graph Model
+	class GraphModel {
+		constructor() {
+			this.nodes = new Map();
+			this.strictMode = true;
+			this.edges = [];
+			this.listeners = [];
+			// Unified selection state
+			this.selection = {
+				nodes: new Set(),
+				edges: new Set(),
+				primaryNode: null,
+				primaryEdge: null
+			};
+		}
+
+		onChange(fn) {
+			this.listeners.push(fn);
+		}
+
+		emit(event) {
+			this.listeners.forEach(fn => fn(event));
+		}
+
+		addNode(type, x, y) {
+			try {
+				if (!type || typeof type !== 'string') {
+					return null;
+				}
+
+				const def = NodeTypes[type];
+				if (!def) {
+					toast(`Unknown node type: ${type}`, 'error');
+					return null;
+				}
+
+				if (typeof x !== 'number' || typeof y !== 'number') {
+					return null;
+				}
+
+				const id = uid();
+				const data = {};
+
+				if (!def.inputs || !Array.isArray(def.inputs)) {
+					return null;
+				}
+
+				def.inputs.forEach(inp => {
+					if (inp && inp.id) {
+						data[inp.id] = inp.default !== undefined ? inp.default : '';
+					}
+				});
+
+				const node = {id, type, x, y, data};
+				this.nodes.set(id, node);
+				this.emit({type: 'node-added', node});
+				return node;
+			} catch (error) {
+				toast('Failed to add node', 'error');
+				return null;
+			}
+		}
+
+		removeNode(id) {
+			// Remove all connected edges and emit edge-removed events
+			const connectedEdges = this.edges.filter(e => e.fromNode === id || e.toNode === id);
+			connectedEdges.forEach(edge => {
+				this.emit({type: 'edge-removed', id: edge.id});
+			});
+			this.edges = this.edges.filter(e => e.fromNode !== id && e.toNode !== id);
+			this.nodes.delete(id);
+			this.emit({type: 'node-removed', id});
+		}
+
+		addEdge(fromNode, fromPort, toNode, toPort) {
+			// Prevent duplicates and self-connections
+			if (fromNode === toNode) return false;
+
+			// Type compatibility checking first
+			const fromNodeDef = this.nodes.get(fromNode);
+			const toNodeDef = this.nodes.get(toNode);
+			if (!fromNodeDef || !toNodeDef) {
+				return false;
+			}
+
+			const fromNodeType = NodeTypes[fromNodeDef.type];
+			const toNodeType = NodeTypes[toNodeDef.type];
+			if (!fromNodeType || !toNodeType) {
+				return false;
+			}
+
+			const fromPortDef = fromNodeType.outputs.find(p => p.id === fromPort);
+			const toPortDef = toNodeType.inputs.find(p => p.id === toPort);
+			if (!fromPortDef || !toPortDef) {
+				return false;
+			}
+
+			// Check type compatibility (only in strict mode)
+			if (this.strictMode && !this._areTypesCompatible(fromPortDef.type, toPortDef.type)) {
+				toast(`Cannot connect ${fromPortDef.type} to ${toPortDef.type} input (Strict Mode)`, 'error');
+				return false;
+			}
+
+			const exists = this.edges.find(e => e.toNode === toNode && e.toPort === toPort);
+			if (exists) {
+				// Remove existing connection and replace with new one
+				this.removeEdge(exists.id);
+			}
+
+			const edge = {id: uid(), fromNode, fromPort, toNode, toPort};
+			this.edges.push(edge);
+			this.emit({type: 'edge-added', edge});
+			return true;
+		}
+
+		// Unified selection methods
+		selectItems(items = {nodes: [], edges: []}, mode = 'replace', ctrlKey = false) {
+			const {nodes: nodeIds = [], edges: edgeIds = []} = items;
+
+			// Handle selection mode
+			if (mode === 'clear') {
+				this._clearSelection();
+				return;
+			}
+
+			if (mode === 'replace' && !ctrlKey) {
+				// Clear previous selection unless Ctrl is held
+				this.selection.nodes.clear();
+				this.selection.edges.clear();
+				this.selection.primaryNode = null;
+				this.selection.primaryEdge = null;
+			}
+
+			// Process node selection
+			nodeIds.forEach(nodeId => {
+				if (mode === 'toggle' || (mode === 'replace' && ctrlKey)) {
+					// Toggle selection
+					if (this.selection.nodes.has(nodeId)) {
+						this.selection.nodes.delete(nodeId);
+						if (this.selection.primaryNode === nodeId) {
+							this.selection.primaryNode = this.selection.nodes.size > 0 ? Array.from(this.selection.nodes).pop() : null;
+						}
+					} else {
+						this.selection.nodes.add(nodeId);
+						this.selection.primaryNode = nodeId;
+					}
+				} else {
+					// Add to selection
+					this.selection.nodes.add(nodeId);
+					this.selection.primaryNode = nodeId;
+				}
+			});
+
+			// Process edge selection
+			edgeIds.forEach(edgeId => {
+				if (mode === 'toggle' || (mode === 'replace' && ctrlKey)) {
+					// Toggle selection
+					if (this.selection.edges.has(edgeId)) {
+						this.selection.edges.delete(edgeId);
+						if (this.selection.primaryEdge === edgeId) {
+							this.selection.primaryEdge = this.selection.edges.size > 0 ? Array.from(this.selection.edges).pop() : null;
+						}
+					} else {
+						this.selection.edges.add(edgeId);
+						this.selection.primaryEdge = edgeId;
+					}
+				} else {
+					// Add to selection
+					this.selection.edges.add(edgeId);
+					this.selection.primaryEdge = edgeId;
+				}
+			});
+
+			// Emit selection change event
+			this.emit({
+				type: 'selection-changed',
+				selection: {
+					nodes: Array.from(this.selection.nodes),
+					edges: Array.from(this.selection.edges),
+					primaryNode: this.selection.primaryNode,
+					primaryEdge: this.selection.primaryEdge
+				}
+			});
+		}
+
+		_clearSelection() {
+			const hadSelection = this.selection.nodes.size > 0 || this.selection.edges.size > 0;
+			this.selection.nodes.clear();
+			this.selection.edges.clear();
+			this.selection.primaryNode = null;
+			this.selection.primaryEdge = null;
+
+			if (hadSelection) {
+				this.emit({
+					type: 'selection-changed',
+					selection: {
+						nodes: [],
+						edges: [],
+						primaryNode: null,
+						primaryEdge: null
+					}
+				});
+			}
+		}
+
+		// Legacy compatibility methods
+		selectNode(id, ctrlKey = false) {
+			if (id === null) {
+				this.selectItems({nodes: [], edges: []}, 'clear');
+			} else {
+				this.selectItems({nodes: [id]}, ctrlKey ? 'toggle' : 'replace', ctrlKey);
+			}
+		}
+
+		selectEdge(id, ctrlKey = false) {
+			if (id === null) {
+				this.selectItems({nodes: [], edges: []}, 'clear');
+			} else {
+				this.selectItems({edges: [id]}, ctrlKey ? 'toggle' : 'replace', ctrlKey);
+			}
+		}
+
+		_areTypesCompatible(fromType, toType) {
+			// 'any' type can connect to anything
+			if (fromType === 'any' || toType === 'any') return true;
+
+			// Exact type matches
+			if (fromType === toType) return true;
+
+			// Define type compatibility rules
+			const compatibilityRules = {
+				'number': ['number'],
+				'string': ['string'],
+				'boolean': ['boolean'],
+				'color': ['color', 'string']
+			};
+
+			return compatibilityRules[fromType]?.includes(toType) || false;
+		}
+
+		removeEdge(id) {
+			this.edges = this.edges.filter(e => e.id !== id);
+			this.emit({type: 'edge-removed', id});
+		}
+
+		disconnectNode(nodeId) {
+			// Remove all connected edges and emit edge-removed events
+			const connectedEdges = this.edges.filter(e => e.fromNode === nodeId || e.toNode === nodeId);
+			connectedEdges.forEach(edge => {
+				this.emit({type: 'edge-removed', id: edge.id});
+			});
+			this.edges = this.edges.filter(e => e.fromNode !== nodeId && e.toNode !== nodeId);
+			// Update input states for all nodes that might be affected
+			this.nodes.forEach((node, id) => {
+				this._updateNodeInputStates(id);
+			});
+			this.emit({type: 'graph-changed'});
+		}
+
+		updateNodeData(id, key, value) {
+			const node = this.nodes.get(id);
+			if (node) {
+				const oldValue = node.data[key];
+				node.data[key] = value;
+				this.emit({type: 'node-data', id, key, value});
+			}
+		}
+
+		moveNode(id, x, y) {
+			const node = this.nodes.get(id);
+			if (node) {
+				node.x = x;
+				node.y = y;
+				this.emit({type: 'node-moved', id});
+			}
+		}
+
+		serialize() {
+			return {
+				version: 1,
+				nodes: Array.from(this.nodes.values()),
+				edges: this.edges
+			};
+		}
+
+		deserialize(json) {
+			try {
+				const data = JSON.parse(json);
+				if (data.version !== 1) throw new Error('Unsupported version');
+				this.nodes.clear();
+				this.edges = [];
+				data.nodes.forEach(n => this.nodes.set(n.id, n));
+				this.edges = data.edges || [];
+				this.emit({type: 'graph-loaded'});
+				return true;
+			} catch (e) {
+				toast('Failed to load graph: ' + e.message, 'error');
+				return false;
+			}
+		}
+
+		clear() {
+			this.nodes.clear();
+			this.edges = [];
+			this.emit({type: 'graph-cleared'});
+		}
+	}
+
+	// Renderer
+	class Renderer {
+		constructor(model, canvasEl, transform, svg, overlaySvg, nodesLayer, app) {
+			this.model = model;
+			this.canvasEl = canvasEl;
+			this.transform = transform;
+			this.svg = svg;
+			this.overlaySvg = overlaySvg;
+			this.nodesLayer = nodesLayer;
+			this.app = app;
+			this.nodeEls = new Map();
+			this.edgeEls = new Map();
+			// Selection state is now managed by model.selection
+			this.pan = {x: 0, y: 0};
+			this.zoom = 1;
+			this.interactionState = 'idle'; // idle | dragging | panning | connecting | selecting
+			this.dragData = {};
+			this.tempLine = null;
+			this.portPositions = new Map();
+			this._liveUpdateRaf = null;
+			this._liveRunTimeout = null;
+			this.selectionRect = null;
+
+			this._bindModel();
+			this._bindViewport();
+		}
+
+		// Check if an input port is connected
+		_isInputPortConnected(nodeId, portId) {
+			return this.model.edges.some(edge => edge.toNode === nodeId && edge.toPort === portId);
+		}
+
+		// Get the value being passed to an input port
+		_getInputPortValue(nodeId, portId) {
+			const connectedEdge = this.model.edges.find(edge => edge.toNode === nodeId && edge.toPort === portId);
+			if (!connectedEdge) return undefined;
+
+			const fromNodeResults = this.app?.engine?.results?.get(connectedEdge.fromNode);
+			if (fromNodeResults && fromNodeResults[connectedEdge.fromPort] !== undefined) {
+				return fromNodeResults[connectedEdge.fromPort];
+			}
+
+			// Fallback to step results if in step mode
+			const stepResults = this.app?.engine?.stepResults?.get(connectedEdge.fromNode);
+			if (stepResults && stepResults[connectedEdge.fromPort] !== undefined) {
+				return stepResults[connectedEdge.fromPort];
+			}
+
+			return undefined;
+		}
+
+		// Update readonly state and values for all input fields of a node
+		_updateNodeInputStates(nodeId) {
+			const node = this.model.nodes.get(nodeId);
+			const nodeEl = this.nodeEls.get(nodeId);
+			if (!node || !nodeEl) return;
+
+			const def = NodeTypes[node.type];
+			if (!def || !def.inputs) return;
+
+			def.inputs.forEach(input => {
+				const inputEl = nodeEl.querySelector(`.port-input[data-key="${input.id}"]`);
+				if (inputEl) {
+					const isConnected = this._isInputPortConnected(nodeId, input.id);
+					inputEl.readOnly = isConnected;
+
+					if (isConnected) {
+						const inputValue = this._getInputPortValue(nodeId, input.id);
+						if (inputValue !== undefined) {
+							inputEl.value = inputValue;
+						}
+					}
+				}
+
+				// Handle toggle widgets
+				const toggleEl = nodeEl.querySelector(`.node-toggle[data-key="${input.id}"]`);
+				if (toggleEl) {
+					const isConnected = this._isInputPortConnected(nodeId, input.id);
+					toggleEl.disabled = isConnected;
+
+					if (isConnected) {
+						const inputValue = this._getInputPortValue(nodeId, input.id);
+						if (inputValue !== undefined) {
+							const isActive = !!inputValue;
+							toggleEl.classList.toggle('active', isActive);
+						}
+					}
+				}
+			});
+		}
+
+		_bindModel() {
+			this.model.onChange((event) => {
+				switch (event.type) {
+					case 'node-added':
+						this._createNodeEl(event.node);
+						break;
+					case 'node-removed':
+						this._removeNodeEl(event.id);
+						break;
+					case 'edge-added':
+						this._createEdgeEl(event.edge);
+						// Update input states for the target node
+						this._updateNodeInputStates(event.edge.toNode);
+						// Update inspector if the target node is selected
+						if (this.model.selection.primaryNode === event.edge.toNode) {
+							this._updateInspector();
+						}
+						break;
+					case 'edge-removed':
+						// Find the edge before it gets removed from the array
+						const removedEdge = this.model.edges.find(e => e.id === event.id);
+						this._removeEdgeEl(event.id);
+						if (removedEdge) {
+							// Update input states for the target node
+							this._updateNodeInputStates(removedEdge.toNode);
+							// Update inspector if the target node is selected
+							if (this.model.selection.primaryNode === removedEdge.toNode) {
+								this._updateInspector();
+							}
+						}
+						// Also update all nodes to ensure consistency
+						setTimeout(() => {
+							this.model.nodes.forEach((node, id) => {
+								this._updateNodeInputStates(id);
+							});
+						}, 0);
+						break;
+					case 'node-removed':
+						// Selection is now handled by the model
+						break;
+					case 'selection-changed':
+						this._handleSelectionChanged(event.selection);
+						break;
+					case 'node-moved':
+						this._updateNodePos(event.id);
+						this._updateEdgesForNode(event.id);
+						break;
+					case 'node-data':
+						this._updateNodeData(event.id, event.key, event.value);
+						break;
+					case 'graph-changed':
+						this._redrawAllEdges();
+						break;
+					case 'graph-loaded':
+						this._rebuild();
+						break;
+					case 'graph-cleared':
+						this._clear();
+						break;
+				}
+
+				// Auto-run in live mode for relevant changes
+				if (this.app && this.app.liveMode &&
+					['node-added', 'node-removed', 'edge-added', 'edge-removed', 'node-data', 'graph-changed'].includes(event.type)) {
+					// Debounce to prevent excessive runs during dragging
+					if (this._liveRunTimeout) clearTimeout(this._liveRunTimeout);
+					this._liveRunTimeout = setTimeout(() => {
+						// Use selective execution for live mode
+						const affectedNodes = this.app.engine._detectChanges();
+						if (affectedNodes.length > 0) {
+							this.app.engine.runSelective(affectedNodes);
+						} else {
+						}
+					}, 300);
+				}
+			});
+		}
+
+		_bindViewport() {
+			this.canvasEl.addEventListener('mousedown', (e) => {
+				if (e.target === this.canvasEl || e.target === this.transform) {
+					if (e.button === 0) {
+						// Left click on empty canvas - deselect all nodes and connections
+						this.model._clearSelection();
+					} else if (e.button === 1 || e.button === 2) {
+						this.interactionState = 'panning';
+						this.dragData = {
+							startX: e.clientX,
+							startY: e.clientY,
+							startPanX: this.pan.x,
+							startPanY: this.pan.y
+						};
+						this.canvasEl.style.cursor = 'grabbing';
+						e.preventDefault();
+					}
+				}
+			});
+
+			window.addEventListener('mousemove', (e) => {
+				if (this.interactionState === 'panning') {
+					this.pan.x = this.dragData.startPanX + (e.clientX - this.dragData.startX);
+					this.pan.y = this.dragData.startPanY + (e.clientY - this.dragData.startY);
+					this._applyTransform();
+				} else if (this.interactionState === 'dragging') {
+					const dx = (e.clientX - this.dragData.startX) / this.zoom;
+					const dy = (e.clientY - this.dragData.startY) / this.zoom;
+
+					// Smooth node movement
+					this._updateNodeDragPosition(this.dragData.nodeId, dx, dy);
+
+					// Live wire updates
+					this._updateEdgesLiveForNode(this.dragData.nodeId);
+				} else if (this.interactionState === 'connecting') {
+					const rect = this.canvasEl.getBoundingClientRect();
+					const x = (e.clientX - rect.left - this.pan.x) / this.zoom;
+					const y = (e.clientY - rect.top - this.pan.y) / this.zoom;
+					const pp = this.portPositions.get(this.dragData.portKey);
+					if (pp) this._updateTempConn(pp.x, pp.y, x, y);
+				}
+			});
+
+			window.addEventListener('mouseup', (e) => {
+				if (this.interactionState === 'panning') {
+					this.canvasEl.style.cursor = 'default';
+				} else if (this.interactionState === 'selecting') {
+					this._finalizeSelection(e.clientX, e.clientY);
+					this._removeSelectionRect();
+				} else if (this.interactionState === 'dragging') {
+					const dx = (e.clientX - this.dragData.startX) / this.zoom;
+					const dy = (e.clientY - this.dragData.startY) / this.zoom;
+
+					// Commit final position
+					this.model.moveNode(
+						this.dragData.nodeId,
+						this.dragData.startNodeX + dx,
+						this.dragData.startNodeY + dy
+					);
+
+					this._commitNodePosition(this.dragData.nodeId);
+				} else if (this.interactionState === 'connecting') {
+					// Clean up temporary connection line and highlights first
+					if (this.tempLine) {
+						this.svg.removeChild(this.tempLine);
+						this.tempLine = null;
+					}
+					document.querySelectorAll('.port-dot.highlight').forEach(el => el.classList.remove('highlight'));
+
+					// check if released over a port
+					const target = document.elementFromPoint(e.clientX, e.clientY);
+					if (target && target.classList.contains('port-dot')) {
+						const toNodeId = target.dataset.nodeId;
+						const toPort = target.dataset.portId;
+						const toDir = target.dataset.dir;
+						const fromDir = this.dragData.dir;
+
+						// Prevent self-connections
+						if (toNodeId === this.dragData.nodeId) {
+							// Reset interaction state before returning
+							this.interactionState = 'idle';
+							return;
+						}
+
+						// Must connect output->input
+						if (fromDir === 'out' && toDir === 'in') {
+							this.model.addEdge(this.dragData.nodeId, this.dragData.portId, toNodeId, toPort);
+						} else if (fromDir === 'in' && toDir === 'out') {
+							this.model.addEdge(toNodeId, toPort, this.dragData.nodeId, this.dragData.portId);
+						}
+					}
+				}
+				this.interactionState = 'idle';
+			});
+
+			this.canvasEl.addEventListener('wheel', (e) => {
+				e.preventDefault();
+				const rect = this.canvasEl.getBoundingClientRect();
+				const mx = e.clientX - rect.left;
+				const my = e.clientY - rect.top;
+				const delta = e.deltaY > 0 ? 0.9 : 1.1;
+				const newZoom = clamp(this.zoom * delta, 0.1, 4);
+				const ratio = newZoom / this.zoom;
+				this.pan.x = mx - ratio * (mx - this.pan.x);
+				this.pan.y = my - ratio * (my - this.pan.y);
+				this.zoom = newZoom;
+				this._applyTransform();
+				document.getElementById('zoom-display').textContent = Math.round(this.zoom * 100) + '%';
+			}, {passive: false});
+
+			this.canvasEl.addEventListener('contextmenu', (e) => {
+				e.preventDefault();
+			});
+		}
+
+		_applyTransform() {
+			this.transform.style.transform = `translate(${this.pan.x}px, ${this.pan.y}px) scale(${this.zoom})`;
+			// Update background grid to match pan/zoom
+			const bgX = this.pan.x % (30 * this.zoom);
+			const bgY = this.pan.y % (30 * this.zoom);
+			this.canvasEl.style.backgroundPosition = `${bgX}px ${bgY}px`;
+			this.canvasEl.style.backgroundSize = `${30 * this.zoom}px ${30 * this.zoom}px`;
+		}
+
+		_createSelectionRect(x, y) {
+			this.selectionRect = document.createElement('div');
+			this.selectionRect.className = 'selection-rectangle';
+			this.selectionRect.style.left = x + 'px';
+			this.selectionRect.style.top = y + 'px';
+			this.selectionRect.style.width = '0px';
+			this.selectionRect.style.height = '0px';
+			document.body.appendChild(this.selectionRect);
+		}
+
+		_updateSelectionRect(currentX, currentY) {
+			if (!this.selectionRect) return;
+			const startX = this.dragData.startX;
+			const startY = this.dragData.startY;
+			const width = currentX - startX;
+			const height = currentY - startY;
+
+			this.selectionRect.style.left = (width < 0 ? currentX : startX) + 'px';
+			this.selectionRect.style.top = (height < 0 ? currentY : startY) + 'px';
+			this.selectionRect.style.width = Math.abs(width) + 'px';
+			this.selectionRect.style.height = Math.abs(height) + 'px';
+		}
+
+		_removeSelectionRect() {
+			if (this.selectionRect) {
+				this.selectionRect.remove();
+				this.selectionRect = null;
+			}
+		}
+
+		_finalizeSelection(endX, endY) {
+			const rect = this.canvasEl.getBoundingClientRect();
+			const startWorldX = this.dragData.startXWorld;
+			const startWorldY = this.dragData.startYWorld;
+			const endWorldX = (endX - rect.left - this.pan.x) / this.zoom;
+			const endWorldY = (endY - rect.top - this.pan.y) / this.zoom;
+
+			const minX = Math.min(startWorldX, endWorldX);
+			const maxX = Math.max(startWorldX, endWorldX);
+			const minY = Math.min(startWorldY, endWorldY);
+			const maxY = Math.max(startWorldY, endWorldY);
+
+			// Find nodes within rectangle
+			const nodesInRect = [];
+			this.model.nodes.forEach(node => {
+				const nodeEl = this.nodeEls.get(node.id);
+				if (!nodeEl) return;
+
+				const nodeX = node.x;
+				const nodeY = node.y;
+				const nodeWidth = 180;
+				const nodeHeight = 100;
+
+				if (nodeX < maxX && nodeX + nodeWidth > minX &&
+					nodeY < maxY && nodeY + nodeHeight > minY) {
+					nodesInRect.push(node.id);
+				}
+			});
+
+			// Use new unified selection system
+			this.model.selectItems({nodes: nodesInRect}, 'replace', false);
+		}
+
+		_getPortCenter(nodeId, portId, dir) {
+			const sel = `[data-node-id="${nodeId}"][data-port-id="${portId}"][data-dir="${dir}"]`;
+			const dot = this.nodesLayer.querySelector(sel);
+			if (!dot) return null;
+			const nodeEl = dot.closest('.node');
+			const rect = dot.getBoundingClientRect();
+			const vpRect = this.canvasEl.getBoundingClientRect();
+			return {
+				x: (rect.left + rect.width / 2 - vpRect.left - this.pan.x) / this.zoom,
+				y: (rect.top + rect.height / 2 - vpRect.top - this.pan.y) / this.zoom
+			};
+		}
+
+		_buildPath(x1, y1, x2, y2) {
+			const dx = Math.abs(x2 - x1) * 0.5;
+			return `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`;
+		}
+
+		_updateTempConn(x1, y1, x2, y2) {
+			if (!this.tempLine) {
+				this.tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+				this.tempLine.classList.add('temp-conn');
+				this.tempLine.setAttribute('stroke', 'var(--accent)');
+				this.svg.appendChild(this.tempLine);
+			}
+			this.tempLine.setAttribute('d', this._buildPath(x1, y1, x2, y2));
+		}
+
+		_createNodeEl(node) {
+			if (!node || !node.id || !node.type) {
+				return;
+			}
+
+			const def = NodeTypes[node.type];
+			if (!def) {
+				return;
+			}
+
+			const el = document.createElement('div');
+			if (!el) {
+				return;
+			}
+
+			el.className = 'node';
+			el.dataset.id = node.id;
+			el.style.left = (typeof node.x === 'number' ? node.x : 0) + 'px';
+			el.style.top = (typeof node.y === 'number' ? node.y : 0) + 'px';
+
+			const catColor = categoryColors[def.category] || 'var(--accent)';
+
+			let html = `
+      <div class="node-header">
+        <div class="color-strip" style="background:${catColor}"></div>
+        <span class="title">${def.title}</span>
+        <button class="collapse-btn" data-action="collapse" title="Collapse/Expand"><i class="fa-solid fa-minus"></i></button>
+        <button class="delete-btn" data-action="delete" title="Delete"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="node-body">`;
+
+			if (!def.inputs || !Array.isArray(def.inputs)) {
+				return;
+			}
+
+			// Special handling for display widgets - put input and output on same line (only for output/display node)
+			if (def.widget === 'display' && node.type === 'output/display') {
+				// Render input and output together in one row
+				const inp = def.inputs[0];
+				const out = def.outputs[0];
+				if (inp && out) {
+					const inpColor = typeColorMap[inp.type] || typeColorMap.any;
+					const outColor = typeColorMap[out.type] || typeColorMap.any;
+					html += `<div class="node-row">
+						<div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${inpColor};color:${inpColor};margin-left:-5px;margin-right:6px;"></div>
+						<span class="port-label">${inp.label || inp.id}</span>
+						<span style="flex: 1;"></span>
+						<span class="port-label">${out.label || out.id}</span>
+						<div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${outColor};color:${outColor};margin-right:-5px;margin-left:6px;"></div>
+					</div>`;
+				}
+			} else {
+				// Normal rendering for other widgets
+				def.inputs.forEach(inp => {
+					if (!inp || !inp.id) return;
+					const pColor = typeColorMap[inp.type] || typeColorMap.any;
+					const isConnected = this._isInputPortConnected(node.id, inp.id);
+					html += `<div class="node-row input-row">
+        <div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${pColor};color:${pColor}"></div>`;
+
+					if (def.widget === 'toggle' || inp.type === 'boolean') {
+						const isA = !!node.data[inp.id];
+						const disabledAttr = isConnected ? 'disabled' : '';
+						html += `<span class="port-label">${inp.label || inp.id}</span><button class="node-toggle ${isA ? 'active' : ''}" data-key="${inp.id}" ${disabledAttr}></button>`;
+					} else if (node.data[inp.id] !== undefined) {
+						const readonlyAttr = isConnected ? 'readonly' : '';
+						const inputMode = inp.type === 'number' ? 'numeric' : '';
+						html += `<input class="port-input" data-key="${inp.id}" value="${node.data[inp.id]}" type="text" inputmode="${inputMode}" ${readonlyAttr}>`;
+					} else {
+						html += `<span class="port-label">${inp.label || inp.id}</span>`;
+					}
+					html += `</div>`;
+				});
+
+				if (!def.outputs || !Array.isArray(def.outputs)) {
+					return;
+				}
+
+				def.outputs.forEach(out => {
+					if (!out || !out.id) return;
+					const pColor = typeColorMap[out.type] || typeColorMap.any;
+					html += `<div class="node-row output-row">
+        <span class="port-label">${out.label || out.id}</span>
+        <div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${pColor};color:${pColor}"></div>
+      </div>`;
+				});
+			}
+
+			if (def.widget === 'display') {
+				html += `<input class="node-display" data-display="${node.id}" value="—" readonly>`;
+			}
+
+			if (def.widget === 'group') {
+				html += `<div class="node-group" data-group="${node.id}" data-collapsed="false">
+					<span class="group-icon">▼</span>
+					<span>Group</span>
+				</div>`;
+			}
+
+			html += `</div>`;
+			el.innerHTML = html;
+
+			if (!this.nodesLayer) {
+				console.error('Nodes layer not found');
+				return;
+			}
+
+			this.nodesLayer.appendChild(el);
+			this.nodeEls.set(node.id, el);
+
+			// Events with error handling
+			try {
+				const header = el.querySelector('.node-header');
+				if (header) {
+					header.addEventListener('mousedown', (e) => {
+						if (e.target.closest('.delete-btn') || e.target.closest('.collapse-btn')) return;
+						if (e.button !== 0) return; // Only allow left click for dragging
+						e.stopPropagation();
+
+						// Hide context menu when left-clicking node header
+						const menu = document.getElementById('context-menu');
+						if (menu) menu.style.display = 'none';
+
+						this.selectNode(node.id, e.ctrlKey || e.metaKey);
+						this.bringToFront(node.id);
+
+						const el = this.nodeEls.get(node.id);
+						if (el) el.classList.add('dragging');
+
+						this.interactionState = 'dragging';
+						this.dragData = {
+							nodeId: node.id,
+							startX: e.clientX,
+							startY: e.clientY,
+							startNodeX: node.x,
+							startNodeY: node.y
+						};
+					});
+				}
+
+				el.querySelectorAll('.port-dot').forEach(dot => {
+					dot.addEventListener('mousedown', (e) => {
+						e.stopPropagation();
+						e.preventDefault();
+						this.interactionState = 'connecting';
+						this.dragData = {
+							nodeId: dot.dataset.nodeId,
+							portId: dot.dataset.portId,
+							dir: dot.dataset.dir
+						};
+						this.dragData.portKey = `${dot.dataset.nodeId}_${dot.dataset.portId}_${dot.dataset.dir}`;
+						// Cache start position
+						const pp = this._getPortCenter(dot.dataset.nodeId, dot.dataset.portId, dot.dataset.dir);
+						if (pp) this.portPositions.set(this.dragData.portKey, pp);
+						// Highlight compatible ports (exclude own node's ports to prevent self-connections)
+						const targetDir = dot.dataset.dir === 'out' ? 'in' : 'out';
+						document.querySelectorAll(`.port-dot[data-dir="${targetDir}"]`).forEach(p => {
+							// Don't highlight ports from the same node
+							if (p.dataset.nodeId !== dot.dataset.nodeId) {
+								p.classList.add('highlight');
+							}
+						});
+					});
+				});
+
+				el.querySelectorAll('.port-input').forEach(inp => {
+					inp.addEventListener('input', (e) => {
+						const val = inp.type === 'number' || inp.inputmode === 'numeric' ? Number(inp.value) || 0 : inp.value;
+						this.model.updateNodeData(node.id, inp.dataset.key, val);
+					});
+					inp.addEventListener('mousedown', (e) => e.stopPropagation());
+				});
+
+				el.querySelectorAll('.node-toggle').forEach(btn => {
+					btn.addEventListener('click', (e) => {
+						e.stopPropagation();
+						// Don't process clicks on disabled toggles
+						if (btn.disabled) return;
+						const newVal = !btn.classList.contains('active');
+						btn.classList.toggle('active', newVal);
+						this.model.updateNodeData(node.id, btn.dataset.key, newVal);
+					});
+					btn.addEventListener('mousedown', (e) => e.stopPropagation());
+				});
+
+				el.querySelectorAll('.node-group').forEach(group => {
+					group.addEventListener('click', (e) => {
+						e.stopPropagation();
+						const isCollapsed = group.dataset.collapsed === 'true';
+						const newCollapsed = !isCollapsed;
+
+						group.dataset.collapsed = newCollapsed;
+						group.classList.toggle('collapsed', newCollapsed);
+
+						const icon = group.querySelector('.group-icon');
+						if (icon) {
+							icon.textContent = newCollapsed ? '▶' : '▼';
+						}
+
+						this.model.updateNodeData(node.id, 'collapsed', newCollapsed);
+						this._toggleGroupContainer(node.id, newCollapsed);
+					});
+					group.addEventListener('mousedown', (e) => e.stopPropagation());
+				});
+
+				const deleteBtn = el.querySelector('.delete-btn');
+				if (deleteBtn) {
+					deleteBtn.addEventListener('mousedown', (e) => {
+						e.stopPropagation();
+						e.preventDefault();
+						this.model.removeNode(node.id);
+					});
+				}
+
+				const collapseBtn = el.querySelector('.collapse-btn');
+				if (collapseBtn) {
+					collapseBtn.addEventListener('mousedown', (e) => {
+						e.stopPropagation();
+						e.preventDefault();
+						el.classList.toggle('collapsed');
+						const icon = collapseBtn.querySelector('i');
+						if (icon) {
+							icon.className = el.classList.contains('collapsed') ? 'fa-solid fa-plus' : 'fa-solid fa-minus';
+						}
+						// Update all connected edges when node is collapsed/expanded
+						this._updateEdgesForNode(node.id);
+					});
+				}
+
+				el.addEventListener('mousedown', (e) => this.selectNode(node.id, e.ctrlKey || e.metaKey));
+
+				// Need to calculate port positions after render
+				requestAnimationFrame(() => this._updateEdgesForNode(node.id));
+			} catch (error) {
+				console.error('Error setting up node event handlers:', error);
+				toast('Failed to setup node interactions', 'error');
+			}
+		}
+
+		_removeNodeEl(id) {
+			try {
+				const el = this.nodeEls.get(id);
+				if (el) {
+					el.remove();
+					this.nodeEls.delete(id);
+				}
+				// Clean port positions
+				for (const key of this.portPositions.keys()) {
+					if (key.startsWith(id + '_')) this.portPositions.delete(key);
+				}
+				if (this.selectedNode === id) {
+					this.selectedNode = null;
+					this._updateInspector();
+				}
+			} catch (error) {
+				console.error('Error removing node element:', error);
+				toast('Failed to remove node', 'error');
+			}
+		}
+
+		_updateNodePos(id) {
+			const node = this.model.nodes.get(id);
+			const el = this.nodeEls.get(id);
+			if (node && el) {
+				el.style.left = node.x + 'px';
+				el.style.top = node.y + 'px';
+			}
+		}
+
+		_updateNodeData(id, key, value) {
+			const el = this.nodeEls.get(id);
+			if (el) {
+				const inp = el.querySelector(`.port-input[data-key="${key}"]`);
+				if (inp && document.activeElement !== inp) inp.value = value;
+
+				// Handle toggle widgets
+				const toggle = el.querySelector(`.node-toggle[data-key="${key}"]`);
+				if (toggle) {
+					toggle.classList.toggle('active', !!value);
+				}
+			}
+			// Only update inspector if user is not actively editing an inspector field
+			if (this.selectedNode === id) {
+				const activeElement = document.activeElement;
+				const isEditingInspector = activeElement && (
+					activeElement.classList.contains('insp-input') ||
+					activeElement.classList.contains('insp-checkbox')
+				);
+				if (!isEditingInspector) {
+					this._updateInspector();
+				}
+			}
+		}
+
+		_createEdgeEl(edge) {
+			const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+			g.dataset.id = edge.id;
+			const hitPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			hitPath.classList.add('edge-hit');
+			const linePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			linePath.classList.add('edge-line');
+			g.appendChild(hitPath);
+			g.appendChild(linePath);
+			this.svg.appendChild(g);
+			this.edgeEls.set(edge.id, g);
+
+			// Store edge click handler to re-attach when moving between SVGs
+			const edgeClickHandler = (e) => {
+				e.stopPropagation();
+				this.model.selectEdge(edge.id, e.ctrlKey || e.metaKey);
+			};
+
+			// Add click handler to both the hit path and the group for better reliability
+			hitPath.addEventListener('click', edgeClickHandler);
+			g.addEventListener('click', edgeClickHandler);
+
+			// Store handler reference for potential re-use
+			g._edgeClickHandler = edgeClickHandler;
+
+			requestAnimationFrame(() => this._updateEdgePath(edge));
+		}
+
+		_removeEdgeEl(id) {
+			const g = this.edgeEls.get(id);
+			if (g) {
+				g.remove();
+				this.edgeEls.delete(id);
+			}
+		}
+
+		// Unified selection handler
+		_handleSelectionChanged(selection) {
+			const {nodes: selectedNodes = [], edges: selectedEdges = [], primaryNode, primaryEdge} = selection;
+
+			// Update edge visual selection first
+			this.model.edges.forEach(edge => {
+				const edgeEl = this.edgeEls.get(edge.id);
+				if (!edgeEl) return;
+
+				const isSelected = selectedEdges.includes(edge.id);
+
+				if (isSelected) {
+					edgeEl.classList.add('selected');
+					// Move selected connection to overlay SVG
+					if (edgeEl.parentNode === this.svg) {
+						this.overlaySvg.appendChild(edgeEl);
+					}
+				} else {
+					edgeEl.classList.remove('selected');
+					// Always move deselected connections back to main SVG
+					if (edgeEl.parentNode === this.overlaySvg) {
+						this.svg.appendChild(edgeEl);
+
+						// Re-attach event listeners when moving back to main SVG
+						if (!edgeEl._edgeClickHandler) {
+							const edgeClickHandler = (e) => {
+								e.stopPropagation();
+								this.model.selectEdge(edge.id, e.ctrlKey || e.metaKey);
+							};
+							edgeEl._edgeClickHandler = edgeClickHandler;
+
+							const hitPath = edgeEl.querySelector('.edge-hit');
+							if (hitPath) {
+								hitPath.addEventListener('click', edgeClickHandler);
+								hitPath.addEventListener('mousedown', edgeClickHandler);
+							}
+							edgeEl.addEventListener('click', edgeClickHandler);
+							edgeEl.addEventListener('mousedown', edgeClickHandler);
+						}
+					}
+				}
+			});
+
+			// Update node visual selection after edges (ensures nodes are on top)
+			this.model.nodes.forEach((node, nodeId) => {
+				const nodeEl = this.nodeEls.get(nodeId);
+				if (nodeEl) {
+					const isSelected = selectedNodes.includes(nodeId);
+					nodeEl.classList.toggle('selected', isSelected);
+					if (isSelected) {
+						this.bringToFront(nodeId);
+					}
+				}
+			});
+
+			// Ensure primary node is always on top if selected
+			if (primaryNode && selectedNodes.includes(primaryNode)) {
+				// Double-ensure primary node is at the very front
+				setTimeout(() => this.bringToFront(primaryNode), 0);
+			}
+
+			// Update inspector - only show data when there's exactly one node selected
+			this._updateInspector();
+		}
+
+		_updateEdgePath(edge) {
+			const from = this._getPortCenter(edge.fromNode, edge.fromPort, 'out');
+			const to = this._getPortCenter(edge.toNode, edge.toPort, 'in');
+			const g = this.edgeEls.get(edge.id);
+			if (from && to && g) {
+				// Check if either node is collapsed
+				const fromNodeEl = this.nodeEls.get(edge.fromNode);
+				const toNodeEl = this.nodeEls.get(edge.toNode);
+				const isCollapsed = (fromNodeEl?.classList.contains('collapsed') || toNodeEl?.classList.contains('collapsed'));
+
+				if (isCollapsed) {
+					// Hide the edge if either node is collapsed
+					g.style.display = 'none';
+				} else {
+					// Show the edge if both nodes are expanded
+					g.style.display = '';
+					const d = this._buildPath(from.x, from.y, to.x, to.y);
+					g.querySelector('.edge-hit').setAttribute('d', d);
+					g.querySelector('.edge-line').setAttribute('d', d);
+					// Color edge by output port type
+					const def = NodeTypes[this.model.nodes.get(edge.fromNode)?.type];
+					const outDef = def?.outputs.find(o => o.id === edge.fromPort);
+					const col = outDef ? (typeColorMap[outDef.type] || typeColorMap.any) : typeColorMap.any;
+					g.querySelector('.edge-line').setAttribute('stroke', col);
+				}
+			}
+		}
+
+		_updateEdgesForNode(nodeId) {
+			// Update all edges connected to this node (both from and to connections)
+			this.model.edges.forEach(e => {
+				if (e.fromNode === nodeId || e.toNode === nodeId) this._updateEdgePath(e);
+			});
+		}
+
+		_redrawAllEdges() {
+			this.model.edges.forEach(e => this._updateEdgePath(e));
+		}
+
+		selectNode(id, ctrlKey = false) {
+			// Use new unified selection system
+			this.model.selectNode(id, ctrlKey);
+		}
+
+		_updateInspector() {
+			const body = document.getElementById('inspector-body');
+			const primaryNode = this.model.selection.primaryNode;
+			const selectedNodes = Array.from(this.model.selection.nodes || []);
+
+			// Only show inspector data when there's exactly one node selected
+			if (!primaryNode || selectedNodes.length !== 1) {
+				if (selectedNodes.length === 0) {
+					body.innerHTML = '<div class="insp-empty">Select a node to inspect</div>';
+				} else {
+					body.innerHTML = '<div class="insp-empty">Multiple nodes selected<br>Select a single node to inspect</div>';
+				}
+				return;
+			}
+			const node = this.model.nodes.get(primaryNode);
+			if (!node) return;
+			const def = NodeTypes[node.type];
+			let html = '';
+
+			// Special handling for Display nodes
+			if (def.widget === 'display') {
+				const result = this.app?.engine?.results?.get(primaryNode);
+				const displayValue = result?._display !== undefined ? result._display : '—';
+				html = `
+      <div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
+      <div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
+      <div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
+				html += `
+      <div class="insp-field"><div class="insp-label">Value</div><div class="insp-value" style="font-size:12px">${displayValue}</div></div>`;
+				body.innerHTML = html;
+			} else {
+				html = `
+      <div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
+      <div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
+      <div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
+			}
+
+			def.inputs.forEach(inp => {
+				if (def.widget === 'display') return;
+
+				// Check if this input port is connected
+				const isConnected = this._isInputPortConnected(primaryNode, inp.id);
+				let displayValue = node.data[inp.id] !== undefined ? node.data[inp.id] : '';
+
+				// If connected, get the actual value being passed through
+				if (isConnected) {
+					const connectedValue = this._getInputPortValue(primaryNode, inp.id);
+					if (connectedValue !== undefined) {
+						displayValue = connectedValue;
+					}
+				}
+
+				// Special handling for toggle widgets (boolean nodes)
+				if (def.widget === 'toggle' || inp.type === 'boolean') {
+					const isChecked = !!displayValue;
+					html += `
+        <div class="insp-field">
+          <div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: ${isConnected ? 'not-allowed' : 'pointer'};">
+            <input type="checkbox" class="insp-checkbox" data-key="${inp.id}" ${isChecked ? 'checked' : ''} ${isConnected ? 'disabled' : ''}>
+            <span style="color: var(--text-sec); font-size: 12px;">${isChecked ? 'True' : 'False'}</span>
+          </label>
+        </div>`;
+				} else {
+					// Use text input for numbers to have better control over cursor behavior
+					const inputType = 'text';
+					const inputMode = inp.type === 'number' ? 'numeric' : '';
+					html += `
+        <div class="insp-field">
+          <div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
+          <input class="insp-input" type="${inputType}" inputmode="${inputMode}" data-key="${inp.id}" value="${displayValue}" ${isConnected ? 'readonly' : ''}>
+        </div>`;
+				}
+			});
+
+			body.innerHTML = html;
+			body.querySelectorAll('.insp-input').forEach(inp => {
+				inp.addEventListener('input', (e) => {
+					const val = inp.type === 'number' || inp.inputmode === 'numeric' ? Number(inp.value) || 0 : inp.value;
+					this.model.updateNodeData(primaryNode, inp.dataset.key, val);
+				});
+			});
+
+			// Handle checkbox inputs for boolean nodes
+			body.querySelectorAll('.insp-checkbox').forEach(checkbox => {
+				checkbox.addEventListener('change', (e) => {
+					const val = e.target.checked;
+					this.model.updateNodeData(primaryNode, checkbox.dataset.key, val);
+				});
+			});
+		}
+
+		_clearSelection() {
+			try {
+				// Use new unified selection system
+				this.model._clearSelection();
+
+				// Update visual state
+				this.model.nodes.forEach((node, nodeId) => {
+					const nodeEl = this.nodeEls.get(nodeId);
+					if (nodeEl) {
+						nodeEl.classList.remove('selected');
+					}
+				});
+
+				this.model.edges.forEach(edge => {
+					const edgeEl = this.edgeEls.get(edge.id);
+					if (edgeEl) {
+						edgeEl.classList.remove('selected');
+						// Move edge back to main SVG
+						if (edgeEl.parentNode === this.overlaySvg) {
+							this.svg.appendChild(edgeEl);
+						}
+					}
+				});
+
+				// Update inspector to show empty state
+				this._updateInspector();
+			} catch (error) {
+			}
+		}
+
+		_rebuild() {
+			this._clear();
+			this.model.nodes.forEach(n => this._createNodeEl(n));
+			this.model.edges.forEach(e => this._createEdgeEl(e));
+			requestAnimationFrame(() => this._redrawAllEdges());
+		}
+
+		_clear() {
+			this.nodesLayer.innerHTML = '';
+			while (this.svg.firstChild) this.svg.removeChild(this.svg.firstChild);
+			// Also clear overlay SVG to remove selected connections
+			while (this.overlaySvg.firstChild) this.overlaySvg.removeChild(this.overlaySvg.firstChild);
+			this.nodeEls.clear();
+			this.edgeEls.clear();
+			this.portPositions.clear();
+			// Selection state is now managed by model
+			this._updateInspector();
+		}
+
+		fitView() {
+			if (this.model.nodes.size === 0) {
+				this.pan = {x: 0, y: 0};
+				this.zoom = 1;
+				this._applyTransform();
+				return;
+			}
+			let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+			this.model.nodes.forEach(n => {
+				minX = Math.min(minX, n.x);
+				minY = Math.min(minY, n.y);
+				maxX = Math.max(maxX, n.x + 210);
+				maxY = Math.max(maxY, n.y + 100);
+			});
+			const rect = this.canvasEl.getBoundingClientRect();
+			const w = maxX - minX + 100;
+			const h = maxY - minY + 100;
+			this.zoom = clamp(Math.min(rect.width / w, rect.height / h), 0.2, 1.5);
+			this.pan.x = (rect.width - w * this.zoom) / 2 - minX * this.zoom + 50 * this.zoom;
+			this.pan.y = (rect.height - h * this.zoom) / 2 - minY * this.zoom + 50 * this.zoom;
+			this._applyTransform();
+			document.getElementById('zoom-display').textContent = Math.round(this.zoom * 100) + '%';
+		}
+
+		setZoom(z) {
+			const rect = this.canvasEl.getBoundingClientRect();
+			const cx = rect.width / 2, cy = rect.height / 2;
+			const ratio = z / this.zoom;
+			this.pan.x = cx - ratio * (cx - this.pan.x);
+			this.pan.y = cy - ratio * (cy - this.pan.y);
+			this.zoom = z;
+			this._applyTransform();
+			document.getElementById('zoom-display').textContent = Math.round(this.zoom * 100) + '%';
+		}
+
+		// Optimized bringToFront - avoids iterating all nodes
+		bringToFront(id) {
+			const el = this.nodeEls.get(id);
+			if (!el) return;
+
+			// Only update if this node isn't already the last child (on top)
+			if (this.nodesLayer.lastElementChild === el) return;
+
+			// Move to end of nodesLayer (brings to front) - CSS handles z-index via .selected class
+			this.nodesLayer.appendChild(el);
+		}
+
+
+		_updateNodeDragPosition(id, dx, dy) {
+			const el = this.nodeEls.get(id);
+			if (el) {
+				el.style.transform = `translate(${dx}px, ${dy}px)`;
+			}
+		}
+
+		// Live edge update during drag
+		_updateEdgesLiveForNode(nodeId) {
+			if (this._liveUpdateRaf) return;
+			this._liveUpdateRaf = requestAnimationFrame(() => {
+				this.model.edges.forEach(edge => {
+					if (edge.fromNode === nodeId || edge.toNode === nodeId) {
+						this._updateEdgePath(edge);
+					}
+				});
+				this._liveUpdateRaf = null;
+			});
+		}
+
+		_commitNodePosition(id) {
+			const el = this.nodeEls.get(id);
+			if (el) {
+				el.style.transform = '';
+				el.classList.remove('dragging');
+			}
+			this._updateNodePos(id);
+			this._updateEdgesForNode(id);
+
+			// Update all groups to check for node containment changes
+			this._updateAllGroups();
+		}
+
+		_toggleGroupContainer(groupId, isCollapsed) {
+			// Find or create group container
+			let container = document.querySelector(`[data-group-container="${groupId}"]`);
+			const groupNode = this.model.nodes.get(groupId);
+
+			if (!container && groupNode) {
+				// Create container
+				container = document.createElement('div');
+				container.className = 'node-group-container';
+				container.dataset.groupContainer = groupId;
+
+				// Add resize handle
+				const resizeHandle = document.createElement('div');
+				resizeHandle.className = 'resize-handle se';
+				resizeHandle.innerHTML = '';
+				container.appendChild(resizeHandle);
+
+				// Add resize event handlers
+				this._setupGroupResize(container, groupId, resizeHandle);
+
+				this.transform.appendChild(container);
+			}
+
+			if (!container) return;
+
+			// Update container state
+			container.classList.toggle('collapsed', isCollapsed);
+
+			// Store group bounds for containment detection
+			const groupBounds = this._getGroupBounds(groupId);
+			if (groupBounds) {
+				container.style.left = `${groupBounds.left}px`;
+				container.style.top = `${groupBounds.top}px`;
+				container.style.width = `${groupBounds.width}px`;
+				container.style.height = `${groupBounds.height}px`;
+
+				// Detect and manage nodes within group bounds
+				this._updateGroupedNodes(groupId, groupBounds, isCollapsed);
+			}
+		}
+
+		_getGroupBounds(groupId) {
+			const groupNode = this.model.nodes.get(groupId);
+			if (!groupNode) return null;
+
+			// Default group size around the group node
+			const baseSize = 250;
+			const baseHeight = 200;
+
+			// Check if group has custom bounds stored
+			const customBounds = groupNode.data.groupBounds;
+			if (customBounds) {
+				// Use custom size but always follow current node position
+				const offsetX = customBounds.offsetX || -20;
+				const offsetY = customBounds.offsetY || -20;
+				return {
+					left: groupNode.x + offsetX,
+					top: groupNode.y + offsetY,
+					width: customBounds.width || baseSize,
+					height: customBounds.height || baseHeight
+				};
+			}
+
+			// Default bounds relative to current node position
+			return {
+				left: groupNode.x - 20,
+				top: groupNode.y - 20,
+				width: baseSize,
+				height: baseHeight
+			};
+		}
+
+		_updateGroupedNodes(groupId, groupBounds, isCollapsed) {
+			const groupedNodes = [];
+			const previousGroupedNodes = this.model.nodes.get(groupId)?.data.groupedNodes || [];
+
+			// Find all nodes within the group bounds (except the group node itself)
+			this.model.nodes.forEach((node, nodeId) => {
+				if (nodeId === groupId) return; // Skip the group node itself
+
+				const nodeEl = this.nodeEls.get(nodeId);
+				if (!nodeEl) return;
+
+				// Check if node is within group bounds
+				const nodeRect = {
+					left: node.x,
+					top: node.y,
+					right: node.x + 210, // Node width from CSS
+					bottom: node.y + this._getNodeHeight(nodeId)
+				};
+
+				if (this._isRectInRect(nodeRect, groupBounds)) {
+					groupedNodes.push(nodeId);
+
+					// Check if this node was newly added to the group
+					const wasPreviouslyGrouped = previousGroupedNodes.includes(nodeId);
+					if (!wasPreviouslyGrouped) {
+						this._showGroupFeedback(nodeEl, 'added');
+					}
+
+					// Hide/show the node based on collapse state
+					if (isCollapsed) {
+						nodeEl.style.opacity = '0.3';
+						nodeEl.style.pointerEvents = 'none';
+						nodeEl.classList.add('grouped-collapsed');
+					} else {
+						nodeEl.style.opacity = '';
+						nodeEl.style.pointerEvents = '';
+						nodeEl.classList.remove('grouped-collapsed');
+					}
+				} else {
+					// Node is not in group, ensure it's visible
+					if (nodeEl.classList.contains('grouped-collapsed')) {
+						nodeEl.style.opacity = '';
+						nodeEl.style.pointerEvents = '';
+						nodeEl.classList.remove('grouped-collapsed');
+					}
+
+					// Check if this node was removed from the group
+					const wasPreviouslyGrouped = previousGroupedNodes.includes(nodeId);
+					if (wasPreviouslyGrouped) {
+						this._showGroupFeedback(nodeEl, 'removed');
+					}
+				}
+			});
+
+			// Store grouped nodes list for reference
+			this.model.updateNodeData(groupId, 'groupedNodes', groupedNodes);
+		}
+
+		_showGroupFeedback(nodeEl, action) {
+			// Add temporary visual feedback for group changes
+			nodeEl.style.transition = 'all 0.3s ease';
+
+			if (action === 'added') {
+				nodeEl.style.boxShadow = '0 0 20px rgba(0, 229, 160, 0.5)';
+				setTimeout(() => {
+					nodeEl.style.boxShadow = '';
+				}, 1000);
+			} else if (action === 'removed') {
+				nodeEl.style.boxShadow = '0 0 20px rgba(255, 51, 102, 0.5)';
+				setTimeout(() => {
+					nodeEl.style.boxShadow = '';
+				}, 1000);
+			}
+		}
+
+		_isRectInRect(inner, outer) {
+			return inner.left >= outer.left &&
+				inner.top >= outer.top &&
+				inner.right <= outer.left + outer.width &&
+				inner.bottom <= outer.top + outer.height;
+		}
+
+		_getNodeHeight(nodeId) {
+			const node = this.model.nodes.get(nodeId);
+			if (!node) return 60; // Default height
+
+			const def = NodeTypes[node.type];
+			if (!def) return 60;
+
+			// Calculate height based on inputs/outputs plus header
+			const inputCount = def.inputs ? def.inputs.length : 0;
+			const outputCount = def.outputs ? def.outputs.length : 0;
+			const maxPorts = Math.max(inputCount, outputCount);
+
+			// Header (46px) + body padding + port rows (26px each)
+			return 46 + 14 + (maxPorts * 26);
+		}
+
+		_setupGroupResize(container, groupId, handle) {
+			let isResizing = false;
+			let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+			handle.addEventListener('mousedown', (e) => {
+				isResizing = true;
+				startX = e.clientX;
+				startY = e.clientY;
+
+				const rect = container.getBoundingClientRect();
+				const transformRect = this.transform.getBoundingClientRect();
+
+				startWidth = rect.width;
+				startHeight = rect.height;
+				startLeft = rect.left - transformRect.left;
+				startTop = rect.top - transformRect.top;
+
+				e.preventDefault();
+				e.stopPropagation();
+			});
+
+			document.addEventListener('mousemove', (e) => {
+				if (!isResizing) return;
+
+				const dx = e.clientX - startX;
+				const dy = e.clientY - startY;
+
+				const newWidth = Math.max(150, startWidth + dx);
+				const newHeight = Math.max(100, startHeight + dy);
+
+				container.style.width = `${newWidth}px`;
+				container.style.height = `${newHeight}px`;
+
+				// Update group bounds in node data
+				const groupNode = this.model.nodes.get(groupId);
+				if (groupNode) {
+					// Store relative offset from group node position
+					const bounds = {
+						offsetX: startLeft - groupNode.x,
+						offsetY: startTop - groupNode.y,
+						width: newWidth,
+						height: newHeight
+					};
+					this.model.updateNodeData(groupId, 'groupBounds', bounds);
+				}
+			});
+
+			document.addEventListener('mouseup', () => {
+				if (isResizing) {
+					isResizing = false;
+					// Update grouped nodes after resize
+					const isCollapsed = container.classList.contains('collapsed');
+					const groupBounds = this._getGroupBounds(groupId);
+					if (groupBounds) {
+						this._updateGroupedNodes(groupId, groupBounds, isCollapsed);
+					}
+				}
+			});
+		}
+
+		_updateAllGroups() {
+			// Update all group containers when nodes are moved
+			this.model.nodes.forEach((node, nodeId) => {
+				if (node.type === 'control/group') {
+					const isCollapsed = node.data.collapsed || false;
+					this._toggleGroupContainer(nodeId, isCollapsed);
+				}
+			});
+		}
+	}
+
+	// Execution Engine (Web Worker)
+	class Engine {
+		constructor(model, renderer = null) {
+			this.model = model;
+			this.renderer = renderer;
+			this.worker = null;
+			this.results = new Map();
+			this.stepMode = false;
+			this.executionQueue = [];
+			this.currentStepIndex = 0;
+			this.stepResults = new Map();
+			this.lastExecutionState = new Map(); // Track last execution state for change detection
+			this._initWorker();
+		}
+
+		_initWorker() {
+			this.worker = new Worker('js/VisualScriptWorker.js');
+			this.worker.onmessage = (e) => this._onResult(e.data);
+		}
+
+		run() {
+			this.stepMode = false;
+			const nodes = Array.from(this.model.nodes.values());
+			const edges = this.model.edges;
+			document.getElementById('status-text').textContent = 'Executing...';
+			this.worker.postMessage({type: 'run', nodes, edges});
+		}
+
+		runSelective(affectedNodes) {
+			this.stepMode = false;
+			const nodes = Array.from(this.model.nodes.values());
+			const edges = this.model.edges;
+			this.worker.postMessage({type: 'runSelective', nodes, edges, affectedNodes});
+		}
+
+		_detectChanges() {
+			const affectedNodes = [];
+			const currentState = new Map();
+			const currentEdges = JSON.stringify(this.model.edges);
+
+
+			// Build current state from nodes and edges
+			this.model.nodes.forEach((node, nodeId) => {
+				const nodeState = {
+					data: {...node.data},
+					position: {x: node.x, y: node.y}
+				};
+				currentState.set(nodeId, nodeState);
+			});
+
+			// Compare with last execution state
+			currentState.forEach((state, nodeId) => {
+				const lastState = this.lastExecutionState.get(nodeId);
+				if (!lastState) {
+					// New node
+					affectedNodes.push(nodeId);
+				} else {
+					// Check if node data changed - use more robust comparison
+					const dataChanged = JSON.stringify(state.data) !== JSON.stringify(lastState.data);
+					if (dataChanged) {
+						const nodeType = this.model.nodes.get(nodeId)?.type;
+						affectedNodes.push(nodeId);
+					}
+				}
+			});
+
+			// Check for edge changes
+			const lastEdges = this.lastExecutionState.get('__edges__');
+			if (lastEdges !== currentEdges) {
+				// Edges changed - add all nodes as potentially affected
+				// The selective execution will handle finding the actual affected nodes
+				this.model.nodes.forEach((_, nodeId) => {
+					if (!affectedNodes.includes(nodeId)) {
+						affectedNodes.push(nodeId);
+					}
+				});
+			}
+
+			// Check for removed nodes
+			this.lastExecutionState.forEach((_, nodeId) => {
+				if (nodeId !== '__edges__' && !currentState.has(nodeId)) {
+					// Node was removed - this will be handled by graph change events
+				}
+			});
+
+			// Update last execution state
+			currentState.set('__edges__', currentEdges);
+			this.lastExecutionState = currentState;
+
+			return affectedNodes;
+		}
+
+		_cleanupNodesForStepMode() {
+
+			// Clear console output to remove stale Print data
+			const consoleOutput = document.getElementById('console-output');
+			if (consoleOutput) {
+				consoleOutput.textContent = '';
+			}
+
+			// Reset all display nodes to show default state
+			this.model.nodes.forEach((node, nodeId) => {
+				const def = NodeTypes[node.type];
+
+				// Reset display nodes (including Print gates)
+				if (def && def.widget === 'display') {
+					const el = document.querySelector(`[data-display="${nodeId}"]`);
+					if (el) {
+						el.value = '—';
+					}
+				}
+
+				// Reset print nodes specifically (they don't have widget property)
+				if (node.type === 'output/print') {
+
+					// Find all input elements in this Print node
+					const nodeEl = document.querySelector(`.node[data-id="${nodeId}"]`);
+					if (nodeEl) {
+						const allInputs = nodeEl.querySelectorAll('.port-input');
+
+						// Clear the input field that shows the print value
+						const inputEl = nodeEl.querySelector('.port-input[data-key="value"]');
+						if (inputEl) {
+							inputEl.value = '';
+						} else {
+						}
+					} else {
+					}
+
+					// Also try to clear any display element (for completeness)
+					const displayEl = document.querySelector(`[data-display="${nodeId}"]`);
+					if (displayEl) {
+						displayEl.value = '—';
+					}
+				}
+
+				// Reset group nodes
+				if (def && def.widget === 'group') {
+					const el = document.querySelector(`[data-group="${nodeId}"]`);
+					if (el) {
+						const icon = el.querySelector('.group-icon');
+						el.dataset.collapsed = 'false';
+						el.classList.remove('collapsed');
+						if (icon) {
+							icon.textContent = '▼';
+						}
+					}
+				}
+
+				// Clear any visual execution indicators
+				const nodeEl = document.querySelector(`.node[data-id="${nodeId}"]`);
+				if (nodeEl) {
+					nodeEl.classList.remove('step-executing', 'executing');
+				}
+
+				// Skip _updateNodeInputStates for Print nodes to avoid re-populating with stale data
+				if (this.renderer && node.type !== 'output/print') {
+					this.renderer._updateNodeInputStates(nodeId);
+				}
+			});
+
+			// Clear all results to ensure fresh state
+			this.stepResults.clear();
+			this.results.clear();
+		}
+
+		step() {
+			const stepBtn = document.getElementById('btn-step');
+			if (!this.stepMode) {
+				// Initialize step mode
+				this.stepMode = true;
+				this.currentStepIndex = 0;
+				this.stepResults.clear();
+				this.executionQueue = [];
+
+				// Clean up all nodes to remove stale data from previous runs
+				this._cleanupNodesForStepMode();
+
+				const nodes = Array.from(this.model.nodes.values());
+				const edges = this.model.edges;
+				document.getElementById('status-text').textContent = 'Step mode initialized';
+				stepBtn.classList.add('step-active');
+				this.worker.postMessage({type: 'initStep', nodes, edges});
+			} else {
+				// Execute next step (no longer using stepIndex)
+				document.getElementById('status-text').textContent = `Executing step ${this.currentStepIndex + 1}...`;
+				this.worker.postMessage({type: 'step', stepIndex: this.currentStepIndex});
+			}
+		}
+
+		_onResult(data) {
+			if (this.stepMode) {
+				if (data.type === 'stepResult') {
+					// Handle step execution result
+					const {nodeId, results, isComplete, executionQueue} = data;
+
+					// Update step results
+					this.stepResults.set(nodeId, results);
+					this.executionQueue = executionQueue;
+
+					// Update displays for current step
+					const node = this.model.nodes.get(nodeId);
+					if (node) {
+						const def = NodeTypes[node.type];
+						if (def && def.widget === 'display') {
+							const el = document.querySelector(`[data-display="${nodeId}"]`);
+							if (el && results) {
+								el.value = results._display !== undefined ? results._display : '—';
+							}
+						}
+						if (def && def.widget === 'group') {
+							const el = document.querySelector(`[data-group="${nodeId}"]`);
+							if (el && results) {
+								const icon = el.querySelector('.group-icon');
+								const isCollapsed = results.collapsed;
+								el.dataset.collapsed = isCollapsed;
+								el.classList.toggle('collapsed', isCollapsed);
+								if (icon) {
+									icon.textContent = isCollapsed ? '▶' : '▼';
+								}
+								if (this.renderer) {
+									this.renderer._toggleGroupContainer(nodeId, isCollapsed);
+								}
+							}
+						}
+						// Update input field values for connected ports
+						if (this.renderer) {
+							this.renderer._updateNodeInputStates(nodeId);
+							// Update inspector if this node is selected
+							if (this.renderer.selectedNode === nodeId) {
+								this.renderer._updateInspector();
+							}
+						}
+					}
+
+					// Enhanced visual feedback for current node
+					const nodeEl = document.querySelector(`.node[data-id="${nodeId}"]`);
+					if (nodeEl) {
+						nodeEl.classList.add('step-executing');
+						setTimeout(() => nodeEl.classList.remove('step-executing'), 800);
+					}
+
+					this.currentStepIndex++;
+
+					// Enhanced status messages for control flow nodes
+					let statusMessage = `Step ${this.currentStepIndex} executed. Press Step to continue.`;
+					if (node && node.type === 'control-flow/for-loop' && results) {
+						if (results.done) {
+							statusMessage = `For loop completed at index ${results.index}. Press Step to continue.`;
+						} else {
+							statusMessage = `For loop: index ${results.index}. Press Step for next iteration.`;
+						}
+					}
+
+					if (isComplete) {
+						document.getElementById('status-text').textContent = 'Step execution complete';
+						toast('Step execution completed', 'success');
+						this.stepMode = false;
+						document.getElementById('btn-step').classList.remove('step-active');
+					} else {
+						document.getElementById('status-text').textContent = statusMessage;
+					}
+				}
+			} else {
+				// Handle normal or selective run result
+				const isSelective = Object.keys(data).length < this.model.nodes.size;
+				const newResults = new Map(Object.entries(data));
+
+				// For selective execution, merge with existing results
+				if (isSelective) {
+					newResults.forEach((result, nodeId) => {
+						this.results.set(nodeId, result);
+					});
+				} else {
+					// Full execution - replace all results
+					this.results = newResults;
+				}
+
+				// Update displays in DOM and input field values (only for nodes that got new results)
+				newResults.forEach((result, id) => {
+					const node = this.model.nodes.get(id);
+					if (!node) return;
+
+					const def = NodeTypes[node.type];
+					if (def && def.widget === 'display') {
+						const el = document.querySelector(`[data-display="${id}"]`);
+						if (el && result) {
+							el.value = result._display !== undefined ? result._display : '—';
+						}
+					}
+					if (def && def.widget === 'group') {
+						const el = document.querySelector(`[data-group="${id}"]`);
+						if (el && result) {
+							const icon = el.querySelector('.group-icon');
+							const isCollapsed = result.collapsed;
+							el.dataset.collapsed = isCollapsed;
+							el.classList.toggle('collapsed', isCollapsed);
+							if (icon) {
+								icon.textContent = isCollapsed ? '▶' : '▼';
+							}
+							if (this.renderer) {
+								this.renderer._toggleGroupContainer(id, isCollapsed);
+							}
+						}
+					}
+					// Update input field values for connected ports
+					if (this.renderer) {
+						this.renderer._updateNodeInputStates(id);
+						// Update inspector if this node is selected
+						if (this.renderer.selectedNode === id) {
+							this.renderer._updateInspector();
+						}
+					}
+					// Visual execution feedback (lighter for selective updates)
+					const nodeEl = document.querySelector(`.node[data-id="${id}"]`);
+					if (nodeEl) {
+						nodeEl.classList.add('executing');
+						setTimeout(() => nodeEl.classList.remove('executing'), isSelective ? 200 : 500);
+					}
+				});
+
+				// Update execution state for change detection (always, to keep lastExecutionState in sync)
+				this._detectChanges();
+
+				if (!isSelective) {
+					document.getElementById('status-text').textContent = 'Ready';
+					toast('Graph executed successfully', 'success');
+				}
+			}
+		}
+
+		terminate() {
+			this.worker.terminate();
+		}
+	}
+
+	// Serializer
+	class Serializer {
+		constructor(model) {
+			this.model = model;
+		}
+
+		save() {
+			const json = JSON.stringify(this.model.serialize(), null, 2);
+			const blob = new Blob([json], {type: 'application/json'});
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'visualscript-graph.json';
+			a.click();
+			URL.revokeObjectURL(url);
+			toast('Graph saved', 'success');
+		}
+
+		load() {
+			document.getElementById('file-input').click();
+		}
+
+		handleLoad(file) {
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				if (this.model.deserialize(e.target.result)) {
+					toast('Graph loaded', 'success');
+				}
+			};
+			reader.readAsText(file);
+		}
+	}
+
+	// App Controller
+	class App {
+		constructor() {
+			this.strictMode = true;
+			this.liveMode = false; // Live mode disabled by default
+			this.model = new GraphModel();
+			// Sync strict mode with model
+			this.model.strictMode = this.strictMode;
+			const canvasEl = document.getElementById('canvas-container');
+			this.renderer = new Renderer(
+				this.model,
+				canvasEl,
+				document.getElementById('transform'),
+				document.getElementById('conn-svg'),
+				document.getElementById('conn-svg-overlay'),
+				document.getElementById('nodes-layer'),
+				this
+			);
+			this.engine = new Engine(this.model, this.renderer);
+			this.serializer = new Serializer(this.model);
+			this.contextNode = null;
+
+			this._buildPalette();
+			this._bindUI();
+			this._bindKeyboard();
+			this._bindContextMenu();
+
+			// Initialize strict mode button state
+			const strictBtn = document.getElementById('btn-strict-mode');
+			if (strictBtn && this.strictMode) {
+				strictBtn.classList.add('active');
+				strictBtn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Strict';
+			}
+
+			// Initialize live mode button state
+			const liveBtn = document.getElementById('btn-live-mode');
+			if (liveBtn && this.liveMode) {
+				liveBtn.classList.add('active');
+				liveBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Live';
+				liveBtn.style.color = 'var(--success)';
+			}
+
+			this._createDemoGraph();
+
+			// Initialize execution state after demo graph is created
+			setTimeout(() => {
+				this.engine.run(); // Initial full execution
+				// Set up initial state for change detection after execution completes
+				setTimeout(() => {
+					this.engine._detectChanges(); // This will set up the initial state
+				}, 100);
+			}, 100);
+		}
+
+		_buildPalette() {
+			const palette = document.getElementById('palette');
+			const categories = {};
+			for (const [type, def] of Object.entries(NodeTypes)) {
+				if (!categories[def.category]) categories[def.category] = [];
+				categories[def.category].push({type, def});
+			}
+
+			let html = '';
+			for (const [cat, items] of Object.entries(categories)) {
+				const catColor = categoryColors[cat] || 'var(--accent)';
+				html += `<div class="cat-group">
+					<div class="cat-label" data-cat="${cat}"><i class="fa-solid fa-chevron-down"></i> ${cat}</div>
+					<div class="cat-items" data-cat-items="${cat}">`;
+				items.forEach(({type, def}) => {
+					html += `<div class="palette-item" data-type="${type}"><div class="dot" style="background:${catColor}"></div>${def.title}</div>`;
+				});
+				html += `</div></div>`;
+			}
+			palette.innerHTML = html;
+
+			// Bind
+			palette.querySelectorAll('.cat-label').forEach(el => {
+				el.addEventListener('click', () => {
+					el.classList.toggle('collapsed');
+					palette.querySelector(`[data-cat-items="${el.dataset.cat}"]`).classList.toggle('collapsed');
+				});
+			});
+
+			palette.querySelectorAll('.palette-item').forEach(el => {
+				el.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const rect = this.renderer.canvasEl.getBoundingClientRect();
+					const x = (rect.width / 2 - this.renderer.pan.x) / this.renderer.zoom - 100;
+					const y = (rect.height / 2 - this.renderer.pan.y) / this.renderer.zoom - 50;
+					const node = this.model.addNode(el.dataset.type, x + Math.random() * 50, y + Math.random() * 50);
+					if (node) this.renderer.selectNode(node.id);
+				});
+			});
+
+			document.getElementById('node-search').addEventListener('input', (e) => {
+				const q = e.target.value.toLowerCase();
+				palette.querySelectorAll('.palette-item').forEach(el => {
+					el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+				});
+			});
+		}
+
+		_bindUI() {
+			document.getElementById('btn-run').addEventListener('click', () => this.engine.run());
+			document.getElementById('btn-step').addEventListener('click', () => this.engine.step());
+			document.getElementById('btn-live-mode').addEventListener('click', () => this.toggleLiveMode());
+			document.getElementById('btn-save').addEventListener('click', () => this.serializer.save());
+			document.getElementById('btn-load').addEventListener('click', () => this.serializer.load());
+			document.getElementById('btn-clear').addEventListener('click', () => {
+				// Clear console on canvas clear too? – we'll keep separate clear
+				if (this.model.nodes.size > 0) {
+					// Stop step mode if active
+					if (this.engine.stepMode) {
+						this.engine.stepMode = false;
+						this.engine.currentStepIndex = 0;
+						this.engine.stepResults.clear();
+						this.engine.executionQueue = [];
+						document.getElementById('btn-step').classList.remove('step-active');
+						document.getElementById('status-text').textContent = 'Ready';
+					}
+					// Stop live mode if active
+					if (this.liveMode) {
+						// Clear any pending live execution timeout
+						if (this.renderer._liveRunTimeout) {
+							clearTimeout(this.renderer._liveRunTimeout);
+							this.renderer._liveRunTimeout = null;
+						}
+						this.liveMode = false;
+						document.getElementById('btn-live-mode').classList.remove('active');
+						document.getElementById('btn-live-mode').innerHTML = '<i class="fa-solid fa-bolt"></i> Live';
+						document.getElementById('btn-live-mode').style.color = '';
+					}
+					this.model.clear();
+					toast('Canvas cleared');
+				}
+			});
+			document.getElementById('btn-clear-console').addEventListener('click', () => {
+				document.getElementById('console-output').textContent = '';
+			});
+			document.getElementById('btn-zoom-in').addEventListener('click', () => this.renderer.setZoom(this.renderer.zoom * 1.2));
+			document.getElementById('btn-zoom-out').addEventListener('click', () => this.renderer.setZoom(this.renderer.zoom / 1.2));
+			document.getElementById('btn-fit').addEventListener('click', () => this.renderer.fitView());
+			document.getElementById('btn-strict-mode').addEventListener('click', () => this.toggleStrictMode());
+			document.getElementById('file-input').addEventListener('change', (e) => {
+				if (e.target.files[0]) this.serializer.handleLoad(e.target.files[0]);
+				e.target.value = '';
+			});
+
+			// Deselect on viewport click (but not when dragging)
+			let viewportMouseDownData = null;
+			document.getElementById('viewport').addEventListener('mousedown', (e) => {
+				if (e.target === document.getElementById('viewport') || e.target === document.getElementById('transform')) {
+					// Track potential click for deselection
+					viewportMouseDownData = {
+						x: e.clientX,
+						y: e.clientY,
+						time: Date.now()
+					};
+				}
+			});
+
+			// Check if it was a simple click (not a drag) on mouseup
+			document.getElementById('viewport').addEventListener('mouseup', (e) => {
+				if (viewportMouseDownData && (e.target === document.getElementById('viewport') || e.target === document.getElementById('transform'))) {
+					const dx = Math.abs(e.clientX - viewportMouseDownData.x);
+					const dy = Math.abs(e.clientY - viewportMouseDownData.y);
+					const dt = Date.now() - viewportMouseDownData.time;
+
+					// Only deselect if it was a simple click (minimal movement, short duration)
+					if (dx < 5 && dy < 5 && dt < 200) {
+						this.renderer.selectNode(null);
+						// Clear model state properly to avoid stale selection issues
+						if (this.model.selectedEdge) {
+							this.model.selectEdge(null);
+						}
+						// Clear multi-selection state
+						this.model.selectedEdges.clear();
+						this.model.selectedNodes.clear();
+					}
+				}
+				viewportMouseDownData = null;
+			});
+		}
+
+		_bindKeyboard() {
+			window.addEventListener('keydown', (e) => {
+				if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+				if (e.key === 'Delete' || e.key === 'Backspace') {
+					if (this.model.selection.nodes.size > 0) {
+						// Delete all selected nodes
+						const nodesToDelete = Array.from(this.model.selection.nodes);
+						nodesToDelete.forEach(nodeId => {
+							this.model.removeNode(nodeId);
+						});
+					} else if (this.model.selection.primaryNode) {
+						// Fallback for single node selection
+						this.model.removeNode(this.model.selection.primaryNode);
+					} else if (this.model.selection.edges.size > 0) {
+						// Delete all selected edges
+						const edgesToDelete = Array.from(this.model.selection.edges);
+						edgesToDelete.forEach(edgeId => {
+							this.model.removeEdge(edgeId);
+						});
+					} else if (this.model.selection.primaryEdge) {
+						// Fallback for single edge selection
+						this.model.removeEdge(this.model.selection.primaryEdge);
+					}
+				}
+				if (e.ctrlKey && e.key === 'Enter') {
+					e.preventDefault();
+					this.engine.run();
+				}
+				if (e.ctrlKey && e.shiftKey && e.key === 'Enter') {
+					e.preventDefault();
+					this.engine.step();
+				}
+			});
+		}
+
+		toggleStrictMode() {
+			this.strictMode = !this.strictMode;
+			// Sync with model
+			this.model.strictMode = this.strictMode;
+			const btn = document.getElementById('btn-strict-mode');
+			if (btn) {
+				if (this.strictMode) {
+					btn.classList.add('active');
+					btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Strict';
+				} else {
+					btn.classList.remove('active');
+					btn.innerHTML = '<i class="fa-solid fa-shield"></i> Strict';
+				}
+			}
+			toast(`Strict mode ${this.strictMode ? 'enabled' : 'disabled'}`, this.strictMode ? 'success' : 'info');
+		}
+
+		toggleLiveMode() {
+			this.liveMode = !this.liveMode;
+			const btn = document.getElementById('btn-live-mode');
+			if (btn) {
+				if (this.liveMode) {
+					btn.classList.add('active');
+					btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Live';
+					btn.style.color = 'var(--success)';
+					// Run whole graph when enabling live mode
+					this.engine.run();
+				} else {
+					btn.classList.remove('active');
+					btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Live';
+					btn.style.color = '';
+				}
+			}
+			toast(`Live mode ${this.liveMode ? 'enabled' : 'disabled'}`, this.liveMode ? 'success' : 'info');
+		}
+
+		_bindContextMenu() {
+			const menu = document.getElementById('context-menu');
+
+			this.renderer.nodesLayer.addEventListener('contextmenu', (e) => {
+				const nodeEl = e.target.closest('.node');
+				if (nodeEl) {
+					e.preventDefault();
+					this.contextNode = nodeEl.dataset.id;
+					menu.style.left = e.clientX + 'px';
+					menu.style.top = e.clientY + 'px';
+					menu.style.display = 'block';
+				}
+			});
+
+			// Global event listeners to hide context menu on any interaction
+			const hideContextMenu = (e) => {
+				if (!menu.contains(e.target)) {
+					menu.style.display = 'none';
+				}
+			};
+
+			// Handle mouse events
+			document.addEventListener('mousedown', hideContextMenu);
+			document.addEventListener('touchstart', hideContextMenu);
+
+			// Handle focus events (for input fields, textareas, etc.)
+			document.addEventListener('focusin', (e) => {
+				if (!menu.contains(e.target)) {
+					menu.style.display = 'none';
+				}
+			});
+
+			// Handle keyboard events
+			document.addEventListener('keydown', (e) => {
+				// Hide on Escape key or any other key interaction outside menu
+				if (e.key === 'Escape' || !menu.contains(e.target)) {
+					menu.style.display = 'none';
+				}
+			});
+
+			// Handle input events as fallback
+			document.addEventListener('input', (e) => {
+				if (!menu.contains(e.target)) {
+					menu.style.display = 'none';
+				}
+			});
+
+			menu.querySelectorAll('.ctx-item').forEach(el => {
+				el.addEventListener('click', () => {
+					if (!this.contextNode) return;
+					const action = el.dataset.action;
+					if (action === 'delete') this.model.removeNode(this.contextNode);
+					if (action === 'duplicate') {
+						const orig = this.model.nodes.get(this.contextNode);
+						if (orig) {
+							const n = this.model.addNode(orig.type, orig.x + 30, orig.y + 30);
+							if (n) {
+								Object.keys(orig.data).forEach(k => this.model.updateNodeData(n.id, k, orig.data[k]));
+							}
+						}
+					}
+					if (action === 'disconnect') this.model.disconnectNode(this.contextNode);
+					menu.style.display = 'none';
+				});
+			});
+		}
+
+		// Console auto-scroll state
+		consoleAutoScroll = true;
+
+		// Append a message to the console panel
+		addToConsole(text) {
+			const consoleOutput = document.getElementById('console-output');
+			if (consoleOutput) {
+				const line = document.createElement('div');
+				line.textContent = text;
+				consoleOutput.appendChild(line);
+				if (this.consoleAutoScroll) {
+					consoleOutput.scrollTop = consoleOutput.scrollHeight;
+				}
+			}
+		}
+
+		// Set up auto-scroll toggle checkbox in console header
+		_setupConsoleAutoScroll() {
+			const consoleHeader = document.querySelector('#console-panel .console-header');
+			const actionsDiv = document.querySelector('.console-actions');
+			if (!actionsDiv) return;
+
+			const label = document.createElement('label');
+			label.style.display = 'flex';
+			label.style.alignItems = 'center';
+			label.style.gap = '4px';
+			label.style.fontSize = '11px';
+			label.style.color = 'var(--text-muted)';
+
+			const checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.id = 'console-autoscroll';
+			checkbox.checked = true;
+			checkbox.addEventListener('change', (e) => {
+				this.consoleAutoScroll = e.target.checked;
+			});
+			label.appendChild(checkbox);
+			label.appendChild(document.createTextNode('Auto‑scroll'));
+			actionsDiv.insertBefore(label, actionsDiv.firstChild);
+		}
+
+		_createDemoGraph() {
+			// Clear any existing nodes first
+			this.model.clear();
+
+			// SIMPLE FOR LOOP DEMONSTRATION
+
+			// FOR LOOP NODE - will iterate from 0 to 4
+			const forLoop = this.model.addNode('control-flow/for-loop', 200, 150);
+			this.model.updateNodeData(forLoop.id, 'start', 0);
+			this.model.updateNodeData(forLoop.id, 'end', 5);
+			this.model.updateNodeData(forLoop.id, 'step', 1);
+
+			// PRINT NODE - prints the current loop index
+			const print = this.model.addNode('output/print', 450, 150);
+
+			// Connect for loop index to print
+			this.model.addEdge(forLoop.id, 'index', print.id, 'value');
+
+			// Add a second print to show the done status
+			const donePrint = this.model.addNode('output/print', 450, 250);
+			this.model.addEdge(forLoop.id, 'done', donePrint.id, 'value');
+
+			// FOR LOOP DEMO - Simple and clean - no extra connections needed
+
+			requestAnimationFrame(() => {
+				this.renderer.fitView();
+			});
+		}
+	}
+
+	// Helper to access app instance from engine result handler
+	let globalApp = null;
+
+	// Initialize
+	document.addEventListener('DOMContentLoaded', () => {
+		window.app = new App();
+		globalApp = window.app;
+		globalApp._setupConsoleAutoScroll();
+
+		// Test the enhanced toast system (remove this in production)
+		setTimeout(() => {
+			toast('Welcome to VisualScript Editor!', 'success');
+		}, 1000);
+
+		setTimeout(() => {
+			toast('Try dragging nodes to create connections', 'info');
+		}, 2500);
+
+		setTimeout(() => {
+			toast('Press Ctrl+Enter to execute your graph', 'warning');
+		}, 4000);
+
+		// Patch Engine._onResult to push _print messages to console
+		const origOnResult = Engine.prototype._onResult;
+		Engine.prototype._onResult = function (data) {
+			origOnResult.call(this, data);
+			// Look for _print in results (both full run and step)
+			const results = data.type === 'stepResult' ? [data.results] : Object.values(data);
+			// Collect all prints with their execution order
+			const allPrints = [];
+			results.forEach(res => {
+				if (res && typeof res === 'object' && res._print !== undefined) {
+					if (Array.isArray(res._print)) {
+						res._print.forEach(printItem => {
+							if (typeof printItem === 'object' && printItem.value !== undefined) {
+								allPrints.push({value: printItem.value, order: printItem.order});
+							} else {
+								allPrints.push({value: printItem, order: Infinity});
+							}
+						});
+					} else {
+						allPrints.push({value: res._print, order: Infinity});
+					}
+				}
+			});
+
+			// Sort by execution order and print
+			allPrints.sort((a, b) => a.order - b.order);
+			if (globalApp) {
+				allPrints.forEach(print => {
+					globalApp.addToConsole(print.value);
+				});
+			}
+		};
+	});
+</script>
+</body>
+</html>

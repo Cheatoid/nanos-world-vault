@@ -179,7 +179,7 @@ License: MIT
 
 		.quick-links {
 			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+			grid-template-columns: repeat(auto-fit, minmax(var(--quick-link-min-width, 120px), 1fr));
 			gap: 20px;
 			max-width: 800px;
 			margin: 0 auto;
@@ -189,6 +189,7 @@ License: MIT
 			background: rgba(255, 255, 255, 0.1);
 			border-radius: 15px;
 			padding: 20px;
+			min-height: var(--quick-link-min-height, auto);
 			text-decoration: none;
 			color: #e0e0e0;
 			transition: all 0.3s ease;
@@ -245,9 +246,9 @@ License: MIT
 			transform: translate(-50%, -50%) scale(0.9);
 			background: rgba(26, 26, 46, 0.98);
 			border-radius: 16px;
-			max-width: 480px;
+			max-width: 830px;
 			width: 90%;
-			max-height: min(85vh, 600px);
+			max-height: min(90vh, 860px);
 			display: flex;
 			flex-direction: column;
 			opacity: 0;
@@ -534,16 +535,22 @@ License: MIT
 			height: 18px;
 			cursor: pointer;
 			accent-color: #ff1f5a;
+			margin: 0;
+			flex-shrink: 0;
 		}
 
 		.quick-link-toggle label {
 			flex: 1;
-			font-size: 13px;
 			cursor: pointer;
 			user-select: none;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+			display: inline-block;
+			height: 24px;
+			vertical-align: middle;
+			font-size: 24px;
+			line-height: 24px;
 		}
 	</style>
 </head>
@@ -587,6 +594,12 @@ License: MIT
 			<i class="fas fa-layer-group"></i>
 			<span>Basic NeoUI</span>
 		</a>
+		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/VisualScript.html"
+			class="quick-link">
+			<!--<i class="fa-solid fa-boxes"></i>-->
+			<i class="fa-solid fa-project-diagram"></i>
+			<span>VisualScript<br>(WIP)</span>
+		</a>
 		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/AdminMenu.html" class="quick-link">
 			<i class="fas fa-shield-halved"></i>
 			<span>Admin Menu<br>(WIP)</span>
@@ -596,7 +609,7 @@ License: MIT
 			<span>Spawn Menu<br>(WIP)</span>
 		</a>
 		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Constellation.html"
-		   class="quick-link">
+			class="quick-link">
 			<i class="fas fa-star"></i>
 			<span>Constellation</span>
 		</a>
@@ -609,13 +622,18 @@ License: MIT
 			<span>Fake3D</span>
 		</a>
 		<a href="https://cheatoid.github.io/nanos-world-vault/library/Client/UI/Transparent.html"
-		   class="quick-link">
-			<span>Transparent</span>
+			class="quick-link">
+			<span>Transparent<br>(Screensaver)</span>
 		</a>
 		<a href="https://browserleaks.com" class="quick-link">
 			<i class="fas fa-eye"></i>
 			<span>BrowserLeaks</span>
 		</a>
+		<a href="https://puter.com" class="quick-link">
+			<i class="fas fa-computer"></i>
+			<span>Puter Web OS</span>
+		</a>
+		<!--
 		<a href="https://typescripttolua.github.io/play/" class="quick-link">
 			<i class="fas fa-code"></i>
 			<span>TypeScriptToLua<br>(playground)</span>
@@ -624,13 +642,18 @@ License: MIT
 			<i class="fas fa-code"></i>
 			<span>Luau<br>(playground)</span>
 		</a>
+		-->
+		<a href="https://cuberealm.io" class="quick-link">
+			<i class="fas fa-gamepad"></i>
+			<span>CubeRealm.io<br>(Minecraft)</span>
+		</a>
+		<a href="https://neal.fun/infinite-craft/" class="quick-link">
+			<i class="fas fa-gamepad"></i>
+			<span>Infinite Craft</span>
+		</a>
 		<a href="https://iogames.space" class="quick-link">
 			<i class="fas fa-gamepad"></i>
 			<span>IO Games</span>
-		</a>
-		<a href="https://cuberealm.io" class="quick-link">
-			<i class="fas fa-gamepad"></i>
-			<span>CubeRealm.io<br>(Minecraft clone)</span>
 		</a>
 		<a href="https://docs.nanos-world.com" class="quick-link">
 			<i class="fas fa-book"></i>
@@ -657,6 +680,10 @@ License: MIT
 			<i class="fas fa-robot"></i>
 			<span>Z.ai GLM</span>
 		</a>
+		<a href="https://claude.ai/new" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Claude</span>
+		</a>
 		<a href="https://chatgpt.com" class="quick-link">
 			<i class="fas fa-robot"></i>
 			<span>ChatGPT</span>
@@ -668,6 +695,10 @@ License: MIT
 		<a href="https://copilot.microsoft.com" class="quick-link">
 			<i class="fas fa-robot"></i>
 			<span>Microsoft Copilot</span>
+		</a>
+		<a href="https://grok.com" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>xAI Grok</span>
 		</a>
 		<a href="https://www.kimi.com/?chat_enter_method=new_chat" class="quick-link">
 			<i class="fas fa-robot"></i>
@@ -709,9 +740,32 @@ License: MIT
 			<i class="fas fa-robot"></i>
 			<span>Nova AI</span>
 		</a>
+		<a href="https://www.canva.com/ai" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Canva AI</span>
+		</a>
+		<a href="https://www.krea.ai/app" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Krea AI</span>
+		</a>
+		<!-- https://aidubbing.io/ai-sound-effect-generator -->
+		<!-- https://pro.sfxr.me -->
+		<!-- https://www.bfxr.net -->
+		<a href="https://elevenlabs.io/app/home" class="quick-link">
+			<i class="fas fa-robot"></i>
+			<span>Elevenlabs</span>
+		</a>
+		<a href="https://www.minimax.io/audio" class="quick-link">
+			<i class="fas fa-music"></i>
+			<span>Minimax<br>(AI Audio)</span>
+		</a>
 		<a href="https://visualgpt.io" class="quick-link">
 			<i class="fas fa-eye"></i>
 			<span>VisualGPT<br>(AI Image)</span>
+		</a>
+		<a href="https://hailuoai.video" class="quick-link">
+			<i class="fas fa-video"></i>
+			<span>Hailuo<br>(AI Video)</span>
 		</a>
 		<a href="https://app.heygen.com/apps/generate-b-roll" class="quick-link">
 			<i class="fas fa-video"></i>
@@ -774,6 +828,7 @@ License: MIT
 		<h2>Settings</h2>
 		<div class="settings-tabs">
 			<div class="settings-tab active" data-tab="background">Background</div>
+			<div class="settings-tab" data-tab="quicklinks">Quick Links</div>
 			<div class="settings-tab" data-tab="scrollbar">Scrollbar</div>
 		</div>
 		<div class="settings-tab-content active" id="backgroundTab">
@@ -817,6 +872,14 @@ License: MIT
 				<input type="text" id="bgImageUrl" placeholder="https://example.com/image.jpg">
 			</div>
 			<div class="settings-group">
+				<div class="quick-link-toggle">
+					<input type="checkbox" id="showClock" checked>
+					<label for="showClock">Show Clock</label>
+				</div>
+			</div>
+		</div>
+		<div class="settings-tab-content" id="quicklinksTab">
+			<div class="settings-group">
 				<label>Quick Links Visibility</label>
 				<div class="quick-links-settings" id="quickLinksSettings"></div>
 			</div>
@@ -825,6 +888,14 @@ License: MIT
 					<input type="checkbox" id="useLocalFiles">
 					<label for="useLocalFiles">Use local HTML files for quick-links</label>
 				</div>
+			</div>
+			<div class="settings-group">
+				<label>Quick Link Minimum Width: <span id="quickLinkWidthValue">120</span>px</label>
+				<input type="range" id="quickLinkWidth" min="80" max="200" value="120">
+			</div>
+			<div class="settings-group">
+				<label>Quick Link Minimum Height: <span id="quickLinkHeightValue">120</span>px</label>
+				<input type="range" id="quickLinkHeight" min="60" max="200" value="120">
 			</div>
 		</div>
 		<div class="settings-tab-content" id="scrollbarTab">
@@ -868,7 +939,7 @@ License: MIT
 		const seconds = String(now.getSeconds()).padStart(2, '0');
 		document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
 
-		const options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
+		const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 		document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
 
 		// Update analog clock
@@ -978,6 +1049,9 @@ License: MIT
 		accentColor: '#ff205a',
 		quickLinksVisibility: {},
 		useLocalFiles: false,
+		quickLinkWidth: 120,
+		quickLinkHeight: 120,
+		showClock: true,
 		scrollbarWidth: 8,
 		scrollbarTrackColor: '#1a1a2e',
 		scrollbarThumbColor: '#ff1f5a',
@@ -1005,21 +1079,21 @@ License: MIT
 		const style = document.createElement('style');
 		style.id = 'custom-scrollbar';
 		style.textContent = `
-			::-webkit-scrollbar {
-				width: ${scrollbarSettings.width}px;
-			}
-			::-webkit-scrollbar-track {
-				background: ${scrollbarSettings.trackColor};
-				border-radius: ${scrollbarSettings.radius}px;
-			}
-			::-webkit-scrollbar-thumb {
-				background: ${scrollbarSettings.thumbColor};
-				border-radius: ${scrollbarSettings.radius}px;
-			}
-			::-webkit-scrollbar-thumb:hover {
-				background: ${scrollbarSettings.thumbHoverColor};
-			}
-		`;
+		::-webkit-scrollbar {
+			width: ${scrollbarSettings.width}px;
+		}
+		::-webkit-scrollbar-track {
+			background: ${scrollbarSettings.trackColor};
+			border-radius: ${scrollbarSettings.radius}px;
+		}
+		::-webkit-scrollbar-thumb {
+			background: ${scrollbarSettings.thumbColor};
+			border-radius: ${scrollbarSettings.radius}px;
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: ${scrollbarSettings.thumbHoverColor};
+		}
+	`;
 		const existingStyle = document.getElementById('custom-scrollbar');
 		if (existingStyle) {
 			existingStyle.remove();
@@ -1052,9 +1126,9 @@ License: MIT
 			const toggle = document.createElement('div');
 			toggle.className = 'quick-link-toggle';
 			toggle.innerHTML = `
-				<input type="checkbox" id="${linkId}" ${isVisible ? 'checked' : ''}>
-				<label for="${linkId}">${label}</label>
-			`;
+			<input type="checkbox" id="${linkId}" ${isVisible ? 'checked' : ''}>
+			<label for="${linkId}">${label}</label>
+		`;
 			quickLinksSettings.appendChild(toggle);
 
 			// Add event listener to checkbox
@@ -1099,6 +1173,13 @@ License: MIT
 	const imageSettings = document.getElementById('imageSettings');
 	const quickLinksSettings = document.getElementById('quickLinksSettings');
 	const useLocalFilesCheckbox = document.getElementById('useLocalFiles');
+
+	// Quick link dimension controls
+	const quickLinkWidth = document.getElementById('quickLinkWidth');
+	const quickLinkWidthValue = document.getElementById('quickLinkWidthValue');
+	const quickLinkHeight = document.getElementById('quickLinkHeight');
+	const quickLinkHeightValue = document.getElementById('quickLinkHeightValue');
+	const showClockCheckbox = document.getElementById('showClock');
 
 	// Scrollbar controls
 	const scrollbarWidth = document.getElementById('scrollbarWidth');
@@ -1172,6 +1253,9 @@ License: MIT
 	bgImageUrl.addEventListener('click', (e) => e.stopPropagation());
 	gradientOption.addEventListener('click', (e) => e.stopPropagation());
 	imageOption.addEventListener('click', (e) => e.stopPropagation());
+	quickLinkWidth.addEventListener('click', (e) => e.stopPropagation());
+	quickLinkHeight.addEventListener('click', (e) => e.stopPropagation());
+	showClockCheckbox.addEventListener('click', (e) => e.stopPropagation());
 
 	// Prevent click propagation on buttons
 	saveSettings.addEventListener('click', (e) => e.stopPropagation());
@@ -1216,6 +1300,23 @@ License: MIT
 	bgColor1.addEventListener('input', updateBackground);
 	bgColor2.addEventListener('input', updateBackground);
 	bgColor3.addEventListener('input', updateBackground);
+
+	// Real-time preview for quick link dimensions
+	quickLinkWidth.addEventListener('input', () => {
+		quickLinkWidthValue.textContent = quickLinkWidth.value;
+		document.documentElement.style.setProperty('--quick-link-min-width', quickLinkWidth.value + 'px');
+	});
+
+	quickLinkHeight.addEventListener('input', () => {
+		quickLinkHeightValue.textContent = quickLinkHeight.value;
+		document.documentElement.style.setProperty('--quick-link-min-height', quickLinkHeight.value + 'px');
+	});
+
+	// Clock visibility toggle
+	showClockCheckbox.addEventListener('change', () => {
+		const clockContainer = document.querySelector('.clock-container');
+		clockContainer.style.display = showClockCheckbox.checked ? 'block' : 'none';
+	});
 
 	// Real-time preview for scrollbar settings
 	scrollbarWidth.addEventListener('input', () => {
@@ -1264,6 +1365,22 @@ License: MIT
 		quickLinksVisibility = settings.quickLinksVisibility || {};
 		useLocalFiles = settings.useLocalFiles || false;
 		useLocalFilesCheckbox.checked = useLocalFiles;
+
+		// Load quick link dimensions
+		const quickLinkWidthVal = settings.quickLinkWidth || defaultSettings.quickLinkWidth;
+		const quickLinkHeightVal = settings.quickLinkHeight || defaultSettings.quickLinkHeight;
+		quickLinkWidth.value = quickLinkWidthVal;
+		quickLinkWidthValue.textContent = quickLinkWidthVal;
+		quickLinkHeight.value = quickLinkHeightVal;
+		quickLinkHeightValue.textContent = quickLinkHeightVal;
+		document.documentElement.style.setProperty('--quick-link-min-width', quickLinkWidthVal + 'px');
+		document.documentElement.style.setProperty('--quick-link-min-height', quickLinkHeightVal + 'px');
+
+		// Load clock visibility
+		const showClockVal = settings.showClock !== undefined ? settings.showClock : defaultSettings.showClock;
+		showClockCheckbox.checked = showClockVal;
+		const clockContainer = document.querySelector('.clock-container');
+		clockContainer.style.display = showClockVal ? 'block' : 'none';
 
 		// Load scrollbar settings
 		if (settings.scrollbarWidth) scrollbarSettings.width = settings.scrollbarWidth;
@@ -1356,8 +1473,11 @@ License: MIT
 			gradientAngle: gradientAngle.value,
 			bgImageUrl: bgImageUrl.value,
 			accentColor: accentColor.value,
-			quickLinksVisibility: {...quickLinksVisibility},
+			quickLinksVisibility: { ...quickLinksVisibility },
 			useLocalFiles: useLocalFiles,
+			quickLinkWidth: parseInt(quickLinkWidth.value),
+			quickLinkHeight: parseInt(quickLinkHeight.value),
+			showClock: showClockCheckbox.checked,
 			scrollbarWidth: scrollbarSettings.width,
 			scrollbarTrackColor: scrollbarSettings.trackColor,
 			scrollbarThumbColor: scrollbarSettings.thumbColor,
@@ -1384,9 +1504,22 @@ License: MIT
 			angleValue.textContent = window.originalSettings.gradientAngle;
 			bgImageUrl.value = window.originalSettings.bgImageUrl;
 			accentColor.value = window.originalSettings.accentColor;
-			quickLinksVisibility = {...window.originalSettings.quickLinksVisibility};
+			quickLinksVisibility = { ...window.originalSettings.quickLinksVisibility };
 			useLocalFiles = window.originalSettings.useLocalFiles;
 			useLocalFilesCheckbox.checked = useLocalFiles;
+
+			// Restore quick link dimensions
+			quickLinkWidth.value = window.originalSettings.quickLinkWidth;
+			quickLinkWidthValue.textContent = window.originalSettings.quickLinkWidth;
+			quickLinkHeight.value = window.originalSettings.quickLinkHeight;
+			quickLinkHeightValue.textContent = window.originalSettings.quickLinkHeight;
+			document.documentElement.style.setProperty('--quick-link-min-width', window.originalSettings.quickLinkWidth + 'px');
+			document.documentElement.style.setProperty('--quick-link-min-height', window.originalSettings.quickLinkHeight + 'px');
+
+			// Restore clock visibility
+			showClockCheckbox.checked = window.originalSettings.showClock;
+			const clockContainer = document.querySelector('.clock-container');
+			clockContainer.style.display = window.originalSettings.showClock ? 'block' : 'none';
 
 			// Restore UI state
 			if (currentBgType === 'gradient') {
@@ -1439,6 +1572,9 @@ License: MIT
 			accentColor: document.getElementById('accentColor').value,
 			quickLinksVisibility: quickLinksVisibility,
 			useLocalFiles: useLocalFilesCheckbox.checked,
+			quickLinkWidth: parseInt(quickLinkWidth.value),
+			quickLinkHeight: parseInt(quickLinkHeight.value),
+			showClock: showClockCheckbox.checked,
 			scrollbarWidth: parseInt(scrollbarWidth.value),
 			scrollbarTrackColor: scrollbarTrackColor.value,
 			scrollbarThumbColor: scrollbarThumbColor.value,
@@ -1478,13 +1614,26 @@ License: MIT
 		document.getElementById('accentColor').value = defaultSettings.accentColor;
 
 		// Reset quick links visibility
-		quickLinksVisibility = {...defaultSettings.quickLinksVisibility};
+		quickLinksVisibility = { ...defaultSettings.quickLinksVisibility };
 		updateQuickLinksVisibility();
 		renderQuickLinksSettings();
 
 		// Reset use local files setting
 		useLocalFiles = defaultSettings.useLocalFiles;
 		useLocalFilesCheckbox.checked = useLocalFiles;
+
+		// Reset quick link dimensions
+		quickLinkWidth.value = defaultSettings.quickLinkWidth;
+		quickLinkWidthValue.textContent = defaultSettings.quickLinkWidth;
+		quickLinkHeight.value = defaultSettings.quickLinkHeight;
+		quickLinkHeightValue.textContent = defaultSettings.quickLinkHeight;
+		document.documentElement.style.setProperty('--quick-link-min-width', defaultSettings.quickLinkWidth + 'px');
+		document.documentElement.style.setProperty('--quick-link-min-height', defaultSettings.quickLinkHeight + 'px');
+
+		// Reset clock visibility
+		showClockCheckbox.checked = defaultSettings.showClock;
+		const clockContainer = document.querySelector('.clock-container');
+		clockContainer.style.display = defaultSettings.showClock ? 'block' : 'none';
 
 		// Reset scrollbar settings
 		scrollbarSettings = {
@@ -1526,7 +1675,20 @@ License: MIT
 				angleValue.textContent = window.originalSettings.gradientAngle;
 				bgImageUrl.value = window.originalSettings.bgImageUrl;
 				accentColor.value = window.originalSettings.accentColor;
-				quickLinksVisibility = {...window.originalSettings.quickLinksVisibility};
+				quickLinksVisibility = { ...window.originalSettings.quickLinksVisibility };
+
+				// Restore quick link dimensions
+				quickLinkWidth.value = window.originalSettings.quickLinkWidth;
+				quickLinkWidthValue.textContent = window.originalSettings.quickLinkWidth;
+				quickLinkHeight.value = window.originalSettings.quickLinkHeight;
+				quickLinkHeightValue.textContent = window.originalSettings.quickLinkHeight;
+				document.documentElement.style.setProperty('--quick-link-min-width', window.originalSettings.quickLinkWidth + 'px');
+				document.documentElement.style.setProperty('--quick-link-min-height', window.originalSettings.quickLinkHeight + 'px');
+
+				// Restore clock visibility
+				showClockCheckbox.checked = window.originalSettings.showClock;
+				const clockContainer = document.querySelector('.clock-container');
+				clockContainer.style.display = window.originalSettings.showClock ? 'block' : 'none';
 
 				// Restore UI state
 				if (currentBgType === 'gradient') {

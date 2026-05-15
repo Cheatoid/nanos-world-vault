@@ -17,6 +17,7 @@ local ConsoleEngine = require "ConsoleEngine"
 
 Bind.Initialize()
 ConsoleEngine.Initialize()
+Bind.Initialize() -- NOTE: This will initialize scripting key bindings
 
 --include "WebSocketTest.lua" -- call using original 'require'
 

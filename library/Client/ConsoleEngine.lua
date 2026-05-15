@@ -1,7 +1,7 @@
 -- Author: Cheatoid ~ https://github.com/Cheatoid
 -- License: MIT
 
--- Console engine
+-- Console engine (a.k.a. Better Console)
 
 -- Import dependencies
 local Bind = require "Bind"
@@ -404,10 +404,7 @@ function M.Initialize()
 		end
 	end)
 
-	Bind.RegisterCommand("console", function()
-		M.Toggle()
-	end, "Toggles the console")
-	Bind.BindKey("Tilde", "console", "Toggles the console")
+	Bind.RegisterCommand("console", M.Toggle, "Toggles the console")
 
 	-- NOTE: This must be on the bottom!
 	M.Initialize = function() end

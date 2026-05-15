@@ -73,7 +73,7 @@ License: MIT
 	<link
 		href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap"
 		rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 	<style>
 		:root {
 			--bg: #08080e;
@@ -112,34 +112,25 @@ License: MIT
 			zoom: 1.5;
 		}
 
-		#slideshow {
+		#video-background {
 			position: fixed;
 			inset: 0;
-			z-index: 0
-		}
-
-		.slide {
-			position: absolute;
-			inset: 0;
-			background-size: cover;
-			background-position: center;
-			opacity: 0;
-			transition: opacity 2s ease;
+			z-index: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
 			filter: brightness(0.25) saturate(0.6) hue-rotate(180deg);
-			animation: slowZoom 30s ease-in-out infinite alternate
+			animation: slowZoom 30s ease-in-out infinite alternate, fadeIn 2s ease-out forwards;
+			opacity: 0
 		}
 
-		.slide.active {
-			opacity: 1
-		}
-
-		@keyframes slowZoom {
+		@keyframes fadeIn {
 			from {
-				transform: scale(1)
+				opacity: 0
 			}
 
 			to {
-				transform: scale(1.15)
+				opacity: 1
 			}
 		}
 
@@ -346,7 +337,7 @@ License: MIT
 			}
 		}
 
-		/* ── Button Ripple ── */
+		/* -- Button Ripple -- */
 		.ripple-host {
 			position: relative;
 			overflow: hidden
@@ -386,7 +377,7 @@ License: MIT
 			}
 		}
 
-		/* ── Boot ── */
+		/* -- Boot -- */
 		#boot-scr {
 			position: fixed;
 			inset: 0;
@@ -624,7 +615,7 @@ License: MIT
 			}
 		}
 
-		/* ── Connecting ── */
+		/* -- Connecting -- */
 		#conn-scr {
 			position: fixed;
 			inset: 0;
@@ -752,7 +743,7 @@ License: MIT
 			transform: scale(.98)
 		}
 
-		/* ── Screens ── */
+		/* -- Screens -- */
 		.scr {
 			position: fixed;
 			inset: 0;
@@ -898,7 +889,7 @@ License: MIT
 			visibility: visible
 		}
 
-		/* ── Title ── */
+		/* -- Title -- */
 		.g-t {
 			font-family: var(--fd);
 			font-size: clamp(1.5rem, 4vw, 4.2rem);
@@ -907,7 +898,8 @@ License: MIT
 			color: var(--fg);
 			position: relative;
 			line-height: 1.1;
-			animation: tG 4s infinite
+			animation: tG 4s infinite;
+			user-select: none
 		}
 
 		.g-t::before,
@@ -1016,10 +1008,27 @@ License: MIT
 			color: var(--ac);
 			opacity: .5;
 			margin-top: 8px;
-			text-transform: uppercase
+			text-transform: uppercase;
+			user-select: none
 		}
 
-		/* ── Sub-text Zoom Animation ── */
+		/* Disable user selection on main menu elements */
+		#screen-main,
+		#screen-main .g-sub,
+		#screen-main .g-t,
+		#screen-main .mn,
+		#screen-main .mb,
+		#screen-main .bb,
+		#screen-main .mi,
+		#screen-main .mt,
+		#screen-main .mk {
+			user-select: none;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none
+		}
+
+		/* -- Sub-text Zoom Animation -- */
 		.subtext-rotate-wrapper {
 			margin-left: 16px;
 			display: inline-block;
@@ -1072,7 +1081,7 @@ License: MIT
 			}
 		}
 
-		/* ── Menu Nav ── */
+		/* -- Menu Nav -- */
 		.mn {
 			display: flex;
 			flex-direction: column;
@@ -1366,7 +1375,7 @@ License: MIT
 			}
 		}
 
-		/* ── Player Bar ── */
+		/* -- Player Bar -- */
 		.pb {
 			margin-top: auto;
 			display: flex;
@@ -1425,7 +1434,7 @@ License: MIT
 			font-size: .45rem
 		}
 
-		/* ── Screen Header ── */
+		/* -- Screen Header -- */
 		.sh {
 			display: flex;
 			align-items: center;
@@ -1450,7 +1459,8 @@ License: MIT
 			text-transform: uppercase;
 			cursor: pointer;
 			transition: all .25s;
-			outline: 0
+			outline: 0;
+			user-select: none
 		}
 
 		.bb:hover,
@@ -1479,7 +1489,7 @@ License: MIT
 			background: linear-gradient(90deg, var(--ba), transparent)
 		}
 
-		/* ── Character ── */
+		/* -- Character -- */
 		.ch-l {
 			display: grid;
 			grid-template-columns: 240px 1fr;
@@ -1842,7 +1852,7 @@ License: MIT
 			padding: 8px
 		}
 
-		/* ── Backpack Inventory ── */
+		/* -- Backpack Inventory -- */
 		.bp-container {
 			background: rgba(0, 0, 0, .3);
 			border: 1px solid var(--bd);
@@ -1919,7 +1929,7 @@ License: MIT
 			border-radius: 2px
 		}
 
-		/* ── Trading ── */
+		/* -- Trading -- */
 		.tr-l {
 			display: grid;
 			grid-template-columns: 1fr 1fr 1fr;
@@ -2133,7 +2143,7 @@ License: MIT
 			box-shadow: 0 0 12px rgba(0, 240, 255, .2)
 		}
 
-		/* ── Store ── */
+		/* -- Store -- */
 		.sto-l {
 			display: flex;
 			flex-direction: column;
@@ -2440,7 +2450,7 @@ License: MIT
 			border: 1px solid rgba(255, 170, 0, .25)
 		}
 
-		/* ── Crafting ── */
+		/* -- Crafting -- */
 		.cr-l {
 			display: grid;
 			grid-template-columns: 240px 1fr;
@@ -2688,7 +2698,7 @@ License: MIT
 			}
 		}
 
-		/* ── Friends ── */
+		/* -- Friends -- */
 		.fr-l {
 			display: flex;
 			flex-direction: column;
@@ -2866,7 +2876,7 @@ License: MIT
 			background: rgba(255, 0, 60, .04)
 		}
 
-		/* ── Servers ── */
+		/* -- Servers -- */
 		.sv-l {
 			display: flex;
 			flex-direction: column;
@@ -2940,6 +2950,7 @@ License: MIT
 		.sv-list {
 			flex: 1;
 			overflow-y: auto;
+			overflow-x: hidden;
 			padding-top: 10px;
 			display: flex;
 			flex-direction: column;
@@ -2982,7 +2993,8 @@ License: MIT
 			background: rgba(0, 240, 255, .08);
 			border-color: rgba(0, 240, 255, .4);
 			transform: translateX(4px);
-			box-shadow: 0 0 15px rgba(0, 240, 255, .1)
+			box-shadow: 0 0 15px rgba(0, 240, 255, .1);
+			overflow: hidden
 		}
 
 		.sv-name {
@@ -3060,7 +3072,7 @@ License: MIT
 			box-shadow: none
 		}
 
-		/* ── Addons ── */
+		/* -- Addons -- */
 		.ad-l {
 			display: flex;
 			flex-direction: column;
@@ -3405,7 +3417,7 @@ License: MIT
 			margin-top: 4px
 		}
 
-		/* ── Addon Settings Modal ── */
+		/* -- Addon Settings Modal -- */
 		.as-modal {
 			position: fixed;
 			inset: 0;
@@ -3561,7 +3573,7 @@ License: MIT
 			margin-top: 4px
 		}
 
-		/* ── Addon Details Modal ── */
+		/* -- Addon Details Modal -- */
 		.ad-details-modal {
 			position: fixed;
 			inset: 0;
@@ -3739,7 +3751,7 @@ License: MIT
 			box-shadow: 0 0 12px rgba(0, 240, 255, .1)
 		}
 
-		/* ── Chat ── */
+		/* -- Chat -- */
 		.ct-l {
 			display: flex;
 			flex: 1;
@@ -4160,7 +4172,7 @@ License: MIT
 			box-shadow: none
 		}
 
-		/* ── News ── */
+		/* -- News -- */
 		.nw-l {
 			display: flex;
 			flex-direction: column;
@@ -4265,7 +4277,7 @@ License: MIT
 			opacity: 1
 		}
 
-		/* ── Options ── */
+		/* -- Options -- */
 		.op-l {
 			display: flex;
 			flex-direction: column;
@@ -4476,7 +4488,7 @@ License: MIT
 			text-align: right
 		}
 
-		/* ── Console ── */
+		/* -- Console -- */
 		#con-ov {
 			position: fixed;
 			left: 5%;
@@ -4626,7 +4638,7 @@ License: MIT
 			color: rgba(216, 224, 234, .15)
 		}
 
-		/* ── Quit Modal ── */
+		/* -- Quit Modal -- */
 		#quit-md {
 			position: fixed;
 			inset: 0;
@@ -4737,7 +4749,7 @@ License: MIT
 			box-shadow: 0 0 20px rgba(255, 0, 60, .12)
 		}
 
-		/* ── Music Widget ── */
+		/* -- Music Widget -- */
 		.mw {
 			position: fixed;
 			bottom: 20px;
@@ -4807,7 +4819,8 @@ License: MIT
 			height: 28px;
 			margin-right: 8px;
 			opacity: 0;
-			transition: opacity .2s
+			transition: opacity .2s;
+			display: none
 		}
 
 		.mw:hover .mw-viz,
@@ -4962,7 +4975,7 @@ License: MIT
 			}
 		}
 
-		/* ── Trade Window Styles (from trade.html) ── */
+		/* -- Trade Window Styles -- */
 		.tw-root {
 			--tw-bg-darkest: #111318;
 			--tw-bg-dark: #171a21;
@@ -5933,16 +5946,52 @@ License: MIT
 			background: var(--tw-border-hi)
 		}
 	</style>
+
+	<script>
+		function clearMediaSession() {
+			if (!('mediaSession' in navigator)) return;
+
+			navigator.mediaSession.metadata = null;
+			navigator.mediaSession.playbackState = 'none';
+
+			// Clear all action handlers YouTube may have set
+			const actions = ['play', 'pause', 'stop', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
+			actions.forEach(action => {
+				try { navigator.mediaSession.setActionHandler(action, null); } catch {}
+			});
+		}
+
+		if ('mediaSession' in navigator) {
+			Object.defineProperty(navigator.mediaSession, 'metadata', {
+				get: () => null,
+				set: () => {},  // Silently swallow any writes
+				configurable: true
+			});
+
+			Object.defineProperty(navigator.mediaSession, 'playbackState', {
+				get: () => 'none',
+				set: () => {},
+				configurable: true
+			});
+		}
+
+		// Run it periodically since YouTube keeps re-setting it
+		const interval = setInterval(clearMediaSession, 300);
+	</script>
+
+	<script src="https://youtube.com/iframe_api"></script>
 </head>
 
 <body>
 
-<div id="slideshow" aria-hidden="true">
-	<div class="slide active" style="background-image:url('https://picsum.photos/id/795/1920/1080')"></div>
-	<div class="slide" style="background-image:url('https://picsum.photos/id/575/1920/1080')"></div>
-	<div class="slide" style="background-image:url('https://picsum.photos/id/29/1920/1080')"></div>
-	<div class="slide" style="background-image:url('https://picsum.photos/id/866/1920/1080')"></div>
+<!-- Hidden YouTube iframe -->
+<div id="youtube-player-container" style="display: none;">
+	<div id="youtube-player"></div>
 </div>
+
+<video id="video-background" autoplay muted loop playsinline aria-hidden="true">
+	<source src="video/main_menu_background.mp4" type="video/mp4">
+</video>
 <div class="ov-scan" aria-hidden="true"></div>
 <div class="ov-vig" aria-hidden="true"></div>
 <div class="ov-grd" aria-hidden="true"></div>
@@ -6032,8 +6081,8 @@ License: MIT
 		<div>
 			<h1 class="g-t" data-text="NEO WARS">NEO WARS</h1>
 			<div class="g-sub" style="display:flex;align-items:center;flex-wrap:wrap">
-				<span>Enter the Grid</span>
-				<span class="subtext-rotate-wrapper"><span class="subtext-zoom">YOU ARE AWESOME</span></span>
+				<span id="random-tagline-main"></span>
+				<span class="subtext-rotate-wrapper"><span class="subtext-zoom" id="random-tagline-sub"></span></span>
 			</div>
 		</div>
 		<nav class="mn" role="menu">
@@ -6047,6 +6096,9 @@ License: MIT
 			<button class="mb ripple-host" role="menuitem" data-action="store" tabindex="-1"><span class="mi"><i
 				class="fas fa-store"></i></span><span class="mt">Store</span><span
 				class="mk">S</span></button>
+			<button class="mb ripple-host" role="menuitem" data-action="addons" tabindex="-1"><span class="mi"><i
+				class="fas fa-puzzle-piece"></i></span><span class="mt">Addons</span><span
+				class="mk">A</span></button>
 			<button class="mb ripple-host" role="menuitem" data-action="chat" tabindex="-1"><span class="mi"><i
 				class="fas fa-comments"></i></span><span class="mt">Chat</span><span
 				class="mk">H</span></button>
@@ -6056,15 +6108,12 @@ License: MIT
 			<button class="mb ripple-host" role="menuitem" data-action="servers" tabindex="-1"><span class="mi"><i
 				class="fas fa-server"></i></span><span class="mt">Servers</span><span
 				class="mk">V</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="news" tabindex="-1"><span class="mi"><i
-				class="fas fa-satellite-dish"></i></span><span class="mt">News</span><span
-				class="mk">N</span></button>
-			<button class="mb ripple-host" role="menuitem" data-action="addons" tabindex="-1"><span class="mi"><i
-				class="fas fa-puzzle-piece"></i></span><span class="mt">Addons</span><span
-				class="mk">A</span></button>
 			<button class="mb ripple-host" role="menuitem" data-action="options" tabindex="-1"><span class="mi"><i
 				class="fas fa-sliders"></i></span><span class="mt">Options</span><span
 				class="mk">O</span></button>
+			<button class="mb ripple-host" role="menuitem" data-action="news" tabindex="-1"><span class="mi"><i
+				class="fas fa-satellite-dish"></i></span><span class="mt">News</span><span
+				class="mk">N</span></button>
 			<button class="mb ripple-host qb" role="menuitem" data-action="quit" tabindex="-1"><span class="mi"><i
 				class="fas fa-power-off"></i></span><span class="mt">Quit</span><span
 				class="mk">Q</span></button>
@@ -6313,7 +6362,7 @@ License: MIT
 		<button class="bb ripple-host" data-back><i class="fas fa-chevron-left"></i> Back</button>
 		<h2 class="st">Addons</h2>
 		<div class="sd"></div>
-		<span style="font-size:.75rem;color:rgba(216,224,234,.3)">
+		<span id="ad-counter" style="font-size:.75rem;color:rgba(216,224,234,.3)">
 			<i class="fas fa-puzzle-piece" style="font-size:.6rem;margin-right:4px"></i>0 installed</span>
 	</header>
 	<div class="ad-l">
@@ -6568,7 +6617,7 @@ License: MIT
 <div class="ver" aria-hidden="true">v0.0.4 build 0004</div>
 
 <script>
-	/* ═══ SECURITY ═══ */
+	/* === SECURITY === */
 	// Comprehensive Browser Fingerprinting
 	function generateFingerprint() {
 		const fingerprint = {};
@@ -6813,7 +6862,7 @@ License: MIT
 		setInterval(sendHeartbeat, 1000);
 	}
 
-	/* ═══ DATA ═══ */
+	/* === DATA === */
 	const charStats = [{key: 'STR', val: 18, max: 50, c: 'rd'}, {key: 'DEX', val: 32, max: 50, c: 'cy'}, {
 		key: 'INT',
 		val: 45,
@@ -7094,17 +7143,17 @@ License: MIT
 		},
 	];
 	const friendData = [
-		{name: 'CHROME_WOLF', color: '#ff003c', lvl: 31, status: 'online', activity: 'In Match — Ranked', lastSeen: ''},
-		{name: 'NetGhost', color: '#00ff88', lvl: 28, status: 'online', activity: 'In Menu — Store', lastSeen: ''},
+		{name: 'CHROME_WOLF', color: '#ff003c', lvl: 31, status: 'online', activity: 'In Match - Ranked', lastSeen: ''},
+		{name: 'NetGhost', color: '#00ff88', lvl: 28, status: 'online', activity: 'In Menu - Store', lastSeen: ''},
 		{
 			name: 'Sylph_99',
 			color: '#bb44ff',
 			lvl: 45,
 			status: 'online',
-			activity: 'In Raid — Core Breach',
+			activity: 'In Raid - Core Breach',
 			lastSeen: ''
 		},
-		{name: 'ZER0_C00L', color: '#ffaa00', lvl: 22, status: 'online', activity: 'In Match — Casual', lastSeen: ''},
+		{name: 'ZER0_C00L', color: '#ffaa00', lvl: 22, status: 'online', activity: 'In Match - Casual', lastSeen: ''},
 		{name: 'DataRaider', color: '#4488ff', lvl: 37, status: 'idle', activity: 'Away', lastSeen: ''},
 		{name: 'GhostHack', color: '#ff6600', lvl: 19, status: 'idle', activity: 'Away', lastSeen: ''},
 		{name: 'PixelDrift', color: '#00ddcc', lvl: 52, status: 'offline', activity: '', lastSeen: '2 hours ago'},
@@ -7137,7 +7186,7 @@ License: MIT
 			title: 'Ranked Reset and New Tier: ENGINEER',
 			date: '2026.01.12',
 			type: 'competitive',
-			content: 'All ranked players soft-reset. New top tier ENGINEER added above GUNNER. Top 0.1% only — grants holographic weapon effects.'
+			content: 'All ranked players soft-reset. New top tier ENGINEER added above GUNNER. Top 0.1% only - grants holographic weapon effects.'
 		},
 		{
 			title: 'Community Challenge: One Billion Kills',
@@ -7146,7 +7195,7 @@ License: MIT
 			content: 'Reach one billion total kills in 14 days. Milestone rewards at 250M, 500M, 750M, 1B. Final reward: Legendary Chroma weapon skin.'
 		},
 		{
-			title: 'Patch 0.0.2 — Console and Bug Fixes',
+			title: 'Patch 0.0.2 - Console and Bug Fixes',
 			date: '2026.01.08',
 			type: 'patch',
 			content: 'Added basic dev console (press tilde to open). Improved netcode for high-latency matches.'
@@ -7219,7 +7268,7 @@ License: MIT
 			t: 'Full squad of 8. Need dedicated healer and two netrunners for third phase.',
 			tm: '14:32'
 		}],
-		trade: [{u: 'DataRaider', t: 'WTS Quantum Decryptor — 28k credits.', tm: '13:45'}, {
+		trade: [{u: 'DataRaider', t: 'WTS Quantum Decryptor - 28k credits.', tm: '13:45'}, {
 			u: 'GhostHack',
 			t: 'How much for Reflex Booster bundled with Ion Blade?',
 			tm: '13:47'
@@ -7246,7 +7295,7 @@ License: MIT
 	const bootLines = ['Initializing kernel', 'Loading core systems', 'Loading rendering pipeline', 'Compiling shader modules (PBR + Deferred)', 'Loading texture assets [256 textures]', 'Loading audio subsystem', 'Initializing network layer', 'Verifying game integrity (SHA-256)', 'Loading world data', 'Pre-caching entity models', 'All systems nominal'];
 	const connLinesArr = ['Resolving DNS', 'Establishing TCP connection', 'Authenticating credentials', 'Retrieving player profile', 'Synchronizing world state', 'Loading map: Neo-Wars District v1', 'Spawning player entity'];
 
-	/* ═══ STATE ═══ */
+	/* === STATE === */
 	let curScreen = 'boot', menuIdx = 0, bootDone = false, connecting = false, conOpen = false, cmdHist = [],
 		cmdHistIdx = -1, activeCh = 'general', storeCat = 'all', craftCat = 'weapons', friendFilter = 'all',
 		serverFilter = 'all', playerCredits = 12345, addonFilter = 'all', addonCat = 'all', connCancelled = false,
@@ -7266,7 +7315,17 @@ License: MIT
 	};
 	const menuBtns = document.querySelectorAll('.mb');
 
-	/* ═══ RIPPLE EFFECT ═══ */
+	// Add mouse hover event listeners to sync menuIdx
+	menuBtns.forEach((btn, index) => {
+		btn.addEventListener('mouseenter', () => {
+			if (curScreen === 'main') {
+				menuIdx = index;
+				updateMF();
+			}
+		});
+	});
+
+	/* === RIPPLE EFFECT === */
 	function addRipple(e, el, red = false) {
 		const r = document.createElement('span');
 		r.className = 'ripple' + (red ? ' ripple-red' : '');
@@ -7284,8 +7343,10 @@ License: MIT
 		if (rh) addRipple(e, rh, rh.classList.contains('qb'));
 	});
 
-	/* ═══ AUDIO ═══ */
+	/* === AUDIO === */
 	let aCtx = null, mGain = null, analyser = null, musicNodes = null, musicPlaying = false, vizFrame = null;
+	let youtubePlayer = null;
+	const YOUTUBE_VIDEO_ID = ''; // TODO (e.g. dlxRn5Mj8dw)
 
 	function initAudio() {
 		if (aCtx) return;
@@ -7296,6 +7357,71 @@ License: MIT
 		analyser.fftSize = 64;
 		mGain.connect(analyser);
 		analyser.connect(aCtx.destination);
+	}
+
+	// YouTube Player Functions
+	function onYouTubeIframeAPIReady() {
+		if (!YOUTUBE_VIDEO_ID || YOUTUBE_VIDEO_ID.length !== 11) return;
+		youtubePlayer = new YT.Player('youtube-player', {
+			height: '0',
+			width: '0',
+			videoId: YOUTUBE_VIDEO_ID,
+			playerVars: {
+				'autoplay': 0,
+				'controls': 0,
+				'disablekb': 1,
+				'enablejsapi': 1,
+				'fs': 0,
+				'loop': 1,
+				'playlist': YOUTUBE_VIDEO_ID,
+				'modestbranding': 1,
+				'rel': 0,
+				'showinfo': 0,
+				'origin': window.location.origin
+			},
+			events: {
+				'onReady': onYouTubePlayerReady,
+				'onStateChange': onYouTubePlayerStateChange
+			}
+		});
+	}
+
+	function onYouTubePlayerReady(event) {
+		event.target.setVolume(50);
+		const iframe = event.target.getIframe();
+		const desiredTitle = 'Neo Wars';
+
+		// Set it once immediately
+		iframe.setAttribute('title', desiredTitle);
+		iframe.setAttribute('aria-hidden', 'true'); // Hide from screen readers
+		iframe.setAttribute('tabindex', '-1'); // Remove from tab order
+
+		// Watch for YouTube resetting it and override every time
+		const observer = new MutationObserver(() => {
+			if (iframe.getAttribute('title') !== desiredTitle) {
+				observer.disconnect(); // Pause to avoid loop
+				iframe.setAttribute('title', desiredTitle);
+				observer.observe(iframe, { attributes: true, attributeFilter: ['title'] }); // Resume
+			}
+		});
+
+		observer.observe(iframe, { attributes: true, attributeFilter: ['title'] });
+	}
+
+	function onYouTubePlayerStateChange(event) {
+		if (event.data === YT.PlayerState.ENDED) {
+			event.target.playVideo();
+		}
+		if (event.data === YT.PlayerState.PLAYING) {
+			musicPlaying = true;
+			document.querySelector('#mw-t i').className = 'fas fa-pause';
+			document.getElementById('mw-t').classList.add('playing');
+		} else if (event.data === YT.PlayerState.PAUSED) {
+			musicPlaying = false;
+			document.querySelector('#mw-t i').className = 'fas fa-play';
+			document.getElementById('mw-t').classList.remove('playing');
+		}
+		setTimeout(clearMediaSession, 100);
 	}
 
 	function playTone(freq, endFreq, duration, vol, type) {
@@ -7343,74 +7469,35 @@ License: MIT
 	}
 
 	function startMusic() {
-		if (!aCtx) initAudio();
-		if (aCtx.state === 'suspended') aCtx.resume();
-		if (musicNodes) return;
-		const masterGain = aCtx.createGain();
-		masterGain.gain.setValueAtTime(0, aCtx.currentTime);
-		masterGain.gain.linearRampToValueAtTime(0.12, aCtx.currentTime + 2);
-		const filter = aCtx.createBiquadFilter();
-		filter.type = 'lowpass';
-		filter.frequency.value = 350;
-		filter.Q.value = 2;
-		const lfo = aCtx.createOscillator(), lfoGain = aCtx.createGain();
-		lfo.type = 'sine';
-		lfo.frequency.value = 0.08;
-		lfoGain.gain.value = 150;
-		lfo.connect(lfoGain);
-		lfoGain.connect(filter.frequency);
-		const oscs = [], notes = [55, 82.41, 110, 146.83];
-		notes.forEach((f, i) => {
-			const osc = aCtx.createOscillator();
-			osc.type = i < 2 ? 'sawtooth' : 'triangle';
-			osc.frequency.value = f;
-			osc.detune.value = (Math.random() - 0.5) * 12;
-			const oscGain = aCtx.createGain();
-			oscGain.gain.value = i < 2 ? 0.3 : 0.2;
-			osc.connect(oscGain);
-			oscGain.connect(filter);
-			oscs.push(osc);
-		});
-		filter.connect(masterGain);
-		masterGain.connect(mGain);
-		oscs.forEach(o => o.start());
-		lfo.start();
-		musicNodes = {oscs, lfo, lfoGain, filter, masterGain};
-		musicPlaying = true;
-		document.querySelector('#mw-t i').className = 'fas fa-pause';
-		document.getElementById('mw-t').classList.add('playing');
-		drawMusicViz();
+		if (!youtubePlayer) {
+			return;
+		}
+
+		if (musicPlaying) {
+			return;
+		}
+
+		try {
+			youtubePlayer.playVideo();
+			youtubePlayer.setVolume(50);
+		} catch (e) {
+			console.error('Error starting YouTube music:', e);
+		}
 	}
 
 	function stopMusic() {
-		if (!musicNodes) return;
-		const {oscs, lfo, masterGain} = musicNodes, now = aCtx.currentTime;
-		masterGain.gain.linearRampToValueAtTime(0, now + 1);
-		musicNodes = null;
-		musicPlaying = false;
-		document.querySelector('#mw-t i').className = 'fas fa-play';
-		document.getElementById('mw-t').classList.remove('playing');
-		cancelAnimationFrame(vizFrame);
-		vizFrame = null;
-		setTimeout(() => {
-			oscs.forEach(o => {
-				try {
-					o.stop();
-				} catch (e) {
-				}
-			});
-			try {
-				lfo.stop();
-			} catch (e) {
-			}
-		}, 1100);
-		const viz = document.getElementById('mw-viz'), vizCtx = viz.getContext('2d');
-		vizCtx.clearRect(0, 0, 60, 28);
+		if (!youtubePlayer || !musicPlaying) {
+			return;
+		}
+
+		try {
+			youtubePlayer.pauseVideo();
+		} catch (e) {
+			console.error('Error stopping YouTube music:', e);
+		}
 	}
 
 	function toggleMusic() {
-		if (!aCtx) initAudio();
-		if (aCtx.state === 'suspended') aCtx.resume();
 		musicPlaying ? stopMusic() : startMusic();
 	}
 
@@ -7419,11 +7506,8 @@ License: MIT
 		toggleMusic();
 	});
 	document.getElementById('mw-v').addEventListener('input', function () {
-		if (!aCtx || !mGain) return;
-		const v = (this.value / 100) * 0.5;
-		if (musicPlaying) {
-			mGain.gain.cancelScheduledValues(aCtx.currentTime);
-			mGain.gain.linearRampToValueAtTime(v, aCtx.currentTime + 0.1);
+		if (youtubePlayer) {
+			youtubePlayer.setVolume(parseInt(this.value));
 		}
 		const om = document.querySelector('[data-setting="musv"]');
 		if (om) {
@@ -7432,7 +7516,7 @@ License: MIT
 		}
 	});
 
-	/* ═══ MUSIC VISUALIZER ═══ */
+	/* === MUSIC VISUALIZER === */
 	function drawMusicViz() {
 		if (!musicPlaying || !analyser) return;
 		const viz = document.getElementById('mw-viz'), vizCtx = viz.getContext('2d'),
@@ -7448,7 +7532,7 @@ License: MIT
 		vizFrame = requestAnimationFrame(drawMusicViz);
 	}
 
-	/* ═══ NAVIGATION ═══ */
+	/* === NAVIGATION === */
 	function navTo(name) {
 		if (name === curScreen) return;
 		if (conOpen) toggleCon();
@@ -7472,6 +7556,7 @@ License: MIT
 	function goBack() {
 		playBackSound();
 		if (conOpen) toggleCon();
+		//menuIdx = 0;
 		navTo('main');
 	}
 
@@ -7523,7 +7608,7 @@ License: MIT
 		menuBtns[menuIdx].focus();
 	}
 
-	/* ═══ KEYBOARD ═══ */
+	/* === KEYBOARD === */
 	document.addEventListener('keydown', e => {
 		if (!bootDone) return;
 		if (e.key === '`' && curScreen !== 'boot') {
@@ -7579,6 +7664,7 @@ License: MIT
 		}
 		if (e.key === 'Escape' && curScreen !== 'main') {
 			e.preventDefault();
+			e.stopPropagation();
 			goBack();
 			return;
 		}
@@ -7661,7 +7747,7 @@ License: MIT
 	});
 	document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', goBack));
 
-	/* ═══ BOOT ═══ */
+	/* === BOOT === */
 	async function runBoot() {
 		const cont = document.getElementById('boot-lines'), fill = document.getElementById('boot-pf'),
 			pct = document.getElementById('boot-pt'), pw = document.getElementById('boot-pw'),
@@ -7691,6 +7777,10 @@ License: MIT
 				if (document.documentElement.requestFullscreen) {
 					document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen request failed:', err));
 				}
+				// Auto-start YouTube music after user interaction
+				if (youtubePlayer && !musicPlaying) {
+					startMusic();
+				}
 				r();
 			};
 			document.addEventListener('keydown', h);
@@ -7719,7 +7809,7 @@ License: MIT
 		return new Promise(r => setTimeout(r, ms));
 	}
 
-	/* ═══ CONNECTING ═══ */
+	/* === CONNECTING === */
 	async function startConn() {
 		if (connecting) return;
 		connecting = true;
@@ -7794,7 +7884,7 @@ License: MIT
 		}
 	}
 
-	/* ═══ CONSOLE ═══ */
+	/* === CONSOLE === */
 	function toggleCon() {
 		conOpen = !conOpen;
 		document.getElementById('con-ov').classList.toggle('act', conOpen);
@@ -7872,7 +7962,7 @@ License: MIT
 					chatUsers.filter(u => u.st !== 'off').forEach(u => cP(`  ${u.name} [${u.st}]`, 'out'));
 				} else if (a[0] === 'items') {
 					cP('Items:', 'sys');
-					storeItems.forEach(i => cP(`  ${i.name} (${i.rarity}) — ${i.price}cr`, 'out'));
+					storeItems.forEach(i => cP(`  ${i.name} (${i.rarity}) - ${i.price}cr`, 'out'));
 				} else if (a[0] === 'entities') cP('Entities: NPC 412 | Prop 298 | Vehicle 67 | Dynamic 70', 'out');
 				else cP('Types: entities items players', 'err');
 				break;
@@ -7886,7 +7976,7 @@ License: MIT
 		}
 	}
 
-	/* ═══ QUIT MODAL ═══ */
+	/* === QUIT MODAL === */
 	document.getElementById('qb-can').addEventListener('click', () => {
 		document.getElementById('quit-md').classList.remove('act');
 		updateMF();
@@ -7906,7 +7996,7 @@ License: MIT
 		}
 	});
 
-	/* ═══ TOAST ═══ */
+	/* === TOAST === */
 	function showToast(msg, type = 'info') {
 		const t = document.createElement('div');
 		t.className = `toast toast-${type}`;
@@ -7920,7 +8010,7 @@ License: MIT
 		}, 2800);
 	}
 
-	/* ═══ CHARACTER ═══ */
+	/* === CHARACTER === */
 	function buildChar() {
 		const sg = document.getElementById('stat-grid');
 		charStats.forEach(s => {
@@ -8036,7 +8126,7 @@ License: MIT
 		});
 	}
 
-	/* ═══ STORE ═══ */
+	/* === STORE === */
 	function buildStore() {
 		const feat = storeItems.find(i => i.rarity === 'legendary') || storeItems[0];
 		const featIcon = getStoreItemIcon(feat.cat, feat.name);
@@ -8129,7 +8219,7 @@ License: MIT
 		});
 	}
 
-	/* ═══ ADDONS ═══ */
+	/* === ADDONS === */
 	function getAddonIcon(iconType) {
 		const icons = {
 			hud: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -8223,6 +8313,7 @@ License: MIT
 			renderAddonsGrid();
 		});
 
+		updateInstalledCount();
 		renderAddonsGrid();
 	}
 
@@ -8310,8 +8401,10 @@ License: MIT
 
 	function updateInstalledCount() {
 		const count = addons.filter(a => a.installed).length;
-		const headerSpan = document.querySelector('#screen-addons header span');
-		headerSpan.innerHTML = `<i class="fas fa-puzzle-piece" style="font-size:.6rem;margin-right:4px"></i>${count} installed`;
+		const counter = document.getElementById('ad-counter');
+		if (counter) {
+			counter.innerHTML = `<i class="fas fa-puzzle-piece" style="font-size:.6rem;margin-right:4px"></i>${count} installed`;
+		}
 	}
 
 	function animateAddonProgress(addonId, addonName, mode) {
@@ -8501,7 +8594,7 @@ License: MIT
 		});
 	});
 
-	/* ═══ CRAFTING ═══ */
+	/* === CRAFTING === */
 	function buildCrafting(context = 'standalone') {
 		// TODO/FIXME...
 		const cats = [{cat: 'Weapons', id: 'weapons'}, {cat: 'Armor', id: 'armor'}, {
@@ -8554,7 +8647,7 @@ License: MIT
 		});
 	}
 
-	/* ═══ FRIENDS ═══ */
+	/* === FRIENDS === */
 	function buildFriends() {
 		renderFriends();
 	}
@@ -8570,11 +8663,11 @@ License: MIT
 		const online = filtered.filter(f => f.status !== 'offline'),
 			offline = filtered.filter(f => f.status === 'offline');
 		if (online.length) {
-			list.innerHTML += `<div class="fr-sec">Online — ${online.length}</div>`;
+			list.innerHTML += `<div class="fr-sec">Online - ${online.length}</div>`;
 			online.forEach(f => list.appendChild(friendRow(f)));
 		}
 		if (offline.length) {
-			list.innerHTML += `<div class="fr-sec">Offline — ${offline.length}</div>`;
+			list.innerHTML += `<div class="fr-sec">Offline - ${offline.length}</div>`;
 			offline.forEach(f => list.appendChild(friendRow(f)));
 		}
 	}
@@ -8605,7 +8698,7 @@ License: MIT
 	});
 	document.querySelector('.fr-search')?.addEventListener('input', renderFriends);
 
-	/* ═══ SERVERS ═══ */
+	/* === SERVERS === */
 	function buildServers() {
 		renderServers();
 	}
@@ -8660,7 +8753,7 @@ License: MIT
 		connCancelled = true;
 	});
 
-	/* ═══ CHAT ═══ */
+	/* === CHAT === */
 	function buildChat() {
 		const layout = document.getElementById('ct-l');
 		let sb = '<div class="ct-sb"><div class="ct-sh"><div class="ct-si">NW</div><div class="ct-sn">@neo-wars</div></div>';
@@ -8672,7 +8765,7 @@ License: MIT
 		});
 		sb += '</div>';
 		let mn = `<div class="ct-mn"><div class="ct-hd"><i class="fas fa-hashtag" style="color:rgba(216,224,234,.3);margin-right:8px"></i><span class="ct-hch">${activeCh}</span><span class="ct-hdesc">${chatChannels[0].chs.find(c => c.id === activeCh)?.desc || ''}</span></div><div class="ct-msgs" id="ct-msgs"></div><div class="ct-ia"><div class="ct-iw"><input type="text" class="ct-in" id="ct-in" placeholder="Message #${activeCh}..." maxlength="500"><button class="ct-snd ripple-host" id="ct-snd"><i class="fas fa-paper-plane"></i></button></div></div></div>`;
-		let us = '<div class="ct-us"><div class="ct-uh" id="ct-uh"><span class="ct-ut">Online — ' + chatUsers.filter(u => u.st === 'on').length + '</span><button class="ct-uc" id="ct-uc"><i class="fas fa-chevron-right"></i></button></div><div class="ct-ul" id="ct-ul">';
+		let us = '<div class="ct-us"><div class="ct-uh" id="ct-uh"><span class="ct-ut">Online - ' + chatUsers.filter(u => u.st === 'on').length + '</span><button class="ct-uc" id="ct-uc"><i class="fas fa-chevron-right"></i></button></div><div class="ct-ul" id="ct-ul">';
 		chatUsers.forEach(u => {
 			us += `<div class="ct-u ${u.st === 'on' ? 'on' : u.st === 'idle' ? 'idle' : 'off'}"><div class="ct-ud"></div><span style="color:${u.st === 'off' ? 'rgba(216,224,234,.2)' : u.color}">${u.name}</span></div>`;
 		});
@@ -8748,7 +8841,7 @@ License: MIT
 		if (c) c.scrollTop = 1e6;
 	}
 
-	/* ═══ NEWS ═══ */
+	/* === NEWS === */
 	function buildNews() {
 		const list = document.getElementById('nw-list');
 		newsData.forEach(item => {
@@ -8767,7 +8860,7 @@ License: MIT
 		});
 	}
 
-	/* ═══ OPTIONS ═══ */
+	/* === OPTIONS === */
 	document.querySelectorAll('[data-ot]').forEach(tab => {
 		tab.addEventListener('click', () => {
 			document.querySelectorAll('.op-tab').forEach(t => t.classList.remove('act'));
@@ -8812,19 +8905,10 @@ License: MIT
 		sl.addEventListener('change', () => showToast('Setting saved', 'success'));
 	});
 
-	/* ═══ BG SLIDESHOW ═══ */
-	let currentSlide = 0;
-	const slides = document.querySelectorAll('.slide');
+	/* === BG SLIDESHOW === */
+	// Removed - replaced with video background
 
-	function nextSlide() {
-		slides[currentSlide].classList.remove('active');
-		currentSlide = (currentSlide + 1) % slides.length;
-		slides[currentSlide].classList.add('active');
-	}
-
-	setInterval(nextSlide, 7000);
-
-	/* ═══ PARTICLES ═══ */
+	/* === PARTICLES === */
 	const cv = document.getElementById('p-cv'), cx = cv.getContext('2d');
 	let pts = [];
 
@@ -8873,7 +8957,7 @@ License: MIT
 		requestAnimationFrame(aP);
 	})();
 
-	/* ═══ INIT ═══ */
+	/* === INIT === */
 	buildChar();
 	buildStore();
 	buildCrafting();
@@ -8891,9 +8975,9 @@ License: MIT
 		Events?.Subscribe("ToggleDevCon", toggleCon);
 	})();
 
-	/* ═══════════════════════════════════════════════════════════════
-	   TradeWindow — Modular Steam-Style Trade UI (from trade.html)
-	   ═══════════════════════════════════════════════════════════════ */
+	/* ===============================================================
+	   TradeWindow - Modular Steam-Style Trade UI
+	   =============================================================== */
 	var TW_QC = {
 		Stock: '#B0B0B0', Genuine: '#4D7455', Vintage: '#476291', Unique: '#FFD700',
 		Unusual: '#8650AC', Strange: '#CF6A32', Haunted: '#38F3AB',
@@ -8901,7 +8985,7 @@ License: MIT
 	};
 
 	function TradeWindow(config) {
-		/* ── Config with defaults ── */
+		/* -- Config with defaults -- */
 		var cfg = Object.assign({
 			container: document.body, partnerName: 'Trading Partner',
 			tradeNumber: 1, yourInventory: [], theirOffer: [],
@@ -8915,7 +8999,7 @@ License: MIT
 			onComplete: null, onCancel: null, onStateChange: null
 		}, config);
 
-		/* ── Private state ── */
+		/* -- Private state -- */
 		var inventory = JSON.parse(JSON.stringify(cfg.yourInventory));
 		var theirOffer = JSON.parse(JSON.stringify(cfg.theirOffer));
 		var s = freshState();
@@ -8939,7 +9023,7 @@ License: MIT
 			};
 		}
 
-		/* ── DOM helpers ── */
+		/* -- DOM helpers -- */
 		function $(sel) {
 			return e.root.querySelector('[data-tw="' + sel + '"]');
 		}
@@ -8982,7 +9066,7 @@ License: MIT
 			e.logbody.scrollTop = e.logbody.scrollHeight;
 		}
 
-		/* ── Timer helpers ── */
+		/* -- Timer helpers -- */
 		function delay(fn, ms) {
 			var id = setTimeout(fn, ms);
 			timers.push(id);
@@ -9014,7 +9098,7 @@ License: MIT
 			e.ready.style.setProperty('--tw-hold-pct', '0%');
 		}
 
-		/* ── Slot HTML ── */
+		/* -- Slot HTML -- */
 		function slotHTML(item, dimmed) {
 			var qc = TW_QC[item.quality] || '#555';
 			var cls = 'tw-slot' + (dimmed ? ' tw-dim' : '') + (item.isUnusual ? ' tw-unusual' : '');
@@ -9028,7 +9112,7 @@ License: MIT
 			return '<div class="' + cls + '" data-tw-id="' + item.id + '" style="--tw-qc:' + qc + '" aria-label="' + item.name + '">' + rm + '<i class="fa-solid ' + item.icon + ' tw-ico"></i></div>';
 		}
 
-		/* ── Rendering ── */
+		/* -- Rendering -- */
 		function fullRender() {
 			renderGrid();
 			renderYourOffer();
@@ -9104,7 +9188,7 @@ License: MIT
 			if (cfg.onStateChange) cfg.onStateChange(p);
 		}
 
-		/* ── Tooltip ── */
+		/* -- Tooltip -- */
 		function findItem(id) {
 			for (var i = 0; i < inventory.length; i++) if (inventory[i].id === id) return inventory[i];
 			for (var i = 0; i < theirOffer.length; i++) if (theirOffer[i].id === id) return theirOffer[i];
@@ -9146,7 +9230,7 @@ License: MIT
 			e.tip.classList.add('tw-hidden');
 		}
 
-		/* ── Offer management ── */
+		/* -- Offer management -- */
 		function canModify() {
 			return ['confirming', 'complete'].indexOf(s.phase) === -1;
 		}
@@ -9197,7 +9281,7 @@ License: MIT
 			addLog('you', 'Removed <span class="tw-log-item">' + item.name + '</span> from your offer');
 		}
 
-		/* ── Idle protection ── */
+		/* -- Idle protection -- */
 		function startIdleProtection() {
 			var sec = cfg.idleProtectionSec;
 			if (!sec || sec <= 0) return;
@@ -9235,7 +9319,7 @@ License: MIT
 			e.status.innerHTML = '<div style="text-align:center"><span style="color:' + color + ';font-size:12px"><i class="fa-solid fa-hourglass-half" style="margin-right:4px"></i>Waiting for partner... auto-unready in <strong>' + sec + 's</strong></span></div>';
 		}
 
-		/* ── Trade logic ── */
+		/* -- Trade logic -- */
 		function unready(reason) {
 			clearIdleProtection();
 			clearInterval(confirmHoldTimer);
@@ -9337,7 +9421,8 @@ License: MIT
 					var tradedIds = doReset();
 					try {
 						localStorage.setItem('nanos_traded_items', JSON.stringify(tradedIds));
-					} catch(e) {}
+					} catch (e) {
+					}
 					if (typeof Events !== 'undefined' && Events.Call) {
 						Events?.Call('RefreshInventory');
 					}
@@ -9439,7 +9524,7 @@ License: MIT
 			elapsedTimer = setInterval(update, cfg.timerInterval);
 		}
 
-		/* ── Build DOM ── */
+		/* -- Build DOM -- */
 		function buildDOM() {
 			var r = document.createElement('div');
 			r.className = 'tw-root';
@@ -9491,7 +9576,7 @@ License: MIT
 			e.tip = tip;
 		}
 
-		/* ── Bind events ── */
+		/* -- Bind events -- */
 		function bindEvents() {
 			e.grid.addEventListener('click', function (ev) {
 				var slot = ev.target.closest('.tw-slot');
@@ -9681,7 +9766,7 @@ License: MIT
 			listeners.push({el: document, type: 'keydown', fn: arguments.callee});
 		}
 
-		/* ══════════════ Public API ══════════════ */
+		/* ============== Public API ============== */
 
 		this.init = function () {
 			buildDOM();
@@ -9821,37 +9906,504 @@ License: MIT
 
 	/* Demo inventory data */
 	var YOUR_INVENTORY = [
-		{id: 1, name: 'Strange Scattergun', type: 'weapon', quality: 'Strange', level: 10, slot: 'Primary', classes: ['Scout'], icon: 'fa-crosshairs', description: 'Kill Count: 1,247', isStrangeStat: true},
-		{id: 2, name: 'Vintage Ambassador', type: 'weapon', quality: 'Vintage', level: 5, slot: 'Secondary', classes: ['Spy'], icon: 'fa-crosshairs', description: 'Crits on headshots. -15% damage on bodyshot.'},
-		{id: 3, name: 'Rocket Launcher', type: 'weapon', quality: 'Unique', level: 1, slot: 'Primary', classes: ['Soldier'], icon: 'fa-rocket', description: 'Your enemies will be blown away.'},
-		{id: 4, name: 'Strange Wrangler', type: 'weapon', quality: 'Strange', level: 5, slot: 'Secondary', classes: ['Engineer'], icon: 'fa-crosshairs', description: 'Kill Count: 89', isStrangeStat: true},
-		{id: 5, name: 'Unique Huntsman', type: 'weapon', quality: 'Unique', level: 10, slot: 'Primary', classes: ['Sniper'], icon: 'fa-bullseye', description: 'Fire arrows instead of bullets.'},
-		{id: 6, name: 'Strange Knife', type: 'weapon', quality: 'Strange', level: 1, slot: 'Melee', classes: ['Spy'], icon: 'fa-scissors', description: 'Kill Count: 3,891', isStrangeStat: true},
-		{id: 7, name: 'Unique Medi Gun', type: 'weapon', quality: 'Unique', level: 1, slot: 'Secondary', classes: ['Medic'], icon: 'fa-syringe', description: 'Heal teammates and build Ubercharge.'},
-		{id: 8, name: 'Unique Stickybomb Launcher', type: 'weapon', quality: 'Unique', level: 1, slot: 'Secondary', classes: ['Demoman'], icon: 'fa-bomb', description: 'Detonate sticky bombs remotely.'},
-		{id: 9, name: 'Unusual Team Captain', type: 'cosmetic', quality: 'Unusual', level: 15, slot: 'Hat', classes: ['All'], icon: 'fa-crown', effect: 'Sunbeams', description: 'Unusual Effect: Sunbeams', isUnusual: true},
-		{id: 10, name: 'Unusual Infernal Impaler', type: 'cosmetic', quality: 'Unusual', level: 10, slot: 'Hat', classes: ['Pyro', 'Soldier', 'Demoman', 'Heavy'], icon: 'fa-hat-wizard', effect: 'Cloudy Moon', description: 'Unusual Effect: Cloudy Moon', isUnusual: true},
-		{id: 11, name: 'Vintage Tyrolean', type: 'cosmetic', quality: 'Vintage', level: 25, slot: 'Hat', classes: ['Medic'], icon: 'fa-helmet-safety', description: 'A classic Alpine hat.'},
-		{id: 12, name: 'Genuine Pith Helmet', type: 'cosmetic', quality: 'Genuine', level: 1, slot: 'Hat', classes: ['Sniper'], icon: 'fa-helmet-safety', description: 'From the BioShock Infinite promotional event.'},
-		{id: 13, name: "Gentleman's Ushanka", type: 'cosmetic', quality: 'Unique', level: 20, slot: 'Hat', classes: ['Heavy'], icon: 'fa-hat-wizard', description: 'Keeps your head warm in the Siberian winter.'},
-		{id: 14, name: "Strange Professor's Peculiarity", type: 'cosmetic', quality: 'Strange', level: 10, slot: 'Hat', classes: ['Pyro'], icon: 'fa-glasses', description: 'Points Scored: 45,200', isStrangeStat: true},
-		{id: 15, name: 'Haunted Securing the Shed', type: 'cosmetic', quality: 'Haunted', level: 10, slot: 'Hat', classes: ['Engineer'], icon: 'fa-mask', description: 'From the Halloween 2013 event.'},
-		{id: 16, name: 'Toss-Proof Towel', type: 'cosmetic', quality: 'Unique', level: 1, slot: 'Misc', classes: ['All'], icon: 'fa-scroll', description: "You'll never lose this towel."},
-		{id: 17, name: 'Name Tag', type: 'tool', quality: 'Unique', level: 1, slot: 'Tool', classes: [], icon: 'fa-tag', description: 'Changes the name of an item in your inventory.'},
-		{id: 18, name: 'Description Tag', type: 'tool', quality: 'Unique', level: 1, slot: 'Tool', classes: [], icon: 'fa-tags', description: 'Adds a custom description to an item.'},
-		{id: 19, name: 'Mann Co. Supply Crate Key', type: 'tool', quality: 'Unique', level: 5, slot: 'Tool', classes: [], icon: 'fa-key', description: 'Used to open Mann Co. Supply Crates.'},
-		{id: 20, name: 'Strange Part: Kills', type: 'tool', quality: 'Unique', level: 1, slot: 'Tool', classes: [], icon: 'fa-chart-simple', description: 'Attaches a kill counter to a Strange weapon.'},
-		{id: 21, name: 'Dueling Mini-Game', type: 'tool', quality: 'Unique', level: 5, slot: 'Tool', classes: [], icon: 'fa-hand-fist', description: 'Challenge another player to a duel.'},
-		{id: 22, name: 'Gift Wrap', type: 'tool', quality: 'Unique', level: 1, slot: 'Tool', classes: [], icon: 'fa-gift', description: 'Wraps an item so it can be gifted.'},
-		{id: 23, name: 'Haunted Metal Scrap', type: 'misc', quality: 'Unique', level: 1, slot: 'Misc', classes: [], icon: 'fa-cube', description: 'Crafting material from Halloween events.'},
-		{id: 24, name: 'Supply Crate #82', type: 'misc', quality: 'Unique', level: 1, slot: 'Misc', classes: [], icon: 'fa-box', description: 'Contains one item from the listed series.'}
+		{
+			id: 1,
+			name: 'Strange Scattergun',
+			type: 'weapon',
+			quality: 'Strange',
+			level: 10,
+			slot: 'Primary',
+			classes: ['Scout'],
+			icon: 'fa-crosshairs',
+			description: 'Kill Count: 1,247',
+			isStrangeStat: true
+		},
+		{
+			id: 2,
+			name: 'Vintage Ambassador',
+			type: 'weapon',
+			quality: 'Vintage',
+			level: 5,
+			slot: 'Secondary',
+			classes: ['Spy'],
+			icon: 'fa-crosshairs',
+			description: 'Crits on headshots. -15% damage on bodyshot.'
+		},
+		{
+			id: 3,
+			name: 'Rocket Launcher',
+			type: 'weapon',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Primary',
+			classes: ['Soldier'],
+			icon: 'fa-rocket',
+			description: 'Your enemies will be blown away.'
+		},
+		{
+			id: 4,
+			name: 'Strange Wrangler',
+			type: 'weapon',
+			quality: 'Strange',
+			level: 5,
+			slot: 'Secondary',
+			classes: ['Engineer'],
+			icon: 'fa-crosshairs',
+			description: 'Kill Count: 89',
+			isStrangeStat: true
+		},
+		{
+			id: 5,
+			name: 'Unique Huntsman',
+			type: 'weapon',
+			quality: 'Unique',
+			level: 10,
+			slot: 'Primary',
+			classes: ['Sniper'],
+			icon: 'fa-bullseye',
+			description: 'Fire arrows instead of bullets.'
+		},
+		{
+			id: 6,
+			name: 'Strange Knife',
+			type: 'weapon',
+			quality: 'Strange',
+			level: 1,
+			slot: 'Melee',
+			classes: ['Spy'],
+			icon: 'fa-scissors',
+			description: 'Kill Count: 3,891',
+			isStrangeStat: true
+		},
+		{
+			id: 7,
+			name: 'Unique Medi Gun',
+			type: 'weapon',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Secondary',
+			classes: ['Medic'],
+			icon: 'fa-syringe',
+			description: 'Heal teammates and build Ubercharge.'
+		},
+		{
+			id: 8,
+			name: 'Unique Stickybomb Launcher',
+			type: 'weapon',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Secondary',
+			classes: ['Demoman'],
+			icon: 'fa-bomb',
+			description: 'Detonate sticky bombs remotely.'
+		},
+		{
+			id: 9,
+			name: 'Unusual Team Captain',
+			type: 'cosmetic',
+			quality: 'Unusual',
+			level: 15,
+			slot: 'Hat',
+			classes: ['All'],
+			icon: 'fa-crown',
+			effect: 'Sunbeams',
+			description: 'Unusual Effect: Sunbeams',
+			isUnusual: true
+		},
+		{
+			id: 10,
+			name: 'Unusual Infernal Impaler',
+			type: 'cosmetic',
+			quality: 'Unusual',
+			level: 10,
+			slot: 'Hat',
+			classes: ['Pyro', 'Soldier', 'Demoman', 'Heavy'],
+			icon: 'fa-hat-wizard',
+			effect: 'Cloudy Moon',
+			description: 'Unusual Effect: Cloudy Moon',
+			isUnusual: true
+		},
+		{
+			id: 11,
+			name: 'Vintage Tyrolean',
+			type: 'cosmetic',
+			quality: 'Vintage',
+			level: 25,
+			slot: 'Hat',
+			classes: ['Medic'],
+			icon: 'fa-helmet-safety',
+			description: 'A classic Alpine hat.'
+		},
+		{
+			id: 12,
+			name: 'Genuine Pith Helmet',
+			type: 'cosmetic',
+			quality: 'Genuine',
+			level: 1,
+			slot: 'Hat',
+			classes: ['Sniper'],
+			icon: 'fa-helmet-safety',
+			description: 'From the BioShock Infinite promotional event.'
+		},
+		{
+			id: 13,
+			name: "Gentleman's Ushanka",
+			type: 'cosmetic',
+			quality: 'Unique',
+			level: 20,
+			slot: 'Hat',
+			classes: ['Heavy'],
+			icon: 'fa-hat-wizard',
+			description: 'Keeps your head warm in the Siberian winter.'
+		},
+		{
+			id: 14,
+			name: "Strange Professor's Peculiarity",
+			type: 'cosmetic',
+			quality: 'Strange',
+			level: 10,
+			slot: 'Hat',
+			classes: ['Pyro'],
+			icon: 'fa-glasses',
+			description: 'Points Scored: 45,200',
+			isStrangeStat: true
+		},
+		{
+			id: 15,
+			name: 'Haunted Securing the Shed',
+			type: 'cosmetic',
+			quality: 'Haunted',
+			level: 10,
+			slot: 'Hat',
+			classes: ['Engineer'],
+			icon: 'fa-mask',
+			description: 'From the Halloween 2013 event.'
+		},
+		{
+			id: 16,
+			name: 'Toss-Proof Towel',
+			type: 'cosmetic',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Misc',
+			classes: ['All'],
+			icon: 'fa-scroll',
+			description: "You'll never lose this towel."
+		},
+		{
+			id: 17,
+			name: 'Name Tag',
+			type: 'tool',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Tool',
+			classes: [],
+			icon: 'fa-tag',
+			description: 'Changes the name of an item in your inventory.'
+		},
+		{
+			id: 18,
+			name: 'Description Tag',
+			type: 'tool',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Tool',
+			classes: [],
+			icon: 'fa-tags',
+			description: 'Adds a custom description to an item.'
+		},
+		{
+			id: 19,
+			name: 'Mann Co. Supply Crate Key',
+			type: 'tool',
+			quality: 'Unique',
+			level: 5,
+			slot: 'Tool',
+			classes: [],
+			icon: 'fa-key',
+			description: 'Used to open Mann Co. Supply Crates.'
+		},
+		{
+			id: 20,
+			name: 'Strange Part: Kills',
+			type: 'tool',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Tool',
+			classes: [],
+			icon: 'fa-chart-simple',
+			description: 'Attaches a kill counter to a Strange weapon.'
+		},
+		{
+			id: 21,
+			name: 'Dueling Mini-Game',
+			type: 'tool',
+			quality: 'Unique',
+			level: 5,
+			slot: 'Tool',
+			classes: [],
+			icon: 'fa-hand-fist',
+			description: 'Challenge another player to a duel.'
+		},
+		{
+			id: 22,
+			name: 'Gift Wrap',
+			type: 'tool',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Tool',
+			classes: [],
+			icon: 'fa-gift',
+			description: 'Wraps an item so it can be gifted.'
+		},
+		{
+			id: 23,
+			name: 'Haunted Metal Scrap',
+			type: 'misc',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Misc',
+			classes: [],
+			icon: 'fa-cube',
+			description: 'Crafting material from Halloween events.'
+		},
+		{
+			id: 24,
+			name: 'Supply Crate #82',
+			type: 'misc',
+			quality: 'Unique',
+			level: 1,
+			slot: 'Misc',
+			classes: [],
+			icon: 'fa-box',
+			description: 'Contains one item from the listed series.'
+		}
 	];
 
 	var THEIR_OFFER = [
-		{id: 101, name: 'Unusual Slug', type: 'cosmetic', quality: 'Unusual', level: 10, slot: 'Hat', classes: ['Scout'], icon: 'fa-hat-wizard', effect: 'Orbiting Planets', description: 'Unusual Effect: Orbiting Planets', isUnusual: true},
-		{id: 102, name: 'Strange Sapper', type: 'weapon', quality: 'Strange', level: 5, slot: 'Sapper', classes: ['Spy'], icon: 'fa-bug', description: 'Buildings Destroyed: 234', isStrangeStat: true},
-		{id: 103, name: 'Mann Co. Supply Crate Key', type: 'tool', quality: 'Unique', level: 5, slot: 'Tool', classes: [], icon: 'fa-key', description: 'Used to open Mann Co. Supply Crates.'}
+		{
+			id: 101,
+			name: 'Unusual Slug',
+			type: 'cosmetic',
+			quality: 'Unusual',
+			level: 10,
+			slot: 'Hat',
+			classes: ['Scout'],
+			icon: 'fa-hat-wizard',
+			effect: 'Orbiting Planets',
+			description: 'Unusual Effect: Orbiting Planets',
+			isUnusual: true
+		},
+		{
+			id: 102,
+			name: 'Strange Sapper',
+			type: 'weapon',
+			quality: 'Strange',
+			level: 5,
+			slot: 'Sapper',
+			classes: ['Spy'],
+			icon: 'fa-bug',
+			description: 'Buildings Destroyed: 234',
+			isStrangeStat: true
+		},
+		{
+			id: 103,
+			name: 'Mann Co. Supply Crate Key',
+			type: 'tool',
+			quality: 'Unique',
+			level: 5,
+			slot: 'Tool',
+			classes: [],
+			icon: 'fa-key',
+			description: 'Used to open Mann Co. Supply Crates.'
+		}
 	];
+</script>
+
+<script>
+	// Custom cursor with comet trail effect
+	(function () {
+		// Hide native cursor
+
+		const style = document.createElement('style');
+		style.textContent = '*, *::before, *::after { cursor: none !important; }';
+		document.head.appendChild(style);
+
+		// Create trail canvas
+		const trailCanvas = document.createElement('canvas');
+		trailCanvas.style.cssText = `
+			position: fixed;
+			top: 0;
+			left: 0;
+			pointer-events: none;
+			z-index: 2147483646;
+		`;
+		document.body.appendChild(trailCanvas);
+		const trailCtx = trailCanvas.getContext('2d');
+
+		// Trail configuration
+		const trailConfig = {
+			color: '#00e5ff',
+			maxLength: 20,
+			minWidth: 1,
+			maxWidth: 3
+		};
+
+		// Trail points array
+		let trail = [];
+
+		// Function to detect scaling and adjust coordinates
+		function getScaledCoordinates(clientX, clientY) {
+			// Check if there's a canvas or game element that might be scaled
+			const gameCanvas = document.getElementById('p-cv');
+			if (gameCanvas) {
+				// Get the actual dimensions vs displayed dimensions
+				const rect = gameCanvas.getBoundingClientRect();
+				const actualWidth = gameCanvas.width;
+				const actualHeight = gameCanvas.height;
+
+				// Calculate scale factors
+				const scaleX = actualWidth / rect.width;
+				const scaleY = actualHeight / rect.height;
+
+				// Apply scaling to match game coordinate system
+				const scaledX = clientX * scaleX;
+				const scaledY = clientY * scaleY;
+
+				return {x: scaledX, y: scaledY};
+			}
+
+			// Fallback to original coordinates if no scaling detected
+			return {x: clientX, y: clientY};
+		}
+
+		// Resize trail canvas
+		function resizeTrailCanvas() {
+			trailCanvas.width = window.innerWidth;
+			trailCanvas.height = window.innerHeight;
+		}
+
+		// Update cursor position on mouse move
+		document.addEventListener('mousemove', (e) => {
+			const scaled = getScaledCoordinates(e.clientX, e.clientY);
+
+			// Add current position to trail
+			trail.push({
+				x: scaled.x,
+				y: scaled.y,
+				time: Date.now()
+			});
+
+			// Limit trail length
+			if (trail.length > trailConfig.maxLength) {
+				trail.shift();
+			}
+		});
+
+		// Animation loop for trail
+		function animateTrail() {
+			// Clear canvas
+			trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+
+			if (trail.length > 1) {
+				const now = Date.now();
+
+				// Draw trail lines
+				for (let i = 1; i < trail.length; i++) {
+					const prev = trail[i - 1];
+					const curr = trail[i];
+
+					// Calculate opacity based on position in trail
+					const opacity = (i / trail.length) * 0.8;
+
+					// Calculate line width (thicker at the head)
+					const width = trailConfig.minWidth + (i / trail.length) * (trailConfig.maxWidth - trailConfig.minWidth);
+
+					// Draw line segment
+					trailCtx.beginPath();
+					trailCtx.moveTo(prev.x, prev.y);
+					trailCtx.lineTo(curr.x, curr.y);
+					trailCtx.strokeStyle = trailConfig.color;
+					trailCtx.lineWidth = width;
+					trailCtx.globalAlpha = opacity;
+					trailCtx.lineCap = 'round';
+					trailCtx.stroke();
+				}
+
+				// Reset global alpha
+				trailCtx.globalAlpha = 1;
+			}
+
+			// Remove old trail points (older than 200ms)
+			const cutoff = Date.now() - 200;
+			trail = trail.filter(point => point.time > cutoff);
+
+			requestAnimationFrame(animateTrail);
+		}
+
+		// Handle fullscreen changes
+		function handleFullscreenChange() {
+			setTimeout(() => {
+				resizeTrailCanvas();
+				// Clear trail on fullscreen change
+				trail = [];
+			}, 100);
+		}
+
+		// Initialize
+		resizeTrailCanvas();
+		animateTrail();
+
+		// Event listeners
+		window.addEventListener('resize', resizeTrailCanvas);
+		document.addEventListener('fullscreenchange', handleFullscreenChange);
+		document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+		document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+		document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+	})();
+
+	// Random tag line functionality
+	const taglines = [
+		"Adaptive Warfare Unleashed - A battlefield that evolves faster than you do",
+		"The World Fights Back - Every decision reshapes the conflict",
+		"No Scripts, Only Consequences - A shooter driven entirely by your actions",
+		"A Warzone That Never Repeats - Every operation is a new scenario",
+		"Combat Written in Real Time - Living systems generate encounters",
+		"Dynamic Battlefields - Where the environment learns from your tactics",
+		"Unscripted Chaos - Every firefight writes its own story",
+		"Evolutionary Combat - The AI adapts, the world responds, you survive",
+		"Living Warfare - No two battles ever feel the same",
+		"Reactive Environments - Every bullet hole tells a story",
+		"Emergent Gameplay - Where player choices create legendary moments",
+		"Intelligent Conflict - The battlefield remembers and evolves",
+		"Adversarial AI - Enemies that learn from your every move",
+		"Procedural Warfare - Infinite scenarios from dynamic systems",
+		"Consequential Combat - Every trigger pull changes the war",
+		"Adaptive Enemies - They study you, they evolve, they hunt",
+		"Dynamic Tactics - The battlefield changes as fast as your strategy",
+		"Living War Zone - Where the environment is your greatest enemy",
+		"Unpredictable Combat - Expect the unexpected every time",
+		"Evolutionary Battlefield - Survival of the tactically fittest",
+		"Reactive Warfare - The world fights back with intelligence",
+	];
+
+	function setRandomTagline() {
+		const mainElement = document.getElementById('random-tagline-main');
+		const subElement = document.getElementById('random-tagline-sub');
+
+		if (mainElement && subElement) {
+			const randomIndex = Math.floor(Math.random() * taglines.length);
+			const tagline = taglines[randomIndex];
+
+			// Split the tagline at the em dash
+			const parts = tagline.split(' - ');
+			mainElement.textContent = parts[0].trim();
+			subElement.textContent = parts[1].trim() || 'Enter The Grid';
+		}
+	}
+
+	// Set random tagline on page load
+	setRandomTagline();
 </script>
 </body>
 
