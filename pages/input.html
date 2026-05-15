@@ -1,0 +1,287 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Input Monitor</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			background: #111;
+			height: 100vh;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#canvas-container {
+			flex: 1;
+			position: relative;
+			min-height: 0;
+			/* Prevents flex overflow issues */
+		}
+
+		canvas {
+			display: block;
+		}
+
+		input {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			padding: 14px 24px;
+			font-size: 18px;
+			font-family: monospace;
+			background: #1a1a1a;
+			border: 2px solid #333;
+			border-radius: 8px;
+			color: #e8e8e8;
+			outline: none;
+			width: 280px;
+			text-align: center;
+			z-index: 10;
+			transition: border-color 0.2s ease, box-shadow 0.2s ease;
+		}
+
+		input:focus {
+			border-color: #4af;
+			box-shadow: 0 0 0 3px rgba(68, 170, 255, 0.4);
+		}
+
+		input::placeholder {
+			color: #444;
+		}
+
+		/* Event Log Textarea */
+		#eventLog {
+			width: 100%;
+			height: 150px;
+			background: #0d0d0d;
+			color: #888;
+			border: none;
+			border-top: 1px solid #333;
+			padding: 12px 16px;
+			font-family: monospace;
+			font-size: 13px;
+			line-height: 1.5;
+			resize: none;
+			outline: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="canvas-container">
+		<canvas id="c"></canvas>
+		<input type="text" id="dummyInput" placeholder="Type here..." tabindex="1" autofocus>
+	</div>
+	<textarea id="eventLog" readonly tabindex="2"></textarea>
+
+	<script>
+		const canvas = document.getElementById('c');
+		const ctx = canvas.getContext('2d');
+		const container = document.getElementById('canvas-container');
+		const inputEl = document.getElementById('dummyInput');
+		const logEl = document.getElementById('eventLog');
+
+		// Force focus after full load
+		window.addEventListener('load', () => inputEl.focus());
+
+		function resize() {
+			canvas.width = container.clientWidth;
+			canvas.height = container.clientHeight;
+		}
+		resize();
+		window.addEventListener('resize', resize);
+
+		const heldKeys = new Set();
+		const heldMouse = new Set();
+		let mouseX = 0, mouseY = 0;
+
+		// Event Logger
+		function getTimestamp() {
+			const d = new Date();
+			const h = String(d.getHours()).padStart(2, '0');
+			const m = String(d.getMinutes()).padStart(2, '0');
+			const s = String(d.getSeconds()).padStart(2, '0');
+			const ms = String(d.getMilliseconds()).padStart(3, '0');
+			return `${h}:${m}:${s}.${ms}`;
+		}
+
+		function logEvent(msg) {
+			logEl.value += `[${getTimestamp()}] ${msg}\n`;
+			// Autoscroll to bottom
+			logEl.scrollTop = logEl.scrollHeight;
+		}
+
+		// Key Label Mapper
+		function getKeyLabel(code) {
+			let label = code.replace('Key', '').replace('Digit', '');
+			if (code === 'Space') label = 'Space';
+			if (code === 'ShiftLeft') label = 'Shift';
+			if (code === 'ShiftRight') label = 'Shift';
+			if (code === 'ControlLeft') label = 'Ctrl';
+			if (code === 'ControlRight') label = 'Ctrl';
+			if (code === 'AltLeft') label = 'Alt';
+			if (code === 'AltRight') label = 'Alt';
+			if (code === 'MetaLeft') label = 'Meta';
+			if (code === 'MetaRight') label = 'Meta';
+			if (code === 'ArrowUp') label = '↑';
+			if (code === 'ArrowDown') label = '↓';
+			if (code === 'ArrowLeft') label = '←';
+			if (code === 'ArrowRight') label = '→';
+			if (code === 'Backspace') label = '⌫';
+			if (code === 'Enter') label = '↵';
+			if (code === 'Tab') label = 'Tab';
+			if (code === 'CapsLock') label = 'Caps';
+			if (code === 'Escape') label = 'Esc';
+			return label;
+		}
+
+		const mouseNames = ['Left', 'Middle', 'Right', 'Back', 'Forward'];
+
+		// Event Listeners
+		window.addEventListener('keydown', e => {
+			if (e.repeat) return;
+			heldKeys.add(e.code);
+			logEvent(`KEY DOWN | ${getKeyLabel(e.code)}`);
+
+			if (document.activeElement !== inputEl) {
+				e.preventDefault();
+			} else {
+				if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
+			}
+		}, true);
+
+		window.addEventListener('keyup', e => {
+			heldKeys.delete(e.code);
+			logEvent(`KEY UP   | ${getKeyLabel(e.code)}`);
+		}, true);
+
+		window.addEventListener('mousedown', e => {
+			heldMouse.add(e.button);
+			logEvent(`MOUSE DN | ${mouseNames[e.button]}`);
+		});
+
+		window.addEventListener('mouseup', e => {
+			heldMouse.delete(e.button);
+			logEvent(`MOUSE UP | ${mouseNames[e.button]}`);
+		});
+
+		window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+		window.addEventListener('contextmenu', e => {
+			if (document.activeElement !== inputEl) e.preventDefault();
+		});
+
+		window.addEventListener('blur', () => {
+			heldKeys.clear();
+			heldMouse.clear();
+			logEvent(`--- WINDOW LOST FOCUS (CLEARED) ---`);
+		});
+
+		// Canvas Drawing
+		function draw() {
+			const W = canvas.width, H = canvas.height;
+			ctx.clearRect(0, 0, W, H);
+
+			ctx.fillStyle = '#111';
+			ctx.fillRect(0, 0, W, H);
+
+			const cx = W / 2, cy = H / 2;
+
+			// Mouse position indicator
+			ctx.beginPath();
+			ctx.arc(mouseX, mouseY, 10, 0, Math.PI * 2);
+			ctx.fillStyle = 'rgba(255,255,255,0.15)';
+			ctx.fill();
+
+			// Mouse buttons (shifted up)
+			const mbY = cy - 150;
+			ctx.fillStyle = '#555';
+			ctx.font = '20px monospace';
+			ctx.textAlign = 'center';
+			ctx.fillText('MOUSE', cx, mbY - 40);
+
+			const btnW = 100, btnH = 46, gap = 14;
+			const totalW = mouseNames.length * btnW + (mouseNames.length - 1) * gap;
+			const startX = cx - totalW / 2;
+
+			for (let i = 0; i < 5; i++) {
+				const x = startX + i * (btnW + gap);
+				const active = heldMouse.has(i);
+				ctx.fillStyle = active ? '#e8e8e8' : '#222';
+				ctx.strokeStyle = active ? '#e8e8e8' : '#444';
+				ctx.lineWidth = 1.5;
+				roundRect(x, mbY - btnH / 2, btnW, btnH, 8);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = active ? '#111' : '#666';
+				ctx.font = '16px monospace';
+				ctx.fillText(mouseNames[i], x + btnW / 2, mbY + 6);
+			}
+
+			// Keyboard (shifted down)
+			const keysY = cy + 120;
+			ctx.fillStyle = '#555';
+			ctx.font = '20px monospace';
+			ctx.fillText('KEYBOARD', cx, keysY - 26);
+
+			if (heldKeys.size === 0) {
+				ctx.fillStyle = '#333';
+				ctx.font = '20px monospace';
+				ctx.fillText('Hold any key or mouse button...', cx, keysY + 28);
+			} else {
+				const keys = [...heldKeys];
+				const kBtnW = 88, kBtnH = 44, kGap = 10;
+				const kTotalW = keys.length * kBtnW + (keys.length - 1) * kGap;
+				const kStartX = cx - kTotalW / 2;
+
+				keys.forEach((key, i) => {
+					const bx = kStartX + i * (kBtnW + kGap);
+					ctx.fillStyle = '#e8e8e8';
+					ctx.strokeStyle = '#e8e8e8';
+					ctx.lineWidth = 1.5;
+					roundRect(bx, keysY, kBtnW, kBtnH, 8);
+					ctx.fill();
+					ctx.stroke();
+					ctx.fillStyle = '#111';
+					ctx.font = '15px monospace';
+					ctx.fillText(getKeyLabel(key), bx + kBtnW / 2, keysY + kBtnH / 2 + 5);
+				});
+			}
+
+			requestAnimationFrame(draw);
+		}
+
+		function roundRect(x, y, w, h, r) {
+			ctx.beginPath();
+			ctx.moveTo(x + r, y);
+			ctx.lineTo(x + w - r, y);
+			ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+			ctx.lineTo(x + w, y + h - r);
+			ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+			ctx.lineTo(x + r, y + h);
+			ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+			ctx.lineTo(x, y + r);
+			ctx.quadraticCurveTo(x, y, x + r, y);
+			ctx.closePath();
+		}
+
+		draw();
+	</script>
+</body>
+
+</html>
