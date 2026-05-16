@@ -311,7 +311,7 @@ License: MIT
 		/* Gamepad drawing */
 		function drawGamepad(gp, cx, cy) {
 			const shW = 34, shH = 12, shGap = 6;
-			const shy = cy - 14;
+			const shy = cy - 40;
 
 			// LT (analog trigger, button 6)
 			const ltVal = gp.buttons[6]?.value ?? (gp.buttons[6]?.pressed ? 1 : 0);
@@ -356,8 +356,8 @@ License: MIT
 
 			// Analog sticks
 			const stickR = 18;
-			const lsX = cx - 65, lsY = cy + 10;
-			const rsX = cx + 65, rsY = cy + 10;
+			const lsX = cx - 65, lsY = cy - 5;
+			const rsX = cx + 65, rsY = cy - 5;
 
 			// Left stick ring + crosshair
 			ctx.beginPath(); ctx.arc(lsX, lsY, stickR, 0, Math.PI * 2);
@@ -400,7 +400,7 @@ License: MIT
 			}
 
 			// Center meta buttons: Back(8), Home(16), Start(9)
-			const metaY = cy + 2;
+			const metaY = cy + 20;
 			const mbW = 26, mbH = 10;
 
 			// Back / Select
@@ -431,7 +431,7 @@ License: MIT
 			ctx.fillText('STA', cx + 32, metaY + mbH / 2);
 
 			// D-Pad (buttons 12-15: Up, Down, Left, Right)
-			const dpX = cx - 28, dpY = cy + 24;
+			const dpX = cx - 28, dpY = cy + 45;
 			const dpS = 7;
 			// Full cross in base color
 			ctx.fillStyle = '#161616';
@@ -448,7 +448,7 @@ License: MIT
 			ctx.strokeRect(dpX - dpS * 2, dpY - dpS, dpS * 4, dpS * 2);
 
 			// Face buttons: A(0) B(1) X(2) Y(3)
-			const fbX = cx + 28, fbY = cy + 24;
+			const fbX = cx + 28, fbY = cy + 45;
 			const fbR = 8, fbOff = 12;
 			const fbData = [
 				{ idx: 0, label: 'A', ox: 0, oy: fbOff, col: '#4CAF50' },
@@ -501,7 +501,7 @@ License: MIT
 
 			// GAMEPAD
 			const activeGp = pollGamepads();
-			sectionLabel(hasGamepad ? 'Gamepad ●' : 'Gamepad', cx, SEC_GAMEPAD - 28);
+			sectionLabel(hasGamepad ? 'Gamepad ●' : 'Gamepad', cx, SEC_GAMEPAD - 46);
 			if (!activeGp) {
 				ctx.fillStyle = '#252525'; ctx.font = '11px monospace';
 				ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
