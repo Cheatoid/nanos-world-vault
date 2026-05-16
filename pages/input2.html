@@ -1,0 +1,593 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Input Monitor</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			box-sizing: border-box;
+		}
+
+		html {
+			zoom: 1.0;
+		}
+
+		body {
+			background: #111;
+			height: 100vh;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#topBar {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 10px 14px;
+			background: #111;
+			border-bottom: 1px solid #1e1e1e;
+			flex-shrink: 0;
+		}
+
+		#dummyInput {
+			padding: 10px 20px;
+			font-size: 16px;
+			font-family: monospace;
+			background: #1a1a1a;
+			border: 2px solid #333;
+			border-radius: 8px;
+			color: #e8e8e8;
+			outline: none;
+			width: 280px;
+			text-align: center;
+			transition: border-color 0.2s ease, box-shadow 0.2s ease;
+		}
+
+		#dummyInput:focus {
+			border-color: #4af;
+			box-shadow: 0 0 0 3px rgba(68, 170, 255, 0.35);
+		}
+
+		#dummyInput::placeholder {
+			color: #383838;
+		}
+
+		#canvas-container {
+			flex: 1;
+			position: relative;
+			min-height: 0;
+			width: -webkit-fill-available;
+			height: -webkit-fill-available;
+		}
+
+		canvas {
+			display: block;
+			width: -webkit-fill-available;
+			height: -webkit-fill-available;
+		}
+
+		#eventLog {
+			width: 100%;
+			height: 120px;
+			background: #0c0c0c;
+			color: #606060;
+			border: none;
+			border-top: 1px solid #262626;
+			padding: 10px 14px;
+			font-family: monospace;
+			font-size: 12px;
+			line-height: 1.6;
+			resize: none;
+			outline: none;
+			flex-shrink: 0;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="topBar">
+		<input type="text" id="dummyInput" placeholder="Type here..." tabindex="1" autofocus>
+	</div>
+	<div id="canvas-container">
+		<canvas id="c"></canvas>
+	</div>
+	<textarea id="eventLog" readonly tabindex="2"></textarea>
+	<script>
+		'use strict';
+
+		/* Element refs */
+		const canvas = document.getElementById('c');
+		const ctx = canvas.getContext('2d');
+		const container = document.getElementById('canvas-container');
+		const inputEl = document.getElementById('dummyInput');
+		const logEl = document.getElementById('eventLog');
+
+		window.addEventListener('load', () => inputEl.focus());
+
+		/* Canvas resize */
+		function resize() {
+			canvas.width = container.clientWidth;
+			canvas.height = container.clientHeight;
+		}
+		resize();
+		window.addEventListener('resize', resize);
+
+		/* State */
+		const heldKeys = new Set();
+		const heldMouse = new Set();
+		const activeTouches = new Map();
+		let mouseX = null, mouseY = null;
+		let scrollDX = 0, scrollDY = 0;
+		let scrollFadeId = null;
+
+		/* Logger */
+		const MAX_LOG_LINES = 500;
+		function timestamp() {
+			const d = new Date();
+			const p = (n, l = 2) => String(n).padStart(l, '0');
+			return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}.${p(d.getMilliseconds(), 3)}`;
+		}
+		function logEvent(msg) {
+			const lines = logEl.value ? logEl.value.split('\n') : [];
+			lines.push(`[${timestamp()}] ${msg}`);
+			if (lines.length > MAX_LOG_LINES) lines.splice(0, lines.length - MAX_LOG_LINES);
+			logEl.value = lines.join('\n');
+			logEl.scrollTop = logEl.scrollHeight;
+		}
+
+		/* Key label map */
+		const KEY_LABELS = {
+			Space: 'Space', ShiftLeft: 'Shift', ShiftRight: 'Shift',
+			ControlLeft: 'Ctrl', ControlRight: 'Ctrl', AltLeft: 'Alt', AltRight: 'Alt',
+			MetaLeft: '⌘', MetaRight: '⌘',
+			ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '->',
+			Backspace: '⌫', Delete: 'Del', Enter: '↵',
+			Tab: 'Tab', CapsLock: 'Caps', Escape: 'Esc',
+			Insert: 'Ins', Home: 'Home', End: 'End', PageUp: 'PgUp', PageDown: 'PgDn',
+			F1: 'F1', F2: 'F2', F3: 'F3', F4: 'F4', F5: 'F5', F6: 'F6', F7: 'F7', F8: 'F8',
+			F9: 'F9', F10: 'F10', F11: 'F11', F12: 'F12',
+		};
+		function keyLabel(code) {
+			return KEY_LABELS[code] ?? code.replace(/^Key/, '').replace(/^Digit/, '').replace(/^Numpad/, 'N');
+		}
+		const MOUSE_NAMES = ['Left', 'Mid', 'Right', 'Back', 'Fwd'];
+
+		/* Keyboard events */
+		window.addEventListener('keydown', e => {
+			if (e.repeat) return;
+			heldKeys.add(e.code);
+			logEvent(`KEY DN   | ${keyLabel(e.code)}`);
+			if (document.activeElement !== inputEl) e.preventDefault();
+			else if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
+		}, true);
+		window.addEventListener('keyup', e => {
+			heldKeys.delete(e.code);
+			logEvent(`KEY UP   | ${keyLabel(e.code)}`);
+		}, true);
+
+		/* Mouse events */
+		window.addEventListener('mousedown', e => {
+			heldMouse.add(e.button);
+			logEvent(`MOUSE DN | ${MOUSE_NAMES[e.button] ?? `Btn${e.button}`}`);
+		});
+		window.addEventListener('mouseup', e => {
+			heldMouse.delete(e.button);
+			logEvent(`MOUSE UP | ${MOUSE_NAMES[e.button] ?? `Btn${e.button}`}`);
+		});
+		window.addEventListener('mousemove', e => {
+			const rect = canvas.getBoundingClientRect();
+			mouseX = e.clientX - rect.left;
+			mouseY = e.clientY - rect.top;
+		});
+
+		/* Scroll wheel */
+		window.addEventListener('wheel', e => {
+			e.preventDefault();
+			const dx = Math.round(e.deltaX), dy = Math.round(e.deltaY);
+			scrollDX += dx; scrollDY += dy;
+			clearTimeout(scrollFadeId);
+			scrollFadeId = setTimeout(() => { scrollDX = 0; scrollDY = 0; }, 1000);
+			const parts = [];
+			if (dx !== 0) parts.push(`ΔX:${dx > 0 ? '+' : ''}${dx}`);
+			if (dy !== 0) parts.push(`ΔY:${dy > 0 ? '+' : ''}${dy}`);
+			logEvent(`WHEEL    | ${parts.join('  ') || '-'}`);
+		}, { passive: false });
+
+		/* Touch events (canvas-relative coords) */
+		function syncTouches(list) {
+			activeTouches.clear();
+			const rect = canvas.getBoundingClientRect();
+			for (const t of list) {
+				activeTouches.set(t.identifier, {
+					x: t.clientX - rect.left,
+					y: t.clientY - rect.top
+				});
+			}
+		}
+		window.addEventListener('touchstart', e => {
+			e.preventDefault();
+			syncTouches(e.touches);
+			for (const t of e.changedTouches)
+				logEvent(`TOUCH DN | #${t.identifier}  (${Math.round(t.clientX)}, ${Math.round(t.clientY)})`);
+		}, { passive: false });
+		window.addEventListener('touchmove', e => { e.preventDefault(); syncTouches(e.touches); }, { passive: false });
+		window.addEventListener('touchend', e => {
+			e.preventDefault(); syncTouches(e.touches);
+			for (const t of e.changedTouches) logEvent(`TOUCH UP | #${t.identifier}`);
+		}, { passive: false });
+		window.addEventListener('touchcancel', e => {
+			e.preventDefault(); syncTouches(e.touches);
+			for (const t of e.changedTouches) logEvent(`TOUCH CX | #${t.identifier}  (cancelled)`);
+		}, { passive: false });
+
+		/* Gamepad */
+		const GP_BTN_NAMES = [
+			'A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT',
+			'Back', 'Start', 'L3', 'R3',
+			'Up', 'Down', 'Left', 'Right', 'Home'
+		];
+		const gpPrevButtons = {};
+		let hasGamepad = false;
+
+		window.addEventListener('gamepadconnected', e => {
+			hasGamepad = true;
+			gpPrevButtons[e.gamepad.index] = e.gamepad.buttons.map(b => b.pressed);
+			logEvent(`GAMEPAD   | Connected #${e.gamepad.index} "${e.gamepad.id.substring(0, 32)}"`);
+		});
+		window.addEventListener('gamepaddisconnected', e => {
+			delete gpPrevButtons[e.gamepad.index];
+			hasGamepad = Object.keys(gpPrevButtons).length > 0;
+			logEvent(`GAMEPAD   | Disconnected #${e.gamepad.index}`);
+		});
+
+		function pollGamepads() {
+			const gps = navigator.getGamepads ? navigator.getGamepads() : [];
+			let activeGp = null;
+			for (const gp of gps) {
+				if (!gp) continue;
+				if (!activeGp) activeGp = gp;
+				const prev = gpPrevButtons[gp.index];
+				if (prev) {
+					for (let i = 0; i < gp.buttons.length; i++) {
+						const pressed = gp.buttons[i].pressed;
+						const name = GP_BTN_NAMES[i] ?? `Btn${i}`;
+						if (pressed && !prev[i]) logEvent(`GP DN     | ${name}`);
+						else if (!pressed && prev[i]) logEvent(`GP UP     | ${name}`);
+						prev[i] = pressed;
+					}
+				} else {
+					gpPrevButtons[gp.index] = gp.buttons.map(b => b.pressed);
+				}
+			}
+			return activeGp;
+		}
+
+		/* Misc */
+		window.addEventListener('contextmenu', e => {
+			if (document.activeElement !== inputEl) e.preventDefault();
+		});
+		window.addEventListener('blur', () => {
+			heldKeys.clear(); heldMouse.clear();
+			logEvent('WINDOW LOST FOCUS (CLEARED)');
+		});
+
+		/* Draw helpers */
+		function rrect(x, y, w, h, r) {
+			w = Math.max(0, w); h = Math.max(0, h);
+			r = Math.min(r, w / 2, h / 2);
+			ctx.beginPath();
+			ctx.moveTo(x + r, y);
+			ctx.lineTo(x + w - r, y);
+			ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+			ctx.lineTo(x + w, y + h - r);
+			ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+			ctx.lineTo(x + r, y + h);
+			ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+			ctx.lineTo(x, y + r);
+			ctx.quadraticCurveTo(x, y, x + r, y);
+			ctx.closePath();
+		}
+		const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+		function sectionLabel(text, x, y) {
+			ctx.fillStyle = '#404040';
+			ctx.font = '10px monospace';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(text.toUpperCase(), x, y);
+		}
+
+		/* Gamepad drawing */
+		function drawGamepad(gp, cx, cy) {
+			const shW = 34, shH = 12, shGap = 6;
+			const shy = cy - 14;
+
+			// LT (analog trigger, button 6)
+			const ltVal = gp.buttons[6]?.value ?? (gp.buttons[6]?.pressed ? 1 : 0);
+			const ltx = cx - 58 - shW / 2 - shGap - shW;
+			ctx.fillStyle = '#161616';
+			rrect(ltx, shy, shW, shH, 3); ctx.fill();
+			if (ltVal > 0.01) { ctx.fillStyle = 'rgba(68,170,255,0.6)'; rrect(ltx, shy, Math.max(1, shW * ltVal), shH, 3); ctx.fill(); }
+			ctx.strokeStyle = ltVal > 0.01 ? '#4af' : '#2a2a2a'; ctx.lineWidth = 0.8;
+			rrect(ltx, shy, shW, shH, 3); ctx.stroke();
+			ctx.fillStyle = ltVal > 0.5 ? '#111' : '#4a4a4a'; ctx.font = '8px monospace';
+			ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+			ctx.fillText('LT', ltx + shW / 2, shy + shH / 2);
+
+			// LB (button 4)
+			const lbx = cx - 58 - shW / 2;
+			const lbP = gp.buttons[4]?.pressed ?? false;
+			ctx.fillStyle = lbP ? '#4af' : '#161616';
+			ctx.strokeStyle = lbP ? '#4af' : '#2a2a2a'; ctx.lineWidth = 0.8;
+			rrect(lbx, shy, shW, shH, 3); ctx.fill(); ctx.stroke();
+			ctx.fillStyle = lbP ? '#111' : '#4a4a4a'; ctx.font = '8px monospace';
+			ctx.fillText('LB', lbx + shW / 2, shy + shH / 2);
+
+			// RB (button 5)
+			const rbx = cx + 58 - shW / 2;
+			const rbP = gp.buttons[5]?.pressed ?? false;
+			ctx.fillStyle = rbP ? '#4af' : '#161616';
+			ctx.strokeStyle = rbP ? '#4af' : '#2a2a2a'; ctx.lineWidth = 0.8;
+			rrect(rbx, shy, shW, shH, 3); ctx.fill(); ctx.stroke();
+			ctx.fillStyle = rbP ? '#111' : '#4a4a4a'; ctx.font = '8px monospace';
+			ctx.fillText('RB', rbx + shW / 2, shy + shH / 2);
+
+			// RT (analog trigger, button 7)
+			const rtVal = gp.buttons[7]?.value ?? (gp.buttons[7]?.pressed ? 1 : 0);
+			const rtx = cx + 58 - shW / 2 + shGap + shW;
+			ctx.fillStyle = '#161616';
+			rrect(rtx, shy, shW, shH, 3); ctx.fill();
+			if (rtVal > 0.01) { ctx.fillStyle = 'rgba(68,170,255,0.6)'; rrect(rtx, shy, Math.max(1, shW * rtVal), shH, 3); ctx.fill(); }
+			ctx.strokeStyle = rtVal > 0.01 ? '#4af' : '#2a2a2a'; ctx.lineWidth = 0.8;
+			rrect(rtx, shy, shW, shH, 3); ctx.stroke();
+			ctx.fillStyle = rtVal > 0.5 ? '#111' : '#4a4a4a'; ctx.font = '8px monospace';
+			ctx.fillText('RT', rtx + shW / 2, shy + shH / 2);
+
+			// Analog sticks
+			const stickR = 18;
+			const lsX = cx - 65, lsY = cy + 10;
+			const rsX = cx + 65, rsY = cy + 10;
+
+			// Left stick ring + crosshair
+			ctx.beginPath(); ctx.arc(lsX, lsY, stickR, 0, Math.PI * 2);
+			ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 1.5; ctx.stroke();
+			ctx.strokeStyle = '#1c1c1c'; ctx.lineWidth = 0.5;
+			ctx.beginPath(); ctx.moveTo(lsX - stickR + 5, lsY); ctx.lineTo(lsX + stickR - 5, lsY); ctx.stroke();
+			ctx.beginPath(); ctx.moveTo(lsX, lsY - stickR + 5); ctx.lineTo(lsX, lsY + stickR - 5); ctx.stroke();
+
+			// Left stick dot
+			const lx = clamp(gp.axes[0] ?? 0, -1, 1);
+			const ly = clamp(gp.axes[1] ?? 0, -1, 1);
+			const lAct = Math.abs(lx) > 0.08 || Math.abs(ly) > 0.08;
+			ctx.beginPath(); ctx.arc(lsX + lx * (stickR - 5), lsY + ly * (stickR - 5), 4, 0, Math.PI * 2);
+			ctx.fillStyle = lAct ? '#4af' : '#2a2a2a'; ctx.fill();
+
+			// L3 press indicator
+			if (gp.buttons[10]?.pressed) {
+				ctx.beginPath(); ctx.arc(lsX, lsY, stickR + 3, 0, Math.PI * 2);
+				ctx.strokeStyle = '#4af'; ctx.lineWidth = 1.5; ctx.stroke();
+			}
+
+			// Right stick ring + crosshair
+			ctx.beginPath(); ctx.arc(rsX, rsY, stickR, 0, Math.PI * 2);
+			ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 1.5; ctx.stroke();
+			ctx.strokeStyle = '#1c1c1c'; ctx.lineWidth = 0.5;
+			ctx.beginPath(); ctx.moveTo(rsX - stickR + 5, rsY); ctx.lineTo(rsX + stickR - 5, rsY); ctx.stroke();
+			ctx.beginPath(); ctx.moveTo(rsX, rsY - stickR + 5); ctx.lineTo(rsX, rsY + stickR - 5); ctx.stroke();
+
+			// Right stick dot
+			const rx = clamp(gp.axes[2] ?? 0, -1, 1);
+			const ry = clamp(gp.axes[3] ?? 0, -1, 1);
+			const rAct = Math.abs(rx) > 0.08 || Math.abs(ry) > 0.08;
+			ctx.beginPath(); ctx.arc(rsX + rx * (stickR - 5), rsY + ry * (stickR - 5), 4, 0, Math.PI * 2);
+			ctx.fillStyle = rAct ? '#4af' : '#2a2a2a'; ctx.fill();
+
+			// R3 press indicator
+			if (gp.buttons[11]?.pressed) {
+				ctx.beginPath(); ctx.arc(rsX, rsY, stickR + 3, 0, Math.PI * 2);
+				ctx.strokeStyle = '#4af'; ctx.lineWidth = 1.5; ctx.stroke();
+			}
+
+			// Center meta buttons: Back(8), Home(16), Start(9)
+			const metaY = cy + 2;
+			const mbW = 26, mbH = 10;
+
+			// Back / Select
+			const backP = gp.buttons[8]?.pressed ?? false;
+			ctx.fillStyle = backP ? '#e8e8e8' : '#161616';
+			ctx.strokeStyle = backP ? '#e8e8e8' : '#2a2a2a'; ctx.lineWidth = 0.8;
+			rrect(cx - 32 - mbW / 2, metaY, mbW, mbH, 3); ctx.fill(); ctx.stroke();
+			ctx.fillStyle = backP ? '#111' : '#4a4a4a'; ctx.font = '7px monospace';
+			ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+			ctx.fillText('SEL', cx - 32, metaY + mbH / 2);
+
+			// Home
+			if (gp.buttons[16]) {
+				const homeP = gp.buttons[16].pressed;
+				ctx.fillStyle = homeP ? '#e8e8e8' : '#161616';
+				ctx.strokeStyle = homeP ? '#e8e8e8' : '#2a2a2a'; ctx.lineWidth = 0.8;
+				rrect(cx - mbW / 2, metaY, mbW, mbH, 3); ctx.fill(); ctx.stroke();
+				ctx.fillStyle = homeP ? '#111' : '#4a4a4a'; ctx.font = '7px monospace';
+				ctx.fillText('⌂', cx, metaY + mbH / 2);
+			}
+
+			// Start
+			const startP = gp.buttons[9]?.pressed ?? false;
+			ctx.fillStyle = startP ? '#e8e8e8' : '#161616';
+			ctx.strokeStyle = startP ? '#e8e8e8' : '#2a2a2a'; ctx.lineWidth = 0.8;
+			rrect(cx + 32 - mbW / 2, metaY, mbW, mbH, 3); ctx.fill(); ctx.stroke();
+			ctx.fillStyle = startP ? '#111' : '#4a4a4a'; ctx.font = '7px monospace';
+			ctx.fillText('STA', cx + 32, metaY + mbH / 2);
+
+			// D-Pad (buttons 12-15: Up, Down, Left, Right)
+			const dpX = cx - 28, dpY = cy + 24;
+			const dpS = 7;
+			// Full cross in base color
+			ctx.fillStyle = '#161616';
+			ctx.fillRect(dpX - dpS, dpY - dpS * 2, dpS * 2, dpS * 4);
+			ctx.fillRect(dpX - dpS * 2, dpY - dpS, dpS * 4, dpS * 2);
+			// Active directions
+			if (gp.buttons[12]?.pressed) { ctx.fillStyle = '#4af'; ctx.fillRect(dpX - dpS, dpY - dpS * 2, dpS * 2, dpS); }
+			if (gp.buttons[13]?.pressed) { ctx.fillStyle = '#4af'; ctx.fillRect(dpX - dpS, dpY + dpS, dpS * 2, dpS); }
+			if (gp.buttons[14]?.pressed) { ctx.fillStyle = '#4af'; ctx.fillRect(dpX - dpS * 2, dpY - dpS, dpS, dpS * 2); }
+			if (gp.buttons[15]?.pressed) { ctx.fillStyle = '#4af'; ctx.fillRect(dpX + dpS, dpY - dpS, dpS, dpS * 2); }
+			// Outline
+			ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 0.8;
+			ctx.strokeRect(dpX - dpS, dpY - dpS * 2, dpS * 2, dpS * 4);
+			ctx.strokeRect(dpX - dpS * 2, dpY - dpS, dpS * 4, dpS * 2);
+
+			// Face buttons: A(0) B(1) X(2) Y(3)
+			const fbX = cx + 28, fbY = cy + 24;
+			const fbR = 8, fbOff = 12;
+			const fbData = [
+				{ idx: 0, label: 'A', ox: 0, oy: fbOff, col: '#4CAF50' },
+				{ idx: 1, label: 'B', ox: fbOff, oy: 0, col: '#f44336' },
+				{ idx: 2, label: 'X', ox: -fbOff, oy: 0, col: '#2196F3' },
+				{ idx: 3, label: 'Y', ox: 0, oy: -fbOff, col: '#FFC107' },
+			];
+			for (const fb of fbData) {
+				const bx = fbX + fb.ox, by = fbY + fb.oy;
+				const pressed = gp.buttons[fb.idx]?.pressed ?? false;
+				ctx.beginPath(); ctx.arc(bx, by, fbR, 0, Math.PI * 2);
+				ctx.fillStyle = pressed ? fb.col : '#161616'; ctx.fill();
+				ctx.strokeStyle = pressed ? fb.col : '#2a2a2a'; ctx.lineWidth = 1; ctx.stroke();
+				ctx.fillStyle = pressed ? '#111' : '#4a4a4a'; ctx.font = '9px monospace';
+				ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+				ctx.fillText(fb.label, bx, by);
+			}
+		}
+
+		/* Main render loop */
+		function draw() {
+			const W = canvas.width, H = canvas.height;
+			ctx.clearRect(0, 0, W, H);
+			ctx.fillStyle = '#111';
+			ctx.fillRect(0, 0, W, H);
+			const cx = W / 2;
+
+			// Section positions
+			const SEC_MOUSE = H * 0.12;
+			const SEC_GAMEPAD = H * 0.34;
+			const SEC_SCROLL = H * 0.56;
+			const SEC_KEY = H * 0.76;
+			const SEC_TOUCH = H * 0.92;
+
+			// MOUSE BUTTONS
+			sectionLabel('Mouse', cx, SEC_MOUSE - 16);
+			const BTN_W = 68, BTN_H = 28, BTN_GAP = 8;
+			const totalBtnW = MOUSE_NAMES.length * (BTN_W + BTN_GAP) - BTN_GAP;
+			const btnX0 = cx - totalBtnW / 2;
+			for (let i = 0; i < MOUSE_NAMES.length; i++) {
+				const bx = btnX0 + i * (BTN_W + BTN_GAP);
+				const active = heldMouse.has(i);
+				ctx.fillStyle = active ? '#e8e8e8' : '#1c1c1c';
+				ctx.strokeStyle = active ? '#e8e8e8' : '#363636'; ctx.lineWidth = 1.5;
+				rrect(bx, SEC_MOUSE, BTN_W, BTN_H, 6); ctx.fill(); ctx.stroke();
+				ctx.fillStyle = active ? '#111' : '#4a4a4a'; ctx.font = '11px monospace';
+				ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+				ctx.fillText(MOUSE_NAMES[i], bx + BTN_W / 2, SEC_MOUSE + BTN_H / 2);
+			}
+
+			// GAMEPAD
+			const activeGp = pollGamepads();
+			sectionLabel(hasGamepad ? 'Gamepad ●' : 'Gamepad', cx, SEC_GAMEPAD - 28);
+			if (!activeGp) {
+				ctx.fillStyle = '#252525'; ctx.font = '11px monospace';
+				ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+				ctx.fillText('No gamepad connected', cx, SEC_GAMEPAD + 4);
+			} else {
+				drawGamepad(activeGp, cx, SEC_GAMEPAD);
+			}
+
+			// SCROLL WHEEL
+			sectionLabel('Scroll Wheel', cx, SEC_SCROLL - 36);
+			const nDY = clamp(scrollDY / 360, -1, 1);
+			const nDX = clamp(scrollDX / 360, -1, 1);
+			const RING_R = 20, ARROW_OFF = 36;
+			ctx.beginPath(); ctx.arc(cx, SEC_SCROLL, RING_R, 0, Math.PI * 2);
+			ctx.strokeStyle = '#282828'; ctx.lineWidth = 1.5; ctx.stroke();
+			const dotX = cx + nDX * (RING_R - 7), dotY = SEC_SCROLL + nDY * (RING_R - 7);
+			const dotActive = Math.abs(scrollDX) > 2 || Math.abs(scrollDY) > 2;
+			ctx.beginPath(); ctx.arc(dotX, dotY, 5, 0, Math.PI * 2);
+			ctx.fillStyle = dotActive ? '#4af' : '#282828'; ctx.fill();
+			ctx.font = '13px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+			ctx.fillStyle = nDY < -0.05 ? '#4af' : '#252525'; ctx.fillText('▲', cx, SEC_SCROLL - ARROW_OFF);
+			ctx.fillStyle = nDY > 0.05 ? '#4af' : '#252525'; ctx.fillText('▼', cx, SEC_SCROLL + ARROW_OFF);
+			ctx.fillStyle = nDX < -0.05 ? '#4af' : '#252525'; ctx.fillText('◀', cx - ARROW_OFF, SEC_SCROLL);
+			ctx.fillStyle = nDX > 0.05 ? '#4af' : '#252525'; ctx.fillText('▶', cx + ARROW_OFF, SEC_SCROLL);
+			ctx.fillStyle = dotActive ? '#505050' : '#303030'; ctx.font = '10px monospace';
+			ctx.fillText(`ΔY ${scrollDY > 0 ? '+' : ''}${scrollDY}   ΔX ${scrollDX > 0 ? '+' : ''}${scrollDX}`, cx, SEC_SCROLL + ARROW_OFF + 14);
+
+			// KEYBOARD
+			sectionLabel('Keyboard', cx, SEC_KEY - 18);
+			if (heldKeys.size === 0) {
+				ctx.fillStyle = '#212121'; ctx.font = '12px monospace';
+				ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+				ctx.fillText('Hold a key or click a mouse button...', cx, SEC_KEY + 10);
+			} else {
+				const K_W = 60, K_H = 28, K_GAP = 6;
+				const keys = [...heldKeys];
+				const maxVisible = Math.max(1, Math.floor((W - 32) / (K_W + K_GAP)));
+				const shown = keys.slice(0, maxVisible);
+				const totalKeyW = shown.length * (K_W + K_GAP) - K_GAP;
+				const kX0 = cx - totalKeyW / 2;
+				shown.forEach((code, i) => {
+					const bx = kX0 + i * (K_W + K_GAP);
+					ctx.fillStyle = '#e2e2e2'; ctx.strokeStyle = '#bcbcbc'; ctx.lineWidth = 1.5;
+					rrect(bx, SEC_KEY, K_W, K_H, 6); ctx.fill(); ctx.stroke();
+					ctx.fillStyle = '#111'; ctx.font = '12px monospace';
+					ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+					ctx.fillText(keyLabel(code), bx + K_W / 2, SEC_KEY + K_H / 2);
+				});
+				if (keys.length > maxVisible) {
+					ctx.fillStyle = '#3a3a3a'; ctx.font = '10px monospace';
+					ctx.textAlign = 'center';
+					ctx.fillText(`+${keys.length - maxVisible} more`, cx, SEC_KEY + K_H + 12);
+				}
+			}
+
+			// TOUCH POINTS
+			if (activeTouches.size > 0) {
+				sectionLabel(`Touch  ×${activeTouches.size}`, cx, SEC_TOUCH);
+				for (const [id, { x, y }] of activeTouches) {
+					const tx = clamp(x, 0, W), ty = clamp(y, 0, H);
+					ctx.beginPath(); ctx.arc(tx, ty, 28, 0, Math.PI * 2);
+					ctx.fillStyle = 'rgba(70,170,255,0.08)'; ctx.fill();
+					ctx.strokeStyle = 'rgba(70,170,255,0.50)'; ctx.lineWidth = 2; ctx.stroke();
+					ctx.beginPath(); ctx.arc(tx, ty, 5, 0, Math.PI * 2);
+					ctx.fillStyle = 'rgba(70,170,255,0.85)'; ctx.fill();
+					ctx.fillStyle = 'rgba(70,170,255,0.65)'; ctx.font = '10px monospace';
+					ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+					ctx.fillText(`#${id}`, tx, ty - 36);
+				}
+			} else {
+				sectionLabel('Touch  -', cx, SEC_TOUCH);
+			}
+
+			// MOUSE CURSOR
+			if (mouseX !== null) {
+				const mx = clamp(mouseX, 0, W), my = clamp(mouseY, 0, H);
+				ctx.beginPath(); ctx.arc(mx, my, 10, 0, Math.PI * 2);
+				ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fill();
+				ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.stroke();
+			}
+
+			requestAnimationFrame(draw);
+		}
+
+		draw();
+	</script>
+</body>
+
+</html>

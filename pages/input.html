@@ -14,7 +14,12 @@ License: MIT
 		* {
 			margin: 0;
 			padding: 0;
+			border: 0;
 			box-sizing: border-box;
+		}
+
+		html {
+			zoom: 1.0;
 		}
 
 		body {
@@ -29,53 +34,56 @@ License: MIT
 			flex: 1;
 			position: relative;
 			min-height: 0;
-			/* Prevents flex overflow issues */
+			width: -webkit-fill-available;
+			height: -webkit-fill-available;
 		}
 
 		canvas {
 			display: block;
+			width: -webkit-fill-available;
+			height: -webkit-fill-available;
 		}
 
-		input {
+		/* Moved to upper-third so it doesn't overlap the scroll indicator */
+		#dummyInput {
 			position: absolute;
-			top: 50%;
+			top: 30%;
 			left: 50%;
 			transform: translate(-50%, -50%);
-			padding: 14px 24px;
-			font-size: 18px;
+			padding: 12px 22px;
+			font-size: 17px;
 			font-family: monospace;
 			background: #1a1a1a;
 			border: 2px solid #333;
 			border-radius: 8px;
 			color: #e8e8e8;
 			outline: none;
-			width: 280px;
+			width: 260px;
 			text-align: center;
 			z-index: 10;
 			transition: border-color 0.2s ease, box-shadow 0.2s ease;
 		}
 
-		input:focus {
+		#dummyInput:focus {
 			border-color: #4af;
-			box-shadow: 0 0 0 3px rgba(68, 170, 255, 0.4);
+			box-shadow: 0 0 0 3px rgba(68, 170, 255, 0.35);
 		}
 
-		input::placeholder {
-			color: #444;
+		#dummyInput::placeholder {
+			color: #383838;
 		}
 
-		/* Event Log Textarea */
 		#eventLog {
 			width: 100%;
-			height: 150px;
-			background: #0d0d0d;
-			color: #888;
+			height: 120px;
+			background: #0c0c0c;
+			color: #606060;
 			border: none;
-			border-top: 1px solid #333;
-			padding: 12px 16px;
+			border-top: 1px solid #262626;
+			padding: 10px 14px;
 			font-family: monospace;
-			font-size: 13px;
-			line-height: 1.5;
+			font-size: 12px;
+			line-height: 1.6;
 			resize: none;
 			outline: none;
 		}
@@ -90,15 +98,19 @@ License: MIT
 	<textarea id="eventLog" readonly tabindex="2"></textarea>
 
 	<script>
+		'use strict';
+
+		// Element refs
 		const canvas = document.getElementById('c');
 		const ctx = canvas.getContext('2d');
 		const container = document.getElementById('canvas-container');
 		const inputEl = document.getElementById('dummyInput');
 		const logEl = document.getElementById('eventLog');
 
-		// Force focus after full load
+		// Autofocus input textbox on page load
 		window.addEventListener('load', () => inputEl.focus());
 
+		// Canvas resize
 		function resize() {
 			canvas.width = container.clientWidth;
 			canvas.height = container.clientHeight;
@@ -106,82 +118,145 @@ License: MIT
 		resize();
 		window.addEventListener('resize', resize);
 
-		const heldKeys = new Set();
-		const heldMouse = new Set();
-		let mouseX = 0, mouseY = 0;
+		// State
+		const heldKeys = new Set(); // Set<e.code>
+		const heldMouse = new Set(); // Set<button index>
+		const activeTouches = new Map(); // identifier -> {x, y}
 
-		// Event Logger
-		function getTimestamp() {
+		let mouseX = null, mouseY = null; // null until first mousemove
+		let scrollDX = 0, scrollDY = 0;  // accumulated wheel deltas
+		let scrollFadeId = null;
+
+		// Logger
+		const MAX_LOG_LINES = 500;
+
+		function timestamp() {
 			const d = new Date();
-			const h = String(d.getHours()).padStart(2, '0');
-			const m = String(d.getMinutes()).padStart(2, '0');
-			const s = String(d.getSeconds()).padStart(2, '0');
-			const ms = String(d.getMilliseconds()).padStart(3, '0');
-			return `${h}:${m}:${s}.${ms}`;
+			const p = (n, l = 2) => String(n).padStart(l, '0');
+			return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}.${p(d.getMilliseconds(), 3)}`;
 		}
 
 		function logEvent(msg) {
-			logEl.value += `[${getTimestamp()}] ${msg}\n`;
-			// Autoscroll to bottom
+			const lines = logEl.value ? logEl.value.split('\n') : [];
+			lines.push(`[${timestamp()}] ${msg}`);
+			if (lines.length > MAX_LOG_LINES) lines.splice(0, lines.length - MAX_LOG_LINES);
+			logEl.value = lines.join('\n');
 			logEl.scrollTop = logEl.scrollHeight;
 		}
 
-		// Key Label Mapper
-		function getKeyLabel(code) {
-			let label = code.replace('Key', '').replace('Digit', '');
-			if (code === 'Space') label = 'Space';
-			if (code === 'ShiftLeft') label = 'Shift';
-			if (code === 'ShiftRight') label = 'Shift';
-			if (code === 'ControlLeft') label = 'Ctrl';
-			if (code === 'ControlRight') label = 'Ctrl';
-			if (code === 'AltLeft') label = 'Alt';
-			if (code === 'AltRight') label = 'Alt';
-			if (code === 'MetaLeft') label = 'Meta';
-			if (code === 'MetaRight') label = 'Meta';
-			if (code === 'ArrowUp') label = '↑';
-			if (code === 'ArrowDown') label = '↓';
-			if (code === 'ArrowLeft') label = '←';
-			if (code === 'ArrowRight') label = '→';
-			if (code === 'Backspace') label = '⌫';
-			if (code === 'Enter') label = '↵';
-			if (code === 'Tab') label = 'Tab';
-			if (code === 'CapsLock') label = 'Caps';
-			if (code === 'Escape') label = 'Esc';
-			return label;
+		// Key label map
+		// Bug fix: use a lookup map instead of chained if-statements
+		const KEY_LABELS = {
+			Space: 'Space',
+			ShiftLeft: 'Shift', ShiftRight: 'Shift',
+			ControlLeft: 'Ctrl', ControlRight: 'Ctrl',
+			AltLeft: 'Alt', AltRight: 'Alt',
+			MetaLeft: '⌘', MetaRight: '⌘',
+			ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '->',
+			Backspace: '⌫', Delete: 'Del', Enter: '↵',
+			Tab: 'Tab', CapsLock: 'Caps', Escape: 'Esc',
+			Insert: 'Ins', Home: 'Home', End: 'End',
+			PageUp: 'PgUp', PageDown: 'PgDn',
+			F1: 'F1', F2: 'F2', F3: 'F3', F4: 'F4',
+			F5: 'F5', F6: 'F6', F7: 'F7', F8: 'F8',
+			F9: 'F9', F10: 'F10', F11: 'F11', F12: 'F12',
+		};
+
+		function keyLabel(code) {
+			return KEY_LABELS[code]
+				?? code.replace(/^Key/, '').replace(/^Digit/, '').replace(/^Numpad/, 'N');
 		}
 
-		const mouseNames = ['Left', 'Middle', 'Right', 'Back', 'Forward'];
+		const MOUSE_NAMES = ['Left', 'Mid', 'Right', 'Back', 'Fwd'];
 
-		// Event Listeners
+		// Keyboard events
 		window.addEventListener('keydown', e => {
 			if (e.repeat) return;
 			heldKeys.add(e.code);
-			logEvent(`KEY DOWN | ${getKeyLabel(e.code)}`);
-
+			logEvent(`KEY DN   | ${keyLabel(e.code)}`);
 			if (document.activeElement !== inputEl) {
 				e.preventDefault();
-			} else {
-				if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
+			} else if (e.code === 'Space' || e.code.startsWith('Arrow')) {
+				e.preventDefault();
 			}
 		}, true);
 
 		window.addEventListener('keyup', e => {
 			heldKeys.delete(e.code);
-			logEvent(`KEY UP   | ${getKeyLabel(e.code)}`);
+			logEvent(`KEY UP   | ${keyLabel(e.code)}`);
 		}, true);
 
+		// Mouse button events
 		window.addEventListener('mousedown', e => {
 			heldMouse.add(e.button);
-			logEvent(`MOUSE DN | ${mouseNames[e.button]}`);
+			logEvent(`MOUSE DN | ${MOUSE_NAMES[e.button] ?? `Btn${e.button}`}`);
 		});
 
 		window.addEventListener('mouseup', e => {
 			heldMouse.delete(e.button);
-			logEvent(`MOUSE UP | ${mouseNames[e.button]}`);
+			logEvent(`MOUSE UP | ${MOUSE_NAMES[e.button] ?? `Btn${e.button}`}`);
 		});
 
-		window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+		// Bug fix: mouseX/Y start null so the cursor circle isn't drawn at (0,0)
+		window.addEventListener('mousemove', e => {
+			mouseX = e.clientX;
+			mouseY = e.clientY;
+		});
 
+		// Scroll wheel
+		window.addEventListener('wheel', e => {
+			e.preventDefault();
+			const dx = Math.round(e.deltaX);
+			const dy = Math.round(e.deltaY);
+			scrollDX += dx;
+			scrollDY += dy;
+			// Fade accumulated value back to 0 after idle
+			clearTimeout(scrollFadeId);
+			scrollFadeId = setTimeout(() => { scrollDX = 0; scrollDY = 0; }, 1000);
+			const parts = [];
+			if (dx !== 0) parts.push(`ΔX:${dx > 0 ? '+' : ''}${dx}`);
+			if (dy !== 0) parts.push(`ΔY:${dy > 0 ? '+' : ''}${dy}`);
+			logEvent(`WHEEL    | ${parts.join('  ') || '-'}`);
+		}, { passive: false });
+
+		// Touch events
+		function syncTouches(list) {
+			activeTouches.clear();
+			for (const t of list) {
+				activeTouches.set(t.identifier, { x: t.clientX, y: t.clientY });
+			}
+		}
+
+		window.addEventListener('touchstart', e => {
+			e.preventDefault();
+			syncTouches(e.touches);
+			for (const t of e.changedTouches) {
+				logEvent(`TOUCH DN | #${t.identifier}  (${Math.round(t.clientX)}, ${Math.round(t.clientY)})`);
+			}
+		}, { passive: false });
+
+		window.addEventListener('touchmove', e => {
+			e.preventDefault();
+			syncTouches(e.touches);
+		}, { passive: false });
+
+		window.addEventListener('touchend', e => {
+			e.preventDefault();
+			syncTouches(e.touches);
+			for (const t of e.changedTouches) {
+				logEvent(`TOUCH UP | #${t.identifier}`);
+			}
+		}, { passive: false });
+
+		window.addEventListener('touchcancel', e => {
+			e.preventDefault();
+			syncTouches(e.touches);
+			for (const t of e.changedTouches) {
+				logEvent(`TOUCH CX | #${t.identifier}  (cancelled)`);
+			}
+		}, { passive: false });
+
+		// Misc
 		window.addEventListener('contextmenu', e => {
 			if (document.activeElement !== inputEl) e.preventDefault();
 		});
@@ -189,84 +264,15 @@ License: MIT
 		window.addEventListener('blur', () => {
 			heldKeys.clear();
 			heldMouse.clear();
-			logEvent(`--- WINDOW LOST FOCUS (CLEARED) ---`);
+			logEvent('WINDOW LOST FOCUS (CLEARED)');
 		});
 
-		// Canvas Drawing
-		function draw() {
-			const W = canvas.width, H = canvas.height;
-			ctx.clearRect(0, 0, W, H);
+		// Canvas draw helpers
 
-			ctx.fillStyle = '#111';
-			ctx.fillRect(0, 0, W, H);
-
-			const cx = W / 2, cy = H / 2;
-
-			// Mouse position indicator
-			ctx.beginPath();
-			ctx.arc(mouseX, mouseY, 10, 0, Math.PI * 2);
-			ctx.fillStyle = 'rgba(255,255,255,0.15)';
-			ctx.fill();
-
-			// Mouse buttons (shifted up)
-			const mbY = cy - 150;
-			ctx.fillStyle = '#555';
-			ctx.font = '20px monospace';
-			ctx.textAlign = 'center';
-			ctx.fillText('MOUSE', cx, mbY - 40);
-
-			const btnW = 100, btnH = 46, gap = 14;
-			const totalW = mouseNames.length * btnW + (mouseNames.length - 1) * gap;
-			const startX = cx - totalW / 2;
-
-			for (let i = 0; i < 5; i++) {
-				const x = startX + i * (btnW + gap);
-				const active = heldMouse.has(i);
-				ctx.fillStyle = active ? '#e8e8e8' : '#222';
-				ctx.strokeStyle = active ? '#e8e8e8' : '#444';
-				ctx.lineWidth = 1.5;
-				roundRect(x, mbY - btnH / 2, btnW, btnH, 8);
-				ctx.fill();
-				ctx.stroke();
-				ctx.fillStyle = active ? '#111' : '#666';
-				ctx.font = '16px monospace';
-				ctx.fillText(mouseNames[i], x + btnW / 2, mbY + 6);
-			}
-
-			// Keyboard (shifted down)
-			const keysY = cy + 120;
-			ctx.fillStyle = '#555';
-			ctx.font = '20px monospace';
-			ctx.fillText('KEYBOARD', cx, keysY - 26);
-
-			if (heldKeys.size === 0) {
-				ctx.fillStyle = '#333';
-				ctx.font = '20px monospace';
-				ctx.fillText('Hold any key or mouse button...', cx, keysY + 28);
-			} else {
-				const keys = [...heldKeys];
-				const kBtnW = 88, kBtnH = 44, kGap = 10;
-				const kTotalW = keys.length * kBtnW + (keys.length - 1) * kGap;
-				const kStartX = cx - kTotalW / 2;
-
-				keys.forEach((key, i) => {
-					const bx = kStartX + i * (kBtnW + kGap);
-					ctx.fillStyle = '#e8e8e8';
-					ctx.strokeStyle = '#e8e8e8';
-					ctx.lineWidth = 1.5;
-					roundRect(bx, keysY, kBtnW, kBtnH, 8);
-					ctx.fill();
-					ctx.stroke();
-					ctx.fillStyle = '#111';
-					ctx.font = '15px monospace';
-					ctx.fillText(getKeyLabel(key), bx + kBtnW / 2, keysY + kBtnH / 2 + 5);
-				});
-			}
-
-			requestAnimationFrame(draw);
-		}
-
-		function roundRect(x, y, w, h, r) {
+		// Bug fix: renamed from roundRect -> rrect to avoid shadowing the native
+		// Canvas 2D API method ctx.roundRect() introduced in Chrome 99 / Firefox 112.
+		function rrect(x, y, w, h, r) {
+			r = Math.min(r, w / 2, h / 2);
 			ctx.beginPath();
 			ctx.moveTo(x + r, y);
 			ctx.lineTo(x + w - r, y);
@@ -278,6 +284,193 @@ License: MIT
 			ctx.lineTo(x, y + r);
 			ctx.quadraticCurveTo(x, y, x + r, y);
 			ctx.closePath();
+		}
+
+		const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+		function sectionLabel(text, x, y) {
+			ctx.fillStyle = '#404040';
+			ctx.font = '10px monospace';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(text.toUpperCase(), x, y);
+		}
+
+		// Main render loop
+		function draw() {
+			const W = canvas.width, H = canvas.height;
+			ctx.clearRect(0, 0, W, H);
+			ctx.fillStyle = '#111';
+			ctx.fillRect(0, 0, W, H);
+
+			const cx = W / 2;
+
+			// Section layout anchors (proportional to canvas height).
+			// Input box is positioned at CSS top:30%, so sections are arranged
+			// above and below that to avoid overlap.
+			const SEC_MOUSE = H * 0.16; // mouse buttons
+			const SEC_SCROLL = H * 0.52; // scroll wheel D-pad
+			const SEC_KEY = H * 0.74; // keyboard chips
+			const SEC_TOUCH = H * 0.91; // touch count label
+
+			// MOUSE BUTTONS
+			sectionLabel('Mouse', cx, SEC_MOUSE - 24);
+
+			const BTN_W = 68, BTN_H = 34, BTN_GAP = 8;
+			const totalBtnW = MOUSE_NAMES.length * (BTN_W + BTN_GAP) - BTN_GAP;
+			const btnX0 = cx - totalBtnW / 2;
+
+			for (let i = 0; i < MOUSE_NAMES.length; i++) {
+				const bx = btnX0 + i * (BTN_W + BTN_GAP);
+				const by = SEC_MOUSE - BTN_H / 2;
+				const active = heldMouse.has(i);
+				ctx.fillStyle = active ? '#e8e8e8' : '#1c1c1c';
+				ctx.strokeStyle = active ? '#e8e8e8' : '#363636';
+				ctx.lineWidth = 1.5;
+				rrect(bx, by, BTN_W, BTN_H, 6);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = active ? '#111' : '#4a4a4a';
+				ctx.font = '11px monospace';
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+				ctx.fillText(MOUSE_NAMES[i], bx + BTN_W / 2, SEC_MOUSE);
+			}
+
+			// SCROLL WHEEL
+			sectionLabel('Scroll Wheel', cx, SEC_SCROLL - 44);
+
+			const nDY = clamp(scrollDY / 360, -1, 1);
+			const nDX = clamp(scrollDX / 360, -1, 1);
+			const RING_R = 22;
+			const ARROW_OFF = 42;
+
+			// Outer ring
+			ctx.beginPath();
+			ctx.arc(cx, SEC_SCROLL, RING_R, 0, Math.PI * 2);
+			ctx.strokeStyle = '#282828';
+			ctx.lineWidth = 1.5;
+			ctx.stroke();
+
+			// Position dot inside ring - moves in the direction of scroll
+			const dotX = cx + nDX * (RING_R - 7);
+			const dotY = SEC_SCROLL + nDY * (RING_R - 7);
+			const dotActive = Math.abs(scrollDX) > 2 || Math.abs(scrollDY) > 2;
+			ctx.beginPath();
+			ctx.arc(dotX, dotY, 5, 0, Math.PI * 2);
+			ctx.fillStyle = dotActive ? '#4af' : '#282828';
+			ctx.fill();
+
+			// Directional arrows (highlight when scrolling in that direction)
+			ctx.font = '14px monospace';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+
+			ctx.fillStyle = nDY < -0.05 ? '#4af' : '#252525';
+			ctx.fillText('▲', cx, SEC_SCROLL - ARROW_OFF);
+
+			ctx.fillStyle = nDY > 0.05 ? '#4af' : '#252525';
+			ctx.fillText('▼', cx, SEC_SCROLL + ARROW_OFF);
+
+			ctx.fillStyle = nDX < -0.05 ? '#4af' : '#252525';
+			ctx.fillText('◀', cx - ARROW_OFF, SEC_SCROLL);
+
+			ctx.fillStyle = nDX > 0.05 ? '#4af' : '#252525';
+			ctx.fillText('▶', cx + ARROW_OFF, SEC_SCROLL);
+
+			// Delta readout below the D-pad
+			const dyStr = `ΔY ${scrollDY > 0 ? '+' : ''}${scrollDY}`;
+			const dxStr = `ΔX ${scrollDX > 0 ? '+' : ''}${scrollDX}`;
+			ctx.fillStyle = dotActive ? '#505050' : '#303030';
+			ctx.font = '11px monospace';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(`${dyStr}   ${dxStr}`, cx, SEC_SCROLL + ARROW_OFF + 18);
+
+			// KEYBOARD
+			sectionLabel('Keyboard', cx, SEC_KEY - 24);
+
+			if (heldKeys.size === 0) {
+				ctx.fillStyle = '#212121';
+				ctx.font = '12px monospace';
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+				ctx.fillText('Hold a key or click a mouse button...', cx, SEC_KEY + 10);
+			} else {
+				const K_W = 60, K_H = 34, K_GAP = 6;
+				const keys = [...heldKeys];
+				// Bug fix: clamp visible key count so chips never overflow off-canvas
+				const maxVisible = Math.max(1, Math.floor((W - 32) / (K_W + K_GAP)));
+				const shown = keys.slice(0, maxVisible);
+				const totalKeyW = shown.length * (K_W + K_GAP) - K_GAP;
+				const kX0 = cx - totalKeyW / 2;
+
+				shown.forEach((code, i) => {
+					const bx = kX0 + i * (K_W + K_GAP);
+					ctx.fillStyle = '#e2e2e2';
+					ctx.strokeStyle = '#bcbcbc';
+					ctx.lineWidth = 1.5;
+					rrect(bx, SEC_KEY, K_W, K_H, 6);
+					ctx.fill();
+					ctx.stroke();
+					ctx.fillStyle = '#111';
+					ctx.font = '12px monospace';
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
+					ctx.fillText(keyLabel(code), bx + K_W / 2, SEC_KEY + K_H / 2);
+				});
+
+				if (keys.length > maxVisible) {
+					ctx.fillStyle = '#3a3a3a';
+					ctx.font = '10px monospace';
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
+					ctx.fillText(`+${keys.length - maxVisible} more`, cx, SEC_KEY + K_H + 14);
+				}
+			}
+
+			// TOUCH POINTS
+			if (activeTouches.size > 0) {
+				sectionLabel(`Touch ×${activeTouches.size}`, cx, SEC_TOUCH);
+
+				for (const [id, { x, y }] of activeTouches) {
+					// Outer ripple ring
+					ctx.beginPath();
+					ctx.arc(x, y, 28, 0, Math.PI * 2);
+					ctx.fillStyle = 'rgba(70, 170, 255, 0.08)';
+					ctx.fill();
+					ctx.strokeStyle = 'rgba(70, 170, 255, 0.50)';
+					ctx.lineWidth = 2;
+					ctx.stroke();
+					// Inner core dot
+					ctx.beginPath();
+					ctx.arc(x, y, 5, 0, Math.PI * 2);
+					ctx.fillStyle = 'rgba(70, 170, 255, 0.85)';
+					ctx.fill();
+					// Touch ID tag above the ring
+					ctx.fillStyle = 'rgba(70, 170, 255, 0.65)';
+					ctx.font = '10px monospace';
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
+					ctx.fillText(`#${id}`, x, y - 38);
+				}
+			} else {
+				sectionLabel('Touch', cx, SEC_TOUCH);
+			}
+
+			// MOUSE CURSOR
+			// Bug fix: only draw once the mouse has actually moved (mouseX is null initially)
+			if (mouseX !== null) {
+				ctx.beginPath();
+				ctx.arc(mouseX, mouseY, 10, 0, Math.PI * 2);
+				ctx.fillStyle = 'rgba(255, 255, 255, 0.10)';
+				ctx.fill();
+				ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+				ctx.lineWidth = 1;
+				ctx.stroke();
+			}
+
+			requestAnimationFrame(draw);
 		}
 
 		draw();
