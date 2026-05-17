@@ -5,6 +5,7 @@ License: MIT
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -985,8 +986,8 @@ License: MIT
 			color: var(--text);
 			font-weight: 500;
 			box-shadow: 0 8px 32px rgba(0, 0, 0, .3),
-			0 2px 8px rgba(0, 0, 0, .2),
-			inset 0 1px 0 rgba(255, 255, 255, .05);
+				0 2px 8px rgba(0, 0, 0, .2),
+				inset 0 1px 0 rgba(255, 255, 255, .05);
 			backdrop-filter: blur(8px);
 			display: flex;
 			align-items: center;
@@ -1174,16 +1175,18 @@ License: MIT
 		}
 	</style>
 </head>
+
 <body>
 
 <!-- Toolbar -->
 <div id="toolbar">
 	<div class="logo"><i class="fa-solid fa-project-diagram"></i> VisualScript</div>
 	<div class="tb-sep"></div>
-	<button class="tb-btn primary" id="btn-run" title="Execute Graph (Ctrl+Enter)"><i class="fa-solid fa-play"></i> Run
+	<button class="tb-btn primary" id="btn-run" title="Execute Graph (Ctrl+Enter)"><i class="fa-solid fa-play"></i>
+		Run
 	</button>
 	<button class="tb-btn" id="btn-step" title="Step Execution (Ctrl+Shift+Enter)"><i
-		class="fa-solid fa-step-forward"></i> Step
+			class="fa-solid fa-step-forward"></i> Step
 	</button>
 	<button class="tb-btn" id="btn-live-mode" title="Toggle Live Mode"><i class="fa-solid fa-bolt"></i>
 		Live
@@ -1263,7 +1266,7 @@ License: MIT
 	 * Architecture: Graph Model, Renderer, Engine (Worker), Serializer, Plugin API
 	 */
 
-		// Utilities
+	// Utilities
 	const uid = () => Math.random().toString(36).substr(2, 9);
 	const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -1321,10 +1324,10 @@ License: MIT
 			el.className = `toast ${toast.type || 'info'}`;
 			el.dataset.toastId = toast.id;
 			el.innerHTML = `
-				<i class="fa-solid fa-${toast.icon || 'info-circle'} toast-icon"></i>
-				<span class="toast-message">${toast.message || ''}</span>
-				${!toast.persistent ? '<div class="toast-progress"></div>' : ''}
-			`;
+			<i class="fa-solid fa-${toast.icon || 'info-circle'} toast-icon"></i>
+			<span class="toast-message">${toast.message || ''}</span>
+			${!toast.persistent ? '<div class="toast-progress"></div>' : ''}
+		`;
 
 			// Add click to dismiss
 			el.addEventListener('click', () => this._removeToast(toast.id));
@@ -1334,7 +1337,7 @@ License: MIT
 
 			// Add to container
 			this.container.appendChild(el);
-			this.toasts.set(toast.id, {element: el, ...toast});
+			this.toasts.set(toast.id, { element: el, ...toast });
 
 			// Use CSS animation for entry
 			el.style.animation = 'toastIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
@@ -1436,233 +1439,233 @@ License: MIT
 	// Built-in Node Plugins
 	registerNodeType('value/number', {
 		title: 'Number', category: 'Value',
-		inputs: [{id: 'value', type: 'number', label: 'Value', default: 0}],
-		outputs: [{id: 'out', type: 'number', label: 'Out'}],
-		calculate: (inputs) => ({out: Number(inputs.value) || 0})
+		inputs: [{ id: 'value', type: 'number', label: 'Value', default: 0 }],
+		outputs: [{ id: 'out', type: 'number', label: 'Out' }],
+		calculate: (inputs) => ({ out: Number(inputs.value) || 0 })
 	});
 
 	registerNodeType('value/string', {
 		title: 'Text', category: 'Value',
-		inputs: [{id: 'value', type: 'string', label: 'Text', default: 'hello'}],
-		outputs: [{id: 'out', type: 'string', label: 'Out'}],
-		calculate: (inputs) => ({out: String(inputs.value)})
+		inputs: [{ id: 'value', type: 'string', label: 'Text', default: 'hello' }],
+		outputs: [{ id: 'out', type: 'string', label: 'Out' }],
+		calculate: (inputs) => ({ out: String(inputs.value) })
 	});
 
 	registerNodeType('value/boolean', {
 		title: 'Boolean', category: 'Value',
-		inputs: [{id: 'value', type: 'boolean', label: 'Value', default: false}],
-		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		inputs: [{ id: 'value', type: 'boolean', label: 'Value', default: false }],
+		outputs: [{ id: 'out', type: 'boolean', label: 'Out' }],
 		widget: 'toggle',
-		calculate: (inputs) => ({out: !!inputs.value})
+		calculate: (inputs) => ({ out: !!inputs.value })
 	});
 
 	registerNodeType('math/add', {
 		title: 'Add', category: 'Math',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'sum', type: 'number', label: 'Sum'}],
-		calculate: (inputs) => ({sum: (Number(inputs.a) || 0) + (Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'sum', type: 'number', label: 'Sum' }],
+		calculate: (inputs) => ({ sum: (Number(inputs.a) || 0) + (Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('math/subtract', {
 		title: 'Subtract', category: 'Math',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'diff', type: 'number', label: 'Diff'}],
-		calculate: (inputs) => ({diff: (Number(inputs.a) || 0) - (Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'diff', type: 'number', label: 'Diff' }],
+		calculate: (inputs) => ({ diff: (Number(inputs.a) || 0) - (Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('math/multiply', {
 		title: 'Multiply', category: 'Math',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'product', type: 'number', label: 'Result'}],
-		calculate: (inputs) => ({product: (Number(inputs.a) || 0) * (Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'product', type: 'number', label: 'Result' }],
+		calculate: (inputs) => ({ product: (Number(inputs.a) || 0) * (Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('math/divide', {
 		title: 'Divide', category: 'Math',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 1}, {id: 'b', type: 'number', label: 'B', default: 1}],
-		outputs: [{id: 'quotient', type: 'number', label: 'Result'}],
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 1 }, { id: 'b', type: 'number', label: 'B', default: 1 }],
+		outputs: [{ id: 'quotient', type: 'number', label: 'Result' }],
 		calculate: (inputs) => {
 			const b = Number(inputs.b) || 1;
-			return {quotient: b !== 0 ? (Number(inputs.a) || 0) / b : 0};
+			return { quotient: b !== 0 ? (Number(inputs.a) || 0) / b : 0 };
 		}
 	});
 
 	registerNodeType('math/modulo', {
 		title: 'Modulo', category: 'Math',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 1}],
-		outputs: [{id: 'remainder', type: 'number', label: 'A % B'}],
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 1 }],
+		outputs: [{ id: 'remainder', type: 'number', label: 'A % B' }],
 		calculate: (inputs) => {
 			const b = Number(inputs.b) || 1;
-			return {remainder: b !== 0 ? (Number(inputs.a) || 0) % b : 0};
+			return { remainder: b !== 0 ? (Number(inputs.a) || 0) % b : 0 };
 		}
 	});
 
 	registerNodeType('math/power', {
 		title: 'Power', category: 'Math',
-		inputs: [{id: 'base', type: 'number', label: 'Base', default: 2}, {
+		inputs: [{ id: 'base', type: 'number', label: 'Base', default: 2 }, {
 			id: 'exp',
 			type: 'number',
 			label: 'Exponent',
 			default: 1
 		}],
-		outputs: [{id: 'result', type: 'number', label: 'Base^Exp'}],
-		calculate: (inputs) => ({result: Math.pow(Number(inputs.base) || 0, Number(inputs.exp) || 0)})
+		outputs: [{ id: 'result', type: 'number', label: 'Base^Exp' }],
+		calculate: (inputs) => ({ result: Math.pow(Number(inputs.base) || 0, Number(inputs.exp) || 0) })
 	});
 
 	registerNodeType('math/sqrt', {
 		title: 'Square Root', category: 'Math',
-		inputs: [{id: 'value', type: 'number', label: 'Value', default: 0}],
-		outputs: [{id: 'result', type: 'number', label: '√Value'}],
-		calculate: (inputs) => ({result: Math.sqrt(Math.max(0, Number(inputs.value) || 0))})
+		inputs: [{ id: 'value', type: 'number', label: 'Value', default: 0 }],
+		outputs: [{ id: 'result', type: 'number', label: '√Value' }],
+		calculate: (inputs) => ({ result: Math.sqrt(Math.max(0, Number(inputs.value) || 0)) })
 	});
 
 	registerNodeType('math/min', {
 		title: 'Min', category: 'Math',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'result', type: 'number', label: 'Min(A,B)'}],
-		calculate: (inputs) => ({result: Math.min(Number(inputs.a) || 0, Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'result', type: 'number', label: 'Min(A,B)' }],
+		calculate: (inputs) => ({ result: Math.min(Number(inputs.a) || 0, Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('math/max', {
 		title: 'Max', category: 'Math',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'result', type: 'number', label: 'Max(A,B)'}],
-		calculate: (inputs) => ({result: Math.max(Number(inputs.a) || 0, Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'result', type: 'number', label: 'Max(A,B)' }],
+		calculate: (inputs) => ({ result: Math.max(Number(inputs.a) || 0, Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('logic/and', {
 		title: 'AND Gate', category: 'Logic',
-		inputs: [{id: 'a', type: 'boolean', label: 'A', default: false}, {
+		inputs: [{ id: 'a', type: 'boolean', label: 'A', default: false }, {
 			id: 'b',
 			type: 'boolean',
 			label: 'B',
 			default: false
 		}],
-		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		outputs: [{ id: 'out', type: 'boolean', label: 'Out' }],
 		widget: 'toggle',
-		calculate: (inputs) => ({out: !!inputs.a && !!inputs.b})
+		calculate: (inputs) => ({ out: !!inputs.a && !!inputs.b })
 	});
 
 	registerNodeType('logic/or', {
 		title: 'OR Gate', category: 'Logic',
-		inputs: [{id: 'a', type: 'boolean', label: 'A', default: false}, {
+		inputs: [{ id: 'a', type: 'boolean', label: 'A', default: false }, {
 			id: 'b',
 			type: 'boolean',
 			label: 'B',
 			default: false
 		}],
-		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		outputs: [{ id: 'out', type: 'boolean', label: 'Out' }],
 		widget: 'toggle',
-		calculate: (inputs) => ({out: !!inputs.a || !!inputs.b})
+		calculate: (inputs) => ({ out: !!inputs.a || !!inputs.b })
 	});
 
 	registerNodeType('logic/not', {
 		title: 'NOT Gate', category: 'Logic',
-		inputs: [{id: 'input', type: 'boolean', label: 'Input', default: false}],
-		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		inputs: [{ id: 'input', type: 'boolean', label: 'Input', default: false }],
+		outputs: [{ id: 'out', type: 'boolean', label: 'Out' }],
 		widget: 'toggle',
-		calculate: (inputs) => ({out: !inputs.input})
+		calculate: (inputs) => ({ out: !inputs.input })
 	});
 
 	registerNodeType('logic/xor', {
 		title: 'XOR Gate', category: 'Logic',
-		inputs: [{id: 'a', type: 'boolean', label: 'A', default: false}, {
+		inputs: [{ id: 'a', type: 'boolean', label: 'A', default: false }, {
 			id: 'b',
 			type: 'boolean',
 			label: 'B',
 			default: false
 		}],
-		outputs: [{id: 'out', type: 'boolean', label: 'Out'}],
+		outputs: [{ id: 'out', type: 'boolean', label: 'Out' }],
 		widget: 'toggle',
-		calculate: (inputs) => ({out: (!!inputs.a !== !!inputs.b)})
+		calculate: (inputs) => ({ out: (!!inputs.a !== !!inputs.b) })
 	});
 
 	registerNodeType('logic/equals', {
 		title: 'Equals (A==B)', category: 'Logic',
-		inputs: [{id: 'a', type: 'any', label: 'A', default: 0}, {id: 'b', type: 'any', label: 'B', default: 0}],
-		outputs: [{id: 'result', type: 'boolean', label: 'A == B'}],
-		calculate: (inputs) => ({result: inputs.a == inputs.b})
+		inputs: [{ id: 'a', type: 'any', label: 'A', default: 0 }, { id: 'b', type: 'any', label: 'B', default: 0 }],
+		outputs: [{ id: 'result', type: 'boolean', label: 'A == B' }],
+		calculate: (inputs) => ({ result: inputs.a == inputs.b })
 	});
 
 	registerNodeType('logic/not-equals', {
 		title: 'Not Equals (A!=B)', category: 'Logic',
-		inputs: [{id: 'a', type: 'any', label: 'A', default: 0}, {id: 'b', type: 'any', label: 'B', default: 0}],
-		outputs: [{id: 'result', type: 'boolean', label: 'A != B'}],
-		calculate: (inputs) => ({result: inputs.a != inputs.b})
+		inputs: [{ id: 'a', type: 'any', label: 'A', default: 0 }, { id: 'b', type: 'any', label: 'B', default: 0 }],
+		outputs: [{ id: 'result', type: 'boolean', label: 'A != B' }],
+		calculate: (inputs) => ({ result: inputs.a != inputs.b })
 	});
 
 	registerNodeType('logic/less', {
 		title: 'Less Than (A&lt;B)', category: 'Logic',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'result', type: 'boolean', label: 'A &lt; B'}],
-		calculate: (inputs) => ({result: (Number(inputs.a) || 0) < (Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'result', type: 'boolean', label: 'A &lt; B' }],
+		calculate: (inputs) => ({ result: (Number(inputs.a) || 0) < (Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('logic/less-equals', {
 		title: 'Less Equals (A≤B)', category: 'Logic',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'result', type: 'boolean', label: 'A ≤ B'}],
-		calculate: (inputs) => ({result: (Number(inputs.a) || 0) <= (Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'result', type: 'boolean', label: 'A ≤ B' }],
+		calculate: (inputs) => ({ result: (Number(inputs.a) || 0) <= (Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('logic/greater', {
 		title: 'Greater Than (A&gt;B)', category: 'Logic',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'result', type: 'boolean', label: 'A &gt; B'}],
-		calculate: (inputs) => ({result: (Number(inputs.a) || 0) > (Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'result', type: 'boolean', label: 'A &gt; B' }],
+		calculate: (inputs) => ({ result: (Number(inputs.a) || 0) > (Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('logic/greater-equals', {
 		title: 'Greater Equals (A≥B)', category: 'Logic',
-		inputs: [{id: 'a', type: 'number', label: 'A', default: 0}, {id: 'b', type: 'number', label: 'B', default: 0}],
-		outputs: [{id: 'result', type: 'boolean', label: 'A ≥ B'}],
-		calculate: (inputs) => ({result: (Number(inputs.a) || 0) >= (Number(inputs.b) || 0)})
+		inputs: [{ id: 'a', type: 'number', label: 'A', default: 0 }, { id: 'b', type: 'number', label: 'B', default: 0 }],
+		outputs: [{ id: 'result', type: 'boolean', label: 'A ≥ B' }],
+		calculate: (inputs) => ({ result: (Number(inputs.a) || 0) >= (Number(inputs.b) || 0) })
 	});
 
 	registerNodeType('control-flow/if', {
 		title: 'If Condition', category: 'Control Flow',
 		inputs: [
-			{id: 'condition', type: 'boolean', label: 'Condition', default: false},
-			{id: 'true', type: 'any', label: 'If True', default: 0},
-			{id: 'false', type: 'any', label: 'If False', default: 0}
+			{ id: 'condition', type: 'boolean', label: 'Condition', default: false },
+			{ id: 'true', type: 'any', label: 'If True', default: 0 },
+			{ id: 'false', type: 'any', label: 'If False', default: 0 }
 		],
-		outputs: [{id: 'result', type: 'any', label: 'Result'}],
+		outputs: [{ id: 'result', type: 'any', label: 'Result' }],
 		calculate: (inputs) => {
 			// Convert string boolean inputs to actual boolean
 			let condition = inputs.condition;
 			if (typeof condition === 'string') {
 				condition = condition.toLowerCase() === 'true';
 			}
-			return {result: condition ? inputs['true'] : inputs['false']};
+			return { result: condition ? inputs['true'] : inputs['false'] };
 		}
 	});
 
 	registerNodeType('control-flow/switch', {
 		title: 'Switch Case', category: 'Control Flow',
 		inputs: [
-			{id: 'input', type: 'any', label: 'Input', default: 0},
-			{id: 'case1', type: 'any', label: 'Case 1', default: 0},
-			{id: 'case2', type: 'any', label: 'Case 2', default: 0},
-			{id: 'case3', type: 'any', label: 'Case 3', default: 0},
-			{id: 'case4', type: 'any', label: 'Case 4', default: 0},
+			{ id: 'input', type: 'any', label: 'Input', default: 0 },
+			{ id: 'case1', type: 'any', label: 'Case 1', default: 0 },
+			{ id: 'case2', type: 'any', label: 'Case 2', default: 0 },
+			{ id: 'case3', type: 'any', label: 'Case 3', default: 0 },
+			{ id: 'case4', type: 'any', label: 'Case 4', default: 0 },
 		],
-		outputs: [{id: 'result', type: 'any', label: 'Result'}],
+		outputs: [{ id: 'result', type: 'any', label: 'Result' }],
 		calculate: (inputs) => {
 			const index = Math.max(1, Math.min(4, Math.floor(Number(inputs.input) || 1)));
-			return {result: inputs[`case${index}`] || 0};
+			return { result: inputs[`case${index}`] || 0 };
 		}
 	});
 
 	registerNodeType('control-flow/for-loop', {
 		title: 'For Loop', category: 'Control Flow',
 		inputs: [
-			{id: 'start', type: 'number', label: 'Start', default: 0},
-			{id: 'end', type: 'number', label: 'End', default: 10},
-			{id: 'step', type: 'number', label: 'Step', default: 1}
+			{ id: 'start', type: 'number', label: 'Start', default: 0 },
+			{ id: 'end', type: 'number', label: 'End', default: 10 },
+			{ id: 'step', type: 'number', label: 'Step', default: 1 }
 		],
 		outputs: [
-			{id: 'index', type: 'number', label: 'Index'},
-			{id: 'done', type: 'boolean', label: 'Done'}
+			{ id: 'index', type: 'number', label: 'Index' },
+			{ id: 'done', type: 'boolean', label: 'Done' }
 		],
 		widget: 'display',
 		calculate: (inputs) => {
@@ -1671,63 +1674,63 @@ License: MIT
 			const step = Number(inputs.step) || 1;
 			const index = start;
 			const done = step > 0 ? index >= end : index <= end;
-			return {index, done, _display: `${index} / ${end}`};
+			return { index, done, _display: `${index} / ${end}` };
 		}
 	});
 
 	registerNodeType('control-flow/while-loop', {
 		title: 'While Loop', category: 'Control Flow',
 		inputs: [
-			{id: 'condition', type: 'boolean', label: 'Condition', default: true},
-			{id: 'value', type: 'any', label: 'Value', default: 0}
+			{ id: 'condition', type: 'boolean', label: 'Condition', default: true },
+			{ id: 'value', type: 'any', label: 'Value', default: 0 }
 		],
 		outputs: [
-			{id: 'value', type: 'any', label: 'Value'},
-			{id: 'continue', type: 'boolean', label: 'Continue'}
+			{ id: 'value', type: 'any', label: 'Value' },
+			{ id: 'continue', type: 'boolean', label: 'Continue' }
 		],
-		calculate: (inputs) => ({value: inputs.value, continue: !!inputs.condition})
+		calculate: (inputs) => ({ value: inputs.value, continue: !!inputs.condition })
 	});
 
 	registerNodeType('control/merge', {
 		title: 'Merge', category: 'Control',
 		inputs: [
-			{id: 'input1', type: 'any', label: 'Input 1', default: 0},
-			{id: 'input2', type: 'any', label: 'Input 2', default: 0},
-			{id: 'input3', type: 'any', label: 'Input 3', default: 0},
-			{id: 'input4', type: 'any', label: 'Input 4', default: 0}
+			{ id: 'input1', type: 'any', label: 'Input 1', default: 0 },
+			{ id: 'input2', type: 'any', label: 'Input 2', default: 0 },
+			{ id: 'input3', type: 'any', label: 'Input 3', default: 0 },
+			{ id: 'input4', type: 'any', label: 'Input 4', default: 0 }
 		],
-		outputs: [{id: 'result', type: 'any', label: 'Result'}],
-		calculate: (inputs) => ({result: inputs.input1 || inputs.input2 || inputs.input3 || inputs.input4})
+		outputs: [{ id: 'result', type: 'any', label: 'Result' }],
+		calculate: (inputs) => ({ result: inputs.input1 || inputs.input2 || inputs.input3 || inputs.input4 })
 	});
 
 	registerNodeType('control/counter', {
 		title: 'Counter', category: 'Control',
 		inputs: [
-			{id: 'increment', type: 'number', label: 'Increment', default: 1},
-			{id: 'reset', type: 'boolean', label: 'Reset', default: false}
+			{ id: 'increment', type: 'number', label: 'Increment', default: 1 },
+			{ id: 'reset', type: 'boolean', label: 'Reset', default: false }
 		],
 		outputs: [
-			{id: 'count', type: 'number', label: 'Count'}
+			{ id: 'count', type: 'number', label: 'Count' }
 		],
 		widget: 'display',
 		calculate: (inputs) => {
 			const increment = Number(inputs.increment) || 1;
 			const reset = !!inputs.reset;
 			const count = reset ? 0 : (inputs._count || 0) + increment;
-			return {count, _count: count, _display: String(count)};
+			return { count, _count: count, _display: String(count) };
 		}
 	});
 
 	registerNodeType('control/range', {
 		title: 'Range', category: 'Control',
 		inputs: [
-			{id: 'min', type: 'number', label: 'Min', default: 0},
-			{id: 'max', type: 'number', label: 'Max', default: 100},
-			{id: 'value', type: 'number', label: 'Value', default: 50}
+			{ id: 'min', type: 'number', label: 'Min', default: 0 },
+			{ id: 'max', type: 'number', label: 'Max', default: 100 },
+			{ id: 'value', type: 'number', label: 'Value', default: 50 }
 		],
 		outputs: [
-			{id: 'clamped', type: 'number', label: 'Clamped'},
-			{id: 'normalized', type: 'number', label: 'Normalized (0-1)'}
+			{ id: 'clamped', type: 'number', label: 'Clamped' },
+			{ id: 'normalized', type: 'number', label: 'Normalized (0-1)' }
 		],
 		calculate: (inputs) => {
 			const min = Number(inputs.min) || 0;
@@ -1736,32 +1739,32 @@ License: MIT
 			const clamped = Math.max(min, Math.min(max, value));
 			const range = max - min;
 			const normalized = range !== 0 ? (clamped - min) / range : 0;
-			return {clamped, normalized};
+			return { clamped, normalized };
 		}
 	});
 
 	registerNodeType('control/delay', {
 		title: 'Delay', category: 'Control',
 		inputs: [
-			{id: 'value', type: 'any', label: 'Value', default: 0},
-			{id: 'ms', type: 'number', label: 'Delay (ms)', default: 1000}
+			{ id: 'value', type: 'any', label: 'Value', default: 0 },
+			{ id: 'ms', type: 'number', label: 'Delay (ms)', default: 1000 }
 		],
 		outputs: [
-			{id: 'value', type: 'any', label: 'Delayed Value'}
+			{ id: 'value', type: 'any', label: 'Delayed Value' }
 		],
 		widget: 'display',
-		calculate: (inputs) => ({value: inputs.value, _display: `${inputs.ms}ms delay`})
+		calculate: (inputs) => ({ value: inputs.value, _display: `${inputs.ms}ms delay` })
 	});
 
 	registerNodeType('control/variable-gate', {
 		title: 'Variable Gate', category: 'Control',
 		inputs: [
-			{id: 'type', type: 'string', label: 'Type', default: 'any'},
-			{id: 'set', type: 'any', label: 'Set Value', default: 0},
-			{id: 'reset', type: 'boolean', label: 'Reset', default: false}
+			{ id: 'type', type: 'string', label: 'Type', default: 'any' },
+			{ id: 'set', type: 'any', label: 'Set Value', default: 0 },
+			{ id: 'reset', type: 'boolean', label: 'Reset', default: false }
 		],
 		outputs: [
-			{id: 'value', type: 'any', label: 'Stored Value'}
+			{ id: 'value', type: 'any', label: 'Stored Value' }
 		],
 		widget: 'display',
 		calculate: (inputs) => {
@@ -1785,14 +1788,14 @@ License: MIT
 					break;
 			}
 
-			return {value: storedValue, _stored: storedValue, _display: `${type}: ${String(storedValue)}`};
+			return { value: storedValue, _stored: storedValue, _display: `${type}: ${String(storedValue)}` };
 		}
 	});
 
 	registerNodeType('output/display', {
 		title: 'Display', category: 'Output',
-		inputs: [{id: 'value', type: 'any', label: 'Value'}],
-		outputs: [{id: 'out', type: 'any', label: 'Out'}],
+		inputs: [{ id: 'value', type: 'any', label: 'Value' }],
+		outputs: [{ id: 'out', type: 'any', label: 'Out' }],
 		widget: 'display',
 		calculate: (inputs) => ({
 			_display: inputs.value !== undefined ? String(inputs.value) : '-',
@@ -1802,18 +1805,18 @@ License: MIT
 
 	registerNodeType('output/print', {
 		title: 'Print', category: 'Output',
-		inputs: [{id: 'value', type: 'any', label: 'Value'}],
-		calculate: (inputs) => ({_print: String(inputs.value !== undefined ? inputs.value : '-')})
+		inputs: [{ id: 'value', type: 'any', label: 'Value' }],
+		calculate: (inputs) => ({ _print: String(inputs.value !== undefined ? inputs.value : '-') })
 	});
 
 	registerNodeType('color/mix', {
 		title: 'Mix Color', category: 'Color',
 		inputs: [
-			{id: 'c1', type: 'string', label: 'Color 1', default: '#ff6b35'},
-			{id: 'c2', type: 'string', label: 'Color 2', default: '#00e5a0'},
-			{id: 't', type: 'number', label: 'Mix (0-1)', default: 0.5}
+			{ id: 'c1', type: 'string', label: 'Color 1', default: '#ff6b35' },
+			{ id: 'c2', type: 'string', label: 'Color 2', default: '#00e5a0' },
+			{ id: 't', type: 'number', label: 'Mix (0-1)', default: 0.5 }
 		],
-		outputs: [{id: 'out', type: 'string', label: 'Result'}],
+		outputs: [{ id: 'out', type: 'string', label: 'Result' }],
 		calculate: (inputs) => {
 			try {
 				const hex = (s) => parseInt(s.replace('#', ''), 16);
@@ -1824,9 +1827,9 @@ License: MIT
 				const rh = mix(r1, r2).toString(16).padStart(2, '0');
 				const gh = mix(g1, g2).toString(16).padStart(2, '0');
 				const bh = mix(b1, b2).toString(16).padStart(2, '0');
-				return {out: `#${rh}${gh}${bh}`};
+				return { out: `#${rh}${gh}${bh}` };
 			} catch (e) {
-				return {out: '#888888'};
+				return { out: '#888888' };
 			}
 		}
 	});
@@ -1836,8 +1839,8 @@ License: MIT
 		inputs: [],
 		outputs: [],
 		widget: 'group',
-		calculate: (inputs) => ({_display: inputs.collapsed ? '▶ Group' : '▼ Group'}),
-		defaults: {collapsed: false}
+		calculate: (inputs) => ({ _display: inputs.collapsed ? '▶ Group' : '▼ Group' }),
+		defaults: { collapsed: false }
 	});
 
 	const typeColorMap = {
@@ -1909,9 +1912,9 @@ License: MIT
 					}
 				});
 
-				const node = {id, type, x, y, data};
+				const node = { id, type, x, y, data };
 				this.nodes.set(id, node);
-				this.emit({type: 'node-added', node});
+				this.emit({ type: 'node-added', node });
 				return node;
 			} catch (error) {
 				toast('Failed to add node', 'error');
@@ -1923,11 +1926,11 @@ License: MIT
 			// Remove all connected edges and emit edge-removed events
 			const connectedEdges = this.edges.filter(e => e.fromNode === id || e.toNode === id);
 			connectedEdges.forEach(edge => {
-				this.emit({type: 'edge-removed', id: edge.id});
+				this.emit({ type: 'edge-removed', id: edge.id });
 			});
 			this.edges = this.edges.filter(e => e.fromNode !== id && e.toNode !== id);
 			this.nodes.delete(id);
-			this.emit({type: 'node-removed', id});
+			this.emit({ type: 'node-removed', id });
 		}
 
 		addEdge(fromNode, fromPort, toNode, toPort) {
@@ -1965,15 +1968,15 @@ License: MIT
 				this.removeEdge(exists.id);
 			}
 
-			const edge = {id: uid(), fromNode, fromPort, toNode, toPort};
+			const edge = { id: uid(), fromNode, fromPort, toNode, toPort };
 			this.edges.push(edge);
-			this.emit({type: 'edge-added', edge});
+			this.emit({ type: 'edge-added', edge });
 			return true;
 		}
 
 		// Unified selection methods
-		selectItems(items = {nodes: [], edges: []}, mode = 'replace', ctrlKey = false) {
-			const {nodes: nodeIds = [], edges: edgeIds = []} = items;
+		selectItems(items = { nodes: [], edges: [] }, mode = 'replace', ctrlKey = false) {
+			const { nodes: nodeIds = [], edges: edgeIds = [] } = items;
 
 			// Handle selection mode
 			if (mode === 'clear') {
@@ -2064,17 +2067,17 @@ License: MIT
 		// Legacy compatibility methods
 		selectNode(id, ctrlKey = false) {
 			if (id === null) {
-				this.selectItems({nodes: [], edges: []}, 'clear');
+				this.selectItems({ nodes: [], edges: [] }, 'clear');
 			} else {
-				this.selectItems({nodes: [id]}, ctrlKey ? 'toggle' : 'replace', ctrlKey);
+				this.selectItems({ nodes: [id] }, ctrlKey ? 'toggle' : 'replace', ctrlKey);
 			}
 		}
 
 		selectEdge(id, ctrlKey = false) {
 			if (id === null) {
-				this.selectItems({nodes: [], edges: []}, 'clear');
+				this.selectItems({ nodes: [], edges: [] }, 'clear');
 			} else {
-				this.selectItems({edges: [id]}, ctrlKey ? 'toggle' : 'replace', ctrlKey);
+				this.selectItems({ edges: [id] }, ctrlKey ? 'toggle' : 'replace', ctrlKey);
 			}
 		}
 
@@ -2098,21 +2101,21 @@ License: MIT
 
 		removeEdge(id) {
 			this.edges = this.edges.filter(e => e.id !== id);
-			this.emit({type: 'edge-removed', id});
+			this.emit({ type: 'edge-removed', id });
 		}
 
 		disconnectNode(nodeId) {
 			// Remove all connected edges and emit edge-removed events
 			const connectedEdges = this.edges.filter(e => e.fromNode === nodeId || e.toNode === nodeId);
 			connectedEdges.forEach(edge => {
-				this.emit({type: 'edge-removed', id: edge.id});
+				this.emit({ type: 'edge-removed', id: edge.id });
 			});
 			this.edges = this.edges.filter(e => e.fromNode !== nodeId && e.toNode !== nodeId);
 			// Update input states for all nodes that might be affected
 			this.nodes.forEach((node, id) => {
 				this._updateNodeInputStates(id);
 			});
-			this.emit({type: 'graph-changed'});
+			this.emit({ type: 'graph-changed' });
 		}
 
 		updateNodeData(id, key, value) {
@@ -2120,7 +2123,7 @@ License: MIT
 			if (node) {
 				const oldValue = node.data[key];
 				node.data[key] = value;
-				this.emit({type: 'node-data', id, key, value});
+				this.emit({ type: 'node-data', id, key, value });
 			}
 		}
 
@@ -2129,7 +2132,7 @@ License: MIT
 			if (node) {
 				node.x = x;
 				node.y = y;
-				this.emit({type: 'node-moved', id});
+				this.emit({ type: 'node-moved', id });
 			}
 		}
 
@@ -2149,7 +2152,7 @@ License: MIT
 				this.edges = [];
 				data.nodes.forEach(n => this.nodes.set(n.id, n));
 				this.edges = data.edges || [];
-				this.emit({type: 'graph-loaded'});
+				this.emit({ type: 'graph-loaded' });
 				return true;
 			} catch (e) {
 				toast('Failed to load graph: ' + e.message, 'error');
@@ -2160,7 +2163,7 @@ License: MIT
 		clear() {
 			this.nodes.clear();
 			this.edges = [];
-			this.emit({type: 'graph-cleared'});
+			this.emit({ type: 'graph-cleared' });
 		}
 	}
 
@@ -2177,7 +2180,7 @@ License: MIT
 			this.nodeEls = new Map();
 			this.edgeEls = new Map();
 			// Selection state is now managed by model.selection
-			this.pan = {x: 0, y: 0};
+			this.pan = { x: 0, y: 0 };
 			this.zoom = 1;
 			this.interactionState = 'idle'; // idle | dragging | panning | connecting | selecting
 			this.dragData = {};
@@ -2441,7 +2444,7 @@ License: MIT
 				this.zoom = newZoom;
 				this._applyTransform();
 				document.getElementById('zoom-display').textContent = Math.round(this.zoom * 100) + '%';
-			}, {passive: false});
+			}, { passive: false });
 
 			this.canvasEl.addEventListener('contextmenu', (e) => {
 				e.preventDefault();
@@ -2517,7 +2520,7 @@ License: MIT
 			});
 
 			// Use new unified selection system
-			this.model.selectItems({nodes: nodesInRect}, 'replace', false);
+			this.model.selectItems({ nodes: nodesInRect }, 'replace', false);
 		}
 
 		_getPortCenter(nodeId, portId, dir) {
@@ -2571,13 +2574,13 @@ License: MIT
 			const catColor = categoryColors[def.category] || 'var(--accent)';
 
 			let html = `
-      <div class="node-header">
-        <div class="color-strip" style="background:${catColor}"></div>
-        <span class="title">${def.title}</span>
-        <button class="collapse-btn" data-action="collapse" title="Collapse/Expand"><i class="fa-solid fa-minus"></i></button>
-        <button class="delete-btn" data-action="delete" title="Delete"><i class="fa-solid fa-times"></i></button>
-      </div>
-      <div class="node-body">`;
+	<div class="node-header">
+	<div class="color-strip" style="background:${catColor}"></div>
+	<span class="title">${def.title}</span>
+	<button class="collapse-btn" data-action="collapse" title="Collapse/Expand"><i class="fa-solid fa-minus"></i></button>
+	<button class="delete-btn" data-action="delete" title="Delete"><i class="fa-solid fa-times"></i></button>
+	</div>
+	<div class="node-body">`;
 
 			if (!def.inputs || !Array.isArray(def.inputs)) {
 				return;
@@ -2592,12 +2595,12 @@ License: MIT
 					const inpColor = typeColorMap[inp.type] || typeColorMap.any;
 					const outColor = typeColorMap[out.type] || typeColorMap.any;
 					html += `<div class="node-row">
-						<div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${inpColor};color:${inpColor};margin-left:-5px;margin-right:6px;"></div>
-						<span class="port-label">${inp.label || inp.id}</span>
-						<span style="flex: 1;"></span>
-						<span class="port-label">${out.label || out.id}</span>
-						<div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${outColor};color:${outColor};margin-right:-5px;margin-left:6px;"></div>
-					</div>`;
+					<div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${inpColor};color:${inpColor};margin-left:-5px;margin-right:6px;"></div>
+					<span class="port-label">${inp.label || inp.id}</span>
+					<span style="flex: 1;"></span>
+					<span class="port-label">${out.label || out.id}</span>
+					<div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${outColor};color:${outColor};margin-right:-5px;margin-left:6px;"></div>
+				</div>`;
 				}
 			} else {
 				// Normal rendering for other widgets
@@ -2606,7 +2609,7 @@ License: MIT
 					const pColor = typeColorMap[inp.type] || typeColorMap.any;
 					const isConnected = this._isInputPortConnected(node.id, inp.id);
 					html += `<div class="node-row input-row">
-        <div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${pColor};color:${pColor}"></div>`;
+	<div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${pColor};color:${pColor}"></div>`;
 
 					if (def.widget === 'toggle' || inp.type === 'boolean') {
 						const isA = !!node.data[inp.id];
@@ -2630,21 +2633,21 @@ License: MIT
 					if (!out || !out.id) return;
 					const pColor = typeColorMap[out.type] || typeColorMap.any;
 					html += `<div class="node-row output-row">
-        <span class="port-label">${out.label || out.id}</span>
-        <div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${pColor};color:${pColor}"></div>
-      </div>`;
+	<span class="port-label">${out.label || out.id}</span>
+	<div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${pColor};color:${pColor}"></div>
+	</div>`;
 				});
 			}
 
 			if (def.widget === 'display') {
-				html += `<input class="node-display" data-display="${node.id}" value="—" readonly>`;
+				html += `<input class="node-display" data-display="${node.id}" value="-" readonly>`;
 			}
 
 			if (def.widget === 'group') {
 				html += `<div class="node-group" data-group="${node.id}" data-collapsed="false">
-					<span class="group-icon">▼</span>
-					<span>Group</span>
-				</div>`;
+				<span class="group-icon">▼</span>
+				<span>Group</span>
+			</div>`;
 			}
 
 			html += `</div>`;
@@ -2880,7 +2883,7 @@ License: MIT
 
 		// Unified selection handler
 		_handleSelectionChanged(selection) {
-			const {nodes: selectedNodes = [], edges: selectedEdges = [], primaryNode, primaryEdge} = selection;
+			const { nodes: selectedNodes = [], edges: selectedEdges = [], primaryNode, primaryEdge } = selection;
 
 			// Update edge visual selection first
 			this.model.edges.forEach(edge => {
@@ -3009,19 +3012,19 @@ License: MIT
 			// Special handling for Display nodes
 			if (def.widget === 'display') {
 				const result = this.app?.engine?.results?.get(primaryNode);
-				const displayValue = result?._display !== undefined ? result._display : '—';
+				const displayValue = result?._display !== undefined ? result._display : '-';
 				html = `
-      <div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
-      <div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
-      <div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
+	<div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
+	<div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
+	<div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
 				html += `
-      <div class="insp-field"><div class="insp-label">Value</div><div class="insp-value" style="font-size:12px">${displayValue}</div></div>`;
+	<div class="insp-field"><div class="insp-label">Value</div><div class="insp-value" style="font-size:12px">${displayValue}</div></div>`;
 				body.innerHTML = html;
 			} else {
 				html = `
-      <div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
-      <div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
-      <div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
+	<div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
+	<div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
+	<div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
 			}
 
 			def.inputs.forEach(inp => {
@@ -3043,22 +3046,22 @@ License: MIT
 				if (def.widget === 'toggle' || inp.type === 'boolean') {
 					const isChecked = !!displayValue;
 					html += `
-        <div class="insp-field">
-          <div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: ${isConnected ? 'not-allowed' : 'pointer'};">
-            <input type="checkbox" class="insp-checkbox" data-key="${inp.id}" ${isChecked ? 'checked' : ''} ${isConnected ? 'disabled' : ''}>
-            <span style="color: var(--text-sec); font-size: 12px;">${isChecked ? 'True' : 'False'}</span>
-          </label>
-        </div>`;
+	<div class="insp-field">
+		<div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
+		<label style="display: flex; align-items: center; gap: 8px; cursor: ${isConnected ? 'not-allowed' : 'pointer'};">
+		<input type="checkbox" class="insp-checkbox" data-key="${inp.id}" ${isChecked ? 'checked' : ''} ${isConnected ? 'disabled' : ''}>
+		<span style="color: var(--text-sec); font-size: 12px;">${isChecked ? 'True' : 'False'}</span>
+		</label>
+	</div>`;
 				} else {
 					// Use text input for numbers to have better control over cursor behavior
 					const inputType = 'text';
 					const inputMode = inp.type === 'number' ? 'numeric' : '';
 					html += `
-        <div class="insp-field">
-          <div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
-          <input class="insp-input" type="${inputType}" inputmode="${inputMode}" data-key="${inp.id}" value="${displayValue}" ${isConnected ? 'readonly' : ''}>
-        </div>`;
+	<div class="insp-field">
+		<div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
+		<input class="insp-input" type="${inputType}" inputmode="${inputMode}" data-key="${inp.id}" value="${displayValue}" ${isConnected ? 'readonly' : ''}>
+	</div>`;
 				}
 			});
 
@@ -3130,7 +3133,7 @@ License: MIT
 
 		fitView() {
 			if (this.model.nodes.size === 0) {
-				this.pan = {x: 0, y: 0};
+				this.pan = { x: 0, y: 0 };
 				this.zoom = 1;
 				this._applyTransform();
 				return;
@@ -3466,7 +3469,9 @@ License: MIT
 		}
 
 		_initWorker() {
-			this.worker = new Worker('js/VisualScriptWorker.js');
+			const src = document.getElementById('worker-src').textContent;
+			const blob = new Blob([src], { type: 'application/javascript' });
+			this.worker = new Worker(URL.createObjectURL(blob));
 			this.worker.onmessage = (e) => this._onResult(e.data);
 		}
 
@@ -3475,14 +3480,14 @@ License: MIT
 			const nodes = Array.from(this.model.nodes.values());
 			const edges = this.model.edges;
 			document.getElementById('status-text').textContent = 'Executing...';
-			this.worker.postMessage({type: 'run', nodes, edges});
+			this.worker.postMessage({ type: 'run', nodes, edges });
 		}
 
 		runSelective(affectedNodes) {
 			this.stepMode = false;
 			const nodes = Array.from(this.model.nodes.values());
 			const edges = this.model.edges;
-			this.worker.postMessage({type: 'runSelective', nodes, edges, affectedNodes});
+			this.worker.postMessage({ type: 'runSelective', nodes, edges, affectedNodes });
 		}
 
 		_detectChanges() {
@@ -3494,8 +3499,8 @@ License: MIT
 			// Build current state from nodes and edges
 			this.model.nodes.forEach((node, nodeId) => {
 				const nodeState = {
-					data: {...node.data},
-					position: {x: node.x, y: node.y}
+					data: { ...node.data },
+					position: { x: node.x, y: node.y }
 				};
 				currentState.set(nodeId, nodeState);
 			});
@@ -3558,7 +3563,7 @@ License: MIT
 				if (def && def.widget === 'display') {
 					const el = document.querySelector(`[data-display="${nodeId}"]`);
 					if (el) {
-						el.value = '—';
+						el.value = '-';
 					}
 				}
 
@@ -3582,7 +3587,7 @@ License: MIT
 					// Also try to clear any display element (for completeness)
 					const displayEl = document.querySelector(`[data-display="${nodeId}"]`);
 					if (displayEl) {
-						displayEl.value = '—';
+						displayEl.value = '-';
 					}
 				}
 
@@ -3632,11 +3637,11 @@ License: MIT
 				const edges = this.model.edges;
 				document.getElementById('status-text').textContent = 'Step mode initialized';
 				stepBtn.classList.add('step-active');
-				this.worker.postMessage({type: 'initStep', nodes, edges});
+				this.worker.postMessage({ type: 'initStep', nodes, edges });
 			} else {
 				// Execute next step (no longer using stepIndex)
 				document.getElementById('status-text').textContent = `Executing step ${this.currentStepIndex + 1}...`;
-				this.worker.postMessage({type: 'step', stepIndex: this.currentStepIndex});
+				this.worker.postMessage({ type: 'step', stepIndex: this.currentStepIndex });
 			}
 		}
 
@@ -3644,7 +3649,7 @@ License: MIT
 			if (this.stepMode) {
 				if (data.type === 'stepResult') {
 					// Handle step execution result
-					const {nodeId, results, isComplete, executionQueue} = data;
+					const { nodeId, results, isComplete, executionQueue } = data;
 
 					// Update step results
 					this.stepResults.set(nodeId, results);
@@ -3657,7 +3662,7 @@ License: MIT
 						if (def && def.widget === 'display') {
 							const el = document.querySelector(`[data-display="${nodeId}"]`);
 							if (el && results) {
-								el.value = results._display !== undefined ? results._display : '—';
+								el.value = results._display !== undefined ? results._display : '-';
 							}
 						}
 						if (def && def.widget === 'group') {
@@ -3737,7 +3742,7 @@ License: MIT
 					if (def && def.widget === 'display') {
 						const el = document.querySelector(`[data-display="${id}"]`);
 						if (el && result) {
-							el.value = result._display !== undefined ? result._display : '—';
+							el.value = result._display !== undefined ? result._display : '-';
 						}
 					}
 					if (def && def.widget === 'group') {
@@ -3794,7 +3799,7 @@ License: MIT
 
 		save() {
 			const json = JSON.stringify(this.model.serialize(), null, 2);
-			const blob = new Blob([json], {type: 'application/json'});
+			const blob = new Blob([json], { type: 'application/json' });
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement('a');
 			a.href = url;
@@ -3878,16 +3883,16 @@ License: MIT
 			const categories = {};
 			for (const [type, def] of Object.entries(NodeTypes)) {
 				if (!categories[def.category]) categories[def.category] = [];
-				categories[def.category].push({type, def});
+				categories[def.category].push({ type, def });
 			}
 
 			let html = '';
 			for (const [cat, items] of Object.entries(categories)) {
 				const catColor = categoryColors[cat] || 'var(--accent)';
 				html += `<div class="cat-group">
-					<div class="cat-label" data-cat="${cat}"><i class="fa-solid fa-chevron-down"></i> ${cat}</div>
-					<div class="cat-items" data-cat-items="${cat}">`;
-				items.forEach(({type, def}) => {
+				<div class="cat-label" data-cat="${cat}"><i class="fa-solid fa-chevron-down"></i> ${cat}</div>
+				<div class="cat-items" data-cat-items="${cat}">`;
+				items.forEach(({ type, def }) => {
 					html += `<div class="palette-item" data-type="${type}"><div class="dot" style="background:${catColor}"></div>${def.title}</div>`;
 				});
 				html += `</div></div>`;
@@ -4247,13 +4252,13 @@ License: MIT
 					if (Array.isArray(res._print)) {
 						res._print.forEach(printItem => {
 							if (typeof printItem === 'object' && printItem.value !== undefined) {
-								allPrints.push({value: printItem.value, order: printItem.order});
+								allPrints.push({ value: printItem.value, order: printItem.order });
 							} else {
-								allPrints.push({value: printItem, order: Infinity});
+								allPrints.push({ value: printItem, order: Infinity });
 							}
 						});
 					} else {
-						allPrints.push({value: res._print, order: Infinity});
+						allPrints.push({ value: res._print, order: Infinity });
 					}
 				}
 			});
@@ -4268,5 +4273,420 @@ License: MIT
 		};
 	});
 </script>
+
+<script type="text/plain" id="worker-src">
+	// Global state for step execution
+	let stepState = {
+		nodes: [],
+		edges: [],
+		nodeMap: {},
+		inDegree: {},
+		adj: {},
+		sorted: [],
+		nodeOutputs: {},
+		currentStepIndex: 0,
+		isStepMode: true,
+		controlFlowState: new Map()
+	};
+
+	self.onmessage = function (e) {
+		const { type, nodes, edges, stepIndex, affectedNodes } = e.data;
+		if (type === 'run') {
+			const results = executeGraph(nodes, edges);
+			self.postMessage(results);
+		} else if (type === 'runSelective') {
+			const results = executeGraphSelective(nodes, edges, affectedNodes);
+			self.postMessage(results);
+		} else if (type === 'initStep') {
+			initializeStepMode(nodes, edges);
+			self.postMessage({ type: 'stepInitialized', executionQueue: stepState.sorted });
+		} else if (type === 'step') {
+			const stepResult = executeStep(stepIndex);
+			self.postMessage(stepResult);
+		}
+	};
+
+	function executeGraph(nodes, edges) {
+		initializeStepMode(nodes, edges);
+		let safety = 0;
+		const MAX_STEPS = 10000;
+		while (safety < MAX_STEPS) {
+			const result = executeStep(stepState.currentStepIndex++);
+			if (result.isComplete) break;
+			safety++;
+		}
+		if (safety >= MAX_STEPS) {
+			console.warn('Execution halted: exceeded maximum step limit (possible infinite loop)');
+		}
+		const results = {};
+		for (const nodeId in stepState.nodeOutputs) {
+			results[nodeId] = stepState.nodeOutputs[nodeId];
+		}
+		return results;
+	}
+
+	function executeGraphSelective(nodes, edges, affectedNodes) {
+		const results = {};
+		if (!affectedNodes || affectedNodes.length === 0) return results;
+		const inDegree = {};
+		const adj = {};
+		const nodeMap = {};
+		nodes.forEach(n => {
+			nodeMap[n.id] = n;
+			inDegree[n.id] = 0;
+			adj[n.id] = [];
+		});
+		edges.forEach(e => {
+			adj[e.fromNode] = adj[e.fromNode] || [];
+			adj[e.fromNode].push(e);
+			inDegree[e.toNode] = (inDegree[e.toNode] || 0) + 1;
+		});
+		const nodesToExecute = new Set(affectedNodes);
+		const queue = [...affectedNodes];
+		while (queue.length > 0) {
+			const nodeId = queue.shift();
+			const incomingEdges = edges.filter(e => e.toNode === nodeId);
+			for (const edge of incomingEdges) {
+				if (!nodesToExecute.has(edge.fromNode)) {
+					nodesToExecute.add(edge.fromNode);
+					queue.push(edge.fromNode);
+				}
+			}
+		}
+		const downstreamQueue = [...affectedNodes];
+		while (downstreamQueue.length > 0) {
+			const nodeId = downstreamQueue.shift();
+			const outgoingEdges = edges.filter(e => e.fromNode === nodeId);
+			for (const edge of outgoingEdges) {
+				if (!nodesToExecute.has(edge.toNode)) {
+					nodesToExecute.add(edge.toNode);
+					downstreamQueue.push(edge.toNode);
+				}
+			}
+		}
+		const depQueue = Array.from(nodesToExecute);
+		while (depQueue.length > 0) {
+			const nodeId = depQueue.shift();
+			const incomingEdges = edges.filter(e => e.toNode === nodeId);
+			for (const edge of incomingEdges) {
+				if (!nodesToExecute.has(edge.fromNode)) {
+					nodesToExecute.add(edge.fromNode);
+					depQueue.push(edge.fromNode);
+				}
+			}
+		}
+		const queue2 = Array.from(nodesToExecute).filter(nId => inDegree[nId] === 0);
+		const sorted = [];
+		while (queue2.length > 0) {
+			const curr = queue2.shift();
+			sorted.push(curr);
+			(adj[curr] || []).forEach(edge => {
+				if (nodesToExecute.has(edge.toNode)) {
+					inDegree[edge.toNode]--;
+					if (inDegree[edge.toNode] === 0) queue2.push(edge.toNode);
+				}
+			});
+		}
+		const nodeOutputs = {};
+		sorted.forEach(nodeId => {
+			const node = nodeMap[nodeId];
+			if (!node) return;
+			const inputs = { ...node.data };
+			edges.forEach(edge => {
+				if (edge.toNode === nodeId) {
+					const fromOut = nodeOutputs[edge.fromNode];
+					if (fromOut && fromOut[edge.fromPort] !== undefined) {
+						inputs[edge.toPort] = fromOut[edge.fromPort];
+					}
+				}
+			});
+			const outputs = executeNode(node.type, inputs);
+			nodeOutputs[nodeId] = outputs || {};
+			results[nodeId] = outputs || {};
+		});
+		return results;
+	}
+
+	function initializeStepMode(nodes, edges) {
+		stepState.nodes = nodes;
+		stepState.edges = edges;
+		stepState.nodeMap = {};
+		stepState.inDegree = {};
+		stepState.adj = {};
+		stepState.nodeOutputs = {};
+		stepState.currentStepIndex = 0;
+		stepState.isStepMode = true;
+		stepState.controlFlowState.clear();
+		stepState.executionQueue = [];
+		stepState.currentExecutionNode = null;
+		stepState.executionOrder = 0;
+		nodes.forEach(n => {
+			stepState.nodeMap[n.id] = n;
+			stepState.inDegree[n.id] = 0;
+			stepState.adj[n.id] = [];
+		});
+		edges.forEach(e => {
+			stepState.adj[e.fromNode] = stepState.adj[e.fromNode] || [];
+			stepState.adj[e.fromNode].push(e);
+			stepState.inDegree[e.toNode] = (stepState.inDegree[e.toNode] || 0) + 1;
+		});
+		const entryNodes = nodes.filter(n => stepState.inDegree[n.id] === 0).map(n => n.id);
+		stepState.executionQueue = [...entryNodes];
+		nodes.forEach(n => {
+			if (n.type === 'control-flow/for-loop') {
+				stepState.controlFlowState.set(n.id, {
+					currentIndex: Number(n.data.start) || 0,
+					start: Number(n.data.start) || 0,
+					end: Number(n.data.end) || 10,
+					step: Number(n.data.step) || 1,
+					done: false,
+					isLooping: false,
+					iterationCount: 0
+				});
+			}
+		});
+	}
+
+	function executeStep(stepIndex) {
+		if (!stepState.isStepMode) {
+			return { type: 'stepResult', nodeId: null, results: {}, isComplete: true, executionQueue: [] };
+		}
+		let nodeId = null;
+		if (stepState.currentExecutionNode) {
+			nodeId = stepState.currentExecutionNode;
+		} else if (stepState.executionQueue.length > 0) {
+			nodeId = stepState.executionQueue.shift();
+		} else {
+			return { type: 'stepResult', nodeId: null, results: {}, isComplete: true, executionQueue: [] };
+		}
+		const node = stepState.nodeMap[nodeId];
+		if (!node) {
+			return { type: 'stepResult', nodeId: null, results: {}, isComplete: true, executionQueue: [] };
+		}
+		const inputs = { ...node.data };
+		stepState.edges.forEach(edge => {
+			if (edge.toNode === nodeId) {
+				const fromOut = stepState.nodeOutputs[edge.fromNode];
+				if (fromOut && fromOut[edge.fromPort] !== undefined) {
+					inputs[edge.toPort] = fromOut[edge.fromPort];
+				}
+			}
+		});
+		let outputs;
+		if (node.type === 'control-flow/for-loop') {
+			const loopState = stepState.controlFlowState.get(nodeId);
+			if (!loopState) {
+				const startIndex = Number(node.data.start) || 0;
+				const endIndex = Number(node.data.end) || 10;
+				outputs = { index: startIndex, done: false, _display: startIndex + ' / ' + endIndex };
+			} else {
+				loopState.start = inputs.start !== undefined ? Number(inputs.start) : (node.data.start !== undefined ? Number(node.data.start) : 0);
+				loopState.end = inputs.end !== undefined ? Number(inputs.end) : (node.data.end !== undefined ? Number(node.data.end) : 10);
+				loopState.step = inputs.step !== undefined ? Number(inputs.step) : (node.data.step !== undefined ? Number(node.data.step) : 1);
+				if (isNaN(loopState.start)) loopState.start = 0;
+				if (isNaN(loopState.end)) loopState.end = 10;
+				if (isNaN(loopState.step)) loopState.step = 1;
+				if (!loopState.isLooping) {
+					loopState.currentIndex = loopState.start;
+					loopState.isLooping = true;
+					loopState.iterationCount = 0;
+				}
+				const currentIterationValue = loopState.currentIndex;
+				const isFinalIteration = loopState.step > 0
+					? currentIterationValue >= loopState.end
+					: currentIterationValue <= loopState.end;
+				outputs = {
+					index: currentIterationValue,
+					done: isFinalIteration,
+					_display: currentIterationValue + ' / ' + loopState.end
+				};
+				loopState.currentIndex += loopState.step;
+				const done = loopState.step > 0
+					? loopState.currentIndex > loopState.end
+					: loopState.currentIndex < loopState.end;
+				(stepState.adj[nodeId] || []).forEach(edge => {
+					stepState.executionQueue.push(edge.toNode);
+				});
+				stepState.currentExecutionNode = null;
+				if (!done) {
+					stepState.executionQueue.push(nodeId);
+					loopState.iterationCount++;
+				} else {
+					loopState.isLooping = false;
+				}
+			}
+		} else {
+			outputs = executeNode(node.type, inputs);
+			(stepState.adj[nodeId] || []).forEach(edge => {
+				stepState.executionQueue.push(edge.toNode);
+			});
+		}
+		if (node.type === 'output/print') {
+			if (!stepState.nodeOutputs[nodeId]) {
+				stepState.nodeOutputs[nodeId] = { _print: [] };
+			}
+			if (outputs && outputs._print !== undefined) {
+				stepState.nodeOutputs[nodeId]._print.push({
+					value: outputs._print,
+					order: stepState.executionOrder || 0
+				});
+				stepState.executionOrder = (stepState.executionOrder || 0) + 1;
+			}
+		} else {
+			stepState.nodeOutputs[nodeId] = outputs || {};
+		}
+		const isComplete = stepState.executionQueue.length === 0 && !stepState.currentExecutionNode;
+		return {
+			type: 'stepResult',
+			nodeId: nodeId,
+			results: outputs || {},
+			isComplete: isComplete,
+			executionQueue: stepState.executionQueue,
+			currentExecutionNode: stepState.currentExecutionNode
+		};
+	}
+
+	function executeNode(type, inputs) {
+		switch (type) {
+			case 'value/number':
+				return { out: Number(inputs.value) || 0 };
+			case 'value/string':
+				return { out: String(inputs.value) };
+			case 'value/boolean':
+				return { out: !!inputs.value };
+			case 'math/add':
+				return { sum: (Number(inputs.a) || 0) + (Number(inputs.b) || 0) };
+			case 'math/subtract':
+				return { diff: (Number(inputs.a) || 0) - (Number(inputs.b) || 0) };
+			case 'math/multiply':
+				return { product: (Number(inputs.a) || 0) * (Number(inputs.b) || 0) };
+			case 'math/divide': {
+				const b = Number(inputs.b) || 1;
+				return { quotient: b !== 0 ? (Number(inputs.a) || 0) / b : 0 };
+			}
+			case 'math/modulo': {
+				const b = Number(inputs.b) || 1;
+				return { remainder: b !== 0 ? (Number(inputs.a) || 0) % b : 0 };
+			}
+			case 'math/power':
+				return { result: Math.pow(Number(inputs.base) || 0, Number(inputs.exp) || 0) };
+			case 'math/sqrt':
+				return { result: Math.sqrt(Math.max(0, Number(inputs.value) || 0)) };
+			case 'math/min':
+				return { result: Math.min(Number(inputs.a) || 0, Number(inputs.b) || 0) };
+			case 'math/max':
+				return { result: Math.max(Number(inputs.a) || 0, Number(inputs.b) || 0) };
+			case 'logic/and':
+				return { out: !!inputs.a && !!inputs.b };
+			case 'logic/or':
+				return { out: !!inputs.a || !!inputs.b };
+			case 'logic/not':
+				return { out: !inputs.input };
+			case 'logic/xor':
+				return { out: (!!inputs.a !== !!inputs.b) };
+			case 'logic/equals':
+				return { result: inputs.a == inputs.b };
+			case 'logic/not-equals':
+				return { result: inputs.a != inputs.b };
+			case 'logic/less':
+				return { result: (Number(inputs.a) || 0) < (Number(inputs.b) || 0) };
+			case 'logic/less-equals':
+				return { result: (Number(inputs.a) || 0) <= (Number(inputs.b) || 0) };
+			case 'logic/greater':
+				return { result: (Number(inputs.a) || 0) > (Number(inputs.b) || 0) };
+			case 'logic/greater-equals':
+				return { result: (Number(inputs.a) || 0) >= (Number(inputs.b) || 0) };
+			case 'control-flow/if': {
+				let condition = inputs.condition;
+				if (typeof condition === 'string') {
+					condition = condition.toLowerCase() === 'true';
+				}
+				return { result: condition ? inputs['true'] : inputs['false'] };
+			}
+			case 'control-flow/switch': {
+				const index = Math.max(1, Math.min(4, Math.floor(Number(inputs.input) || 1)));
+				return { result: inputs['case' + index] || 0 };
+			}
+			case 'control-flow/for-loop': {
+				const start = Number(inputs.start) || 0;
+				const end = Number(inputs.end) || 10;
+				const step = Number(inputs.step) || 1;
+				const index = start;
+				const done = step > 0 ? index >= end : index <= end;
+				return { index, done, _display: index + ' / ' + end };
+			}
+			case 'control-flow/while-loop':
+				return { value: inputs.value, continue: !!inputs.condition };
+			case 'logic/merge':
+				return { result: inputs.input1 || inputs.input2 || inputs.input3 || inputs.input4 };
+			case 'control/counter': {
+				const increment = Number(inputs.increment) || 1;
+				const reset = !!inputs.reset;
+				const count = reset ? 0 : (inputs._count || 0) + increment;
+				return { count, _count: count, _display: String(count) };
+			}
+			case 'control/range': {
+				const min = Number(inputs.min) || 0;
+				const max = Number(inputs.max) || 100;
+				const value = Number(inputs.value) || 0;
+				const clamped = Math.max(min, Math.min(max, value));
+				const range = max - min;
+				const normalized = range !== 0 ? (clamped - min) / range : 0;
+				return { clamped, normalized };
+			}
+			case 'control/delay':
+				return { value: inputs.value, _display: inputs.ms + 'ms delay' };
+			case 'control/variable-gate': {
+				const reset = !!inputs.reset;
+				const type = inputs.type || 'any';
+				let storedValue = reset ? inputs.set : (inputs._stored !== undefined ? inputs._stored : inputs.set);
+				switch (type) {
+					case 'number':
+						storedValue = Number(storedValue) || 0;
+						break;
+					case 'string':
+						storedValue = String(storedValue);
+						break;
+					case 'boolean':
+						storedValue = !!storedValue;
+						break;
+				}
+				return { value: storedValue, _stored: storedValue, _display: type + ': ' + String(storedValue) };
+			}
+			case 'control/group':
+				return {
+					_display: inputs.collapsed ? '▶ Group' : '▼ Group',
+					collapsed: !!inputs.collapsed
+				};
+			case 'output/display':
+				return {
+					_display: inputs.value !== undefined ? String(inputs.value) : '-',
+					out: inputs.value
+				};
+			case 'output/print':
+				return {
+					_print: inputs.value !== undefined ? String(inputs.value) : '-'
+				};
+			case 'color/mix': {
+				try {
+					const hex = (s) => parseInt(s.replace('#', ''), 16);
+					const r1 = (hex(inputs.c1) >> 16) & 255, g1 = (hex(inputs.c1) >> 8) & 255, b1 = hex(inputs.c1) & 255;
+					const r2 = (hex(inputs.c2) >> 16) & 255, g2 = (hex(inputs.c2) >> 8) & 255, b2 = hex(inputs.c2) & 255;
+					const t = Math.max(0, Math.min(1, Number(inputs.t) || 0));
+					const mix = (a, b) => Math.round(a + (b - a) * t);
+					const rh = mix(r1, r2).toString(16).padStart(2, '0');
+					const gh = mix(g1, g2).toString(16).padStart(2, '0');
+					const bh = mix(b1, b2).toString(16).padStart(2, '0');
+					return { out: '#' + rh + gh + bh };
+				} catch (e) {
+					return { out: '#888888' };
+				}
+			}
+			default:
+				return {};
+		}
+	}
+</script>
 </body>
+
 </html>
