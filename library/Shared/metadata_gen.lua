@@ -19,13 +19,13 @@
 ---@type library.metadata_gen
 return {
 	package_version = "0.0.47",
-	timestamp = "2026-05-17 03:17:15",
-	commit_count = 303,
-	tag_count = 43,
+	timestamp = "2026-05-18 02:29:18",
+	commit_count = 305,
+	tag_count = 44,
 	branch_name = "main",
-	prev_hash = "ff080f2fb444b6d178041c6ab44039ffa63dff5c",
+	prev_hash = "43ec670b5596b51f44d1eb0566e6d2a1eaf1d5c3",
 	is_preview = false,
-	tag = "v0.0.47",
+	tag = "v0.0.48",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
 	path = "library",
