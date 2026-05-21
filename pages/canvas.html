@@ -1,0 +1,862 @@
+﻿<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"/>
+
+	<title>Canvas</title>
+
+	<style>
+		/* GLOBAL RESET */
+
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+		}
+
+		/* ROOT */
+
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+
+			margin: 0;
+			padding: 0;
+
+			overflow: hidden;
+
+			/*
+			TRANSPARENT BACKGROUND
+			*/
+			background: transparent !important;
+
+			/*
+			Prevent overscroll / pull-to-refresh
+			*/
+			overscroll-behavior: none;
+
+			/*
+			Prevent selection
+			*/
+			user-select: none;
+			-webkit-user-select: none;
+
+			/*
+			Prevent touch callouts
+			*/
+			-webkit-touch-callout: none;
+
+			/*
+			Remove tap flash
+			*/
+			-webkit-tap-highlight-color: transparent;
+
+			/*
+			Disable touch gestures
+			*/
+			touch-action: none;
+
+			/*
+			Prevent zoom/font scaling weirdness
+			*/
+			text-size-adjust: 100%;
+			-webkit-text-size-adjust: 100%;
+
+			/*
+			Prevent iOS elastic scrolling
+			*/
+			position: fixed;
+
+			inset: 0;
+
+			/*
+			Prevent accidental drag
+			*/
+			-webkit-user-drag: none;
+
+			/*
+			Prevent browser rendering weirdness
+			*/
+			border: none;
+			outline: none;
+		}
+
+		/* BODY LAYER */
+
+		body {
+			position: fixed;
+			inset: 0;
+
+			width: 100vw;
+			height: 100vh;
+
+			border: none;
+			outline: none;
+
+			contain: strict;
+		}
+
+		/* APP ROOT */
+
+		#app {
+			position: fixed;
+
+			inset: 0;
+
+			width: 100vw;
+			height: 100vh;
+
+			overflow: hidden;
+
+			background: transparent !important;
+
+			border: none;
+			outline: none;
+
+			pointer-events: auto;
+		}
+
+		/* CANVAS */
+
+		canvas,
+		#canvas {
+			display: block;
+
+			position: fixed;
+
+			inset: 0;
+
+			width: 100vw;
+			height: 100vh;
+
+			margin: 0;
+			padding: 0;
+
+			border: none;
+			outline: none;
+
+			overflow: hidden;
+
+			/*
+			TRANSPARENT CANVAS
+			*/
+			background: transparent !important;
+
+			/*
+			Disable selection/dragging
+			*/
+			user-select: none;
+			-webkit-user-select: none;
+			-webkit-user-drag: none;
+
+			/*
+			Disable touch gestures
+			*/
+			touch-action: none;
+
+			/*
+			Remove tap flash
+			*/
+			-webkit-tap-highlight-color: transparent;
+
+			/*
+			Prevent accidental image smoothing weirdness
+			*/
+			image-rendering: auto;
+
+			/*
+			Hardware acceleration hint
+			*/
+			transform: translateZ(0);
+
+			/*
+			Remove all browser focus visuals
+			*/
+			appearance: none;
+			-webkit-appearance: none;
+		}
+
+		/* FOCUS STATES */
+
+		canvas:focus,
+		canvas:focus-visible,
+		#canvas:focus,
+		#canvas:focus-visible {
+			outline: none !important;
+			border: none !important;
+			box-shadow: none !important;
+		}
+
+		/* HIDDEN INPUTS */
+
+		input,
+		textarea,
+		select,
+		button {
+			outline: none !important;
+			border: none !important;
+			box-shadow: none !important;
+
+			background: transparent !important;
+
+			appearance: none;
+			-webkit-appearance: none;
+		}
+
+		/* DRAG PREVENTION */
+
+		img,
+		a {
+			-webkit-user-drag: none;
+			user-drag: none;
+		}
+
+		/* FULLSCREEN */
+
+		:fullscreen {
+			background: transparent !important;
+		}
+
+		:-webkit-full-screen {
+			background: transparent !important;
+		}
+
+		/* OPTIONAL: PIXEL ART MODE */
+		/*
+		canvas {
+			image-rendering: pixelated;
+			image-rendering: crisp-edges;
+		}
+		*/
+	</style>
+</head>
+
+<body>
+<div id="app">
+	<canvas id="canvas" tabindex="1"></canvas>
+</div>
+
+<script>
+	(async () => {
+		//
+		// ELEMENTS
+		//
+
+		const canvas = document.getElementById("canvas");
+
+		//
+		// GRAPHICS BACKEND
+		//
+
+		let rendererType = "none";
+
+		let gpu = null;
+		let gl = null;
+		let ctx2d = null;
+
+		//
+		// CONFIG
+		//
+		const FOCUS_INTERVAL_MS = 250;
+		const DEBUG_FOCUS = false;
+
+		//
+		// INTERNAL STATE
+		//
+		let destroyed = false;
+		let hasInteracted = false;
+		let rafFocusPending = false;
+
+		//
+		// WEBGPU
+		//
+		async function initWebGPU() {
+			if (!navigator.gpu) {
+				return false;
+			}
+			try {
+				const adapter = await navigator.gpu.requestAdapter({
+					powerPreference: "high-performance"
+				});
+				if (!adapter) {
+					return false;
+				}
+				const device = await adapter.requestDevice();
+				const context = canvas.getContext("webgpu");
+				if (!context) {
+					return false;
+				}
+				const format = navigator.gpu.getPreferredCanvasFormat();
+				context.configure({
+					device,
+					format,
+					alphaMode: "premultiplied"
+				});
+				gpu = {
+					adapter,
+					device,
+					context,
+					format
+				};
+				rendererType = "webgpu";
+				console.log("Renderer: WebGPU");
+				return true;
+			} catch (err) {
+				console.error("WebGPU init failed", err);
+				return false;
+			}
+		}
+
+		//
+		// WEBGL2
+		//
+		function initWebGL2() {
+			try {
+				const context = canvas.getContext("webgl2", {
+					alpha: true,
+					antialias: true,
+					premultipliedAlpha: true,
+					preserveDrawingBuffer: false,
+					powerPreference: "high-performance"
+				});
+				if (!context) {
+					return false;
+				}
+				gl = context;
+				rendererType = "webgl2";
+				console.log("Renderer: WebGL2");
+				return true;
+			} catch (err) {
+				console.error("WebGL2 init failed", err);
+				return false;
+			}
+		}
+
+		//
+		// EXPERIMENTAL WEBGL
+		//
+		function initExperimentalWebGL() {
+			try {
+				const context = canvas.getContext("experimental-webgl", {
+					alpha: true,
+					antialias: true,
+					premultipliedAlpha: true,
+					preserveDrawingBuffer: false,
+					powerPreference: "high-performance"
+				});
+				if (!context) {
+					return false;
+				}
+				gl = context;
+				rendererType = "experimental-webgl";
+				console.log("Renderer: Experimental WebGL");
+				return true;
+			} catch (err) {
+				console.error("Experimental WebGL init failed", err);
+				return false;
+			}
+		}
+
+		//
+		// WEBGL1
+		//
+		function initWebGL() {
+			try {
+				const context = canvas.getContext("webgl", {
+					alpha: true,
+					antialias: true,
+					premultipliedAlpha: true,
+					preserveDrawingBuffer: false,
+					powerPreference: "high-performance"
+				});
+				if (!context) {
+					return false;
+				}
+				gl = context;
+				rendererType = "webgl";
+				console.log("Renderer: WebGL");
+				return true;
+			} catch (err) {
+				console.error("WebGL init failed", err);
+				return false;
+			}
+		}
+
+		//
+		// 2D FALLBACK
+		//
+		function init2D() {
+			try {
+				const context = canvas.getContext("2d", {
+					alpha: true,
+					desynchronized: true,
+					antialias: true,
+					powerPreference: "high-performance"
+				});
+				if (!context) {
+					return false;
+				}
+				ctx2d = context;
+				rendererType = "2d";
+				console.log("Renderer: 2D Canvas");
+				return true;
+			} catch (err) {
+				console.error("2D init failed", err);
+				return false;
+			}
+		}
+
+		//
+		// INITIALIZE RENDERER
+		//
+		async function initRenderer() {
+			if (await initWebGPU()) {
+				return;
+			}
+			if (initWebGL2()) {
+				return;
+			}
+			if (initExperimentalWebGL()) {
+				return;
+			}
+			if (initWebGL()) {
+				return;
+			}
+			if (init2D()) {
+				return;
+			}
+			throw new Error("No rendering backend available");
+		}
+
+		//
+		// HELPERS
+		//
+		function log(...args) {
+			if (DEBUG_FOCUS) {
+				console.log("[focus]", ...args);
+			}
+		}
+
+		function isCanvasFocused() {
+			return document.activeElement === canvas;
+		}
+
+		function canFocus() {
+			return (
+				!destroyed &&
+				document.hasFocus() &&
+				!document.hidden
+			);
+		}
+
+		//
+		// HARD FOCUS
+		//
+		function focusCanvas(force = false) {
+			if (!force && !canFocus()) {
+				return false;
+			}
+
+			if (isCanvasFocused()) {
+				return true;
+			}
+
+			try {
+				window.focus();
+
+				canvas.focus({
+					preventScroll: true
+				});
+
+				log("focus requested");
+
+				return isCanvasFocused();
+			} catch (err) {
+				log("focus failed", err);
+				return false;
+			}
+		}
+
+		//
+		// RAF-DEBOUNCED FOCUS
+		// avoids spam during mousemove/pointer events
+		//
+		function queueFocus(force = false) {
+			if (rafFocusPending) {
+				return;
+			}
+
+			rafFocusPending = true;
+
+			requestAnimationFrame(() => {
+				rafFocusPending = false;
+				focusCanvas(force);
+			});
+		}
+
+		//
+		// USER INTERACTION
+		// Chromium sometimes rejects programmatic focus
+		// until a real user gesture occurred.
+		//
+		function onUserInteraction() {
+			hasInteracted = true;
+			queueFocus(true);
+		}
+
+		//
+		// STARTUP
+		//
+		function startupFocus() {
+			queueFocus(true);
+
+			// Chromium/CEF sometimes needs delayed retries
+			setTimeout(() => queueFocus(true), 50);
+			setTimeout(() => queueFocus(true), 250);
+			setTimeout(() => queueFocus(true), 1000);
+		}
+
+		//
+		// RESIZE
+		//
+		function resizeCanvas() {
+			const dpr = window.devicePixelRatio || 1;
+
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+
+			canvas.width = Math.round(width * dpr);
+			canvas.height = Math.round(height * dpr);
+
+			canvas.style.width = width + "px";
+			canvas.style.height = height + "px";
+
+			if (ctx2d) {
+				ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+			}
+
+			if (gl) {
+				gl.viewport(0, 0, canvas.width, canvas.height);
+			}
+		}
+
+		window.addEventListener("resize", resizeCanvas);
+
+		//
+		// GLOBAL WINDOW / PAGE EVENTS
+		//
+		window.onload = () => {
+			resizeCanvas();
+			startupFocus();
+		};
+
+		window.addEventListener("focus", () => {
+			log("window focus");
+			queueFocus(true);
+		});
+
+		window.addEventListener("pageshow", () => {
+			log("pageshow");
+			queueFocus(true);
+		});
+
+		document.addEventListener("visibilitychange", () => {
+			log("visibilitychange", document.hidden);
+			if (!document.hidden) {
+				queueFocus(true);
+			}
+		});
+
+		//
+		// MOUSE / POINTER INPUT
+		//
+		[
+			"mousedown",
+			"mouseup",
+			"click",
+			"dblclick",
+			"pointerdown",
+			"pointerup",
+			"touchstart"
+		].forEach(eventName => {
+			window.addEventListener(eventName, onUserInteraction, true);
+		});
+
+		//
+		// DISABLE MIDDLE-CLICK SCROLL
+		//
+		window.addEventListener("mousedown", (e) => {
+			if (e.button === 1) { // TODO/FIXME: Why 1?!
+				e.preventDefault();
+			}
+		});
+
+		//
+		// DISABLE CONTEXT MENU
+		//
+		window.addEventListener("contextmenu", (e) => {
+			e.preventDefault();
+		});
+
+		//
+		// DISABLE DRAG/DROP
+		//
+		window.addEventListener("dragstart", e => e.preventDefault());
+		window.addEventListener("drop", e => e.preventDefault());
+
+		//
+		// DISABLE TEXT SELECTION
+		//
+		window.addEventListener("selectstart", (e) => {
+			e.preventDefault();
+		});
+
+		//
+		// TRACKPAD / GESTURE ZOOM
+		//
+		window.addEventListener("gesturestart", (e) => {
+			e.preventDefault();
+		});
+		window.addEventListener("gesturechange", (e) => {
+			e.preventDefault();
+		});
+		window.addEventListener("gestureend", (e) => {
+			e.preventDefault();
+		});
+
+		//
+		// TAB / FOCUS ESCAPE PREVENTION
+		//
+		window.addEventListener("keydown", (e) => {
+			// Tab
+			if (e.keyCode === 9) {
+				e.preventDefault();
+				e.stopPropagation();
+				queueFocus(true);
+				return;
+			}
+			// F6 can move Chromium focus
+			if (e.keyCode === 117) {
+				e.preventDefault();
+				e.stopPropagation();
+				queueFocus(true);
+				return;
+			}
+			// CTRL +, -, =, 0
+			if (
+				e.ctrlKey &&
+				(
+					e.key === "+" ||
+					e.key === "-" ||
+					e.key === "=" ||
+					e.key === "0"
+				)
+			) {
+				e.preventDefault();
+				return;
+			}
+		}, true);
+
+		//
+		// DISABLE ZOOM
+		//
+		window.addEventListener("wheel", (e) => {
+			if (e.ctrlKey) {
+				e.preventDefault();
+			}
+		}, {
+			passive: false
+		});
+
+		//
+		// POINTER LOCK
+		//
+		document.addEventListener("pointerlockchange", () => {
+			log("pointerlockchange");
+			queueFocus(true);
+		});
+		document.addEventListener("pointerlockerror", () => {
+			log("pointerlockerror");
+			queueFocus(true);
+		});
+
+		//
+		// FULLSCREEN
+		//
+		document.addEventListener("fullscreenchange", () => {
+			log("fullscreenchange");
+			queueFocus(true);
+			// fullscreen transitions can be delayed internally
+			setTimeout(() => queueFocus(true), 100);
+		});
+		document.addEventListener("fullscreenerror", () => {
+			log("fullscreenerror");
+			queueFocus(true);
+		});
+
+		//
+		// CANVAS-LOCAL RECOVERY
+		//
+		canvas.addEventListener("blur", () => {
+			log("canvas blur");
+
+			// immediate
+			queueFocus(true);
+
+			// delayed retries
+			setTimeout(() => queueFocus(true), 0);
+			setTimeout(() => queueFocus(true), 25);
+			setTimeout(() => queueFocus(true), 100);
+		});
+
+		//
+		// WINDOW BLUR RECOVERY
+		//
+		window.addEventListener("blur", () => {
+			log("window blur");
+
+			// regain after alt-tab
+			setTimeout(() => {
+				if (document.hasFocus()) {
+					queueFocus(true);
+				}
+			}, 50);
+		});
+
+		//
+		// PERIODIC SAFETY NET
+		//
+		const interval = setInterval(() => {
+			if (
+				hasInteracted &&
+				canFocus() &&
+				!isCanvasFocused()
+			) {
+				log("interval recovery");
+				focusCanvas(true);
+			}
+		}, FOCUS_INTERVAL_MS);
+
+		//
+		// CLEANUP API
+		//
+		window.__destroyCanvas = () => {
+			destroyed = true;
+			clearInterval(interval);
+		};
+
+		//
+		// RENDER LOOP
+		//
+		function render2D() {
+			// NOTE: clearRect preserves transparency
+			ctx2d.clearRect(
+				0,
+				0,
+				canvas.width,
+				canvas.height
+			);
+
+			ctx2d.fillStyle = "rgba(255,0,0,0.75)";
+			ctx2d.fillRect(20, 20, 320, 40);
+
+			ctx2d.fillStyle = "white";
+			ctx2d.font = "20px sans-serif";
+			ctx2d.fillText(
+				"2D Renderer",
+				30,
+				47
+			);
+
+			requestAnimationFrame(render2D);
+		}
+
+		function renderWebGL() {
+			gl.viewport(
+				0,
+				0,
+				canvas.width,
+				canvas.height
+			);
+
+			gl.enable(gl.BLEND);
+			gl.blendFunc(
+				gl.SRC_ALPHA,
+				gl.ONE_MINUS_SRC_ALPHA
+			);
+			gl.clearColor(0, 0, 0, 0);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+
+			requestAnimationFrame(renderWebGL);
+		}
+
+		function renderWebGPU() {
+			const encoder =
+				gpu.device.createCommandEncoder();
+
+			const texture =
+				gpu.context.getCurrentTexture();
+
+			const view = texture.createView();
+
+			const pass =
+				encoder.beginRenderPass({
+					colorAttachments: [{
+						view,
+						clearValue: {
+							r: 0,
+							g: 0,
+							b: 0,
+							a: 0
+						},
+						loadOp: "clear",
+						storeOp: "store"
+					}]
+				});
+
+			pass.end();
+
+			gpu.device.queue.submit([
+				encoder.finish()
+			]);
+
+			requestAnimationFrame(renderWebGPU);
+		}
+
+		//
+		// INITIAL FOCUS
+		//
+		startupFocus();
+
+		//
+		// INITIALIZE
+		//
+		await initRenderer();
+		resizeCanvas();
+		console.log("Using renderer:", rendererType);
+		switch (rendererType) {
+			case "webgpu":
+				renderWebGPU();
+				break;
+			case "webgl2":
+			case "experimental-webgl":
+			case "webgl":
+				renderWebGL();
+				break;
+			case "2d":
+				render2D();
+				break;
+		}
+	})();
+</script>
+</body>
+</html>

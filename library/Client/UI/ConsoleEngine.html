@@ -3,12 +3,12 @@ Author: Cheatoid ~ https://github.com/Cheatoid
 License: MIT
 -->
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-	<meta charset="utf-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<link
 		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
 		rel="stylesheet"/>
@@ -390,6 +390,7 @@ License: MIT
 			pointer-events: none;
 			opacity: 0.4;
 			background: transparent !important;
+			outline: none;
 		}
 
 		/* ========== Toggle Button ========== */
@@ -1864,7 +1865,8 @@ License: MIT
 		<span class="input-prompt">&gt;</span>
 		<div class="input-wrapper">
 			<input type="text" class="console-input" id="consoleInput" placeholder="Type a client command..."
-			       autocomplete="off" spellcheck="false" aria-label="Command input"/>
+			       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="1"
+			       aria-label="Command input" autofocus/>
 			<button class="enter-button" id="enterBtn" aria-label="Send command">
 				<i class="fas fa-paper-plane"></i>
 				<span>Enter</span>
@@ -3965,7 +3967,6 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 		}
 
 		// Window resizing
-
 		const resizeHandles = $$(".resize-handle");
 		resizeHandles.forEach(handle => {
 			handle.addEventListener("mousedown", (e) => {

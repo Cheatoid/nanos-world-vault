@@ -1,0 +1,91 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"/>
+</head>
+<body>
+<input id="keySink" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+       tabindex="1" autofocus/>
+
+<script>
+	const sink = document.getElementById("keySink");
+
+	// Make it invisible but focusable
+	Object.assign(sink.style, {
+		position: "fixed",
+		left: "-1000px",
+		top: "-1000px",
+		width: "1px",
+		height: "1px",
+		opacity: "0",
+		pointerEvents: "none"
+	});
+
+	// Keep focus permanently
+	function ensureFocus() {
+		if (document.activeElement !== sink) {
+			sink.focus({preventScroll: true});
+		}
+	}
+
+	// Initial focus
+	window.addEventListener("load", ensureFocus);
+
+	// Refocus if lost
+	window.addEventListener("blur", () => {
+		setTimeout(ensureFocus, 0);
+	});
+
+	document.addEventListener("visibilitychange", () => {
+		if (!document.hidden) {
+			ensureFocus();
+		}
+	});
+
+	// Capture keyboard input
+	window.addEventListener("keydown", (e) => {
+		// Important for Tab and browser-reserved keys
+		if (e.key === "Tab" || e.key.startsWith("Arrow")) {
+			e.preventDefault();
+		}
+
+		console.log({
+			key: e.key,
+			code: e.code,
+			keyCode: e.keyCode,
+			which: e.which,
+			charCode: e.charCode,
+			repeat: e.repeat
+		});
+	}, true);
+
+	window.addEventListener("keyup", (e) => {
+		console.log({
+			key: e.key,
+			code: e.code,
+			keyCode: e.keyCode,
+			which: e.which,
+			charCode: e.charCode,
+			repeat: e.repeat
+		});
+	}, true);
+
+	// Prevent text accumulation
+	sink.addEventListener("input", () => {
+		console.log("[sink value]", sink.value);
+		sink.value = "";
+	});
+
+	// Extra insurance
+	setInterval(ensureFocus, 1000);
+</script>
+</body>
+</html>

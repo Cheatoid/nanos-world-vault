@@ -8,7 +8,8 @@ License: MIT
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport"
+	      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"/>
 	<title>Input Monitor</title>
 	<style>
 		* {
@@ -97,7 +98,8 @@ License: MIT
 
 <body>
 	<div id="topBar">
-		<input type="text" id="dummyInput" placeholder="Type here..." tabindex="1" autofocus>
+		<input type="text" id="dummyInput" placeholder="Type here..." tabindex="1" autocomplete="off" autocorrect="off"
+			autocapitalize="off" spellcheck="false" autofocus>
 	</div>
 	<div id="canvas-container">
 		<canvas id="c"></canvas>
@@ -165,6 +167,7 @@ License: MIT
 
 		/* Keyboard events */
 		window.addEventListener('keydown', e => {
+			console.log('[keydown]', e);
 			if (e.repeat) return;
 			heldKeys.add(e.code);
 			logEvent(`KEY DN   | ${keyLabel(e.code)}`);
@@ -172,6 +175,7 @@ License: MIT
 			else if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
 		}, true);
 		window.addEventListener('keyup', e => {
+			console.log('[keyup]', e);
 			heldKeys.delete(e.code);
 			logEvent(`KEY UP   | ${keyLabel(e.code)}`);
 		}, true);

@@ -98,6 +98,7 @@ License: MIT
 		*::after {
 			margin: 0;
 			padding: 0;
+			border: 0;
 			box-sizing: border-box
 		}
 
@@ -172,7 +173,8 @@ License: MIT
 			position: fixed;
 			inset: 0;
 			z-index: 2;
-			pointer-events: none
+			pointer-events: none;
+			outline: none;
 		}
 
 		.hc {
@@ -5983,7 +5985,6 @@ License: MIT
 </head>
 
 <body>
-
 <!-- Hidden YouTube iframe -->
 <div id="youtube-player-container" style="display: none;">
 	<div id="youtube-player"></div>
@@ -5996,7 +5997,7 @@ License: MIT
 <div class="ov-vig" aria-hidden="true"></div>
 <div class="ov-grd" aria-hidden="true"></div>
 <div class="ov-nz" aria-hidden="true"></div>
-<canvas id="p-cv" aria-hidden="true"></canvas>
+<canvas id="p-cv" aria-hidden="true" tabindex="1"></canvas>
 <div class="hc htl" aria-hidden="true"></div>
 <div class="hc htr" aria-hidden="true"></div>
 <div class="hc hbl" aria-hidden="true"></div>
