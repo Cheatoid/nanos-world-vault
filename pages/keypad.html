@@ -9,7 +9,7 @@ License: MIT
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport"
-	      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"/>
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<title>Keypad</title>
 	<style>
 		*,
@@ -656,7 +656,7 @@ License: MIT
 	</div>
 
 	<script>
-		const KeypadUI = (function () {
+		const KeypadUI = (() => {
 			'use strict';
 
 			const CONFIG = {
@@ -669,7 +669,7 @@ License: MIT
 				Star: ★ ☆ ✦ - Eye-catching bullets for highlights or favorites
 				Decorative: ✱
 				*/
-				maskCharacter: '○',
+				maskCharacter: '•',
 				protectedMode: true,
 				cefBridgeEnabled: true,
 				soundEnabled: false,

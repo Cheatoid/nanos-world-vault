@@ -8,7 +8,8 @@ License: MIT
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<title>Basic NeoUI</title>
 	<link
 		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
@@ -297,13 +298,13 @@ License: MIT
 			display: none;
 		}
 
-		.nui-checkbox-input:checked + .nui-checkbox {
+		.nui-checkbox-input:checked+.nui-checkbox {
 			background: var(--nui-accent);
 			border-color: var(--nui-accent);
 			box-shadow: 0 0 8px var(--nui-accent-dim);
 		}
 
-		.nui-checkbox-input:checked + .nui-checkbox svg {
+		.nui-checkbox-input:checked+.nui-checkbox svg {
 			stroke-dashoffset: 0;
 		}
 
@@ -340,11 +341,11 @@ License: MIT
 			display: none;
 		}
 
-		.nui-toggle-input:checked + .nui-toggle-track {
+		.nui-toggle-input:checked+.nui-toggle-track {
 			background: var(--nui-accent-dim);
 		}
 
-		.nui-toggle-input:checked + .nui-toggle-track .nui-toggle-thumb {
+		.nui-toggle-input:checked+.nui-toggle-track .nui-toggle-thumb {
 			left: 18px;
 			background: var(--nui-accent);
 			box-shadow: 0 0 8px var(--nui-accent-glow);
@@ -393,11 +394,11 @@ License: MIT
 			display: none;
 		}
 
-		.nui-radio-input:checked + .nui-radio {
+		.nui-radio-input:checked+.nui-radio {
 			border-color: var(--nui-accent);
 		}
 
-		.nui-radio-input:checked + .nui-radio .nui-radio-inner {
+		.nui-radio-input:checked+.nui-radio .nui-radio-inner {
 			transform: scale(1);
 		}
 
@@ -1002,7 +1003,7 @@ License: MIT
 <script>
 	const NUI = (() => {
 		'use strict';
-		const is = {obj: (v) => v && typeof v === 'object' && !Array.isArray(v)};
+		const is = { obj: (v) => v && typeof v === 'object' && !Array.isArray(v) };
 
 		/* Theming API */
 		const ThemeManager = {
@@ -1088,16 +1089,16 @@ License: MIT
 				const moveHCursor = this.cursors['move-h'] || cursor;
 				const textCursor = this.cursors.text;
 				let css = `
-        #app-root { cursor: ${enc(cursor(accent, bg))} ${hotspot}, auto !important; }
-        #app-root .nui-btn { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
-        #app-root .nui-combobox-header, #app-root .nui-tab,
-        #app-root .nui-panel-header, #app-root .nui-checkbox-wrapper, #app-root .nui-toggle-wrapper,
-        #app-root .nui-radio-wrapper, #app-root .nui-label { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
-        #app-root .nui-window-header { cursor: ${enc(cursor(accent, bg))} ${hotspot}, grab !important; }
-        #app-root .nui-window-btn { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
-        #app-root .nui-textbox { cursor: ${enc(textCursor(text, bg))} 6 10, text !important; }
-        #app-root .nui-slider-container, #app-root .nui-slider-track { cursor: ${enc(moveHCursor(accent, bg))} 10 10, move !important; }
-      `;
+	#app-root { cursor: ${enc(cursor(accent, bg))} ${hotspot}, auto !important; }
+	#app-root .nui-btn { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
+	#app-root .nui-combobox-header, #app-root .nui-tab,
+	#app-root .nui-panel-header, #app-root .nui-checkbox-wrapper, #app-root .nui-toggle-wrapper,
+	#app-root .nui-radio-wrapper, #app-root .nui-label { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
+	#app-root .nui-window-header { cursor: ${enc(cursor(accent, bg))} ${hotspot}, grab !important; }
+	#app-root .nui-window-btn { cursor: ${enc(cursor(accent, bg))} ${hotspot}, pointer !important; }
+	#app-root .nui-textbox { cursor: ${enc(textCursor(text, bg))} 6 10, text !important; }
+	#app-root .nui-slider-container, #app-root .nui-slider-track { cursor: ${enc(moveHCursor(accent, bg))} 10 10, move !important; }
+	`;
 
 				this.styleEl.innerHTML = css;
 			}
@@ -1214,20 +1215,20 @@ License: MIT
 		class Checkbox extends Component {
 			createEl() {
 				const id = `nui-cb-${Math.random().toString(36).substr(2, 9)}`;
-				return h('label', {className: 'nui-checkbox-wrapper', htmlFor: id}, h('input', {
+				return h('label', { className: 'nui-checkbox-wrapper', htmlFor: id }, h('input', {
 					type: 'checkbox',
 					className: 'nui-checkbox-input',
 					id: id,
 					checked: this.props.checked || false,
 					onChange: (e) => this.props.onChange?.(e.target.checked)
-				}), h('div', {className: 'nui-checkbox'}, h('svg', {viewBox: '0 0 12 12'}, h('polyline', {points: '2 6 5 9 10 3'}))), h('span', {className: 'nui-checkbox-label'}, this.props.label));
+				}), h('div', { className: 'nui-checkbox' }, h('svg', { viewBox: '0 0 12 12' }, h('polyline', { points: '2 6 5 9 10 3' }))), h('span', { className: 'nui-checkbox-label' }, this.props.label));
 			}
 		}
 
 		class Toggle extends Component {
 			createEl() {
 				const id = `nui-tg-${Math.random().toString(36).substr(2, 9)}`;
-				return h('label', {className: 'nui-toggle-wrapper', htmlFor: id},
+				return h('label', { className: 'nui-toggle-wrapper', htmlFor: id },
 					h('input', {
 						type: 'checkbox',
 						className: 'nui-toggle-input',
@@ -1235,8 +1236,8 @@ License: MIT
 						checked: this.props.checked || false,
 						onChange: (e) => this.props.onChange?.(e.target.checked)
 					}),
-					h('div', {className: 'nui-toggle-track'}, h('div', {className: 'nui-toggle-thumb'})),
-					h('span', {className: 'nui-toggle-label'}, this.props.label)
+					h('div', { className: 'nui-toggle-track' }, h('div', { className: 'nui-toggle-thumb' })),
+					h('span', { className: 'nui-toggle-label' }, this.props.label)
 				);
 			}
 		}
@@ -1248,11 +1249,11 @@ License: MIT
 			}
 
 			createEl() {
-				this.rootEl = h('div', {className: 'nui-radio-group'});
+				this.rootEl = h('div', { className: 'nui-radio-group' });
 				this.props.options.forEach(opt => {
 					const id = `nui-rd-${Math.random().toString(36).substr(2, 9)}`;
 					this.rootEl.appendChild(
-						h('label', {className: 'nui-radio-wrapper', htmlFor: id},
+						h('label', { className: 'nui-radio-wrapper', htmlFor: id },
 							h('input', {
 								type: 'radio',
 								name: this.props.name,
@@ -1262,8 +1263,8 @@ License: MIT
 								checked: opt.value === this.selected,
 								onChange: () => this.selectItem(opt.value)
 							}),
-							h('div', {className: 'nui-radio'}, h('div', {className: 'nui-radio-inner'})),
-							h('span', {className: 'nui-radio-label'}, opt.label)
+							h('div', { className: 'nui-radio' }, h('div', { className: 'nui-radio-inner' })),
+							h('span', { className: 'nui-radio-label' }, opt.label)
 						)
 					);
 				});
@@ -1285,7 +1286,7 @@ License: MIT
 
 		class Badge extends Component {
 			createEl() {
-				return h('span', {className: `nui-badge nui-badge-${this.props.variant || 'default'}`}, this.props.label);
+				return h('span', { className: `nui-badge nui-badge-${this.props.variant || 'default'}` }, this.props.label);
 			}
 		}
 
@@ -1303,11 +1304,11 @@ License: MIT
 
 			createEl() {
 				const pct = this.getPercentage();
-				this.fillEl = h('div', {className: 'nui-slider-fill', style: {width: `${pct}%`}});
-				this.thumbEl = h('div', {className: 'nui-slider-thumb', style: {left: `${pct}%`}});
-				this.trackEl = h('div', {className: 'nui-slider-track'}, this.fillEl, this.thumbEl);
-				this.valueEl = h('div', {className: 'nui-slider-value'}, Math.round(this.value));
-				this.containerEl = h('div', {className: 'nui-slider-container'}, this.trackEl, this.valueEl);
+				this.fillEl = h('div', { className: 'nui-slider-fill', style: { width: `${pct}%` } });
+				this.thumbEl = h('div', { className: 'nui-slider-thumb', style: { left: `${pct}%` } });
+				this.trackEl = h('div', { className: 'nui-slider-track' }, this.fillEl, this.thumbEl);
+				this.valueEl = h('div', { className: 'nui-slider-value' }, Math.round(this.value));
+				this.containerEl = h('div', { className: 'nui-slider-container' }, this.trackEl, this.valueEl);
 				this.bindEvents();
 				return this.containerEl;
 			}
@@ -1336,7 +1337,7 @@ License: MIT
 					e.preventDefault();
 					const step = this.props.step || 1;
 					this.setValue(this.value + (e.deltaY > 0 ? -step : step));
-				}, {passive: false});
+				}, { passive: false });
 			}
 
 			updateValue(clientX) {
@@ -1377,9 +1378,9 @@ License: MIT
 
 		class ProgressBar extends Component {
 			createEl() {
-				this.fillEl = h('div', {className: 'nui-progress-fill'});
-				this.shineEl = h('div', {className: 'nui-progress-shine'});
-				this.el = h('div', {className: 'nui-progress'}, this.fillEl, this.shineEl);
+				this.fillEl = h('div', { className: 'nui-progress-fill' });
+				this.shineEl = h('div', { className: 'nui-progress-shine' });
+				this.el = h('div', { className: 'nui-progress' }, this.fillEl, this.shineEl);
 				this.setValue(this.props.value || 0);
 				return this.el;
 			}
@@ -1410,13 +1411,13 @@ License: MIT
 				const maxPct = this.getPercentage(this.maxValue);
 				this.fillEl = h('div', {
 					className: 'nui-range-slider-fill',
-					style: {left: `${minPct}%`, width: `${maxPct - minPct}%`}
+					style: { left: `${minPct}%`, width: `${maxPct - minPct}%` }
 				});
-				this.minThumbEl = h('div', {className: 'nui-range-slider-thumb', style: {left: `${minPct}%`}});
-				this.maxThumbEl = h('div', {className: 'nui-range-slider-thumb', style: {left: `${maxPct}%`}});
-				this.trackEl = h('div', {className: 'nui-range-slider-track'}, this.fillEl, this.minThumbEl, this.maxThumbEl);
-				this.valuesEl = h('div', {className: 'nui-range-slider-values'}, `${Math.round(this.minValue)} - ${Math.round(this.maxValue)}`);
-				this.containerEl = h('div', {className: 'nui-range-slider-container'}, this.trackEl, this.valuesEl);
+				this.minThumbEl = h('div', { className: 'nui-range-slider-thumb', style: { left: `${minPct}%` } });
+				this.maxThumbEl = h('div', { className: 'nui-range-slider-thumb', style: { left: `${maxPct}%` } });
+				this.trackEl = h('div', { className: 'nui-range-slider-track' }, this.fillEl, this.minThumbEl, this.maxThumbEl);
+				this.valuesEl = h('div', { className: 'nui-range-slider-values' }, `${Math.round(this.minValue)} - ${Math.round(this.maxValue)}`);
+				this.containerEl = h('div', { className: 'nui-range-slider-container' }, this.trackEl, this.valuesEl);
 				this.bindEvents();
 				return this.containerEl;
 			}
@@ -1501,7 +1502,7 @@ License: MIT
 					}
 					this.updateVisuals();
 					this.props.onChange?.(this.minValue, this.maxValue);
-				}, {passive: false});
+				}, { passive: false });
 			}
 
 			updateValue(clientX, thumb) {
@@ -1577,32 +1578,32 @@ License: MIT
 
 				const controls = [];
 				if (this.showCompact) {
-					controls.push(h('button', {className: 'nui-window-btn', 'data-action': 'compact'},
-						h('i', {className: 'fas fa-chevron-up'})));
+					controls.push(h('button', { className: 'nui-window-btn', 'data-action': 'compact' },
+						h('i', { className: 'fas fa-chevron-up' })));
 				}
 				if (this.showMinimize) {
-					controls.push(h('button', {className: 'nui-window-btn', 'data-action': 'minimize'},
-						h('i', {className: 'fas fa-minus'})));
+					controls.push(h('button', { className: 'nui-window-btn', 'data-action': 'minimize' },
+						h('i', { className: 'fas fa-minus' })));
 				}
 				if (this.showMaximize) {
-					controls.push(h('button', {className: 'nui-window-btn', 'data-action': 'maximize'},
-						h('i', {className: 'fas fa-expand'})));
+					controls.push(h('button', { className: 'nui-window-btn', 'data-action': 'maximize' },
+						h('i', { className: 'fas fa-expand' })));
 				}
 				if (this.showClose) {
-					controls.push(h('button', {className: 'nui-window-btn close', 'data-action': 'close'},
-						h('i', {className: 'fas fa-xmark'})));
+					controls.push(h('button', { className: 'nui-window-btn close', 'data-action': 'close' },
+						h('i', { className: 'fas fa-xmark' })));
 				}
 
-				this.headerEl = h('div', {className: 'nui-window-header'},
-					h('div', {className: 'nui-window-title'}, titleContent),
-					h('div', {className: 'nui-window-controls'}, ...controls)
+				this.headerEl = h('div', { className: 'nui-window-header' },
+					h('div', { className: 'nui-window-title' }, titleContent),
+					h('div', { className: 'nui-window-controls' }, ...controls)
 				);
 
-				this.bodyEl = h('div', {className: 'nui-window-body'}, this.props.children || []);
+				this.bodyEl = h('div', { className: 'nui-window-body' }, this.props.children || []);
 
 				const children = [this.headerEl, this.bodyEl];
 				if (this.resizable) {
-					this.resizeEl = h('div', {className: 'nui-window-resize'});
+					this.resizeEl = h('div', { className: 'nui-window-resize' });
 					children.push(this.resizeEl);
 				}
 
@@ -1791,11 +1792,11 @@ License: MIT
 
 			createEl() {
 				this.headerTextEl = h('span', null, this.selected);
-				this.headerArrowEl = h('span', {className: 'nui-combobox-arrow'}, '▼');
-				this.headerEl = h('div', {className: 'nui-combobox-header'}, this.headerTextEl, this.headerArrowEl);
-				this.listEl = h('div', {className: 'nui-combobox-list'});
+				this.headerArrowEl = h('span', { className: 'nui-combobox-arrow' }, '▼');
+				this.headerEl = h('div', { className: 'nui-combobox-header' }, this.headerTextEl, this.headerArrowEl);
+				this.listEl = h('div', { className: 'nui-combobox-list' });
 				this.renderOptions();
-				this.rootEl = h('div', {className: 'nui-combobox'}, this.headerEl, this.listEl);
+				this.rootEl = h('div', { className: 'nui-combobox' }, this.headerEl, this.listEl);
 				this.headerEl.addEventListener('click', (e) => {
 					e.stopPropagation();
 					this.toggle();
@@ -1844,8 +1845,8 @@ License: MIT
 			}
 
 			createEl() {
-				this.headerEl = h('div', {className: 'nui-tabs-header'});
-				this.contentEl = h('div', {className: 'nui-tab-content'});
+				this.headerEl = h('div', { className: 'nui-tabs-header' });
+				this.contentEl = h('div', { className: 'nui-tab-content' });
 				this.renderTabs();
 				return h('div', null, this.headerEl, this.contentEl);
 			}
@@ -1897,11 +1898,11 @@ License: MIT
 			}
 
 			createEl() {
-				this.chevronEl = h('span', {className: 'nui-panel-chevron'}, '▼');
-				this.bodyEl = h('div', {className: 'nui-panel-body'}, ...(this.props.children || []));
-				this.rootEl = h('div', {className: `nui-panel ${this.collapsed ? 'collapsed' : ''}`},
-					h('div', {className: 'nui-panel-header', onClick: () => this.toggle()},
-						h('span', {className: 'nui-panel-title'}, this.props.title), this.chevronEl
+				this.chevronEl = h('span', { className: 'nui-panel-chevron' }, '▼');
+				this.bodyEl = h('div', { className: 'nui-panel-body' }, ...(this.props.children || []));
+				this.rootEl = h('div', { className: `nui-panel ${this.collapsed ? 'collapsed' : ''}` },
+					h('div', { className: 'nui-panel-header', onClick: () => this.toggle() },
+						h('span', { className: 'nui-panel-title' }, this.props.title), this.chevronEl
 					), this.bodyEl
 				);
 				return this.rootEl;
@@ -1915,7 +1916,7 @@ License: MIT
 
 		class ScrollView extends Component {
 			createEl() {
-				return h('div', {className: 'nui-scrollview'}, ...(this.props.children || []));
+				return h('div', { className: 'nui-scrollview' }, ...(this.props.children || []));
 			}
 		}
 
@@ -1926,7 +1927,7 @@ License: MIT
 			}
 
 			createEl() {
-				this.rootEl = h('div', {className: 'nui-context-menu'});
+				this.rootEl = h('div', { className: 'nui-context-menu' });
 				this.renderItems();
 				this.bindEvents();
 				return this.rootEl;
@@ -1936,7 +1937,7 @@ License: MIT
 				this.rootEl.innerHTML = '';
 				this.props.items.forEach(item => {
 					if (item === 'divider') {
-						this.rootEl.appendChild(h('div', {className: 'nui-context-menu-divider'}));
+						this.rootEl.appendChild(h('div', { className: 'nui-context-menu-divider' }));
 					} else {
 						this.rootEl.appendChild(h('div', {
 							className: `nui-context-menu-item ${item.danger ? 'danger' : ''}`,
@@ -2008,39 +2009,39 @@ License: MIT
 
 	/* Custom SVG Cursors */
 	NUI.CursorManager.register('default', (accent, bg) => `
-  <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'>
-    <path d='M1 1L6 15L8.5 8.5L15 6Z' fill='${accent}' stroke='${bg}' stroke-width='1.5'/>
-  </svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'>
+<path d='M1 1L6 15L8.5 8.5L15 6Z' fill='${accent}' stroke='${bg}' stroke-width='1.5'/>
+</svg>
 `);
 
 	NUI.CursorManager.register('pointer', (accent, bg) => `
-  <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
-    <path d='M4 1L4 14L8 10L13 18L16 16L11 8L17 8Z' fill='${accent}' stroke='${bg}' stroke-width='1.5'/>
-  </svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
+<path d='M4 1L4 14L8 10L13 18L16 16L11 8L17 8Z' fill='${accent}' stroke='${bg}' stroke-width='1.5'/>
+</svg>
 `);
 
 	NUI.CursorManager.register('text', (text, bg) => `
-  <svg xmlns='http://www.w3.org/2000/svg' width='12' height='20' viewBox='0 0 12 20'>
-    <path d='M2 2H10M6 2V18M4 18H8' stroke='${text}' stroke-width='1.5' fill='none'/>
-  </svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='12' height='20' viewBox='0 0 12 20'>
+<path d='M2 2H10M6 2V18M4 18H8' stroke='${text}' stroke-width='1.5' fill='none'/>
+</svg>
 `);
 
 	NUI.CursorManager.register('move', (accent, bg) => `
-  <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
-    <path d='M10 0L13 4H11V8H15V6L19 10L15 14V12H11V16H13L10 20L7 16H9V12H5V14L1 10L5 6V8H9V4H7Z' fill='${accent}' stroke='${bg}' stroke-width='0.5'/>
-  </svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
+<path d='M10 0L13 4H11V8H15V6L19 10L15 14V12H11V16H13L10 20L7 16H9V12H5V14L1 10L5 6V8H9V4H7Z' fill='${accent}' stroke='${bg}' stroke-width='0.5'/>
+</svg>
 `);
 
 	NUI.CursorManager.register('hand', (accent, bg) => `
-  <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
-    <path d='M5 2V7H3V2C3 1.4 3.4 1 4 1C4.6 1 5 1.4 5 2ZM9 1V7H7V1C7 0.4 7.4 0 8 0C8.6 0 9 0.4 9 1ZM13 2V7H11V2C11 1.4 11.4 1 12 1C12.6 1 13 1.4 13 2ZM15 8V17C15 18.1 14.1 19 13 19H7C5.9 19 5 18.1 5 17V8C5 6.9 5.9 6 7 6H13C14.1 6 15 6.9 15 8Z' fill='${accent}' stroke='${bg}' stroke-width='0.5'/>
-  </svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
+<path d='M5 2V7H3V2C3 1.4 3.4 1 4 1C4.6 1 5 1.4 5 2ZM9 1V7H7V1C7 0.4 7.4 0 8 0C8.6 0 9 0.4 9 1ZM13 2V7H11V2C11 1.4 11.4 1 12 1C12.6 1 13 1.4 13 2ZM15 8V17C15 18.1 14.1 19 13 19H7C5.9 19 5 18.1 5 17V8C5 6.9 5.9 6 7 6H13C14.1 6 15 6.9 15 8Z' fill='${accent}' stroke='${bg}' stroke-width='0.5'/>
+</svg>
 `);
 
 	NUI.CursorManager.register('move-h', (accent, bg) => `
-  <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
-    <path d='M2 10L6 6V8H14V6L18 10L14 14V12H6V14L2 10Z' fill='${accent}' stroke='${bg}' stroke-width='1'/>
-  </svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
+<path d='M2 10L6 6V8H14V6L18 10L14 14V12H6V14L2 10Z' fill='${accent}' stroke='${bg}' stroke-width='1'/>
+</svg>
 `);
 
 
@@ -2106,10 +2107,10 @@ License: MIT
 
 
 	/* ═══════════════════════════════════════════════════════════════
-	 *  DEMO SHOWCASE APPLICATION
-	 * ═══════════════════════════════════════════════════════════════ */
+		*  DEMO SHOWCASE APPLICATION
+		* ═══════════════════════════════════════════════════════════════ */
 
-	const appStore = new NUI.Store({progress: 45, themeName: 'neo_dark'});
+	const appStore = new NUI.Store({ progress: 45, themeName: 'neo_dark' });
 
 	class ShowcaseApp extends NUI.Component {
 		constructor() {
@@ -2117,55 +2118,55 @@ License: MIT
 			const C = NUI.Controls;
 			const h = NUI.h;
 
-			this.textBox = new C.TextBox({placeholder: 'Type something...'});
+			this.textBox = new C.TextBox({ placeholder: 'Type something...' });
 			this.comboBox = new C.ComboBox({
 				options: ['default', 'pointer', 'text', 'move', 'hand'],
 				selected: 'default',
 				onChange: (value) => NUI.CursorManager.setStyle(value)
 			});
-			this.checkBox1 = new C.Checkbox({label: 'Enable Shadows', checked: true});
-			this.checkBox2 = new C.Checkbox({label: 'V-Sync'});
-			this.toggle = new C.Toggle({label: 'Post Processing', checked: true});
+			this.checkBox1 = new C.Checkbox({ label: 'Enable Shadows', checked: true });
+			this.checkBox2 = new C.Checkbox({ label: 'V-Sync' });
+			this.toggle = new C.Toggle({ label: 'Post Processing', checked: true });
 			this.radio = new C.RadioGroup({
 				name: 'quality',
-				options: [{label: 'Low', value: 'low'}, {label: 'Med', value: 'med'}, {label: 'High', value: 'high'}],
+				options: [{ label: 'Low', value: 'low' }, { label: 'Med', value: 'med' }, { label: 'High', value: 'high' }],
 				value: 'high'
 			});
 
-			this.badgeDefault = new C.Badge({label: 'Stable', variant: 'default'});
-			this.badgeWarn = new C.Badge({label: 'Deprecated', variant: 'warn'});
-			this.badgeError = new C.Badge({label: 'Critical', variant: 'error'});
+			this.badgeDefault = new C.Badge({ label: 'Stable', variant: 'default' });
+			this.badgeWarn = new C.Badge({ label: 'Deprecated', variant: 'warn' });
+			this.badgeError = new C.Badge({ label: 'Critical', variant: 'error' });
 
-			this.btnPrimary = new C.Button({label: 'Primary', variant: 'primary'});
-			this.btnOutline = new C.Button({label: 'Outline', variant: 'outline'});
-			this.btnGlow = new C.Button({label: 'Glow', variant: 'glow'});
+			this.btnPrimary = new C.Button({ label: 'Primary', variant: 'primary' });
+			this.btnOutline = new C.Button({ label: 'Outline', variant: 'outline' });
+			this.btnGlow = new C.Button({ label: 'Glow', variant: 'glow' });
 
-			this.mainSlider = new C.Slider({min: 0, max: 100, value: 75, step: 1});
-			this.rangeSlider = new C.RangeSlider({min: 0, max: 100, minValue: 25, maxValue: 75, step: 1});
-			this.progressBar = new C.ProgressBar({value: 0, max: 100});
+			this.mainSlider = new C.Slider({ min: 0, max: 100, value: 75, step: 1 });
+			this.rangeSlider = new C.RangeSlider({ min: 0, max: 100, minValue: 25, maxValue: 75, step: 1 });
+			this.progressBar = new C.ProgressBar({ value: 0, max: 100 });
 
 			this.panel1 = new C.Panel({
 				title: 'Project Files', children: [
 					h('div', {
-							style: {
-								fontFamily: 'var(--nui-font-mono)',
-								fontSize: '11px',
-								color: 'var(--nui-text-dim)',
-								lineHeight: '1.6'
-							}
-						},
+						style: {
+							fontFamily: 'var(--nui-font-mono)',
+							fontSize: '11px',
+							color: 'var(--nui-text-dim)',
+							lineHeight: '1.6'
+						}
+					},
 						'src/', h('br'), '├── index.js', h('br'), '├── App.js', h('br'), '└── styles.css')
 				]
 			});
 
 			this.panel2 = new C.Panel({
 				title: 'Configuration', collapsed: true, children: [
-					new C.TextBox({placeholder: 'Config URL...'}).render()
+					new C.TextBox({ placeholder: 'Config URL...' }).render()
 				]
 			});
 
 			this.scrollView = new C.ScrollView({
-				children: Array.from({length: 20}, (_, i) =>
+				children: Array.from({ length: 20 }, (_, i) =>
 					h('div', {
 						style: {
 							padding: '6px 0',
@@ -2194,7 +2195,7 @@ License: MIT
 					{
 						id: 'tab2',
 						label: 'Audio',
-						content: h('div', null, new C.Slider({min: 0, max: 100, value: 80, step: 1}).render())
+						content: h('div', null, new C.Slider({ min: 0, max: 100, value: 80, step: 1 }).render())
 					},
 					{
 						id: 'tab3',
@@ -2208,18 +2209,18 @@ License: MIT
 			});
 
 			this.themeButtons = [
-				new C.Button({label: 'DARK', variant: 'primary', onClick: () => this.setTheme('neo_dark')}),
-				new C.Button({label: 'LIGHT', variant: 'outline', onClick: () => this.setTheme('neo_light')}),
-				new C.Button({label: 'CYBER', variant: 'outline', onClick: () => this.setTheme('neo_cyber')})
+				new C.Button({ label: 'DARK', variant: 'primary', onClick: () => this.setTheme('neo_dark') }),
+				new C.Button({ label: 'LIGHT', variant: 'outline', onClick: () => this.setTheme('neo_light') }),
+				new C.Button({ label: 'CYBER', variant: 'outline', onClick: () => this.setTheme('neo_cyber') })
 			];
 
 			this.contextMenu = new C.ContextMenu({
 				items: [
-					{label: 'Refresh', icon: '↻', onClick: () => console.log('Refresh clicked')},
-					{label: 'Copy', icon: '⎘', onClick: () => console.log('Copy clicked')},
+					{ label: 'Refresh', icon: '↻', onClick: () => console.log('Refresh clicked') },
+					{ label: 'Copy', icon: '⎘', onClick: () => console.log('Copy clicked') },
 					'divider',
-					{label: 'Settings', icon: '⚙', onClick: () => console.log('Settings clicked')},
-					{label: 'Delete', icon: '✕', danger: true, onClick: () => console.log('Delete clicked')}
+					{ label: 'Settings', icon: '⚙', onClick: () => console.log('Settings clicked') },
+					{ label: 'Delete', icon: '✕', danger: true, onClick: () => console.log('Delete clicked') }
 				]
 			});
 
@@ -2235,13 +2236,13 @@ License: MIT
 				showMaximize: true,
 				onClose: () => console.log('Window closed'),
 				children: [
-					h('p', {style: {fontSize: '12px', color: 'var(--nui-text-dim)', marginBottom: '12px'}},
+					h('p', { style: { fontSize: '12px', color: 'var(--nui-text-dim)', marginBottom: '12px' } },
 						'This is a draggable and resizable window widget.'),
-					h('div', {style: {display: 'flex', gap: '8px', marginBottom: '12px'}},
-						new C.Button({label: 'OK', variant: 'primary'}).render(),
-						new C.Button({label: 'Cancel', variant: 'outline'}).render()
+					h('div', { style: { display: 'flex', gap: '8px', marginBottom: '12px' } },
+						new C.Button({ label: 'OK', variant: 'primary' }).render(),
+						new C.Button({ label: 'Cancel', variant: 'outline' }).render()
 					),
-					new C.TextBox({placeholder: 'Enter text...'}).render()
+					new C.TextBox({ placeholder: 'Enter text...' }).render()
 				]
 			});
 		}
@@ -2258,17 +2259,17 @@ License: MIT
 		createEl() {
 			const C = NUI.Controls;
 			const h = NUI.h;
-			return h('div', {id: 'app-root'},
-				h('div', {className: 'nui-header'},
-					h('div', null, h('div', {className: 'nui-title'}, 'Basic NeoUI'), h('div', {className: 'nui-subtitle'}, 'Web UI Framework by Cheatoid')),
-					h('div', {style: {display: 'flex', gap: '8px'}}, ...this.themeButtons.map(b => b.render()))
+			return h('div', { id: 'app-root' },
+				h('div', { className: 'nui-header' },
+					h('div', null, h('div', { className: 'nui-title' }, 'Basic NeoUI'), h('div', { className: 'nui-subtitle' }, 'Web UI Framework by Cheatoid')),
+					h('div', { style: { display: 'flex', gap: '8px' } }, ...this.themeButtons.map(b => b.render()))
 				),
-				h('div', {className: 'nui-row'},
-					h('div', {className: 'nui-col'},
-						h('div', {className: 'nui-col-title'}, 'Inputs & Selection'),
-						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Glow TextBox'), this.textBox.render()),
-						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'ComboBox (Custom Dropdown)'), this.comboBox.render()),
-						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Checkboxes & Toggle'),
+				h('div', { className: 'nui-row' },
+					h('div', { className: 'nui-col' },
+						h('div', { className: 'nui-col-title' }, 'Inputs & Selection'),
+						h('div', { className: 'nui-control-group' }, h('label', { className: 'nui-label' }, 'Glow TextBox'), this.textBox.render()),
+						h('div', { className: 'nui-control-group' }, h('label', { className: 'nui-label' }, 'ComboBox (Custom Dropdown)'), this.comboBox.render()),
+						h('div', { className: 'nui-control-group' }, h('label', { className: 'nui-label' }, 'Checkboxes & Toggle'),
 							h('div', {
 								style: {
 									display: 'flex',
@@ -2279,33 +2280,33 @@ License: MIT
 							}, this.checkBox1.render(), this.checkBox2.render(), this.toggle.render())
 						)
 					),
-					h('div', {className: 'nui-col'},
-						h('div', {className: 'nui-col-title'}, 'Actions & Status'),
-						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Animated Buttons'), h('div', {
+					h('div', { className: 'nui-col' },
+						h('div', { className: 'nui-col-title' }, 'Actions & Status'),
+						h('div', { className: 'nui-control-group' }, h('label', { className: 'nui-label' }, 'Animated Buttons'), h('div', {
 							style: {
 								display: 'flex',
 								gap: '8px'
 							}
 						}, this.btnPrimary.render(), this.btnOutline.render(), this.btnGlow.render())),
-						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Badges'), h('div', {
+						h('div', { className: 'nui-control-group' }, h('label', { className: 'nui-label' }, 'Badges'), h('div', {
 							style: {
 								display: 'flex',
 								gap: '8px'
 							}
 						}, this.badgeDefault.render(), this.badgeWarn.render(), this.badgeError.render())),
-						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Slider (Wheel Supported)'), this.mainSlider.render()),
-						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Range Slider (Min/Max)'), this.rangeSlider.render()),
-						h('div', {className: 'nui-control-group'}, h('label', {className: 'nui-label'}, 'Dynamic Progress Bar'), this.progressBar.render())
+						h('div', { className: 'nui-control-group' }, h('label', { className: 'nui-label' }, 'Slider (Wheel Supported)'), this.mainSlider.render()),
+						h('div', { className: 'nui-control-group' }, h('label', { className: 'nui-label' }, 'Range Slider (Min/Max)'), this.rangeSlider.render()),
+						h('div', { className: 'nui-control-group' }, h('label', { className: 'nui-label' }, 'Dynamic Progress Bar'), this.progressBar.render())
 					)
 				),
-				h('div', {className: 'nui-row'},
-					h('div', {className: 'nui-col'},
-						h('div', {className: 'nui-col-title'}, 'Panels & Tabs'),
+				h('div', { className: 'nui-row' },
+					h('div', { className: 'nui-col' },
+						h('div', { className: 'nui-col-title' }, 'Panels & Tabs'),
 						this.panel1.render(), this.panel2.render(),
 						this.tabs.render()
 					),
-					h('div', {className: 'nui-col'},
-						h('div', {className: 'nui-col-title'}, 'Scroll View (Custom Scrollbar)'),
+					h('div', { className: 'nui-col' },
+						h('div', { className: 'nui-col-title' }, 'Scroll View (Custom Scrollbar)'),
 						this.scrollView.render()
 					)
 				),

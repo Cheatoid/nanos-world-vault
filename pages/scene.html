@@ -1,0 +1,995 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
+	<title>3D scene - WebGPU</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background: #000;
+		}
+
+		#canvas {
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
+
+		body::after {
+			content: "";
+			position: fixed;
+			inset: 0;
+			background: repeating-linear-gradient(0deg,
+					transparent,
+					transparent 2px,
+					rgba(0, 0, 0, 0.025) 2px,
+					rgba(0, 0, 0, 0.025) 4px);
+			pointer-events: none;
+			z-index: 100;
+		}
+
+		#crosshair::before,
+		#crosshair::after {
+			content: "";
+			position: absolute;
+			background: rgba(255, 255, 255, 0.9);
+		}
+
+		#crosshair::before {
+			width: 14px;
+			height: 1px;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+
+		#crosshair::after {
+			width: 1px;
+			height: 14px;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+
+		#crosshair-dot {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 3px;
+			height: 3px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.6);
+		}
+
+		#hud {
+			font-family: "Courier New", monospace;
+		}
+
+		#vignette {
+			background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+		}
+
+		.stat-label {
+			color: rgba(120, 230, 180, 0.55);
+			font-size: 10px;
+			letter-spacing: 0.15em;
+			text-transform: uppercase;
+		}
+
+		.stat-value {
+			color: rgba(170, 255, 215, 0.95);
+			font-size: 13px;
+			letter-spacing: 0.04em;
+		}
+
+		#lock-screen {
+			background: rgba(0, 0, 0, 0.86);
+			backdrop-filter: blur(6px);
+		}
+
+		#lock-screen .ring {
+			border: 1px solid rgba(100, 220, 160, 0.35);
+			box-shadow: 0 0 50px rgba(50, 200, 130, 0.12),
+				inset 0 0 40px rgba(50, 200, 130, 0.06);
+		}
+
+		.key-badge {
+			background: rgba(100, 220, 160, 0.08);
+			border: 1px solid rgba(100, 220, 160, 0.25);
+			color: rgba(160, 255, 210, 0.85);
+			font-size: 11px;
+			padding: 3px 9px;
+			border-radius: 4px;
+			letter-spacing: 0.08em;
+		}
+
+		/* Options Panel */
+		#options-panel {
+			background: rgba(6, 18, 11, 0.96);
+			border: 1px solid rgba(60, 180, 110, 0.25);
+			backdrop-filter: blur(12px);
+			font-family: "Courier New", monospace;
+		}
+
+		#options-panel h2 {
+			color: rgba(160, 255, 210, 0.9);
+			font-size: 11px;
+			letter-spacing: 0.25em;
+			text-transform: uppercase;
+		}
+
+		.opt-label {
+			color: rgba(120, 230, 180, 0.6);
+			font-size: 10px;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+		}
+
+		.opt-value {
+			color: rgba(160, 255, 210, 0.95);
+			font-size: 12px;
+			letter-spacing: 0.04em;
+			min-width: 44px;
+			text-align: right;
+		}
+
+		.opt-slider {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 100%;
+			height: 3px;
+			border-radius: 2px;
+			background: rgba(60, 180, 110, 0.2);
+			outline: none;
+			cursor: pointer;
+		}
+
+		.opt-slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 13px;
+			height: 13px;
+			border-radius: 50%;
+			background: rgba(100, 220, 160, 0.9);
+			border: 1px solid rgba(160, 255, 210, 0.4);
+			cursor: pointer;
+		}
+
+		.opt-slider:hover::-webkit-slider-thumb {
+			background: rgba(140, 255, 190, 1);
+		}
+
+		.fps-btn {
+			background: rgba(60, 180, 110, 0.08);
+			border: 1px solid rgba(60, 180, 110, 0.2);
+			color: rgba(120, 230, 180, 0.7);
+			font-size: 11px;
+			font-family: "Courier New", monospace;
+			padding: 4px 10px;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: all 0.15s;
+			letter-spacing: 0.06em;
+		}
+
+		.fps-btn:hover {
+			background: rgba(60, 180, 110, 0.18);
+			color: rgba(160, 255, 210, 0.95);
+		}
+
+		.fps-btn.active {
+			background: rgba(60, 180, 110, 0.28);
+			border-color: rgba(100, 220, 160, 0.55);
+			color: rgba(160, 255, 210, 1);
+		}
+
+		#opt-btn {
+			background: rgba(6, 18, 11, 0.7);
+			border: 1px solid rgba(60, 180, 110, 0.25);
+			color: rgba(120, 230, 180, 0.75);
+			font-family: "Courier New", monospace;
+			font-size: 10px;
+			letter-spacing: 0.12em;
+			padding: 5px 10px;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: all 0.15s;
+			pointer-events: all;
+		}
+
+		#opt-btn:hover {
+			background: rgba(6, 18, 11, 0.9);
+			border-color: rgba(100, 220, 160, 0.45);
+			color: rgba(160, 255, 210, 0.95);
+		}
+
+		#webgpu-error {
+			background: rgba(180, 40, 40, 0.12);
+			border: 1px solid rgba(220, 80, 80, 0.35);
+		}
+
+		.divider {
+			border: none;
+			border-top: 1px solid rgba(60, 180, 110, 0.12);
+			margin: 10px 0;
+		}
+	</style>
+</head>
+
+<body>
+	<canvas id="canvas"></canvas>
+	<div id="vignette" class="fixed inset-0 pointer-events-none z-10"></div>
+
+	<!-- Crosshair -->
+	<div id="crosshair" class="fixed inset-0 pointer-events-none z-20">
+		<div id="crosshair-dot"></div>
+	</div>
+
+	<!-- HUD -->
+	<div id="hud"
+		class="fixed inset-0 pointer-events-none z-30 p-5 flex flex-col justify-between opacity-0 transition-opacity duration-500">
+		<div class="flex justify-between items-start">
+			<div class="flex gap-1 items-center">
+				<div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+				<span class="stat-label ml-1">WebGPU - THREE.JS</span>
+			</div>
+			<div class="flex items-center gap-3">
+				<button id="opt-btn">OPTIONS [TAB]</button>
+				<div class="text-right">
+					<div class="stat-label">FPS</div>
+					<div class="stat-value" id="fps-counter">-</div>
+				</div>
+			</div>
+		</div>
+		<div class="flex justify-between items-end">
+			<div class="flex gap-6">
+				<div>
+					<div class="stat-label">Position</div>
+					<div class="stat-value" id="pos-display">0.0 · 0.0 · 0.0</div>
+				</div>
+				<div>
+					<div class="stat-label">Yaw · Pitch</div>
+					<div class="stat-value" id="rot-display">0° · 0°</div>
+				</div>
+				<div>
+					<div class="stat-label">Speed</div>
+					<div class="stat-value" id="speed-display">0.0 m/s</div>
+				</div>
+			</div>
+			<div class="text-right">
+				<div class="stat-label">Limit</div>
+				<div class="stat-value" id="limit-display">∞</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Options Panel -->
+	<div id="options-panel" class="fixed right-5 top-16 z-40 rounded-lg p-5 w-72 hidden" style="pointer-events: all">
+		<h2 class="mb-4">⚙ Game Options</h2>
+
+		<!-- Mouse Sensitivity -->
+		<div class="mb-4">
+			<div class="flex justify-between mb-1">
+				<span class="opt-label">Mouse Sensitivity</span>
+				<span class="opt-value" id="sens-val">1.0</span>
+			</div>
+			<input type="range" class="opt-slider" id="sens-slider" min="0.1" max="5.0" step="0.1" value="1.0" />
+		</div>
+
+		<!-- FOV -->
+		<div class="mb-4">
+			<div class="flex justify-between mb-1">
+				<span class="opt-label">Field of View</span>
+				<span class="opt-value" id="fov-val">75°</span>
+			</div>
+			<input type="range" class="opt-slider" id="fov-slider" min="45" max="120" step="1" value="75" />
+		</div>
+
+		<hr class="divider" />
+
+		<!-- Walk Speed -->
+		<div class="mb-4">
+			<div class="flex justify-between mb-1">
+				<span class="opt-label">Walk Speed</span>
+				<span class="opt-value" id="walk-val">6.5 m/s</span>
+			</div>
+			<input type="range" class="opt-slider" id="walk-slider" min="1" max="20" step="0.5" value="6.5" />
+		</div>
+
+		<!-- Sprint Speed -->
+		<div class="mb-4">
+			<div class="flex justify-between mb-1">
+				<span class="opt-label">Sprint Speed</span>
+				<span class="opt-value" id="sprint-val">13.0 m/s</span>
+			</div>
+			<input type="range" class="opt-slider" id="sprint-slider" min="2" max="40" step="0.5" value="13.0" />
+		</div>
+
+		<hr class="divider" />
+
+		<!-- Fog Density -->
+		<div class="mb-4">
+			<div class="flex justify-between mb-1">
+				<span class="opt-label">Fog Density</span>
+				<span class="opt-value" id="fog-val">0.020</span>
+			</div>
+			<input type="range" class="opt-slider" id="fog-slider" min="0" max="0.12" step="0.002" value="0.020" />
+		</div>
+
+		<!-- Brightness -->
+		<div class="mb-4">
+			<div class="flex justify-between mb-1">
+				<span class="opt-label">Brightness</span>
+				<span class="opt-value" id="bright-val">1.40</span>
+			</div>
+			<input type="range" class="opt-slider" id="bright-slider" min="0.4" max="3.0" step="0.05" value="1.40" />
+		</div>
+
+		<hr class="divider" />
+
+		<!-- FPS Limiter -->
+		<div class="mb-1">
+			<span class="opt-label">FPS Limit</span>
+		</div>
+		<div class="flex gap-2 flex-wrap mt-2">
+			<button class="fps-btn" data-fps="30">30</button>
+			<button class="fps-btn" data-fps="60">60</button>
+			<button class="fps-btn" data-fps="120">120</button>
+			<button class="fps-btn" data-fps="144">144</button>
+			<button class="fps-btn active" data-fps="0">∞ Unlimited</button>
+		</div>
+	</div>
+
+	<!-- Lock screen -->
+	<div id="lock-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-7">
+		<div class="ring rounded-full w-28 h-28 flex items-center justify-center">
+			<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(100,220,160,0.8)"
+				stroke-width="1.4">
+				<circle cx="12" cy="12" r="3" />
+				<path
+					d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+			</svg>
+		</div>
+		<div class="text-center" style="font-family: 'Courier New', monospace;">
+			<p class="text-xs tracking-widest mb-1" style="color: rgba(100, 220, 160, 0.45)">3D scene · WebGPU</p>
+			<h1 class="text-2xl font-light mb-1" style="color: rgba(170, 255, 215, 0.95); letter-spacing: 0.2em">
+				POINTER LOCK
+			</h1>
+			<p class="text-xs" style="color: rgba(100, 220, 160, 0.38); letter-spacing: 0.1em">
+				CLICK TO ENTER · ESC TO EXIT
+			</p>
+		</div>
+		<div class="flex gap-2 flex-wrap justify-center" style="font-family: 'Courier New', monospace;">
+			<span class="key-badge">W A S D - move</span>
+			<span class="key-badge">MOUSE - look</span>
+			<span class="key-badge">SHIFT - sprint</span>
+			<span class="key-badge">TAB - options</span>
+			<span class="key-badge">ESC - unlock</span>
+		</div>
+		<div id="webgpu-error" class="hidden rounded px-4 py-3 text-center"
+			style="font-family: 'Courier New', monospace; max-width: 320px">
+			<p class="text-xs" style="color: rgba(255, 120, 120, 0.9); letter-spacing: 0.07em">
+				WebGPU unavailable.<br />
+				<span style="color: rgba(255, 120, 120, 0.55)">Use Chrome 113+ or Edge 113+</span>
+			</p>
+		</div>
+	</div>
+
+	<script type="module">
+		import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.180.0/three.webgpu.min.js";
+
+		/** @type {HTMLCanvasElement} */
+		const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas"));
+
+		// WebGPU Renderer
+		/** @type {InstanceType<typeof THREE.WebGPURenderer>} */
+		let renderer;
+		try {
+			renderer = new THREE.WebGPURenderer({ canvas, antialias: true });
+		} catch (e) {
+			document.getElementById("webgpu-error").classList.remove("hidden");
+			throw e;
+		}
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMappingExposure = 1.4;
+
+		await renderer.init().catch(() => {
+			document.getElementById("webgpu-error").classList.remove("hidden");
+		});
+
+		// Scene
+		const scene = new THREE.Scene();
+		scene.background = new THREE.Color(0x060e0a);
+		scene.fog = new THREE.FogExp2(0x060e0a, 0.02);
+
+		// Camera
+		const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 400);
+		camera.position.set(0, 1.75, 8);
+
+		// Lighting
+		// Strong ambient so nothing goes black
+		const ambient = new THREE.AmbientLight(0x203828, 8.0);
+		scene.add(ambient);
+
+		// Sky/ground hemisphere - warm ceiling, cool floor
+		const hemi = new THREE.HemisphereLight(0x50ffaa, 0x102818, 3.5);
+		scene.add(hemi);
+
+		// Main directional (sun-like)
+		const sun = new THREE.DirectionalLight(0xeefff4, 4.5);
+		sun.position.set(15, 30, 15);
+		sun.castShadow = true;
+		sun.shadow.mapSize.set(2048, 2048);
+		sun.shadow.camera.far = 140;
+		const ss = 70;
+		sun.shadow.camera.left = -ss;
+		sun.shadow.camera.right = ss;
+		sun.shadow.camera.top = ss;
+		sun.shadow.camera.bottom = -ss;
+		sun.shadow.bias = -0.0003;
+		scene.add(sun);
+
+		// Opposite fill (cool blue-white)
+		const fill = new THREE.DirectionalLight(0x88ccff, 1.8);
+		fill.position.set(-18, 12, -12);
+		scene.add(fill);
+
+		// Rim light from below
+		const rim = new THREE.DirectionalLight(0x00ffaa, 1.2);
+		rim.position.set(0, -5, 0);
+		scene.add(rim);
+
+		// Materials
+		/** @param {number} color @param {number} [r=0.85] @param {number} [m=0.1] */
+		const mat = (color, r = 0.85, m = 0.1) => new THREE.MeshStandardMaterial({ color, roughness: r, metalness: m });
+
+		const floorMat = mat(0x1a3025, 0.92, 0.08);
+		const wallMat = mat(0x162a1e, 0.85, 0.15);
+		const pillarMat = mat(0x1e3528, 0.65, 0.35);
+		const accentMat = new THREE.MeshStandardMaterial({
+			color: 0x00ff99,
+			emissive: 0x00ff99,
+			emissiveIntensity: 1.2,
+			roughness: 0.3,
+		});
+		const dimAcc = new THREE.MeshStandardMaterial({
+			color: 0x00cc66,
+			emissive: 0x00aa55,
+			emissiveIntensity: 0.5,
+			roughness: 0.7,
+		});
+		const glowMat = new THREE.MeshStandardMaterial({
+			color: 0xffffff,
+			emissive: 0xaaffdd,
+			emissiveIntensity: 2.0,
+			roughness: 0.2,
+		});
+		const stoneMat = mat(0x243c2e, 0.9, 0.05);
+		const metalMat = mat(0x2a4a36, 0.4, 0.7);
+
+		// Helper
+		/**
+		 * @param {number} w @param {number} h @param {number} d
+		 * @param {THREE.Material} m @param {[number,number,number]} pos
+		 * @param {boolean} [sh=true]
+		 */
+		function box(w, h, d, m, [x, y, z], sh = true) {
+			const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+			mesh.position.set(x, y + h / 2, z);
+			if (sh) {
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+			}
+			scene.add(mesh);
+			return mesh;
+		}
+
+		// Floor
+		const floor = new THREE.Mesh(new THREE.PlaneGeometry(240, 240, 60, 60), floorMat);
+		floor.rotation.x = -Math.PI / 2;
+		floor.receiveShadow = true;
+		scene.add(floor);
+
+		const grid = new THREE.GridHelper(240, 100, 0x0e2818, 0x0a1e10);
+		grid.position.y = 0.002;
+		scene.add(grid);
+
+		// Ceiling
+		const ceil = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), wallMat);
+		ceil.rotation.x = Math.PI / 2;
+		ceil.position.y = 9;
+		ceil.receiveShadow = true;
+		scene.add(ceil);
+
+		// Pillars
+		/** @type {THREE.PointLight[]} */
+		const pillarLights = [];
+
+		/** @param {number} x @param {number} z */
+		function pillar(x, z) {
+			box(0.65, 9, 0.65, pillarMat, [x, 0, z]);
+			box(1.0, 0.18, 1.0, dimAcc, [x, 9, z]);
+			box(1.0, 0.14, 1.0, dimAcc, [x, 0, z]);
+			// Glowing strip on each face
+			for (let a = 0; a < 4; a++) {
+				const ox = a % 2 === 0 ? (a < 2 ? 0.34 : -0.34) : 0;
+				const oz = a % 2 !== 0 ? (a < 3 ? 0.34 : -0.34) : 0;
+				const s = box(0.06, 4.0, 0.06, accentMat, [x + ox, 2.5, z + oz], false);
+			}
+			const pl = new THREE.PointLight(0x00ff99, 2.5, 9, 2);
+			pl.position.set(x, 4, z);
+			scene.add(pl);
+			pillarLights.push(pl);
+		}
+
+		// Outer ring
+		const OR = 20,
+			OP = 14;
+		for (let i = 0; i < OP; i++) {
+			const a = (i / OP) * Math.PI * 2;
+			pillar(Math.cos(a) * OR, Math.sin(a) * OR);
+		}
+		// Inner ring
+		const IR = 10,
+			IP = 8;
+		for (let i = 0; i < IP; i++) {
+			const a = (i / IP) * Math.PI * 2 + Math.PI / IP;
+			pillar(Math.cos(a) * IR, Math.sin(a) * IR);
+		}
+		// Corner clusters
+		for (const [x, z] of [
+			[-5, 5],
+			[5, 5],
+			[-5, -5],
+			[5, -5],
+		])
+			pillar(x, z);
+
+		// Bounding walls
+		box(0.5, 9, 50, wallMat, [-25, 0, 0]);
+		box(0.5, 9, 50, wallMat, [25, 0, 0]);
+		box(50, 9, 0.5, wallMat, [0, 0, -25]);
+		box(50, 9, 0.5, wallMat, [0, 0, 25]);
+
+		// Wall accent lights
+		for (let i = -20; i <= 20; i += 5) {
+			for (const [wx, wz] of [
+				[-24.5, i],
+				[24.5, i],
+				[i, -24.5],
+				[i, 24.5],
+			]) {
+				const dot = box(0.06, 0.06, 0.06, glowMat, [wx, 4.5, wz], false);
+				const pl = new THREE.PointLight(0x00ffaa, 0.8, 7, 2);
+				pl.position.set(wx, 4.5, wz);
+				scene.add(pl);
+			}
+		}
+
+		// Central altar
+		box(5.0, 0.35, 5.0, stoneMat, [0, 0, 0]);
+		box(3.6, 0.55, 3.6, pillarMat, [0, 0.35, 0]);
+		box(2.4, 0.9, 2.4, pillarMat, [0, 0.9, 0]);
+		box(1.5, 1.2, 1.5, metalMat, [0, 1.8, 0]);
+		box(0.8, 1.5, 0.8, pillarMat, [0, 3.0, 0]);
+		box(0.35, 0.35, 0.35, accentMat, [0, 4.5, 0]);
+
+		const altarLight = new THREE.PointLight(0x00ffcc, 8, 20, 1.5);
+		altarLight.position.set(0, 5.5, 0);
+		scene.add(altarLight);
+
+		const altarLight2 = new THREE.PointLight(0x00ff88, 4, 10, 2);
+		altarLight2.position.set(0, 1.5, 0);
+		scene.add(altarLight2);
+
+		// Altar ring of mini-lights
+		for (let i = 0; i < 6; i++) {
+			const a = (i / 6) * Math.PI * 2;
+			const pl = new THREE.PointLight(0x00ffaa, 1.5, 6, 2);
+			pl.position.set(Math.cos(a) * 3, 0.5, Math.sin(a) * 3);
+			scene.add(pl);
+		}
+
+		// Ceiling lights grid
+		const ceilLightPositions = [];
+		for (let x = -18; x <= 18; x += 9) {
+			for (let z = -18; z <= 18; z += 9) {
+				ceilLightPositions.push([x, z]);
+			}
+		}
+		/** @type {THREE.PointLight[]} */
+		const ceilLights = [];
+		for (const [x, z] of ceilLightPositions) {
+			const bar = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 2.2), accentMat);
+			bar.position.set(x, 8.96, z);
+			scene.add(bar);
+			const pl = new THREE.PointLight(0x00ff99, 2.0, 12, 1.8);
+			pl.position.set(x, 8.5, z);
+			scene.add(pl);
+			ceilLights.push(pl);
+		}
+
+		// Floating cubes
+		/** @type {{mesh:THREE.Mesh, spd:number, rad:number, ph:number, y:number}[]} */
+		const floaters = [];
+		for (let i = 0; i < 22; i++) {
+			const size = 0.1 + Math.random() * 0.28;
+			const m = Math.random() > 0.4 ? accentMat : Math.random() > 0.5 ? dimAcc : glowMat;
+			const mesh = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), m);
+			mesh.castShadow = false;
+			scene.add(mesh);
+			floaters.push({
+				mesh,
+				spd: 0.18 + Math.random() * 0.55,
+				rad: 1.8 + Math.random() * 16,
+				ph: Math.random() * Math.PI * 2,
+				y: 1.5 + Math.random() * 6,
+			});
+		}
+
+		// Arch structures
+		for (const [ax, az, ry] of [
+			[0, -23, 0],
+			[0, 23, 0],
+			[-23, 0, Math.PI / 2],
+			[23, 0, Math.PI / 2],
+		]) {
+			const archG = new THREE.Group();
+			archG.position.set(ax, 0, az);
+			archG.rotation.y = ry;
+			// Two pillars + lintel
+			const lp = new THREE.Mesh(new THREE.BoxGeometry(0.5, 7, 0.5), pillarMat);
+			lp.position.set(-2, 3.5, 0);
+			lp.castShadow = true;
+			lp.receiveShadow = true;
+			const rp = lp.clone();
+			rp.position.set(2, 3.5, 0);
+			const lt = new THREE.Mesh(new THREE.BoxGeometry(5, 0.4, 0.5), metalMat);
+			lt.position.set(0, 7.1, 0);
+			lt.castShadow = true;
+			const glow = new THREE.Mesh(new THREE.BoxGeometry(4, 0.08, 0.08), accentMat);
+			glow.position.set(0, 6.7, 0);
+			archG.add(lp, rp, lt, glow);
+			scene.add(archG);
+		}
+
+		// Scattered debris
+		const rng = (a, b) => a + Math.random() * (b - a);
+		for (let i = 0; i < 30; i++) {
+			const w = rng(0.3, 1.4),
+				h = rng(0.2, 1.0),
+				d = rng(0.3, 1.2);
+			const angle = rng(0, Math.PI * 2);
+			const radius = rng(5, 22);
+			box(w, h, d, stoneMat, [Math.cos(angle) * radius, 0, Math.sin(angle) * radius]);
+		}
+
+		// FPS Camera State
+		/** @type {{forward:boolean,back:boolean,left:boolean,right:boolean,sprint:boolean}} */
+		const keys = { forward: false, back: false, left: false, right: false, sprint: false };
+
+		let yaw = 0,
+			pitch = 0;
+		const PITCH_LIMIT = Math.PI / 2 - 0.015;
+		const velocity = new THREE.Vector3();
+		const direction = new THREE.Vector3();
+		const prevPos = new THREE.Vector3();
+
+		// Mutable config (driven by options panel)
+		/** @type {{ sensitivity: number, fov: number, walkSpeed: number, sprintSpeed: number, fpsLimit: number }} */
+		const cfg = { sensitivity: 1.0, fov: 75, walkSpeed: 6.5, sprintSpeed: 13.0, fpsLimit: 0 };
+		const DAMPING = 10.0;
+		const BASE_SENS = 0.0018;
+
+		// Pointer Lock
+		let locked = false;
+		let optionsOpen = false;
+		const lockScreen = document.getElementById("lock-screen");
+		const hud = document.getElementById("hud");
+		const optPanel = document.getElementById("options-panel");
+		const limitDisp = document.getElementById("limit-display");
+
+		// Click on either the lock screen or the canvas to enter
+		const requestLock = () => {
+			if (!locked && !optionsOpen) canvas.requestPointerLock();
+		};
+		lockScreen.addEventListener("click", requestLock);
+		canvas.addEventListener("click", requestLock);
+
+		// document.addEventListener("pointerlockchange", () => {
+		//   locked = document.pointerLockElement === canvas;
+		//   lockScreen.style.display = locked ? "none" : "flex";
+		//   hud.style.opacity = locked ? "1" : "0";
+		// });
+
+		// UI State Manager
+		function updateUI() {
+			// Only show the lock screen if we are unlocked AND the options panel is closed
+			lockScreen.style.display = !locked && !optionsOpen ? "flex" : "none";
+			hud.style.opacity = locked ? "1" : "0";
+			optPanel.classList.toggle("hidden", !optionsOpen);
+		}
+
+		document.addEventListener("pointerlockchange", () => {
+			locked = document.pointerLockElement === canvas;
+			updateUI();
+		});
+
+		document.addEventListener("mousemove", (e) => {
+			if (!locked) return;
+			yaw -= e.movementX * BASE_SENS * cfg.sensitivity;
+			pitch -= e.movementY * BASE_SENS * cfg.sensitivity;
+			pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, pitch));
+		});
+
+		// Keyboard
+		document.addEventListener("keydown", (e) => {
+			switch (e.code) {
+				case "KeyW":
+				case "ArrowUp":
+					keys.forward = true;
+					break;
+				case "KeyS":
+				case "ArrowDown":
+					keys.back = true;
+					break;
+				case "KeyA":
+				case "ArrowLeft":
+					keys.left = true;
+					break;
+				case "KeyD":
+				case "ArrowRight":
+					keys.right = true;
+					break;
+				case "ShiftLeft":
+				case "ShiftRight":
+					keys.sprint = true;
+					break;
+				case "Tab":
+					e.preventDefault();
+					toggleOptions();
+					break;
+			}
+		});
+		document.addEventListener("keyup", (e) => {
+			switch (e.code) {
+				case "KeyW":
+				case "ArrowUp":
+					keys.forward = false;
+					break;
+				case "KeyS":
+				case "ArrowDown":
+					keys.back = false;
+					break;
+				case "KeyA":
+				case "ArrowLeft":
+					keys.left = false;
+					break;
+				case "KeyD":
+				case "ArrowRight":
+					keys.right = false;
+					break;
+				case "ShiftLeft":
+				case "ShiftRight":
+					keys.sprint = false;
+					break;
+			}
+		});
+
+		// Options Panel
+		function toggleOptions() {
+			optionsOpen = !optionsOpen;
+			optPanel.classList.toggle("hidden", !optionsOpen);
+			if (optionsOpen && locked) document.exitPointerLock();
+		}
+
+		document.getElementById("opt-btn").addEventListener("click", (e) => {
+			e.stopPropagation();
+			toggleOptions();
+		});
+
+		// Sensitivity
+		const sensSlider = /** @type {HTMLInputElement} */ (document.getElementById("sens-slider"));
+		const sensVal = document.getElementById("sens-val");
+		sensSlider.addEventListener("input", () => {
+			cfg.sensitivity = parseFloat(sensSlider.value);
+			sensVal.textContent = cfg.sensitivity.toFixed(1);
+		});
+
+		// FOV
+		const fovSlider = /** @type {HTMLInputElement} */ (document.getElementById("fov-slider"));
+		const fovVal = document.getElementById("fov-val");
+		fovSlider.addEventListener("input", () => {
+			cfg.fov = parseInt(fovSlider.value);
+			fovVal.textContent = cfg.fov + "°";
+			camera.fov = cfg.fov;
+			camera.updateProjectionMatrix();
+		});
+
+		// Walk speed
+		const walkSlider = /** @type {HTMLInputElement} */ (document.getElementById("walk-slider"));
+		const walkVal = document.getElementById("walk-val");
+		walkSlider.addEventListener("input", () => {
+			cfg.walkSpeed = parseFloat(walkSlider.value);
+			walkVal.textContent = cfg.walkSpeed.toFixed(1) + " m/s";
+		});
+
+		// Sprint speed
+		const sprintSlider = /** @type {HTMLInputElement} */ (document.getElementById("sprint-slider"));
+		const sprintVal = document.getElementById("sprint-val");
+		sprintSlider.addEventListener("input", () => {
+			cfg.sprintSpeed = parseFloat(sprintSlider.value);
+			sprintVal.textContent = cfg.sprintSpeed.toFixed(1) + " m/s";
+		});
+
+		// Fog density
+		const fogSlider = /** @type {HTMLInputElement} */ (document.getElementById("fog-slider"));
+		const fogVal = document.getElementById("fog-val");
+		fogSlider.addEventListener("input", () => {
+			const v = parseFloat(fogSlider.value);
+			fogVal.textContent = v.toFixed(3);
+		/** @type {THREE.FogExp2} */ (scene.fog).density = v;
+		});
+
+		// Brightness
+		const brightSlider = /** @type {HTMLInputElement} */ (document.getElementById("bright-slider"));
+		const brightVal = document.getElementById("bright-val");
+		brightSlider.addEventListener("input", () => {
+			const v = parseFloat(brightSlider.value);
+			brightVal.textContent = v.toFixed(2);
+			renderer.toneMappingExposure = v;
+		});
+
+		// FPS Limit buttons
+		document.querySelectorAll(".fps-btn").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const fps = parseInt(/** @type {HTMLElement} */(btn).dataset.fps || "0");
+				cfg.fpsLimit = fps;
+				limitDisp.textContent = fps === 0 ? "∞" : String(fps);
+				document.querySelectorAll(".fps-btn").forEach((b) => b.classList.remove("active"));
+				btn.classList.add("active");
+			});
+		});
+
+		// HUD refs
+		const fpsEl = document.getElementById("fps-counter");
+		const posEl = document.getElementById("pos-display");
+		const rotEl = document.getElementById("rot-display");
+		const spdEl = document.getElementById("speed-display");
+
+		let frameCount = 0,
+			lastFpsTime = performance.now();
+		let lastFrameTs = 0;
+
+		const euler = new THREE.Euler(0, 0, 0, "YXZ");
+
+		window.addEventListener("resize", () => {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		});
+
+		const clock = new THREE.Clock();
+
+		// Main Loop
+		async function animate(/** @type {number} */ ts) {
+			requestAnimationFrame(animate);
+
+			// FPS Limiter
+			if (cfg.fpsLimit > 0) {
+				const interval = 1000 / cfg.fpsLimit;
+				if (ts - lastFrameTs < interval - 0.5) return;
+				lastFrameTs = ts - ((ts - lastFrameTs) % interval);
+			} else {
+				lastFrameTs = ts;
+			}
+
+			const dt = Math.min(clock.getDelta(), 0.05);
+			const t = clock.elapsedTime;
+
+			// Camera rotation
+			euler.set(pitch, yaw, 0, "YXZ");
+			camera.quaternion.setFromEuler(euler);
+
+			// Movement
+			if (locked) {
+				direction.set(0, 0, 0);
+				if (keys.forward) direction.z -= 1;
+				if (keys.back) direction.z += 1;
+				if (keys.left) direction.x -= 1;
+				if (keys.right) direction.x += 1;
+				if (direction.lengthSq() > 0) direction.normalize();
+
+				const moveDir = direction.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+				const speed = keys.sprint ? cfg.sprintSpeed : cfg.walkSpeed;
+				velocity.x += moveDir.x * speed * dt * 15;
+				velocity.z += moveDir.z * speed * dt * 15;
+			}
+
+			velocity.x -= velocity.x * DAMPING * dt;
+			velocity.z -= velocity.z * DAMPING * dt;
+
+			const maxSpd = keys.sprint ? cfg.sprintSpeed : cfg.walkSpeed;
+			const hSpd = Math.sqrt(velocity.x ** 2 + velocity.z ** 2);
+			if (hSpd > maxSpd) {
+				const f = maxSpd / hSpd;
+				velocity.x *= f;
+				velocity.z *= f;
+			}
+
+			prevPos.copy(camera.position);
+			camera.position.addScaledVector(velocity, dt);
+			camera.position.x = Math.max(-24, Math.min(24, camera.position.x));
+			camera.position.z = Math.max(-24, Math.min(24, camera.position.z));
+			camera.position.y = 1.75;
+
+			// Floaters
+			for (const f of floaters) {
+				const a = t * f.spd + f.ph;
+				f.mesh.position.set(Math.cos(a) * f.rad, f.y + Math.sin(t * 0.35 + f.ph) * 0.4, Math.sin(a) * f.rad);
+				f.mesh.rotation.x = t * f.spd * 0.6;
+				f.mesh.rotation.y = t * f.spd * 0.85;
+			}
+
+			// Dynamic lights
+			altarLight.intensity = 7.0 + Math.sin(t * 1.7) * 1.5;
+			altarLight2.intensity = 3.5 + Math.sin(t * 2.3 + 1) * 1.0;
+			// Subtle flicker on pillar lights
+			for (let i = 0; i < pillarLights.length; i++) {
+				pillarLights[i].intensity = 2.5 + Math.sin(t * 0.9 + i * 1.1) * 0.4;
+			}
+			// Ceiling lights gentle breathe
+			for (let i = 0; i < ceilLights.length; i++) {
+				ceilLights[i].intensity = 2.0 + Math.sin(t * 0.5 + i * 0.7) * 0.3;
+			}
+
+			// HUD
+			frameCount++;
+			const now = performance.now();
+			if (now - lastFpsTime >= 400) {
+				fpsEl.textContent = String(Math.round(frameCount / ((now - lastFpsTime) / 1000)));
+				frameCount = 0;
+				lastFpsTime = now;
+			}
+
+			const p = camera.position;
+			posEl.textContent = `${p.x.toFixed(1)} · ${p.y.toFixed(1)} · ${p.z.toFixed(1)}`;
+			const yawDeg = (((yaw * 180) / Math.PI) % 360).toFixed(1);
+			const pitchDeg = ((pitch * 180) / Math.PI).toFixed(1);
+			rotEl.textContent = `${yawDeg}° · ${pitchDeg}°`;
+			const spd = prevPos.distanceTo(camera.position) / Math.max(dt, 0.001);
+			spdEl.textContent = `${Math.min(spd, 99).toFixed(1)} m/s`;
+
+			// Render
+			await renderer.renderAsync(scene, camera);
+		}
+
+		requestAnimationFrame(animate);
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,1408 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
+	<title>3D scene · WebGPU</title>
+	<title>3D Chess</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			overflow: hidden;
+			background: #0d0a07;
+			font-family: 'Segoe UI', system-ui, sans-serif;
+			color: #e8dcc8;
+		}
+
+		canvas {
+			display: block;
+		}
+
+		#ui-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 10;
+		}
+
+		#top-bar {
+			position: absolute;
+			top: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			background: rgba(13, 10, 7, 0.85);
+			border: 1px solid rgba(212, 160, 74, 0.25);
+			border-radius: 12px;
+			padding: 10px 24px;
+			backdrop-filter: blur(10px);
+		}
+
+		#top-bar .dot {
+			width: 12px;
+			height: 12px;
+			border-radius: 50%;
+			border: 2px solid rgba(255, 255, 255, 0.2);
+		}
+
+		#top-bar .dot.white-dot {
+			background: #f0e6d3;
+		}
+
+		#top-bar .dot.black-dot {
+			background: #2a2235;
+		}
+
+		#top-bar .dot.active {
+			box-shadow: 0 0 8px 2px rgba(212, 160, 74, 0.7);
+			border-color: #d4a04a;
+		}
+
+		#status-text {
+			font-size: 15px;
+			font-weight: 600;
+			letter-spacing: 0.5px;
+		}
+
+		#status-text .accent {
+			color: #d4a04a;
+		}
+
+		#captured-panel {
+			position: absolute;
+			right: 20px;
+			top: 50%;
+			transform: translateY(-50%);
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			pointer-events: auto;
+		}
+
+		.captured-row {
+			background: rgba(13, 10, 7, 0.8);
+			border: 1px solid rgba(212, 160, 74, 0.15);
+			border-radius: 8px;
+			padding: 8px 12px;
+			min-width: 120px;
+			backdrop-filter: blur(8px);
+		}
+
+		.captured-row h4 {
+			font-size: 11px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			color: #8a7a64;
+			margin-bottom: 4px;
+		}
+
+		.captured-row .pieces {
+			font-size: 20px;
+			letter-spacing: 2px;
+			min-height: 24px;
+		}
+
+		#controls {
+			position: absolute;
+			bottom: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			gap: 10px;
+			pointer-events: auto;
+		}
+
+		.btn {
+			background: rgba(13, 10, 7, 0.85);
+			border: 1px solid rgba(212, 160, 74, 0.3);
+			color: #e8dcc8;
+			padding: 8px 20px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 13px;
+			font-weight: 600;
+			letter-spacing: 0.5px;
+			transition: all 0.2s;
+			backdrop-filter: blur(8px);
+		}
+
+		.btn:hover {
+			background: rgba(212, 160, 74, 0.15);
+			border-color: #d4a04a;
+		}
+
+		.btn.active {
+			background: rgba(212, 160, 74, 0.2);
+			border-color: #d4a04a;
+			color: #d4a04a;
+		}
+
+		#promotion-dialog {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background: rgba(20, 16, 12, 0.95);
+			border: 1px solid rgba(212, 160, 74, 0.4);
+			border-radius: 16px;
+			padding: 24px 32px;
+			z-index: 100;
+			display: none;
+			backdrop-filter: blur(16px);
+			text-align: center;
+		}
+
+		#promotion-dialog h3 {
+			margin-bottom: 16px;
+			font-size: 16px;
+			color: #d4a04a;
+		}
+
+		.promo-choices {
+			display: flex;
+			gap: 12px;
+			justify-content: center;
+		}
+
+		.promo-btn {
+			width: 56px;
+			height: 56px;
+			border-radius: 10px;
+			border: 2px solid rgba(212, 160, 74, 0.3);
+			background: rgba(30, 24, 18, 0.9);
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 32px;
+			transition: all 0.2s;
+		}
+
+		.promo-btn:hover {
+			border-color: #d4a04a;
+			background: rgba(212, 160, 74, 0.15);
+			transform: scale(1.1);
+		}
+
+		#game-over-dialog {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background: rgba(20, 16, 12, 0.96);
+			border: 1px solid rgba(212, 160, 74, 0.5);
+			border-radius: 16px;
+			padding: 32px 48px;
+			z-index: 100;
+			display: none;
+			backdrop-filter: blur(16px);
+			text-align: center;
+		}
+
+		#game-over-dialog h2 {
+			font-size: 24px;
+			color: #d4a04a;
+			margin-bottom: 8px;
+		}
+
+		#game-over-dialog p {
+			color: #a89880;
+			margin-bottom: 20px;
+			font-size: 15px;
+		}
+
+		#move-list {
+			position: absolute;
+			left: 20px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: rgba(13, 10, 7, 0.8);
+			border: 1px solid rgba(212, 160, 74, 0.15);
+			border-radius: 8px;
+			padding: 12px 14px;
+			max-height: 320px;
+			overflow-y: auto;
+			backdrop-filter: blur(8px);
+			min-width: 140px;
+			pointer-events: auto;
+			font-size: 12px;
+			line-height: 1.8;
+		}
+
+		#move-list h4 {
+			font-size: 11px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			color: #8a7a64;
+			margin-bottom: 6px;
+		}
+
+		#move-list .move-entry {
+			color: #b8a890;
+		}
+
+		#move-list .move-num {
+			color: #6a5a44;
+		}
+
+		#move-list::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		#move-list::-webkit-scrollbar-thumb {
+			background: rgba(212, 160, 74, 0.3);
+			border-radius: 2px;
+		}
+
+		@media(max-width:768px) {
+
+			#captured-panel,
+			#move-list {
+				display: none;
+			}
+
+			#top-bar {
+				padding: 8px 16px;
+			}
+
+			#status-text {
+				font-size: 13px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="ui-overlay">
+		<div id="top-bar">
+			<div class="dot white-dot" id="white-dot"></div>
+			<div id="status-text"><span class="accent">White</span> to move</div>
+			<div class="dot black-dot" id="black-dot"></div>
+		</div>
+
+		<div id="captured-panel">
+			<div class="captured-row">
+				<h4>White Captured</h4>
+				<div class="pieces" id="white-captured"></div>
+			</div>
+			<div class="captured-row">
+				<h4>Black Captured</h4>
+				<div class="pieces" id="black-captured"></div>
+			</div>
+		</div>
+
+		<div id="move-list">
+			<h4>Moves</h4>
+			<div id="moves-content"></div>
+		</div>
+
+		<div id="controls">
+			<button class="btn" id="btn-new">New Game</button>
+			<button class="btn active" id="btn-ai">Play vs AI</button>
+			<button class="btn" id="btn-undo">Undo</button>
+		</div>
+	</div>
+
+	<div id="promotion-dialog">
+		<h3>Promote Pawn</h3>
+		<div class="promo-choices">
+			<div class="promo-btn" data-piece="Q">&#9813;</div>
+			<div class="promo-btn" data-piece="R">&#9812;</div>
+			<div class="promo-btn" data-piece="B">&#9815;</div>
+			<div class="promo-btn" data-piece="N">&#9816;</div>
+		</div>
+	</div>
+
+	<div id="game-over-dialog">
+		<h2 id="go-title">Game Over</h2>
+		<p id="go-text"></p>
+		<button class="btn" id="go-new">New Game</button>
+	</div>
+
+	<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+
+	<script type="module">
+		import * as THREE from 'three';
+		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+		// ===================== CHESS ENGINE =====================
+		class ChessEngine {
+			constructor() { this.reset(); }
+
+			reset() {
+				this.board = [
+					['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+					['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+					[null, null, null, null, null, null, null, null],
+					[null, null, null, null, null, null, null, null],
+					[null, null, null, null, null, null, null, null],
+					[null, null, null, null, null, null, null, null],
+					['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+					['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
+				];
+				this.turn = 'white';
+				this.castling = { K: true, Q: true, k: true, q: true };
+				this.enPassant = null;
+				this.history = [];
+				this.capturedWhite = [];
+				this.capturedBlack = [];
+				this.gameOver = false;
+				this.result = null;
+				this.inCheck = false;
+			}
+
+			color(p) { return p ? (p === p.toUpperCase() ? 'white' : 'black') : null; }
+			type(p) { return p ? p.toUpperCase() : null; }
+			inB(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+
+			getPseudoMoves(r, c) {
+				const p = this.board[r][c]; if (!p) return [];
+				const col = this.color(p), t = this.type(p), moves = [];
+				if (t === 'P') this._pawnMoves(r, c, col, moves);
+				else if (t === 'R') this._slideMoves(r, c, col, [[0, 1], [0, -1], [1, 0], [-1, 0]], moves);
+				else if (t === 'B') this._slideMoves(r, c, col, [[1, 1], [1, -1], [-1, 1], [-1, -1]], moves);
+				else if (t === 'Q') this._slideMoves(r, c, col, [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]], moves);
+				else if (t === 'N') this._knightMoves(r, c, col, moves);
+				else if (t === 'K') this._kingMoves(r, c, col, moves);
+				return moves;
+			}
+
+			_pawnMoves(r, c, col, moves) {
+				const dir = col === 'white' ? 1 : -1, start = col === 'white' ? 1 : 6, promo = col === 'white' ? 7 : 0;
+				const nr = r + dir;
+				if (this.inB(nr, c) && !this.board[nr][c]) {
+					if (nr === promo) {
+						for (const pt of ['Q', 'R', 'B', 'N']) moves.push({ row: nr, col: c, type: 'promotion', promoteTo: col === 'white' ? pt : pt.toLowerCase() });
+					} else {
+						moves.push({ row: nr, col: c, type: 'normal' });
+						if (r === start) { const nnr = r + 2 * dir; if (!this.board[nnr][c]) moves.push({ row: nnr, col: c, type: 'double' }); }
+					}
+				}
+				for (const dc of [-1, 1]) {
+					const nc = c + dc;
+					if (!this.inB(nr, nc)) continue;
+					const tgt = this.board[nr][nc];
+					if (tgt && this.color(tgt) !== col) {
+						if (nr === promo) { for (const pt of ['Q', 'R', 'B', 'N']) moves.push({ row: nr, col: nc, type: 'promotion', promoteTo: col === 'white' ? pt : pt.toLowerCase() }); }
+						else moves.push({ row: nr, col: nc, type: 'capture' });
+					}
+					if (this.enPassant && this.enPassant.row === nr && this.enPassant.col === nc)
+						moves.push({ row: nr, col: nc, type: 'enpassant' });
+				}
+			}
+
+			_slideMoves(r, c, col, dirs, moves) {
+				for (const [dr, dc] of dirs) {
+					let nr = r + dr, nc = c + dc;
+					while (this.inB(nr, nc)) {
+						const tgt = this.board[nr][nc];
+						if (!tgt) moves.push({ row: nr, col: nc, type: 'normal' });
+						else { if (this.color(tgt) !== col) moves.push({ row: nr, col: nc, type: 'capture' }); break; }
+						nr += dr; nc += dc;
+					}
+				}
+			}
+
+			_knightMoves(r, c, col, moves) {
+				for (const [dr, dc] of [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]]) {
+					const nr = r + dr, nc = c + dc;
+					if (!this.inB(nr, nc)) continue;
+					const tgt = this.board[nr][nc];
+					if (!tgt) moves.push({ row: nr, col: nc, type: 'normal' });
+					else if (this.color(tgt) !== col) moves.push({ row: nr, col: nc, type: 'capture' });
+				}
+			}
+
+			_kingMoves(r, c, col, moves) {
+				for (const [dr, dc] of [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]) {
+					const nr = r + dr, nc = c + dc;
+					if (!this.inB(nr, nc)) continue;
+					const tgt = this.board[nr][nc];
+					if (!tgt) moves.push({ row: nr, col: nc, type: 'normal' });
+					else if (this.color(tgt) !== col) moves.push({ row: nr, col: nc, type: 'capture' });
+				}
+				const row = col === 'white' ? 0 : 7;
+				if (r !== row || c !== 4) return;
+				const ks = col === 'white' ? 'K' : 'k', qs = col === 'white' ? 'Q' : 'q';
+				if (this.castling[ks] && !this.board[row][5] && !this.board[row][6]
+					&& !this.isAttacked(row, 4, col) && !this.isAttacked(row, 5, col) && !this.isAttacked(row, 6, col))
+					moves.push({ row, col: 6, type: 'castle' });
+				if (this.castling[qs] && !this.board[row][3] && !this.board[row][2] && !this.board[row][1]
+					&& !this.isAttacked(row, 4, col) && !this.isAttacked(row, 3, col) && !this.isAttacked(row, 2, col))
+					moves.push({ row, col: 2, type: 'castle' });
+			}
+
+			isAttacked(r, c, defCol) {
+				const atkCol = defCol === 'white' ? 'black' : 'white';
+				for (let row = 0; row < 8; row++) for (let col = 0; col < 8; col++) {
+					const p = this.board[row][col]; if (!p || this.color(p) !== atkCol) continue;
+					if (this._attacks(row, col, r, c, this.type(p), this.color(p))) return true;
+				}
+				return false;
+			}
+
+			_attacks(fr, fc, tr, tc, t, col) {
+				const dr = tr - fr, dc = tc - fc;
+				if (t === 'P') { const d = col === 'white' ? 1 : -1; return dr === d && Math.abs(dc) === 1; }
+				if (t === 'N') return (Math.abs(dr) === 2 && Math.abs(dc) === 1) || (Math.abs(dr) === 1 && Math.abs(dc) === 2);
+				if (t === 'K') return Math.abs(dr) <= 1 && Math.abs(dc) <= 1 && (dr || dc);
+				if (t === 'R') return (dr === 0 || dc === 0) && (dr || dc) && this._pathClear(fr, fc, tr, tc);
+				if (t === 'B') return Math.abs(dr) === Math.abs(dc) && dr !== 0 && this._pathClear(fr, fc, tr, tc);
+				if (t === 'Q') return ((dr === 0 || dc === 0) || (Math.abs(dr) === Math.abs(dc))) && (dr || dc) && this._pathClear(fr, fc, tr, tc);
+				return false;
+			}
+
+			_pathClear(fr, fc, tr, tc) {
+				const dr = Math.sign(tr - fr), dc = Math.sign(tc - fc);
+				let r = fr + dr, c = fc + dc;
+				while (r !== tr || c !== tc) { if (this.board[r][c]) return false; r += dr; c += dc; }
+				return true;
+			}
+
+			isInCheck(col) {
+				for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
+					if (this.board[r][c] === (col === 'white' ? 'K' : 'k')) return this.isAttacked(r, c, col);
+				return false;
+			}
+
+			getLegalMoves(r, c) {
+				const p = this.board[r][c]; if (!p) return [];
+				const col = this.color(p); if (col !== this.turn) return [];
+				const pseudo = this.getPseudoMoves(r, c), legal = [];
+				for (const m of pseudo) {
+					const sb = this.board.map(x => [...x]), se = this.enPassant, sc = { ...this.castling };
+					this._applyRaw(r, c, m);
+					if (!this.isInCheck(col)) legal.push(m);
+					this.board = sb; this.enPassant = se; this.castling = sc;
+				}
+				return legal;
+			}
+
+			_applyRaw(fr, fc, m) {
+				const p = this.board[fr][fc];
+				if (m.type === 'normal' || m.type === 'double' || m.type === 'capture') {
+					this.board[m.row][m.col] = p; this.board[fr][fc] = null;
+				} else if (m.type === 'enpassant') {
+					this.board[m.row][m.col] = p; this.board[fr][fc] = null;
+					this.board[fr][m.col] = null;
+				} else if (m.type === 'castle') {
+					this.board[m.row][m.col] = p; this.board[fr][fc] = null;
+					const rw = m.row;
+					if (m.col === 6) { this.board[rw][5] = this.board[rw][7]; this.board[rw][7] = null; }
+					else { this.board[rw][3] = this.board[rw][0]; this.board[rw][0] = null; }
+				} else if (m.type === 'promotion') {
+					this.board[m.row][m.col] = m.promoteTo; this.board[fr][fc] = null;
+				}
+			}
+
+			makeMove(fr, fc, m) {
+				const p = this.board[fr][fc], col = this.color(p);
+				const cap = this.board[m.row][m.col];
+				this.history.push({
+					from: { row: fr, col: fc }, to: { row: m.row, col: m.col },
+					piece: p, captured: cap, type: m.type, promoteTo: m.promoteTo || null,
+					castling: { ...this.castling }, enPassant: this.enPassant,
+					capturedWhite: [...this.capturedWhite], capturedBlack: [...this.capturedBlack]
+				});
+				if (cap) { if (this.color(cap) === 'white') this.capturedWhite.push(cap); else this.capturedBlack.push(cap); }
+				if (m.type === 'enpassant') { const ep = this.board[fr][m.col]; if (ep) { if (this.color(ep) === 'white') this.capturedWhite.push(ep); else this.capturedBlack.push(ep); } }
+				this._applyRaw(fr, fc, m);
+				this.enPassant = null;
+				if (m.type === 'double') this.enPassant = { row: (fr + m.row) / 2, col: fc };
+				if (this.type(p) === 'K') { if (col === 'white') { this.castling.K = false; this.castling.Q = false; } else { this.castling.k = false; this.castling.q = false; } }
+				if (this.type(p) === 'R') {
+					if (fr === 0 && fc === 0) this.castling.Q = false; if (fr === 0 && fc === 7) this.castling.K = false;
+					if (fr === 7 && fc === 0) this.castling.q = false; if (fr === 7 && fc === 7) this.castling.k = false;
+				}
+				if (m.row === 0 && m.col === 0) this.castling.Q = false; if (m.row === 0 && m.col === 7) this.castling.K = false;
+				if (m.row === 7 && m.col === 0) this.castling.q = false; if (m.row === 7 && m.col === 7) this.castling.k = false;
+				this.turn = this.turn === 'white' ? 'black' : 'white';
+				this.inCheck = this.isInCheck(this.turn);
+				this._checkState();
+				return { captured: cap, type: m.type };
+			}
+
+			undoMove() {
+				if (!this.history.length) return false;
+				const h = this.history.pop();
+				this.board[h.from.row][h.from.col] = h.piece;
+				this.board[h.to.row][h.to.col] = h.captured;
+				if (h.type === 'enpassant') { const dir = this.color(h.piece) === 'white' ? -1 : 1; this.board[h.to.row + dir][h.to.col] = this.color(h.piece) === 'white' ? 'p' : 'P'; }
+				if (h.type === 'castle') {
+					const rw = h.to.row;
+					if (h.to.col === 6) { this.board[rw][7] = this.board[rw][5]; this.board[rw][5] = null; }
+					else { this.board[rw][0] = this.board[rw][3]; this.board[rw][3] = null; }
+				}
+				this.castling = h.castling; this.enPassant = h.enPassant;
+				this.capturedWhite = h.capturedWhite; this.capturedBlack = h.capturedBlack;
+				this.turn = this.turn === 'white' ? 'black' : 'white';
+				this.gameOver = false; this.result = null;
+				this.inCheck = this.isInCheck(this.turn);
+				return true;
+			}
+
+			_checkState() {
+				if (!this._hasAnyLegal(this.turn)) {
+					this.gameOver = true;
+					this.result = this.inCheck ? (this.turn === 'white' ? 'black' : 'white') : 'draw';
+				}
+			}
+
+			_hasAnyLegal(col) {
+				for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
+					if (this.board[r][c] && this.color(this.board[r][c]) === col && this.getLegalMoves(r, c).length) return true;
+				return false;
+			}
+
+			allLegalMoves(col) {
+				const moves = [];
+				for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
+					if (this.board[r][c] && this.color(this.board[r][c]) === col)
+						for (const m of this.getLegalMoves(r, c)) moves.push({ from: { row: r, col: c }, to: m });
+				return moves;
+			}
+		}
+
+		// ===================== AI =====================
+		const PIECE_VAL = { P: 100, N: 320, B: 330, R: 500, Q: 900, K: 20000 };
+		const PST = {
+			P: [0, 0, 0, 0, 0, 0, 0, 0, 50, 50, 50, 50, 50, 50, 50, 50, 10, 10, 20, 30, 30, 20, 10, 10, 5, 5, 10, 25, 25, 10, 5, 5, 0, 0, 0, 20, 20, 0, 0, 0, 5, -5, -10, 0, 0, -10, -5, 5, 5, 10, 10, -20, -20, 10, 10, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+			N: [-50, -40, -30, -30, -30, -30, -40, -50, -40, -20, 0, 0, 0, 0, -20, -40, -30, 0, 10, 15, 15, 10, 0, -30, -30, 5, 15, 20, 20, 15, 5, -30, -30, 0, 15, 20, 20, 15, 0, -30, -30, 5, 10, 15, 15, 10, 5, -30, -40, -20, 0, 5, 5, 0, -20, -40, -50, -40, -30, -30, -30, -30, -40, -50],
+			B: [-20, -10, -10, -10, -10, -10, -10, -20, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 5, 10, 10, 5, 0, -10, -10, 5, 5, 10, 10, 5, 5, -10, -10, 0, 10, 10, 10, 10, 0, -10, -10, 10, 10, 10, 10, 10, 10, -10, -10, 5, 0, 0, 0, 0, 5, -10, -20, -10, -10, -10, -10, -10, -10, -20],
+			R: [0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 10, 10, 10, 10, 10, 5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, 0, 0, 0, 5, 5, 0, 0, 0],
+			Q: [-20, -10, -10, -5, -5, -10, -10, -20, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 5, 5, 5, 5, 0, -10, -5, 0, 5, 5, 5, 5, 0, -5, 0, 0, 5, 5, 5, 5, 0, -5, -10, 5, 5, 5, 5, 5, 0, -10, -10, 0, 5, 0, 0, 0, 0, -10, -20, -10, -10, -5, -5, -10, -10, -20],
+			K: [-30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -20, -30, -30, -40, -40, -30, -30, -20, -10, -20, -20, -20, -20, -20, -20, -10, 20, 20, 0, 0, 0, 0, 20, 20, 20, 30, 10, 0, 0, 10, 30, 20]
+		};
+
+		class ChessAI {
+			constructor(engine, depth = 3) { this.engine = engine; this.depth = depth; }
+
+			evaluate() {
+				let score = 0;
+				for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+					const p = this.engine.board[r][c]; if (!p) continue;
+					const t = p.toUpperCase(), col = this.engine.color(p);
+					const val = PIECE_VAL[t] || 0;
+					const idx = col === 'white' ? r * 8 + c : (7 - r) * 8 + c;
+					const posVal = (PST[t] ? PST[t][idx] : 0) || 0;
+					score += (col === 'white' ? 1 : -1) * (val + posVal);
+				}
+				return score;
+			}
+
+			minimax(depth, alpha, beta, maximizing) {
+				if (depth === 0) return this.evaluate();
+				const col = maximizing ? 'white' : 'black';
+				const moves = this.engine.allLegalMoves(col);
+				if (!moves.length) {
+					if (this.engine.isInCheck(col)) return maximizing ? -99999 : 99999;
+					return 0;
+				}
+				moves.sort((a, b) => {
+					const ca = this.engine.board[a.to.row][a.to.col] ? 1 : 0;
+					const cb = this.engine.board[b.to.row][b.to.col] ? 1 : 0;
+					return cb - ca;
+				});
+				if (maximizing) {
+					let best = -Infinity;
+					for (const m of moves) {
+						const sb = this.engine.board.map(x => [...x]), se = this.engine.enPassant, sc = { ...this.engine.castling };
+						const st = this.engine.turn;
+						this.engine._applyRaw(m.from.row, m.from.col, m.to);
+						this.engine.turn = this.engine.turn === 'white' ? 'black' : 'white';
+						if (m.to.type === 'double') this.engine.enPassant = { row: (m.from.row + m.to.row) / 2, col: m.from.col };
+						else this.engine.enPassant = null;
+						const val = this.minimax(depth - 1, alpha, beta, false);
+						this.engine.board = sb; this.engine.enPassant = se; this.engine.castling = sc; this.engine.turn = st;
+						best = Math.max(best, val); alpha = Math.max(alpha, val);
+						if (beta <= alpha) break;
+					}
+					return best;
+				} else {
+					let best = Infinity;
+					for (const m of moves) {
+						const sb = this.engine.board.map(x => [...x]), se = this.engine.enPassant, sc = { ...this.engine.castling };
+						const st = this.engine.turn;
+						this.engine._applyRaw(m.from.row, m.from.col, m.to);
+						this.engine.turn = this.engine.turn === 'white' ? 'black' : 'white';
+						if (m.to.type === 'double') this.engine.enPassant = { row: (m.from.row + m.to.row) / 2, col: m.from.col };
+						else this.engine.enPassant = null;
+						const val = this.minimax(depth - 1, alpha, beta, true);
+						this.engine.board = sb; this.engine.enPassant = se; this.engine.castling = sc; this.engine.turn = st;
+						best = Math.min(best, val); beta = Math.min(beta, val);
+						if (beta <= alpha) break;
+					}
+					return best;
+				}
+			}
+
+			getBestMove() {
+				const moves = this.engine.allLegalMoves('black');
+				if (!moves.length) return null;
+				let bestMove = null, bestVal = Infinity;
+				moves.sort((a, b) => {
+					const ca = this.engine.board[a.to.row][a.to.col] ? 1 : 0;
+					const cb = this.engine.board[b.to.row][b.to.col] ? 1 : 0;
+					return cb - ca;
+				});
+				for (const m of moves) {
+					const sb = this.engine.board.map(x => [...x]), se = this.engine.enPassant, sc = { ...this.engine.castling };
+					const st = this.engine.turn;
+					this.engine._applyRaw(m.from.row, m.from.col, m.to);
+					this.engine.turn = 'white';
+					if (m.to.type === 'double') this.engine.enPassant = { row: (m.from.row + m.to.row) / 2, col: m.from.col };
+					else this.engine.enPassant = null;
+					const val = this.minimax(this.depth - 1, -Infinity, Infinity, true);
+					this.engine.board = sb; this.engine.enPassant = se; this.engine.castling = sc; this.engine.turn = st;
+					if (val < bestVal) { bestVal = val; bestMove = m; }
+				}
+				return bestMove;
+			}
+		}
+
+		// ===================== THREE.JS SCENE =====================
+		const scene = new THREE.Scene();
+		scene.background = new THREE.Color(0x0d0a07);
+		scene.fog = new THREE.FogExp2(0x0d0a07, 0.035);
+
+		const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+		camera.position.set(0, 9, 9);
+
+		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMappingExposure = 1.2;
+		document.body.appendChild(renderer.domElement);
+
+		const controls = new OrbitControls(camera, renderer.domElement);
+		controls.target.set(0, 0, 0);
+		controls.enableDamping = true;
+		controls.dampingFactor = 0.08;
+		controls.minDistance = 6;
+		controls.maxDistance = 20;
+		controls.maxPolarAngle = Math.PI / 2.1;
+		controls.minPolarAngle = 0.2;
+		controls.update();
+
+		// Lighting
+		const ambientLight = new THREE.AmbientLight(0xffeedd, 0.4);
+		scene.add(ambientLight);
+
+		const mainLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
+		mainLight.position.set(5, 12, 5);
+		mainLight.castShadow = true;
+		mainLight.shadow.mapSize.set(2048, 2048);
+		mainLight.shadow.camera.left = -6; mainLight.shadow.camera.right = 6;
+		mainLight.shadow.camera.top = 6; mainLight.shadow.camera.bottom = -6;
+		mainLight.shadow.camera.near = 1; mainLight.shadow.camera.far = 30;
+		mainLight.shadow.bias = -0.001;
+		scene.add(mainLight);
+
+		const fillLight = new THREE.PointLight(0xd4a04a, 0.6, 20);
+		fillLight.position.set(-5, 6, -3);
+		scene.add(fillLight);
+
+		const rimLight = new THREE.PointLight(0x6688aa, 0.3, 15);
+		rimLight.position.set(3, 4, -6);
+		scene.add(rimLight);
+
+		// ===================== BOARD =====================
+		const boardGroup = new THREE.Group();
+		scene.add(boardGroup);
+
+		const LIGHT_SQ = 0xc8a96e, DARK_SQ = 0x6b3a2a;
+		const FRAME_COL = 0x3d2214;
+		const squareMeshes = [];
+
+		// Board frame
+		const frameGeo = new THREE.BoxGeometry(9.2, 0.25, 9.2);
+		const frameMat = new THREE.MeshStandardMaterial({ color: FRAME_COL, roughness: 0.6, metalness: 0.1 });
+		const frame = new THREE.Mesh(frameGeo, frameMat);
+		frame.position.y = -0.125;
+		frame.receiveShadow = true;
+		boardGroup.add(frame);
+
+		// Inner frame accent
+		const innerFrameGeo = new THREE.BoxGeometry(8.4, 0.27, 8.4);
+		const innerFrameMat = new THREE.MeshStandardMaterial({ color: 0x4a2c1a, roughness: 0.5, metalness: 0.15 });
+		const innerFrame = new THREE.Mesh(innerFrameGeo, innerFrameMat);
+		innerFrame.position.y = -0.115;
+		innerFrame.receiveShadow = true;
+		boardGroup.add(innerFrame);
+
+		// Squares
+		for (let r = 0; r < 8; r++) {
+			squareMeshes[r] = [];
+			for (let c = 0; c < 8; c++) {
+				const isLight = (r + c) % 2 === 0;
+				const geo = new THREE.BoxGeometry(0.97, 0.08, 0.97);
+				const mat = new THREE.MeshStandardMaterial({
+					color: isLight ? LIGHT_SQ : DARK_SQ,
+					roughness: 0.55, metalness: 0.05
+				});
+				const mesh = new THREE.Mesh(geo, mat);
+				mesh.position.set(c - 3.5, 0.04, 3.5 - r);
+				mesh.receiveShadow = true;
+				mesh.userData = { row: r, col: c, origColor: mat.color.getHex() };
+				boardGroup.add(mesh);
+				squareMeshes[r][c] = mesh;
+			}
+		}
+
+		// Table surface
+		const tableGeo = new THREE.CylinderGeometry(7, 7.5, 0.3, 64);
+		const tableMat = new THREE.MeshStandardMaterial({ color: 0x1a1008, roughness: 0.8, metalness: 0.05 });
+		const table = new THREE.Mesh(tableGeo, tableMat);
+		table.position.y = -0.35;
+		table.receiveShadow = true;
+		scene.add(table);
+
+		// ===================== PIECE GEOMETRIES =====================
+		function makeProfile(pts) {
+			return pts.map(p => new THREE.Vector2(Math.max(0, p[0]), p[1]));
+		}
+
+		function createLathePiece(profilePts, segments = 32) {
+			const geo = new THREE.LatheGeometry(makeProfile(profilePts), segments);
+			geo.computeVertexNormals();
+			return geo;
+		}
+
+		const PIECE_GEO = {
+			P: createLathePiece([
+				[0, 0], [0.24, 0], [0.26, 0.03], [0.22, 0.06], [0.11, 0.12], [0.08, 0.22], [0.08, 0.28],
+				[0.12, 0.34], [0.14, 0.38], [0.12, 0.42], [0.08, 0.46], [0.10, 0.50], [0.10, 0.54],
+				[0.07, 0.58], [0, 0.60]
+			]),
+			R: createLathePiece([
+				[0, 0], [0.26, 0], [0.28, 0.03], [0.24, 0.06], [0.13, 0.12], [0.11, 0.30],
+				[0.16, 0.42], [0.20, 0.50], [0.22, 0.55], [0.23, 0.62], [0.23, 0.70],
+				[0.18, 0.70], [0.18, 0.66], [0.14, 0.66], [0.14, 0.72], [0, 0.72]
+			]),
+			B: createLathePiece([
+				[0, 0], [0.26, 0], [0.28, 0.03], [0.24, 0.06], [0.13, 0.12], [0.10, 0.28],
+				[0.14, 0.40], [0.16, 0.50], [0.13, 0.58], [0.09, 0.64], [0.06, 0.70],
+				[0.04, 0.76], [0.06, 0.80], [0.04, 0.84], [0, 0.86]
+			]),
+			Q: createLathePiece([
+				[0, 0], [0.28, 0], [0.30, 0.03], [0.26, 0.06], [0.14, 0.12], [0.11, 0.28],
+				[0.16, 0.40], [0.18, 0.52], [0.15, 0.60], [0.11, 0.68], [0.08, 0.74],
+				[0.10, 0.80], [0.12, 0.86], [0.10, 0.90], [0.06, 0.94], [0.08, 0.98],
+				[0.06, 1.02], [0, 1.04]
+			]),
+			K: createLathePiece([
+				[0, 0], [0.28, 0], [0.30, 0.03], [0.26, 0.06], [0.14, 0.12], [0.11, 0.28],
+				[0.16, 0.40], [0.18, 0.52], [0.15, 0.60], [0.11, 0.68], [0.08, 0.74],
+				[0.10, 0.80], [0.12, 0.86], [0.10, 0.90], [0.06, 0.94], [0.04, 1.00], [0, 1.00]
+			]),
+			N: null
+		};
+
+		function createKnightGeometry() {
+			return createLathePiece([
+				[0, 0], [0.26, 0], [0.28, 0.03], [0.24, 0.06], [0.13, 0.12], [0.11, 0.30], [0, 0.30]
+			]);
+		}
+
+		const WHITE_MAT = new THREE.MeshPhysicalMaterial({
+			color: 0xf0e6d3, roughness: 0.35, metalness: 0.08,
+			clearcoat: 0.3, clearcoatRoughness: 0.4
+		});
+		const BLACK_MAT = new THREE.MeshPhysicalMaterial({
+			color: 0x1e1a2e, roughness: 0.30, metalness: 0.12,
+			clearcoat: 0.4, clearcoatRoughness: 0.3
+		});
+
+		function createPieceMesh(piece) {
+			const col = piece === piece.toUpperCase() ? 'white' : 'black';
+			const t = piece.toUpperCase();
+			const mat = col === 'white' ? WHITE_MAT.clone() : BLACK_MAT.clone();
+			const group = new THREE.Group();
+
+			if (t === 'N') {
+				const baseGeo = createKnightGeometry();
+				const baseMesh = new THREE.Mesh(baseGeo, mat);
+				baseMesh.castShadow = true;
+				group.add(baseMesh);
+
+				const headGeo = new THREE.BoxGeometry(0.18, 0.32, 0.28);
+				const headMesh = new THREE.Mesh(headGeo, mat);
+				headMesh.position.set(0, 0.46, -0.02);
+				headMesh.rotation.x = -0.3;
+				headMesh.castShadow = true;
+				group.add(headMesh);
+
+				const snoutGeo = new THREE.BoxGeometry(0.14, 0.12, 0.20);
+				const snoutMesh = new THREE.Mesh(snoutGeo, mat);
+				snoutMesh.position.set(0, 0.42, -0.18);
+				snoutMesh.rotation.x = -0.15;
+				snoutMesh.castShadow = true;
+				group.add(snoutMesh);
+
+				const earGeo = new THREE.ConeGeometry(0.05, 0.14, 8);
+				const earMesh = new THREE.Mesh(earGeo, mat);
+				earMesh.position.set(0, 0.66, -0.02);
+				earMesh.castShadow = true;
+				group.add(earMesh);
+			} else if (t === 'K') {
+				const bodyMesh = new THREE.Mesh(PIECE_GEO.K, mat);
+				bodyMesh.castShadow = true;
+				group.add(bodyMesh);
+
+				const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 0.04), mat);
+				crossV.position.y = 1.08;
+				crossV.castShadow = true;
+				group.add(crossV);
+				const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 0.04), mat);
+				crossH.position.y = 1.06;
+				crossH.castShadow = true;
+				group.add(crossH);
+			} else {
+				const geo = PIECE_GEO[t];
+				const mesh = new THREE.Mesh(geo, mat);
+				mesh.castShadow = true;
+				group.add(mesh);
+			}
+
+			group.userData = { piece, color: col };
+			return group;
+		}
+
+		// ===================== GAME STATE =====================
+		const engine = new ChessEngine();
+		const ai = new ChessAI(engine, 3);
+		let aiEnabled = true;
+		let selectedSquare = null;
+		let legalMovesForSelected = [];
+		let pieceMeshMap = {};
+		let moveIndicators = [];
+		// FIX: Store square mesh objects, not material references
+		let lastMoveSquares = [];
+		let animating = false;
+
+		function boardToWorld(r, c) {
+			return new THREE.Vector3(c - 3.5, 0.08, 3.5 - r);
+		}
+
+		function worldToBoard(pos) {
+			const c = Math.round(pos.x + 3.5);
+			const r = Math.round(3.5 - pos.z);
+			return (r >= 0 && r < 8 && c >= 0 && c < 8) ? { row: r, col: c } : null;
+		}
+
+		function initPieces() {
+			Object.values(pieceMeshMap).forEach(g => { scene.remove(g); });
+			pieceMeshMap = {};
+			for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+				const p = engine.board[r][c];
+				if (p) {
+					const mesh = createPieceMesh(p);
+					const pos = boardToWorld(r, c);
+					mesh.position.copy(pos);
+					scene.add(mesh);
+					pieceMeshMap[r + ',' + c] = mesh;
+				}
+			}
+		}
+
+		// ===================== MOVE INDICATORS =====================
+		// Helper: safely clear emissive on a square mesh
+		function clearSquareEmissive(sq) {
+			if (sq && sq.material) {
+				sq.material.emissive.setHex(0x000000);
+				sq.material.emissiveIntensity = 0;
+			}
+		}
+
+		function clearIndicators() {
+			moveIndicators.forEach(m => scene.remove(m));
+			moveIndicators = [];
+			// FIX: lastMoveSquares stores mesh objects, access .material directly
+			lastMoveSquares.forEach(sq => clearSquareEmissive(sq));
+			lastMoveSquares = [];
+		}
+
+		function showMoveIndicators(moves) {
+			clearIndicators();
+			moves.forEach(m => {
+				const isCapture = m.type === 'capture' || m.type === 'enpassant';
+				const geo = isCapture
+					? new THREE.RingGeometry(0.30, 0.38, 32)
+					: new THREE.CircleGeometry(0.14, 32);
+				const mat = new THREE.MeshBasicMaterial({
+					color: isCapture ? 0xcc4444 : 0x44aa44,
+					transparent: true, opacity: 0.7, side: THREE.DoubleSide
+				});
+				const mesh = new THREE.Mesh(geo, mat);
+				const pos = boardToWorld(m.row, m.col);
+				mesh.position.set(pos.x, 0.09, pos.z);
+				mesh.rotation.x = -Math.PI / 2;
+				scene.add(mesh);
+				moveIndicators.push(mesh);
+			});
+		}
+
+		function highlightLastMove(fr, fc, tr, tc) {
+			// Clear previous last-move highlights
+			lastMoveSquares.forEach(sq => clearSquareEmissive(sq));
+			lastMoveSquares = [];
+			// Set new highlights - store the mesh objects themselves
+			for (const [r, c] of [[fr, fc], [tr, tc]]) {
+				const sq = squareMeshes[r][c];
+				sq.material.emissive.setHex(0xd4a04a);
+				sq.material.emissiveIntensity = 0.15;
+				lastMoveSquares.push(sq);
+			}
+		}
+
+		function highlightCheck() {
+			const col = engine.turn;
+			// Clear any previous check highlights
+			for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+				const sq = squareMeshes[r][c];
+				if (sq.userData._checkHighlight) {
+					clearSquareEmissive(sq);
+					sq.userData._checkHighlight = false;
+				}
+			}
+			if (engine.inCheck) {
+				const kingChar = col === 'white' ? 'K' : 'k';
+				for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+					if (engine.board[r][c] === kingChar) {
+						const sq = squareMeshes[r][c];
+						sq.material.emissive.setHex(0xff2222);
+						sq.material.emissiveIntensity = 0.4;
+						sq.userData._checkHighlight = true;
+					}
+				}
+			}
+		}
+
+		// ===================== ANIMATION =====================
+		function animateMove(fr, fc, tr, tc, callback) {
+			const key = fr + ',' + fc;
+			const mesh = pieceMeshMap[key];
+			if (!mesh) { callback(); return; }
+
+			const startPos = boardToWorld(fr, fc);
+			const endPos = boardToWorld(tr, tc);
+			const duration = 400;
+			const startTime = performance.now();
+			animating = true;
+
+			function tick(now) {
+				const t = Math.min((now - startTime) / duration, 1);
+				const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+				mesh.position.x = startPos.x + (endPos.x - startPos.x) * ease;
+				mesh.position.z = startPos.z + (endPos.z - startPos.z) * ease;
+				mesh.position.y = 0.08 + Math.sin(t * Math.PI) * 0.6;
+				if (t < 1) requestAnimationFrame(tick);
+				else {
+					mesh.position.copy(endPos);
+					animating = false;
+					callback();
+				}
+			}
+			requestAnimationFrame(tick);
+		}
+
+		// ===================== EXECUTE MOVE =====================
+		function executeMove(fr, fc, move) {
+			const capturedPiece = engine.board[move.row][move.col];
+			const enPassantCaptured = move.type === 'enpassant' ? engine.board[fr][move.col] : null;
+
+			animateMove(fr, fc, move.row, move.col, () => {
+				// Remove captured piece mesh
+				if (capturedPiece) {
+					const ck = move.row + ',' + move.col;
+					if (pieceMeshMap[ck]) { scene.remove(pieceMeshMap[ck]); delete pieceMeshMap[ck]; }
+				}
+				if (enPassantCaptured) {
+					const ek = fr + ',' + move.col;
+					if (pieceMeshMap[ek]) { scene.remove(pieceMeshMap[ek]); delete pieceMeshMap[ek]; }
+				}
+
+				engine.makeMove(fr, fc, move);
+
+				// Update piece mesh map
+				const oldKey = fr + ',' + fc;
+				const newKey = move.row + ',' + move.col;
+				pieceMeshMap[newKey] = pieceMeshMap[oldKey];
+				delete pieceMeshMap[oldKey];
+
+				// Handle castling rook visual
+				if (move.type === 'castle') {
+					const rw = move.row;
+					if (move.col === 6) {
+						const rk = rw + ',7', nk = rw + ',5';
+						const rm = pieceMeshMap[rk];
+						if (rm) { rm.position.copy(boardToWorld(rw, 5)); pieceMeshMap[nk] = rm; delete pieceMeshMap[rk]; }
+					} else {
+						const rk = rw + ',0', nk = rw + ',3';
+						const rm = pieceMeshMap[rk];
+						if (rm) { rm.position.copy(boardToWorld(rw, 3)); pieceMeshMap[nk] = rm; delete pieceMeshMap[rk]; }
+					}
+				}
+
+				// Handle promotion
+				if (move.type === 'promotion') {
+					const pk = move.row + ',' + move.col;
+					if (pieceMeshMap[pk]) { scene.remove(pieceMeshMap[pk]); delete pieceMeshMap[pk]; }
+					const newMesh = createPieceMesh(move.promoteTo);
+					newMesh.position.copy(boardToWorld(move.row, move.col));
+					scene.add(newMesh);
+					pieceMeshMap[pk] = newMesh;
+				}
+
+				selectedSquare = null;
+				legalMovesForSelected = [];
+				clearIndicators();
+				highlightLastMove(fr, fc, move.row, move.col);
+				highlightCheck();
+				updateUI();
+
+				if (engine.gameOver) {
+					setTimeout(showGameOver, 500);
+				} else if (aiEnabled && engine.turn === 'black') {
+					setTimeout(doAIMove, 300);
+				}
+			});
+		}
+
+		// ===================== AI MOVE =====================
+		function doAIMove() {
+			if (engine.gameOver || animating) return;
+			const move = ai.getBestMove();
+			if (!move) return;
+			executeMove(move.from.row, move.from.col, move.to);
+		}
+
+		// ===================== INTERACTION =====================
+		const raycaster = new THREE.Raycaster();
+		const mouse = new THREE.Vector2();
+
+		function selectSquare(r, c) {
+			if (animating || engine.gameOver) return;
+			if (aiEnabled && engine.turn === 'black') return;
+
+			if (selectedSquare) {
+				const move = legalMovesForSelected.find(m => m.row === r && m.col === c);
+				if (move) {
+					const promoMoves = legalMovesForSelected.filter(m => m.row === r && m.col === c && m.type === 'promotion');
+					if (promoMoves.length) {
+						showPromotionDialog(selectedSquare.row, selectedSquare.col, promoMoves);
+						return;
+					}
+					executeMove(selectedSquare.row, selectedSquare.col, move);
+					return;
+				}
+				const p = engine.board[r][c];
+				if (p && engine.color(p) === engine.turn) {
+					// Fall through to reselect new piece
+				} else {
+					selectedSquare = null;
+					legalMovesForSelected = [];
+					clearIndicators();
+					clearSelectionHighlight();
+					return;
+				}
+			}
+
+			const piece = engine.board[r][c];
+			if (!piece || engine.color(piece) !== engine.turn) return;
+
+			selectedSquare = { row: r, col: c };
+			legalMovesForSelected = engine.getLegalMoves(r, c);
+			showMoveIndicators(legalMovesForSelected);
+
+			clearSelectionHighlight();
+			const sq = squareMeshes[r][c];
+			sq.material.emissive.setHex(0xd4a04a);
+			sq.material.emissiveIntensity = 0.25;
+			sq.userData._selHighlight = true;
+		}
+
+		function clearSelectionHighlight() {
+			for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+				const sq = squareMeshes[r][c];
+				if (sq.userData._selHighlight) {
+					clearSquareEmissive(sq);
+					sq.userData._selHighlight = false;
+				}
+			}
+		}
+
+		renderer.domElement.addEventListener('click', (e) => {
+			if (animating) return;
+			mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+			raycaster.setFromCamera(mouse, camera);
+			const hits = raycaster.intersectObjects(squareMeshes.flat());
+			if (hits.length) {
+				const { row, col } = hits[0].object.userData;
+				selectSquare(row, col);
+			}
+		});
+
+		renderer.domElement.addEventListener('mousemove', (e) => {
+			mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+			raycaster.setFromCamera(mouse, camera);
+			for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+				const sq = squareMeshes[r][c];
+				if (!sq.userData._selHighlight && !sq.userData._checkHighlight && !lastMoveSquares.includes(sq)) {
+					clearSquareEmissive(sq);
+				}
+			}
+			const hits = raycaster.intersectObjects(squareMeshes.flat());
+			if (hits.length) {
+				const sq = hits[0].object;
+				if (!sq.userData._selHighlight && !sq.userData._checkHighlight && !lastMoveSquares.includes(sq)) {
+					sq.material.emissive.setHex(0xffffff);
+					sq.material.emissiveIntensity = 0.05;
+				}
+				renderer.domElement.style.cursor = 'pointer';
+			} else {
+				renderer.domElement.style.cursor = 'default';
+			}
+		});
+
+		// ===================== PROMOTION DIALOG =====================
+		const promoDialog = document.getElementById('promotion-dialog');
+		let pendingPromo = null;
+
+		function showPromotionDialog(fr, fc, moves) {
+			pendingPromo = { fr, fc, moves };
+			promoDialog.style.display = 'block';
+			const isWhite = engine.color(engine.board[fr][fc]) === 'white';
+			const whiteChars = { Q: '\u265B', R: '\u265C', B: '\u265D', N: '\u265E' };
+			const blackChars = { Q: '\u265B', R: '\u265C', B: '\u265D', N: '\u265E' };
+			document.querySelectorAll('.promo-btn').forEach(btn => {
+				const pt = btn.dataset.piece;
+				btn.textContent = isWhite ? whiteChars[pt] : blackChars[pt];
+				btn.style.color = isWhite ? '#f0e6d3' : '#2a2235';
+			});
+		}
+
+		document.querySelectorAll('.promo-btn').forEach(btn => {
+			btn.addEventListener('click', () => {
+				if (!pendingPromo) return;
+				const pt = btn.dataset.piece;
+				const { fr, fc, moves } = pendingPromo;
+				const move = moves.find(m => m.type === 'promotion' && m.promoteTo.toUpperCase() === pt);
+				promoDialog.style.display = 'none';
+				pendingPromo = null;
+				if (move) executeMove(fr, fc, move);
+			});
+		});
+
+		// ===================== GAME OVER DIALOG =====================
+		const goDialog = document.getElementById('game-over-dialog');
+
+		function showGameOver() {
+			const title = document.getElementById('go-title');
+			const text = document.getElementById('go-text');
+			if (engine.result === 'draw') {
+				title.textContent = 'Stalemate';
+				text.textContent = 'The game is a draw by stalemate.';
+			} else {
+				title.textContent = 'Checkmate';
+				text.textContent = (engine.result === 'white' ? 'White' : 'Black') + ' wins!';
+			}
+			goDialog.style.display = 'block';
+		}
+
+		document.getElementById('go-new').addEventListener('click', () => {
+			goDialog.style.display = 'none';
+			newGame();
+		});
+
+		// ===================== UI =====================
+		function updateUI() {
+			const turnText = engine.turn === 'white' ? 'White' : 'Black';
+			const checkStr = engine.inCheck ? ' is in check' : '';
+			document.getElementById('status-text').innerHTML =
+				`<span class="accent">${turnText}</span> to move${checkStr}`;
+			document.getElementById('white-dot').className = 'dot white-dot' + (engine.turn === 'white' ? ' active' : '');
+			document.getElementById('black-dot').className = 'dot black-dot' + (engine.turn === 'black' ? ' active' : '');
+
+			const wChars = { P: '\u265F', N: '\u265E', B: '\u265D', R: '\u265C', Q: '\u265B' };
+			const bChars = { P: '\u2659', N: '\u2658', B: '\u2657', R: '\u2656', Q: '\u2655' };
+			document.getElementById('white-captured').textContent =
+				engine.capturedWhite.map(p => wChars[p.toUpperCase()] || '').join(' ');
+			document.getElementById('black-captured').textContent =
+				engine.capturedBlack.map(p => bChars[p.toUpperCase()] || '').join(' ');
+
+			const mc = document.getElementById('moves-content');
+			mc.innerHTML = '';
+			for (let i = 0; i < engine.history.length; i += 2) {
+				const num = Math.floor(i / 2) + 1;
+				const wMove = engine.history[i];
+				const bMove = engine.history[i + 1];
+				const wStr = moveToStr(wMove);
+				const bStr = bMove ? moveToStr(bMove) : '';
+				const entry = document.createElement('span');
+				entry.className = 'move-entry';
+				entry.innerHTML = `<span class="move-num">${num}.</span> ${wStr} ${bStr} `;
+				mc.appendChild(entry);
+			}
+			mc.scrollTop = mc.scrollHeight;
+		}
+
+		function moveToStr(h) {
+			const files = 'abcdefgh', ranks = '12345678';
+			const to = files[h.to.col] + ranks[h.to.row];
+			if (h.type === 'castle') return h.to.col === 6 ? 'O-O' : 'O-O-O';
+			const pt = h.piece.toUpperCase();
+			const pieceLetter = pt === 'P' ? '' : pt;
+			const cap = h.captured ? 'x' : '';
+			const from = pt === 'P' && cap ? files[h.from.col] : '';
+			const promo = h.promoteTo ? '=' + h.promoteTo.toUpperCase() : '';
+			return pieceLetter + from + cap + to + promo;
+		}
+
+		// ===================== CONTROLS =====================
+		function resetAllSquareHighlights() {
+			for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+				const sq = squareMeshes[r][c];
+				clearSquareEmissive(sq);
+				sq.userData._selHighlight = false;
+				sq.userData._checkHighlight = false;
+			}
+		}
+
+		function newGame() {
+			engine.reset();
+			resetAllSquareHighlights();
+			initPieces();
+			updateUI();
+			selectedSquare = null;
+			legalMovesForSelected = [];
+			animating = false;
+			moveIndicators.forEach(m => scene.remove(m));
+			moveIndicators = [];
+			lastMoveSquares = [];
+		}
+
+		document.getElementById('btn-new').addEventListener('click', () => {
+			goDialog.style.display = 'none';
+			newGame();
+		});
+
+		document.getElementById('btn-ai').addEventListener('click', (e) => {
+			aiEnabled = !aiEnabled;
+			e.target.classList.toggle('active', aiEnabled);
+			e.target.textContent = aiEnabled ? 'Play vs AI' : '2 Players';
+			if (aiEnabled && engine.turn === 'black' && !engine.gameOver) {
+				setTimeout(doAIMove, 300);
+			}
+		});
+
+		document.getElementById('btn-undo').addEventListener('click', () => {
+			if (animating) return;
+			if (aiEnabled && engine.turn === 'white' && engine.history.length >= 2) {
+				engine.undoMove(); engine.undoMove();
+			} else {
+				engine.undoMove();
+			}
+			resetAllSquareHighlights();
+			initPieces();
+			highlightCheck();
+			updateUI();
+			selectedSquare = null;
+			legalMovesForSelected = [];
+			moveIndicators.forEach(m => scene.remove(m));
+			moveIndicators = [];
+			lastMoveSquares = [];
+			if (engine.history.length) {
+				const last = engine.history[engine.history.length - 1];
+				highlightLastMove(last.from.row, last.from.col, last.to.row, last.to.col);
+			}
+		});
+
+		// ===================== RESIZE =====================
+		window.addEventListener('resize', () => {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		});
+
+		// ===================== AMBIENT PARTICLES =====================
+		const particleCount = 80;
+		const particleGeo = new THREE.BufferGeometry();
+		const particlePositions = new Float32Array(particleCount * 3);
+		const particleSpeeds = [];
+		for (let i = 0; i < particleCount; i++) {
+			particlePositions[i * 3] = (Math.random() - 0.5) * 16;
+			particlePositions[i * 3 + 1] = Math.random() * 8;
+			particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 16;
+			particleSpeeds.push(0.002 + Math.random() * 0.005);
+		}
+		particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+		const particleMat = new THREE.PointsMaterial({
+			color: 0xd4a04a, size: 0.03, transparent: true, opacity: 0.4,
+			blending: THREE.AdditiveBlending, depthWrite: false
+		});
+		const particles = new THREE.Points(particleGeo, particleMat);
+		scene.add(particles);
+
+		// ===================== GAME LOOP =====================
+		function animate() {
+			requestAnimationFrame(animate);
+			controls.update();
+
+			const pos = particleGeo.attributes.position.array;
+			for (let i = 0; i < particleCount; i++) {
+				pos[i * 3 + 1] += particleSpeeds[i];
+				if (pos[i * 3 + 1] > 8) {
+					pos[i * 3 + 1] = 0;
+					pos[i * 3] = (Math.random() - 0.5) * 16;
+					pos[i * 3 + 2] = (Math.random() - 0.5) * 16;
+				}
+			}
+			particleGeo.attributes.position.needsUpdate = true;
+
+			const time = performance.now() * 0.003;
+			moveIndicators.forEach((m, i) => {
+				m.material.opacity = 0.5 + 0.2 * Math.sin(time + i);
+			});
+
+			renderer.render(scene, camera);
+		}
+
+		// ===================== INIT =====================
+		initPieces();
+		updateUI();
+		animate();
+	</script>
+</body>
+
+</html>

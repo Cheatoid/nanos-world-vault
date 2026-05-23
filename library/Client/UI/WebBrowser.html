@@ -472,10 +472,10 @@ License: MIT
 		tabEl.dataset.tabId = tabId;
 		tabEl.draggable = true;
 		tabEl.innerHTML = `
-				<div class="tab-favicon"></div>
-				<span class="tab-title">${title || 'New Tab'}</span>
-				<div class="tab-close"><i class="fas fa-times"></i></div>
-			`;
+			<div class="tab-favicon"></div>
+			<span class="tab-title">${title || 'New Tab'}</span>
+			<div class="tab-close"><i class="fas fa-times"></i></div>
+		`;
 
 		tabEl.addEventListener('click', (e) => {
 			if (!e.target.closest('.tab-close')) {
@@ -501,7 +501,7 @@ License: MIT
 		tabList.appendChild(tabEl);
 
 		// Scroll to the new tab to make it visible
-		tabEl.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'end'});
+		tabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'end' });
 
 		tabs[tabId] = {
 			id: tabId,
@@ -676,7 +676,7 @@ License: MIT
 
 		// Tab URL changed
 		Events.Subscribe('TabURLChanged', function (tabId, url) {
-			updateTabElement(tabId, {url: url});
+			updateTabElement(tabId, { url: url });
 			if (activeTabId === tabId) {
 				// Normalize new tab page URL to short form
 				if (url && url.includes('NewTabPage.html')) {
@@ -695,12 +695,12 @@ License: MIT
 
 		// Tab title changed
 		Events.Subscribe('TabTitleChanged', function (tabId, title) {
-			updateTabElement(tabId, {title: title});
+			updateTabElement(tabId, { title: title });
 		});
 
 		// Tab loading changed
 		Events.Subscribe('TabLoadingChanged', function (tabId, loading) {
-			updateTabElement(tabId, {loading: loading});
+			updateTabElement(tabId, { loading: loading });
 		});
 
 		// Rebuild tabs (called when restoring from localStorage)

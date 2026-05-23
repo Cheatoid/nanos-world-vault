@@ -1,5 +1,5 @@
 /* ==========================================================================
- * win32_api_hook_detector.c — Enhanced Win32 API Hook Detection
+ * win32_api_hook_detector.c - Enhanced Win32 API Hook Detection
  *
  * Comprehensive Win32 API hook detection that compares in-memory functions
  * against original DLLs on disk to detect modifications.

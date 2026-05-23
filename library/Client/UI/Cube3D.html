@@ -8,7 +8,8 @@ License: MIT
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<title>WebGL2 Cube</title>
 	<style>
 		*,
@@ -76,11 +77,11 @@ out vec3 vColor;
 out vec3 vWorldPos;
 
 void main() {
-  vec4 worldPos = uModel * vec4(aPos, 1.0);
-  vWorldPos = worldPos.xyz;
-  vNormal = mat3(uModel) * aNormal;
-  vColor = aColor;
-  gl_Position = uProj * uView * worldPos;
+	vec4 worldPos = uModel * vec4(aPos, 1.0);
+	vWorldPos = worldPos.xyz;
+	vNormal = mat3(uModel) * aNormal;
+	vColor = aColor;
+	gl_Position = uProj * uView * worldPos;
 }
 `;
 
@@ -96,18 +97,18 @@ uniform vec3 uLightDir;
 out vec4 fragColor;
 
 void main() {
-  vec3 N = normalize(vNormal);
-  vec3 L = normalize(uLightDir);
+	vec3 N = normalize(vNormal);
+	vec3 L = normalize(uLightDir);
 
-  float diff = max(dot(N, L), 0.0);
+	float diff = max(dot(N, L), 0.0);
 
-  vec3 V = normalize(-vWorldPos);
-  vec3 H = normalize(L + V);
-  float spec = pow(max(dot(N, H), 0.0), 32.0);
+	vec3 V = normalize(-vWorldPos);
+	vec3 H = normalize(L + V);
+	float spec = pow(max(dot(N, H), 0.0), 32.0);
 
-  vec3 color = vColor * (0.15 + 0.75 * diff) + vec3(1.0) * spec * 0.4;
+	vec3 color = vColor * (0.15 + 0.75 * diff) + vec3(1.0) * spec * 0.4;
 
-  fragColor = vec4(color, 1.0);
+	fragColor = vec4(color, 1.0);
 }
 `;
 
@@ -136,18 +137,18 @@ void main() {
 
 	// Cube geometry
 	const faceData = [
-		{n: [0, 0, 1], c: [0.1, 0.8, 0.9], verts: [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]]},
-		{n: [0, 0, -1], c: [0.95, 0.55, 0.1], verts: [[1, -1, -1], [-1, -1, -1], [-1, 1, -1], [1, 1, -1]]},
-		{n: [1, 0, 0], c: [0.2, 0.85, 0.3], verts: [[1, -1, 1], [1, -1, -1], [1, 1, -1], [1, 1, 1]]},
-		{n: [-1, 0, 0], c: [0.9, 0.2, 0.7], verts: [[-1, -1, -1], [-1, -1, 1], [-1, 1, 1], [-1, 1, -1]]},
-		{n: [0, 1, 0], c: [0.95, 0.9, 0.15], verts: [[-1, 1, 1], [1, 1, 1], [1, 1, -1], [-1, 1, -1]]},
-		{n: [0, -1, 0], c: [0.9, 0.15, 0.15], verts: [[-1, -1, -1], [1, -1, -1], [1, -1, 1], [-1, -1, 1]]},
+		{ n: [0, 0, 1], c: [0.1, 0.8, 0.9], verts: [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]] },
+		{ n: [0, 0, -1], c: [0.95, 0.55, 0.1], verts: [[1, -1, -1], [-1, -1, -1], [-1, 1, -1], [1, 1, -1]] },
+		{ n: [1, 0, 0], c: [0.2, 0.85, 0.3], verts: [[1, -1, 1], [1, -1, -1], [1, 1, -1], [1, 1, 1]] },
+		{ n: [-1, 0, 0], c: [0.9, 0.2, 0.7], verts: [[-1, -1, -1], [-1, -1, 1], [-1, 1, 1], [-1, 1, -1]] },
+		{ n: [0, 1, 0], c: [0.95, 0.9, 0.15], verts: [[-1, 1, 1], [1, 1, 1], [1, 1, -1], [-1, 1, -1]] },
+		{ n: [0, -1, 0], c: [0.9, 0.15, 0.15], verts: [[-1, -1, -1], [1, -1, -1], [1, -1, 1], [-1, -1, 1]] },
 	];
 
 	const interleaved = [];
 	const indices = [];
 	for (let f = 0; f < 6; f++) {
-		const {n, c, verts} = faceData[f];
+		const { n, c, verts } = faceData[f];
 		for (const v of verts) {
 			interleaved.push(...v, ...n, ...c);
 		}

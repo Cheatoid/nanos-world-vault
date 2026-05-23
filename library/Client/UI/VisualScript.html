@@ -8,7 +8,8 @@ License: MIT
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<title>VisualScript Editor</title>
 	<link
 		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
@@ -485,7 +486,8 @@ License: MIT
 		}
 
 		@keyframes nodePulse {
-			0%, 100% {
+			0%,
+			100% {
 				box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
 			}
 			50% {
@@ -494,7 +496,8 @@ License: MIT
 		}
 
 		@keyframes stepPulse {
-			0%, 100% {
+			0%,
+			100% {
 				box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.3), 0 4px 24px rgba(0, 0, 0, .5);
 			}
 			50% {
@@ -1067,7 +1070,8 @@ License: MIT
 		}
 
 		@keyframes iconPulse {
-			0%, 100% {
+			0%,
+			100% {
 				transform: scale(1);
 			}
 			50% {
@@ -1324,10 +1328,10 @@ License: MIT
 			el.className = `toast ${toast.type || 'info'}`;
 			el.dataset.toastId = toast.id;
 			el.innerHTML = `
-			<i class="fa-solid fa-${toast.icon || 'info-circle'} toast-icon"></i>
-			<span class="toast-message">${toast.message || ''}</span>
-			${!toast.persistent ? '<div class="toast-progress"></div>' : ''}
-		`;
+		<i class="fa-solid fa-${toast.icon || 'info-circle'} toast-icon"></i>
+		<span class="toast-message">${toast.message || ''}</span>
+		${!toast.persistent ? '<div class="toast-progress"></div>' : ''}
+	`;
 
 			// Add click to dismiss
 			el.addEventListener('click', () => this._removeToast(toast.id));
@@ -2574,13 +2578,13 @@ License: MIT
 			const catColor = categoryColors[def.category] || 'var(--accent)';
 
 			let html = `
-	<div class="node-header">
-	<div class="color-strip" style="background:${catColor}"></div>
-	<span class="title">${def.title}</span>
-	<button class="collapse-btn" data-action="collapse" title="Collapse/Expand"><i class="fa-solid fa-minus"></i></button>
-	<button class="delete-btn" data-action="delete" title="Delete"><i class="fa-solid fa-times"></i></button>
-	</div>
-	<div class="node-body">`;
+<div class="node-header">
+<div class="color-strip" style="background:${catColor}"></div>
+<span class="title">${def.title}</span>
+<button class="collapse-btn" data-action="collapse" title="Collapse/Expand"><i class="fa-solid fa-minus"></i></button>
+<button class="delete-btn" data-action="delete" title="Delete"><i class="fa-solid fa-times"></i></button>
+</div>
+<div class="node-body">`;
 
 			if (!def.inputs || !Array.isArray(def.inputs)) {
 				return;
@@ -2595,12 +2599,12 @@ License: MIT
 					const inpColor = typeColorMap[inp.type] || typeColorMap.any;
 					const outColor = typeColorMap[out.type] || typeColorMap.any;
 					html += `<div class="node-row">
-					<div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${inpColor};color:${inpColor};margin-left:-5px;margin-right:6px;"></div>
-					<span class="port-label">${inp.label || inp.id}</span>
-					<span style="flex: 1;"></span>
-					<span class="port-label">${out.label || out.id}</span>
-					<div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${outColor};color:${outColor};margin-right:-5px;margin-left:6px;"></div>
-				</div>`;
+				<div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${inpColor};color:${inpColor};margin-left:-5px;margin-right:6px;"></div>
+				<span class="port-label">${inp.label || inp.id}</span>
+				<span style="flex: 1;"></span>
+				<span class="port-label">${out.label || out.id}</span>
+				<div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${outColor};color:${outColor};margin-right:-5px;margin-left:6px;"></div>
+			</div>`;
 				}
 			} else {
 				// Normal rendering for other widgets
@@ -2609,7 +2613,7 @@ License: MIT
 					const pColor = typeColorMap[inp.type] || typeColorMap.any;
 					const isConnected = this._isInputPortConnected(node.id, inp.id);
 					html += `<div class="node-row input-row">
-	<div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${pColor};color:${pColor}"></div>`;
+<div class="port-dot" data-node-id="${node.id}" data-port-id="${inp.id}" data-dir="in" style="background:${pColor};color:${pColor}"></div>`;
 
 					if (def.widget === 'toggle' || inp.type === 'boolean') {
 						const isA = !!node.data[inp.id];
@@ -2633,9 +2637,9 @@ License: MIT
 					if (!out || !out.id) return;
 					const pColor = typeColorMap[out.type] || typeColorMap.any;
 					html += `<div class="node-row output-row">
-	<span class="port-label">${out.label || out.id}</span>
-	<div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${pColor};color:${pColor}"></div>
-	</div>`;
+<span class="port-label">${out.label || out.id}</span>
+<div class="port-dot" data-node-id="${node.id}" data-port-id="${out.id}" data-dir="out" style="background:${pColor};color:${pColor}"></div>
+</div>`;
 				});
 			}
 
@@ -2645,9 +2649,9 @@ License: MIT
 
 			if (def.widget === 'group') {
 				html += `<div class="node-group" data-group="${node.id}" data-collapsed="false">
-				<span class="group-icon">▼</span>
-				<span>Group</span>
-			</div>`;
+			<span class="group-icon">▼</span>
+			<span>Group</span>
+		</div>`;
 			}
 
 			html += `</div>`;
@@ -3014,17 +3018,17 @@ License: MIT
 				const result = this.app?.engine?.results?.get(primaryNode);
 				const displayValue = result?._display !== undefined ? result._display : '-';
 				html = `
-	<div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
-	<div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
-	<div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
+<div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
+<div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
+<div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
 				html += `
-	<div class="insp-field"><div class="insp-label">Value</div><div class="insp-value" style="font-size:12px">${displayValue}</div></div>`;
+<div class="insp-field"><div class="insp-label">Value</div><div class="insp-value" style="font-size:12px">${displayValue}</div></div>`;
 				body.innerHTML = html;
 			} else {
 				html = `
-	<div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
-	<div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
-	<div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
+<div class="insp-field"><div class="insp-label">Type</div><div class="insp-value">${def.title}</div></div>
+<div class="insp-field"><div class="insp-label">ID</div><div class="insp-value" style="font-size:10px">${node.id}</div></div>
+<div class="insp-field"><div class="insp-label">Position</div><div class="insp-value">X: ${Math.round(node.x)}, Y: ${Math.round(node.y)}</div></div>`;
 			}
 
 			def.inputs.forEach(inp => {
@@ -3046,22 +3050,22 @@ License: MIT
 				if (def.widget === 'toggle' || inp.type === 'boolean') {
 					const isChecked = !!displayValue;
 					html += `
-	<div class="insp-field">
-		<div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
-		<label style="display: flex; align-items: center; gap: 8px; cursor: ${isConnected ? 'not-allowed' : 'pointer'};">
-		<input type="checkbox" class="insp-checkbox" data-key="${inp.id}" ${isChecked ? 'checked' : ''} ${isConnected ? 'disabled' : ''}>
-		<span style="color: var(--text-sec); font-size: 12px;">${isChecked ? 'True' : 'False'}</span>
-		</label>
-	</div>`;
+<div class="insp-field">
+	<div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
+	<label style="display: flex; align-items: center; gap: 8px; cursor: ${isConnected ? 'not-allowed' : 'pointer'};">
+	<input type="checkbox" class="insp-checkbox" data-key="${inp.id}" ${isChecked ? 'checked' : ''} ${isConnected ? 'disabled' : ''}>
+	<span style="color: var(--text-sec); font-size: 12px;">${isChecked ? 'True' : 'False'}</span>
+	</label>
+</div>`;
 				} else {
 					// Use text input for numbers to have better control over cursor behavior
 					const inputType = 'text';
 					const inputMode = inp.type === 'number' ? 'numeric' : '';
 					html += `
-	<div class="insp-field">
-		<div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
-		<input class="insp-input" type="${inputType}" inputmode="${inputMode}" data-key="${inp.id}" value="${displayValue}" ${isConnected ? 'readonly' : ''}>
-	</div>`;
+<div class="insp-field">
+	<div class="insp-label">${inp.label} (${inp.type})${isConnected ? ' <span style="color: var(--text-muted); font-size: 10px;">[connected]</span>' : ''}</div>
+	<input class="insp-input" type="${inputType}" inputmode="${inputMode}" data-key="${inp.id}" value="${displayValue}" ${isConnected ? 'readonly' : ''}>
+</div>`;
 				}
 			});
 
@@ -3890,8 +3894,8 @@ License: MIT
 			for (const [cat, items] of Object.entries(categories)) {
 				const catColor = categoryColors[cat] || 'var(--accent)';
 				html += `<div class="cat-group">
-				<div class="cat-label" data-cat="${cat}"><i class="fa-solid fa-chevron-down"></i> ${cat}</div>
-				<div class="cat-items" data-cat-items="${cat}">`;
+			<div class="cat-label" data-cat="${cat}"><i class="fa-solid fa-chevron-down"></i> ${cat}</div>
+			<div class="cat-items" data-cat-items="${cat}">`;
 				items.forEach(({ type, def }) => {
 					html += `<div class="palette-item" data-type="${type}"><div class="dot" style="background:${catColor}"></div>${def.title}</div>`;
 				});

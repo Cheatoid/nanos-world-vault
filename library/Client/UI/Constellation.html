@@ -7,8 +7,9 @@ License: MIT
 <html lang="en">
 
 <head>
-	<meta charset="utf-8"/>
-	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<style>
 		html,
 		body {
@@ -190,8 +191,8 @@ License: MIT
 		isPrimitive: !1, match: t => Object(t) === t, fromHexString(t, i, e = 1) {
 			const l = n.fromHexString(t);
 			i.r = (l >> 16 & 255) / 255 * e, i.g = (l >> 8 & 255) / 255 * e, i.b = (255 & l) / 255 * e
-		}, toHexString: ({r: t, g: i, b: e}, l = 1) => n.toHexString(t * (l = 255 / l) << 16 ^ i * l << 8 ^ e * l << 0)
-	}, r = [{isPrimitive: !0, match: t => "string" == typeof t, fromHexString: e, toHexString: e}, n, l, s];
+		}, toHexString: ({ r: t, g: i, b: e }, l = 1) => n.toHexString(t * (l = 255 / l) << 16 ^ i * l << 8 ^ e * l << 0)
+	}, r = [{ isPrimitive: !0, match: t => "string" == typeof t, fromHexString: e, toHexString: e }, n, l, s];
 
 	class o extends t {
 		constructor(t, i, n, l) {
@@ -239,7 +240,7 @@ License: MIT
 			super(t, i, e, "lil-function"), this.$button = document.createElement("button"), this.$button.appendChild(this.$name), this.$widget.appendChild(this.$button), this.$button.addEventListener("click", (t => {
 				t.preventDefault(), this.getValue().call(this.object), this._callOnChange()
 			})), this.$button.addEventListener("touchstart", (() => {
-			}), {passive: !0}), this.$disable = this.$button
+			}), { passive: !0 }), this.$disable = this.$button
 		}
 	}
 
@@ -303,7 +304,7 @@ License: MIT
 				"Enter" === i.key && this.$input.blur(), "ArrowUp" === i.code && (i.preventDefault(), t(this._step * this._arrowKeyMultiplier(i))), "ArrowDown" === i.code && (i.preventDefault(), t(this._step * this._arrowKeyMultiplier(i) * -1))
 			})), this.$input.addEventListener("wheel", (i => {
 				this._inputFocused && (i.preventDefault(), t(this._step * this._normalizeMouseWheel(i)))
-			}), {passive: !1}), this.$input.addEventListener("mousedown", (t => {
+			}), { passive: !1 }), this.$input.addEventListener("mousedown", (t => {
 				i = t.clientX, e = n = t.clientY, r = !0, l = this.getValue(), s = 0, window.addEventListener("mousemove", o), window.addEventListener("mouseup", a)
 			})), this.$input.addEventListener("focus", (() => {
 				this._inputFocused = !0
@@ -339,13 +340,13 @@ License: MIT
 			this.$slider.addEventListener("mousedown", (n => {
 				this._setDraggingStyle(!0), t(n.clientX), window.addEventListener("mousemove", i), window.addEventListener("mouseup", e)
 			})), this.$slider.addEventListener("touchstart", (t => {
-				t.touches.length > 1 || (this._hasScrollBar ? (n = t.touches[0].clientX, l = t.touches[0].clientY, s = !0) : r(t), window.addEventListener("touchmove", o, {passive: !1}), window.addEventListener("touchend", a))
-			}), {passive: !1}), this.$slider.addEventListener("wheel", (t => {
+				t.touches.length > 1 || (this._hasScrollBar ? (n = t.touches[0].clientX, l = t.touches[0].clientY, s = !0) : r(t), window.addEventListener("touchmove", o, { passive: !1 }), window.addEventListener("touchend", a))
+			}), { passive: !1 }), this.$slider.addEventListener("wheel", (t => {
 				if (Math.abs(t.deltaX) < Math.abs(t.deltaY) && this._hasScrollBar) return;
 				t.preventDefault();
 				const i = this._normalizeMouseWheel(t) * this._step;
 				this._snapClampSetValue(this.getValue() + i), this.$input.value = this.getValue(), clearTimeout(d), d = setTimeout(h, 400)
-			}), {passive: !1})
+			}), { passive: !1 })
 		}
 
 		_setDraggingStyle(t, i = "horizontal") {
@@ -361,7 +362,7 @@ License: MIT
 		}
 
 		_normalizeMouseWheel(t) {
-			let {deltaX: i, deltaY: e} = t;
+			let { deltaX: i, deltaY: e } = t;
 			Math.floor(t.deltaY) !== t.deltaY && t.wheelDelta && (i = 0, e = -t.wheelDelta / 120, e *= this._stepExplicit ? 1 : 10);
 			return i + -e
 		}
@@ -442,17 +443,17 @@ License: MIT
 
 	class p {
 		constructor({
-						parent: t,
-						autoPlace: i = void 0 === t,
-						container: e,
-						width: n,
-						title: l = "Controls",
-						closeFolders: s = !1,
-						injectStyles: r = !0,
-						touchStyles: o = !0
-					} = {}) {
+			parent: t,
+			autoPlace: i = void 0 === t,
+			container: e,
+			width: n,
+			title: l = "Controls",
+			closeFolders: s = !1,
+			injectStyles: r = !0,
+			touchStyles: o = !0
+		} = {}) {
 			if (this.parent = t, this.root = t ? t.root : this, this.children = [], this.controllers = [], this.folders = [], this._closed = !1, this._hidden = !1, this.domElement = document.createElement("div"), this.domElement.classList.add("lil-gui"), this.$title = document.createElement("button"), this.$title.classList.add("lil-title"), this.$title.setAttribute("aria-expanded", !0), this.$title.addEventListener("click", (() => this.openAnimated(this._closed))), this.$title.addEventListener("touchstart", (() => {
-			}), {passive: !0}), this.$children = document.createElement("div"), this.$children.classList.add("lil-children"), this.domElement.appendChild(this.$title), this.domElement.appendChild(this.$children), this.title(l), this.parent) return this.parent.children.push(this), this.parent.folders.push(this), void this.parent.$children.appendChild(this.domElement);
+			}), { passive: !0 }), this.$children = document.createElement("div"), this.$children.classList.add("lil-children"), this.domElement.appendChild(this.$title), this.domElement.appendChild(this.$children), this.title(l), this.parent) return this.parent.children.push(this), this.parent.folders.push(this), void this.parent.$children.appendChild(this.domElement);
 			this.domElement.classList.add("lil-root"), o && this.domElement.classList.add("lil-allow-touch-styles"), !u && r && (!function (t) {
 				const i = document.createElement("style");
 				i.innerHTML = t;
@@ -482,7 +483,7 @@ License: MIT
 		}
 
 		addFolder(t) {
-			const i = new p({parent: this, title: t});
+			const i = new p({ parent: this, title: t });
 			return this.root._closeFolders && i.close(), i
 		}
 
@@ -495,7 +496,7 @@ License: MIT
 		}
 
 		save(t = !0) {
-			const i = {controllers: {}, folders: {}};
+			const i = { controllers: {}, folders: {} };
 			return this.controllers.forEach((t => {
 				if (!(t instanceof a)) {
 					if (t._name in i.controllers) throw new Error(`Cannot save GUI with duplicate property "${t._name}"`);
@@ -1304,7 +1305,7 @@ License: MIT
 	// -----------------------------
 	// MOUSE + TOUCH (dynamic enable/disable)
 	// -----------------------------
-	const mouse = {x: 0, y: 0, active: false};
+	const mouse = { x: 0, y: 0, active: false };
 
 	function updateMouse(e) {
 		if (!settings.interactionEnabled) return;

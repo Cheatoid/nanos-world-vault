@@ -18,14 +18,14 @@ License: MIT
 <!--<![endif]-->
 
 <head>
-	<meta charset="utf-8">
+	<meta charset="UTF-8">
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta http-equiv="Content-Language" content="en">
 	<meta content="origin-when-cross-origin" name="referrer">
 	<meta name="robots" content="noindex, nofollow">
 	<meta name="viewport"
-	      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<style type="text/css">
@@ -85,12 +85,12 @@ License: MIT
 	const createCanvasContext = (canvas) => {
 		let context;
 		if (FORCE_SOFTWARE_RENDERING) {
-			context = canvas.getContext('2d', {alpha: true, desynchronized: true});
+			context = canvas.getContext('2d', { alpha: true, desynchronized: true });
 		} else {
 			context = canvas.getContext('experimental-webgl') || canvas.getContext('webgl');
 			if (!context || !(context instanceof WebGLRenderingContext)) {
 				console.log('Fallback, using software renderer.');
-				context = canvas.getContext('2d', {alpha: true, desynchronized: true});
+				context = canvas.getContext('2d', { alpha: true, desynchronized: true });
 			} else {
 				console.log('Awesome, your browser supports WebGL renderer... (WIP)');
 				return false; // TODO

@@ -7,8 +7,8 @@ License: MIT
 <html lang="en">
 
 <head>
-	<meta charset="utf-8"/>
-	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 	<style>
 		:root {
 			--panel-bg-0: #0f1113;
@@ -243,7 +243,7 @@ License: MIT
 			overflow: hidden;
 		}
 
-		#domMenu.open + #domMenuPanel,
+		#domMenu.open+#domMenuPanel,
 		#domMenuPanel.open {
 			transform: translateY(8px) scaleY(1) translateX(0);
 			opacity: 1;
@@ -291,20 +291,20 @@ License: MIT
 			transform: translateY(-2px) scale(1.01);
 		}
 
-		#domMenu.open + #domMenuPanel .menuItem {
+		#domMenu.open+#domMenuPanel .menuItem {
 			opacity: 1;
 			transform: translateY(0) scale(1);
 		}
 
-		#domMenu.open + #domMenuPanel .menuItem:nth-child(2) {
+		#domMenu.open+#domMenuPanel .menuItem:nth-child(2) {
 			transition-delay: 40ms
 		}
 
-		#domMenu.open + #domMenuPanel .menuItem:nth-child(3) {
+		#domMenu.open+#domMenuPanel .menuItem:nth-child(3) {
 			transition-delay: 80ms
 		}
 
-		#domMenu.open + #domMenuPanel .menuItem:nth-child(4) {
+		#domMenu.open+#domMenuPanel .menuItem:nth-child(4) {
 			transition-delay: 120ms
 		}
 
@@ -479,11 +479,11 @@ License: MIT
 
 <!-- cool hamburger -->
 <button id="domMenu" aria-label="Menu" aria-expanded="false" type="button">
-		<span class="hamburger" aria-hidden="true">
-			<span class="line top"></span>
-			<span class="line mid"></span>
-			<span class="line bot"></span>
-		</span>
+	<span class="hamburger" aria-hidden="true">
+		<span class="line top"></span>
+		<span class="line mid"></span>
+		<span class="line bot"></span>
+	</span>
 </button>
 
 <!-- quick menu -->
@@ -510,42 +510,42 @@ License: MIT
 		<div style="font-size:12px;color:#9fb">Mode</div>
 		<div class="control-row" style="margin-bottom:6px;">
 			<label>Orbit</label>
-			<input id="orbitToggle" type="checkbox"/>
+			<input id="orbitToggle" type="checkbox" />
 			<div style="flex:1"></div>
 		</div>
 
 		<div style="font-size:12px;color:#9fb;margin-top:6px">Position (X Y Z)</div>
 		<div class="control-row">
 			<label>X</label>
-			<input id="posXRange" type="range" min="-20" max="20" step="0.1"/>
-			<input id="posXNum" type="number" step="0.1"/>
+			<input id="posXRange" type="range" min="-20" max="20" step="0.1" />
+			<input id="posXNum" type="number" step="0.1" />
 		</div>
 		<div class="control-row">
 			<label>Y</label>
-			<input id="posYRange" type="range" min="-20" max="20" step="0.1"/>
-			<input id="posYNum" type="number" step="0.1"/>
+			<input id="posYRange" type="range" min="-20" max="20" step="0.1" />
+			<input id="posYNum" type="number" step="0.1" />
 		</div>
 		<div class="control-row">
 			<label>Z</label>
-			<input id="posZRange" type="range" min="-40" max="40" step="0.1"/>
-			<input id="posZNum" type="number" step="0.1"/>
+			<input id="posZRange" type="range" min="-40" max="40" step="0.1" />
+			<input id="posZNum" type="number" step="0.1" />
 		</div>
 
 		<div style="font-size:12px;color:#9fb;margin-top:6px">Rotation (deg) Pitch / Yaw / Roll</div>
 		<div class="control-row">
 			<label>Pitch</label>
-			<input id="pitchRange" type="range" min="-90" max="90" step="0.5"/>
-			<input id="pitchNum" type="number" step="0.5"/>
+			<input id="pitchRange" type="range" min="-90" max="90" step="0.5" />
+			<input id="pitchNum" type="number" step="0.5" />
 		</div>
 		<div class="control-row">
 			<label>Yaw</label>
-			<input id="yawRange" type="range" min="-180" max="180" step="0.5"/>
-			<input id="yawNum" type="number" step="0.5"/>
+			<input id="yawRange" type="range" min="-180" max="180" step="0.5" />
+			<input id="yawNum" type="number" step="0.5" />
 		</div>
 		<div class="control-row">
 			<label>Roll</label>
-			<input id="rollRange" type="range" min="-180" max="180" step="0.5"/>
-			<input id="rollNum" type="number" step="0.5"/>
+			<input id="rollRange" type="range" min="-180" max="180" step="0.5" />
+			<input id="rollNum" type="number" step="0.5" />
 		</div>
 
 		<div class="controls-footer">
@@ -561,7 +561,7 @@ License: MIT
 	(function () {
 		/* Elements */
 		const canvas = document.getElementById('canvas');
-		const ctx = canvas.getContext("2d", {alpha: true, desynchronized: true});
+		const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
 		const worldPanel = document.getElementById('worldPanel');
 		const panelInner = document.getElementById('panelInner');
 		const worldCat = document.getElementById('worldCat');
@@ -584,8 +584,8 @@ License: MIT
 		window.addEventListener('resize', resize);
 
 		/* Camera state */
-		let camPos = {x: 2.6, y: 0, z: 6};
-		let camEuler = {pitch: 0, yaw: 180, roll: 0};
+		let camPos = { x: 2.6, y: 0, z: 6 };
+		let camEuler = { pitch: 0, yaw: 180, roll: 0 };
 		let orbit = false;
 		let orbitAzimuth = Math.PI, orbitElevation = 0;
 		let camDistance = 6.0;
@@ -595,15 +595,15 @@ License: MIT
 
 		function normalize(v) {
 			const L = Math.hypot(v.x, v.y, v.z) || 1;
-			return {x: v.x / L, y: v.y / L, z: v.z / L};
+			return { x: v.x / L, y: v.y / L, z: v.z / L };
 		}
 
 		function cross(a, b) {
-			return {x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x};
+			return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x };
 		}
 
 		function sub(a, b) {
-			return {x: a.x - b.x, y: a.y - b.y, z: a.z - b.z};
+			return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
 		}
 
 		function dot(a, b) {
@@ -616,18 +616,18 @@ License: MIT
 			const fx = Math.cos(pitch) * Math.sin(yaw);
 			const fy = Math.sin(pitch);
 			const fz = Math.cos(pitch) * Math.cos(yaw);
-			let forward = normalize({x: fx, y: fy, z: fz});
-			const worldUp = {x: 0, y: 1, z: 0};
+			let forward = normalize({ x: fx, y: fy, z: fz });
+			const worldUp = { x: 0, y: 1, z: 0 };
 			let right = normalize(cross(forward, worldUp));
 			let up = cross(right, forward);
 			if (Math.abs(roll) > 1e-6) {
 				const c = Math.cos(roll), s = Math.sin(roll);
-				const rPrime = {x: right.x * c + up.x * s, y: right.y * c + up.y * s, z: right.z * c + up.z * s};
-				const uPrime = {x: up.x * c - right.x * s, y: up.y * c - right.y * s, z: up.z * c - right.z * s};
+				const rPrime = { x: right.x * c + up.x * s, y: right.y * c + up.y * s, z: right.z * c + up.z * s };
+				const uPrime = { x: up.x * c - right.x * s, y: up.y * c - right.y * s, z: up.z * c - right.z * s };
 				right = normalize(rPrime);
 				up = normalize(uPrime);
 			}
-			return {camPos: {x: pos.x, y: pos.y, z: pos.z}, forward, right, up};
+			return { camPos: { x: pos.x, y: pos.y, z: pos.z }, forward, right, up };
 		}
 
 		function computeCameraOrbit() {
@@ -635,13 +635,13 @@ License: MIT
 			const cx = d * Math.cos(orbitElevation) * Math.sin(orbitAzimuth);
 			const cy = d * Math.sin(orbitElevation);
 			const cz = d * Math.cos(orbitElevation) * Math.cos(orbitAzimuth);
-			const camPosLocal = {x: cx, y: cy, z: cz};
-			const target = {x: 0, y: 0, z: 0};
+			const camPosLocal = { x: cx, y: cy, z: cz };
+			const target = { x: 0, y: 0, z: 0 };
 			const forward = normalize(sub(target, camPosLocal));
-			const worldUp = {x: 0, y: 1, z: 0};
+			const worldUp = { x: 0, y: 1, z: 0 };
 			const right = normalize(cross(forward, worldUp));
 			const up = cross(right, forward);
-			return {camPos: camPosLocal, forward, right, up};
+			return { camPos: camPosLocal, forward, right, up };
 		}
 
 		function computeCamera() {
@@ -684,13 +684,13 @@ License: MIT
 			if (centerProximity > 0.6) panelInner.classList.add('highlight'); else panelInner.classList.remove('highlight');
 		}
 
-		window.addEventListener('mousemove', (e) => updatePointerTilt(e.clientX, e.clientY), {passive: true});
+		window.addEventListener('mousemove', (e) => updatePointerTilt(e.clientX, e.clientY), { passive: true });
 		window.addEventListener('touchstart', (e) => {
 			if (e.touches[0]) updatePointerTilt(e.touches[0].clientX, e.touches[0].clientY);
-		}, {passive: true});
+		}, { passive: true });
 		window.addEventListener('touchmove', (e) => {
 			if (e.touches[0]) updatePointerTilt(e.touches[0].clientX, e.touches[0].clientY);
-		}, {passive: true});
+		}, { passive: true });
 
 		/* Render loop: compute camera, position panel, apply transforms in stable order */
 		let last = 0;
@@ -701,7 +701,7 @@ License: MIT
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			const cam = computeCamera();
-			const worldObject = {x: 0, y: 0, z: 0};
+			const worldObject = { x: 0, y: 0, z: 0 };
 			const rel = sub(worldObject, cam.camPos);
 			const camX = dot(rel, cam.right);
 			const camY = dot(rel, cam.up);
@@ -843,9 +843,9 @@ License: MIT
 			canvasToggle.classList.toggle('active', interactive);
 			canvasToggle.textContent = interactive ? 'Disable Something' : 'Enable Something';
 			if (interactive) {
-				canvas.addEventListener('wheel', onCanvasWheel, {passive: false});
+				canvas.addEventListener('wheel', onCanvasWheel, { passive: false });
 			} else {
-				canvas.removeEventListener('wheel', onCanvasWheel, {passive: false});
+				canvas.removeEventListener('wheel', onCanvasWheel, { passive: false });
 			}
 		}
 
@@ -975,8 +975,8 @@ License: MIT
 		});
 
 		resetBtn.addEventListener('click', () => {
-			camPos = {x: 2.6, y: 0, z: 6};
-			camEuler = {pitch: 0, yaw: 180, roll: 0};
+			camPos = { x: 2.6, y: 0, z: 6 };
+			camEuler = { pitch: 0, yaw: 180, roll: 0 };
 			camDistance = camPos.z;
 			orbit = false;
 			syncUI();
@@ -992,7 +992,7 @@ License: MIT
 			setInteractive,
 			setDomMenuOpen: (v) => setDomMenuOpen(!!v),
 			setControlsOpen: (v) => setControlsOpen(!!v),
-			getCameraState: () => ({pos: {...camPos}, euler: {...camEuler}, orbit, camDistance})
+			getCameraState: () => ({ pos: { ...camPos }, euler: { ...camEuler }, orbit, camDistance })
 		};
 
 		/*document.addEventListener("keydown", (e) => {

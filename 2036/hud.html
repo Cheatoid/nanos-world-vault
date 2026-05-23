@@ -6290,7 +6290,7 @@ License: MIT
 		const arr = getArray(type);
 		const item = arr[index];
 		if (!item || item.count <= 1) {
-			if (item && item.count <= 1) showToast('Cannot split — stack size is 1', 'common');
+			if (item && item.count <= 1) showToast('Cannot split, stack size is 1', 'common');
 			return;
 		}
 

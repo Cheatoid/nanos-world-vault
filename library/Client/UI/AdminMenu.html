@@ -8,7 +8,8 @@ License: MIT
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<title>Admin Mod Menu</title>
 	<link
 		href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@300;400;500;600;700&family=Chakra+Petch:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Oxanium:wght@300;400;500;600;700&display=swap"
@@ -2191,25 +2192,25 @@ License: MIT
 		<div class="sidebar-logo">A</div>
 		<div class="sidebar-divider"></div>
 		<button class="sidebar-btn active" data-tab="players" aria-label="Players"><i
-			class="fa-solid fa-users"></i><span class="tooltip">Players</span></button>
+				class="fa-solid fa-users"></i><span class="tooltip">Players</span></button>
 		<button class="sidebar-btn" data-tab="bans" aria-label="Bans"><i class="fa-solid fa-gavel"></i><span
-			class="tooltip">Bans</span></button>
+				class="tooltip">Bans</span></button>
 		<button class="sidebar-btn" data-tab="feedback" aria-label="Feedback"><i
-			class="fa-solid fa-message"></i><span class="tooltip">Feedback</span></button>
+				class="fa-solid fa-message"></i><span class="tooltip">Feedback</span></button>
 		<div class="sidebar-spacer"></div>
 		<button class="sidebar-btn" id="settingsBtn" aria-label="Settings"><i class="fa-solid fa-gear"></i><span
-			class="tooltip">Settings</span></button>
+				class="tooltip">Settings</span></button>
 		<button class="sidebar-btn" id="closeBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i><span
-			class="tooltip">Close</span></button>
+				class="tooltip">Close</span></button>
 	</nav>
 
 	<div class="content">
 		<div class="topbar">
 			<div class="topbar-title"><span>//</span> <span id="tabTitle">Players</span></div>
 			<div class="search-box"><input type="text" id="searchInput" placeholder="Search..."
-			                               aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></div>
+					aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></div>
 			<button class="col-btn" id="colBtn" aria-label="Customize columns"><i
-				class="fa-solid fa-chevron-down"></i>
+					class="fa-solid fa-chevron-down"></i>
 				<span>Columns</span></button>
 			<div class="item-count"><b id="countNum">0</b></div>
 			<!-- Column Picker -->
@@ -2252,7 +2253,7 @@ License: MIT
 				<div class="settings-header">
 					<h2><i class="fa-solid fa-sliders"></i> Settings</h2>
 					<button class="settings-close" id="settingsClose" aria-label="Close"><i
-						class="fa-solid fa-xmark"></i></button>
+							class="fa-solid fa-xmark"></i></button>
 				</div>
 				<div class="settings-body">
 					<div class="settings-section">
@@ -2269,15 +2270,15 @@ License: MIT
 					<div class="settings-section">
 						<div class="settings-section-title">Font</div>
 						<div class="setting-row"><span class="setting-label">UI Font<small>Primary interface
-										font</small></span>
+									font</small></span>
 							<div class="setting-control"><select class="sel-s" id="uiFont">
-								<option value="'Rajdhani',sans-serif" selected>Rajdhani</option>
-								<option value="'Oxanium',sans-serif">Oxanium</option>
-								<option value="'Orbitron',sans-serif">Orbitron</option>
-								<option value="'Exo 2',sans-serif">Exo 2</option>
-								<option value="'Chakra Petch',sans-serif">Chakra Petch</option>
-								<option value="'Inter',sans-serif">Inter</option>
-							</select></div>
+									<option value="'Rajdhani',sans-serif" selected>Rajdhani</option>
+									<option value="'Oxanium',sans-serif">Oxanium</option>
+									<option value="'Orbitron',sans-serif">Orbitron</option>
+									<option value="'Exo 2',sans-serif">Exo 2</option>
+									<option value="'Chakra Petch',sans-serif">Chakra Petch</option>
+									<option value="'Inter',sans-serif">Inter</option>
+								</select></div>
 						</div>
 					</div>
 				</div>
@@ -2851,33 +2852,33 @@ License: MIT
 
 	/* COLUMN DEFINITIONS */
 	const PLAYER_COLS = [
-		{id: 'voice', label: 'Voice', w: '52px', vis: true},
-		{id: 'flag', label: 'Flag', w: '48px', vis: true},
-		{id: 'avatar', label: 'Avatar', w: '52px', vis: true},
-		{id: 'steam', label: 'Steam ID', w: '140px', vis: true},
-		{id: 'name', label: 'Name', w: '1fr', vis: true},
-		{id: 'rank', label: 'Rank', w: '110px', vis: true},
-		{id: 'cls', label: 'Class', w: '130px', vis: false},
-		{id: 'health', label: 'Health', w: '100px', vis: true},
-		{id: 'ping', label: 'Ping', w: '90px', vis: true},
-		{id: 'session', label: 'Session', w: '80px', vis: true},
-		{id: 'total', label: 'Total', w: '80px', vis: false},
+		{ id: 'voice', label: 'Voice', w: '52px', vis: true },
+		{ id: 'flag', label: 'Flag', w: '48px', vis: true },
+		{ id: 'avatar', label: 'Avatar', w: '52px', vis: true },
+		{ id: 'steam', label: 'Steam ID', w: '140px', vis: true },
+		{ id: 'name', label: 'Name', w: '1fr', vis: true },
+		{ id: 'rank', label: 'Rank', w: '110px', vis: true },
+		{ id: 'cls', label: 'Class', w: '130px', vis: false },
+		{ id: 'health', label: 'Health', w: '100px', vis: true },
+		{ id: 'ping', label: 'Ping', w: '90px', vis: true },
+		{ id: 'session', label: 'Session', w: '80px', vis: true },
+		{ id: 'total', label: 'Total', w: '80px', vis: false },
 	];
 	const BAN_COLS = [
-		{id: 'name', label: 'Player', w: '1fr', vis: true},
-		{id: 'steam', label: 'Steam ID', w: '140px', vis: true},
-		{id: 'ip', label: 'IP Address', w: '130px', vis: false},
-		{id: 'by', label: 'Banned By', w: '110px', vis: true},
-		{id: 'reason', label: 'Reason', w: '200px', vis: true},
-		{id: 'date', label: 'Ban Date', w: '120px', vis: true},
-		{id: 'expires', label: 'Expires', w: '130px', vis: true},
+		{ id: 'name', label: 'Player', w: '1fr', vis: true },
+		{ id: 'steam', label: 'Steam ID', w: '140px', vis: true },
+		{ id: 'ip', label: 'IP Address', w: '130px', vis: false },
+		{ id: 'by', label: 'Banned By', w: '110px', vis: true },
+		{ id: 'reason', label: 'Reason', w: '200px', vis: true },
+		{ id: 'date', label: 'Ban Date', w: '120px', vis: true },
+		{ id: 'expires', label: 'Expires', w: '130px', vis: true },
 	];
 
 	/* STATE */
 	let activeTab = 'players', currentTheme = 'emerald', menuOpen = false, settingsOpen = false, colPickerOpen = false;
 	let bansFilter = 'all', fbFilter = 'all', fbSort = 'newest';
-	let pCols = PLAYER_COLS.map(c => ({...c})), bCols = BAN_COLS.map(c => ({...c}));
-	let playerSort = {col: null, dir: 'asc'}, bansSort = {col: null, dir: 'asc'};
+	let pCols = PLAYER_COLS.map(c => ({ ...c })), bCols = BAN_COLS.map(c => ({ ...c }));
+	let playerSort = { col: null, dir: 'asc' }, bansSort = { col: null, dir: 'asc' };
 	let expandedPlayers = new Set(), fbExpanded = new Set();
 
 	// Load fbExpanded from localStorage
@@ -3220,7 +3221,7 @@ License: MIT
 			document.querySelectorAll('.sidebar-btn[data-tab]').forEach(b => b.classList.remove('active'));
 			btn.classList.add('active');
 			activeTab = btn.dataset.tab;
-			const titles = {players: 'Players', bans: 'Bans', feedback: 'Feedback'};
+			const titles = { players: 'Players', bans: 'Bans', feedback: 'Feedback' };
 			tabTitle.textContent = titles[activeTab];
 			searchInput.value = '';
 			closeColPicker();
@@ -3290,7 +3291,7 @@ License: MIT
 		// Apply sorting
 		if (playerSort.col) {
 			filtered.sort((a, b) => {
-				const colMap = {flag: 'country'};
+				const colMap = { flag: 'country' };
 				const dataCol = colMap[playerSort.col] || playerSort.col;
 				let valA = a[dataCol];
 				let valB = b[dataCol];
@@ -3711,7 +3712,7 @@ License: MIT
 				if (!p) return;
 				// Save scroll position before re-rendering
 				const scrollTop = fbList.scrollTop;
-				p.comments.push({author: 'You', avatar: 'nighthawk', time: 'Just now', text});
+				p.comments.push({ author: 'You', avatar: 'nighthawk', time: 'Just now', text });
 				input.value = '';
 				renderFeedback();
 				// Restore scroll position after re-rendering (clamped to valid range)

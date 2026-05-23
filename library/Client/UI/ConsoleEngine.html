@@ -8,11 +8,12 @@ License: MIT
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<link
 		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
-		rel="stylesheet"/>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
+		rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 	<style>
 		/* ========== CSS Variables / Theme System ========== */
 		:root {
@@ -298,13 +299,28 @@ License: MIT
 		}
 
 		/* Disable user selection on non-input controls */
-		button, .header-btn, .filter-chip, .theme-toggle-btn,
-		.auto-scroll-toggle, .regex-toggle, .console-toggle,
-		.msg-action-btn, .welcome-close, .theme-option,
-		.welcome-banner, .welcome-banner h2, .welcome-banner p,
-		.welcome-banner kbd, .console-header, .header-stats,
-		.console-toolbar, .search-box, .input-wrapper,
-		.input-prompt, .enter-button, .empty-state {
+		button,
+		.header-btn,
+		.filter-chip,
+		.theme-toggle-btn,
+		.auto-scroll-toggle,
+		.regex-toggle,
+		.console-toggle,
+		.msg-action-btn,
+		.welcome-close,
+		.theme-option,
+		.welcome-banner,
+		.welcome-banner h2,
+		.welcome-banner p,
+		.welcome-banner kbd,
+		.console-header,
+		.header-stats,
+		.console-toolbar,
+		.search-box,
+		.input-wrapper,
+		.input-prompt,
+		.enter-button,
+		.empty-state {
 			-webkit-user-select: none;
 			-moz-user-select: none;
 			-ms-user-select: none;
@@ -312,7 +328,9 @@ License: MIT
 		}
 
 		/* Allow selection only on actual message text and input content */
-		.msg-text, .console-input:focus, .console-input:not(:placeholder-shown) {
+		.msg-text,
+		.console-input:focus,
+		.console-input:not(:placeholder-shown) {
 			-webkit-user-select: text;
 			-moz-user-select: text;
 			-ms-user-select: text;
@@ -320,7 +338,8 @@ License: MIT
 		}
 
 		/* Prevent selection of placeholder text */
-		.console-input::placeholder, .search-input::placeholder {
+		.console-input::placeholder,
+		.search-input::placeholder {
 			-webkit-user-select: none;
 			-moz-user-select: none;
 			-ms-user-select: none;
@@ -344,7 +363,7 @@ License: MIT
 			font-family: var(--console-font);
 			color: var(--text-primary);
 			transition: background var(--transition-speed),
-			color var(--transition-speed);
+				color var(--transition-speed);
 		}
 
 		/* ========== Scrollbar ========== */
@@ -412,7 +431,7 @@ License: MIT
 			justify-content: center;
 			transition: all var(--transition-speed);
 			box-shadow: 0 0 20px var(--glow-color),
-			0 4px 12px rgba(0, 0, 0, 0.4);
+				0 4px 12px rgba(0, 0, 0, 0.4);
 		}
 
 		.console-toggle:hover {
@@ -420,7 +439,7 @@ License: MIT
 			border-color: var(--accent);
 			transform: scale(1.08);
 			box-shadow: 0 0 30px var(--border-glow),
-			0 4px 16px rgba(0, 0, 0, 0.5);
+				0 4px 16px rgba(0, 0, 0, 0.5);
 		}
 
 		.console-toggle .badge {
@@ -452,16 +471,16 @@ License: MIT
 			/* Console is open - hide toggle button */
 		}
 
-		.console-container.open ~ .console-toggle,
-		body > .console-toggle {
+		.console-container.open~.console-toggle,
+		body>.console-toggle {
 			opacity: 0;
 			transform: scale(0.8);
 			pointer-events: none;
 		}
 
 		/* Show toggle button when console is closed */
-		.console-container:not(.open) ~ .console-toggle,
-		.console-container:not(.open) + .console-toggle {
+		.console-container:not(.open)~.console-toggle,
+		.console-container:not(.open)+.console-toggle {
 			opacity: 1;
 			transform: scale(1);
 			pointer-events: all;
@@ -486,8 +505,8 @@ License: MIT
 			border-radius: var(--console-radius) var(--console-radius) 0 0;
 			background: var(--bg-primary);
 			box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6),
-			0 0 60px var(--glow-color),
-			inset 0 1px 0 var(--border-glow);
+				0 0 60px var(--glow-color),
+				inset 0 1px 0 var(--border-glow);
 			transition: opacity 0.4s ease;
 			opacity: 0;
 			overflow: hidden;
@@ -859,13 +878,13 @@ License: MIT
 			font-weight: 500;
 			color: var(--text-secondary);
 			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4),
-			0 0 0 1px var(--border-glow),
-			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+				0 0 0 1px var(--border-glow),
+				inset 0 1px 0 rgba(255, 255, 255, 0.1);
 			z-index: 10000;
 			opacity: 0;
 			transform: translateY(-8px) scale(0.95);
 			transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-			transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+				transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 			pointer-events: none;
 			white-space: nowrap;
 			max-width: 300px;
@@ -891,7 +910,7 @@ License: MIT
 			border-color: #00ff41;
 			color: #00ff41;
 			box-shadow: 0 0 20px rgba(0, 255, 65, 0.3),
-			0 0 0 1px #00ff41;
+				0 0 0 1px #00ff41;
 		}
 
 
@@ -999,8 +1018,8 @@ License: MIT
 			box-shadow: 0 0 0 2px var(--accent-dim);
 		}
 
-		.search-box input:focus + i,
-		.search-box input:focus ~ i {
+		.search-box input:focus+i,
+		.search-box input:focus~i {
 			color: var(--accent);
 		}
 
@@ -1368,7 +1387,7 @@ License: MIT
 		.console-input:focus {
 			border-color: var(--accent);
 			box-shadow: 0 0 0 2px var(--accent-dim),
-			0 0 16px var(--glow-color);
+				0 0 16px var(--glow-color);
 		}
 
 		.console-input.insert-mode {
@@ -1542,7 +1561,6 @@ License: MIT
 				opacity: 0;
 				transform: translateX(30px);
 			}
-
 			to {
 				opacity: 1;
 				transform: translateX(0);
@@ -1564,7 +1582,8 @@ License: MIT
 			border-radius: 6px;
 			background: var(--bg-secondary);
 			animation: msg-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-			max-width: calc(100% - 32px); /* Prevent overflow beyond container */
+			max-width: calc(100% - 32px);
+			/* Prevent overflow beyond container */
 			box-sizing: border-box;
 		}
 
@@ -1652,7 +1671,6 @@ License: MIT
 
 		/* ========== Reduced Motion ========== */
 		@media (prefers-reduced-motion: reduce) {
-
 			*,
 			*::before,
 			*::after {
@@ -1733,7 +1751,7 @@ License: MIT
 		<div class="realm-toggle">
 			<span class="realm-toggle-label">Realm:</span>
 			<div class="realm-toggle-checkbox client" id="realmToggle"
-			     title="Switch between CLIENT and SERVER output realms">
+				title="Switch between CLIENT and SERVER output realms">
 				<div class="realm-toggle-slider">C</div>
 			</div>
 		</div>
@@ -1753,7 +1771,7 @@ License: MIT
 		</div>
 		<div class="header-actions">
 			<button class="header-btn" id="clearBtn" title="Double-click to clear console"
-			        aria-label="Double-click to clear console">
+				aria-label="Double-click to clear console">
 				<i class="fas fa-trash"></i>
 			</button>
 			<button class="header-btn" id="copyAllBtn" title="Copy all logs" aria-label="Copy all logs">
@@ -1803,10 +1821,10 @@ License: MIT
 
 		<div class="search-box">
 			<button class="search-icon-btn" id="searchIcon" title="Toggle regex search"
-			        aria-label="Toggle regex search">
+				aria-label="Toggle regex search">
 				<i class="fas fa-search"></i>
 			</button>
-			<input type="text" id="searchInput" placeholder="Search logs..." aria-label="Search logs"/>
+			<input type="text" id="searchInput" placeholder="Search logs..." aria-label="Search logs" />
 		</div>
 
 		<div class="toolbar-sep"></div>
@@ -1823,7 +1841,7 @@ License: MIT
 
 		<div class="theme-selector">
 			<button class="theme-btn" id="themeToggleBtn" aria-label="Select theme" aria-haspopup="true"
-			        aria-expanded="false">
+				aria-expanded="false">
 				<span class="theme-swatch" id="currentSwatch" style="background: #d4a017"></span>
 				Theme
 				<i class="fas fa-chevron-up" style="font-size: 9px"></i>
@@ -1865,8 +1883,8 @@ License: MIT
 		<span class="input-prompt">&gt;</span>
 		<div class="input-wrapper">
 			<input type="text" class="console-input" id="consoleInput" placeholder="Type a client command..."
-			       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="1"
-			       aria-label="Command input" autofocus/>
+				autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="1"
+				aria-label="Command input" autofocus />
 			<button class="enter-button" id="enterBtn" aria-label="Send command">
 				<i class="fas fa-paper-plane"></i>
 				<span>Enter</span>
@@ -1900,7 +1918,7 @@ License: MIT
 					// Simple mock suggestions
 					const suggestions = ["help", "clear", "cls", "echo", "time", "date", "version", "theme", "reset"]
 						.filter(cmd => cmd.startsWith(line.toLowerCase()))
-						.map(cmd => ({name: cmd, desc: `Mock ${cmd} command`}));
+						.map(cmd => ({ name: cmd, desc: `Mock ${cmd} command` }));
 
 					// Trigger the AutocompleteSuggestions handler
 					const handlers = this._subscriptions?.["AutocompleteSuggestions"] || [];
@@ -1974,7 +1992,7 @@ License: MIT
 			// Get browser zoom level using multiple methods for better compatibility
 			const zoomLevel =
 				window.devicePixelRatio &&
-				window.devicePixelRatio !== 1 ? window.devicePixelRatio :
+					window.devicePixelRatio !== 1 ? window.devicePixelRatio :
 					window.outerWidth / window.innerWidth;
 
 			// Fallback to 1 if detection fails
@@ -2435,7 +2453,7 @@ License: MIT
 	const CommandRegistry = {
 		commands: {},
 		register(name, desc, fn, opts = {}) {
-			this.commands[name] = {desc, fn, alias: opts.alias || [], args: opts.args || ""};
+			this.commands[name] = { desc, fn, alias: opts.alias || [], args: opts.args || "" };
 			if (opts.alias)
 				opts.alias.forEach((a) => {
 					this.commands[a] = this.commands[name];
@@ -2452,7 +2470,7 @@ License: MIT
 		match(prefix) {
 			return this.getAll()
 				.filter(([name]) => name.startsWith(prefix.toLowerCase()))
-				.map(([name, cmd]) => ({name, desc: cmd.desc, args: cmd.args}))
+				.map(([name, cmd]) => ({ name, desc: cmd.desc, args: cmd.args }))
 				.slice(0, 8);
 		},
 		init() {
@@ -2660,8 +2678,8 @@ License: MIT
 	const ConsoleEngine = {
 		clientMessages: [],
 		serverMessages: [],
-		clientStats: {total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0},
-		serverStats: {total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0},
+		clientStats: { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 },
+		serverStats: { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 },
 		maxMessages: 2000,
 		autoScroll: true,
 		isOpen: false,
@@ -2695,7 +2713,7 @@ License: MIT
 			const messages = isClient ? this.clientMessages : this.serverMessages;
 			const stats = isClient ? this.clientStats : this.serverStats;
 
-			const entry = {type, text: String(text), time: now(), realm: targetRealm};
+			const entry = { type, text: String(text), time: now(), realm: targetRealm };
 			messages.push(entry);
 			if (messages.length > this.maxMessages) messages.shift();
 			stats.total++;
@@ -2756,10 +2774,10 @@ License: MIT
 			// Clear only the current realm
 			if (this.currentRealm === "client") {
 				this.clientMessages = [];
-				this.clientStats = {total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0};
+				this.clientStats = { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 };
 			} else {
 				this.serverMessages = [];
-				this.serverStats = {total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0};
+				this.serverStats = { total: 0, log: 0, info: 0, warn: 0, error: 0, debug: 0, success: 0, cmd: 0 };
 			}
 			const output = $("#consoleOutput");
 			if (output) output.innerHTML = "";
@@ -2884,7 +2902,7 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 		items: [],
 
 		register(name, desc, type = "command", category = null) {
-			this.items.push({name, desc, type, category});
+			this.items.push({ name, desc, type, category });
 		},
 
 		unregister(name) {
@@ -2898,7 +2916,7 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 		match(prefix) {
 			return this.items
 				.filter((item) => item.name.toLowerCase().startsWith(prefix.toLowerCase()))
-				.map((item) => ({name: item.name, desc: item.desc, type: item.type, category: item.category}))
+				.map((item) => ({ name: item.name, desc: item.desc, type: item.type, category: item.category }))
 				.slice(0, 8);
 		},
 
@@ -2980,7 +2998,7 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 			// Ensure selected item is visible
 			const selectedItem = this.el.querySelector(".autocomplete-item.selected");
 			if (selectedItem) {
-				selectedItem.scrollIntoView({block: "nearest", behavior: "smooth"});
+				selectedItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
 			}
 		},
 
@@ -3104,7 +3122,7 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 		init() {
 			this.canvas = $("#bgCanvas");
 			if (!this.canvas) return;
-			this.ctx = this.canvas.getContext("2d", {alpha: true});
+			this.ctx = this.canvas.getContext("2d", { alpha: true });
 			this.resize();
 			window.addEventListener("resize", () => this.resize());
 			this.createParticles();
@@ -3284,12 +3302,12 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 			// Ensure suggestions are in the correct format
 			const formattedSuggestions = suggestions.map((s) => {
 				if (typeof s === "string") {
-					return {name: s, desc: ""};
+					return { name: s, desc: "" };
 				}
 				if (typeof s === "object" && s.name) {
-					return {name: s.name, desc: s.desc || ""};
+					return { name: s.name, desc: s.desc || "" };
 				}
-				return {name: String(s), desc: ""};
+				return { name: String(s), desc: "" };
 			});
 			Autocomplete.show(formattedSuggestions);
 		} else {
@@ -3336,8 +3354,8 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 		// Initialize resize variables before they're used
 		let isResizing = false;
 		let resizeDirection = "";
-		let startRect = {width: 0, height: 0, left: 0, top: 0};
-		let startMouse = {x: 0, y: 0};
+		let startRect = { width: 0, height: 0, left: 0, top: 0 };
+		let startMouse = { x: 0, y: 0 };
 
 		function updateZoom() {
 			if (consoleOutput) {
@@ -3900,7 +3918,7 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 		// Window dragging
 		const header = $(".console-header");
 		let isDragging = false;
-		let dragOffset = {x: 0, y: 0};
+		let dragOffset = { x: 0, y: 0 };
 
 		if (header) {
 			header.addEventListener("mousedown", (e) => {
@@ -3985,7 +4003,7 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 						left: rect.left,
 						top: rect.top
 					};
-					startMouse = {x: e.clientX, y: e.clientY};
+					startMouse = { x: e.clientX, y: e.clientY };
 
 					// Switch to absolute positioning if not already
 					if (container.style.bottom !== "auto") {
@@ -4138,7 +4156,7 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 					const val = input.value;
 					input.value = "";
 					// Trigger input event to ensure state update
-					input.dispatchEvent(new Event('input', {bubbles: true}));
+					input.dispatchEvent(new Event('input', { bubbles: true }));
 					Autocomplete.hide();
 					ConsoleEngine.execute(val);
 					// Double-check state update after command execution
@@ -4308,7 +4326,7 @@ Try <kbd>theme cyberpunk</kbd>, <kbd>clear</kbd>, or <kbd>time</kbd>.<br>
 					if (val.length > 0) {
 						input.value = "";
 						// Trigger input event to ensure state update
-						input.dispatchEvent(new Event('input', {bubbles: true}));
+						input.dispatchEvent(new Event('input', { bubbles: true }));
 						Autocomplete.hide();
 						ConsoleEngine.execute(val);
 						// Double-check state update after command execution

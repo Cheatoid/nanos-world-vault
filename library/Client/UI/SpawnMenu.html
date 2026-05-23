@@ -8,7 +8,8 @@ License: MIT
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
 	<title>Spawn Menu</title>
 	<link
 		href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@300;400;500;600;700&family=Chakra+Petch:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Oxanium:wght@300;400;500;600;700&display=swap"
@@ -587,12 +588,12 @@ License: MIT
 			transition: all .3s
 		}
 
-		.toggle-switch input:checked + .toggle-slider {
+		.toggle-switch input:checked+.toggle-slider {
 			background: var(--accent-dim);
 			border-color: var(--accent)
 		}
 
-		.toggle-switch input:checked + .toggle-slider:before {
+		.toggle-switch input:checked+.toggle-slider:before {
 			transform: translateX(20px);
 			background: var(--accent);
 			box-shadow: 0 0 8px var(--accent-glow)
@@ -2068,32 +2069,32 @@ License: MIT
 		<div class="sidebar-logo">G</div>
 		<div class="sidebar-divider"></div>
 		<button class="sidebar-btn active" data-cat="props" aria-label="Props"><i class="fa-solid fa-cube"></i><span
-			class="tooltip">Props</span></button>
+				class="tooltip">Props</span></button>
 		<button class="sidebar-btn" data-cat="tools" aria-label="Tools"><i class="fa-solid fa-wrench"></i><span
-			class="tooltip">Tools</span></button>
+				class="tooltip">Tools</span></button>
 		<button class="sidebar-btn" data-cat="weapons" aria-label="Weapons"><i
-			class="fa-solid fa-crosshairs"></i><span class="tooltip">Weapons</span></button>
+				class="fa-solid fa-crosshairs"></i><span class="tooltip">Weapons</span></button>
 		<button class="sidebar-btn" data-cat="vehicles" aria-label="Vehicles"><i class="fa-solid fa-car"></i><span
-			class="tooltip">Vehicles</span></button>
+				class="tooltip">Vehicles</span></button>
 		<button class="sidebar-btn" data-cat="npcs" aria-label="NPCs"><i class="fa-solid fa-user"></i><span
-			class="tooltip">NPCs</span></button>
+				class="tooltip">NPCs</span></button>
 		<button class="sidebar-btn" data-cat="entities" aria-label="Entities"><i class="fa-solid fa-cubes"></i><span
-			class="tooltip">Entities</span></button>
+				class="tooltip">Entities</span></button>
 		<button class="sidebar-btn" data-cat="effects" aria-label="Effects"><i class="fa-solid fa-bolt"></i><span
-			class="tooltip">Effects</span></button>
+				class="tooltip">Effects</span></button>
 		<button class="sidebar-btn" data-cat="saves" aria-label="Saves"><i class="fa-solid fa-floppy-disk"></i><span
-			class="tooltip">Saves</span></button>
+				class="tooltip">Saves</span></button>
 		<button class="sidebar-btn" data-cat="properties" aria-label="Properties"><i
-			class="fa-solid fa-sliders"></i><span class="tooltip">Properties</span></button>
+				class="fa-solid fa-sliders"></i><span class="tooltip">Properties</span></button>
 		<button class="sidebar-btn" data-cat="utilities" aria-label="Utilities"><i
-			class="fa-solid fa-screwdriver-wrench"></i><span class="tooltip">Utilities</span></button>
+				class="fa-solid fa-screwdriver-wrench"></i><span class="tooltip">Utilities</span></button>
 		<button class="sidebar-btn" data-cat="wire" aria-label="Wire"><i class="fa-solid fa-microchip"></i><span
-			class="tooltip">Wire</span></button>
+				class="tooltip">Wire</span></button>
 		<div class="sidebar-spacer"></div>
 		<button class="sidebar-btn" id="settingsBtn" aria-label="Settings"><i class="fa-solid fa-gear"></i><span
-			class="tooltip">Settings</span></button>
+				class="tooltip">Settings</span></button>
 		<button class="sidebar-btn" id="closeBtn" aria-label="Close Menu"><i class="fa-solid fa-xmark"></i><span
-			class="tooltip">Close</span></button>
+				class="tooltip">Close</span></button>
 	</nav>
 
 	<div class="content">
@@ -2124,7 +2125,7 @@ License: MIT
 				<div class="settings-header">
 					<h2><i class="fa-solid fa-sliders"></i> Settings</h2>
 					<button class="settings-close" id="settingsClose" aria-label="Close Settings"><i
-						class="fa-solid fa-xmark"></i></button>
+							class="fa-solid fa-xmark"></i></button>
 				</div>
 				<div class="settings-body">
 					<div class="settings-section">
@@ -2152,8 +2153,8 @@ License: MIT
 							</div>
 						</div>
 						<div class="setting-row" id="widthRow">
-								<span class="setting-label">Width<small id="widthLabel">Grid column
-										min-width</small></span>
+							<span class="setting-label">Width<small id="widthLabel">Grid column
+									min-width</small></span>
 							<div class="setting-control">
 								<input type="range" id="thumbWidth" min="48" max="220" value="110">
 								<span class="range-val" id="thumbWidthVal">110px</span>
@@ -2200,7 +2201,7 @@ License: MIT
 						</div>
 					</div>
 					<button class="reset-btn" id="resetBtn"><i class="fa-solid fa-rotate-left"
-					                                           style="margin-right:6px"></i> Reset to Defaults
+							style="margin-right:6px"></i> Reset to Defaults
 					</button>
 				</div>
 			</div>
@@ -3915,7 +3916,7 @@ License: MIT
 	}
 
 	function openPreview(item, seed) {
-		previewItem = {...item, seed};
+		previewItem = { ...item, seed };
 		previewImg.innerHTML = `<img src="https://picsum.photos/seed/${seed}/400/400.jpg" alt="${item.name}">`;
 		previewName.textContent = item.name;
 		previewPath.textContent = item.model || 'No model path';
@@ -4117,24 +4118,24 @@ License: MIT
 		const toolsGrid = document.getElementById('toolsGrid');
 		if (toolsGrid) {
 			const tools = [
-				{name: 'Physgun', icon: 'fa-hand-pointer', desc: 'Move and freeze objects'},
-				{name: 'Gravity Gun', icon: 'fa-hand-holding', desc: 'Pick up and throw objects'},
-				{name: 'Tool Gun', icon: 'fa-wrench', desc: 'Apply tools to objects'},
-				{name: 'Camera', icon: 'fa-camera', desc: 'Take screenshots'},
-				{name: 'Remover', icon: 'fa-eraser', desc: 'Remove objects'},
-				{name: 'Stacker', icon: 'fa-layer-group', desc: 'Stack objects precisely'}
+				{ name: 'Physgun', icon: 'fa-hand-pointer', desc: 'Move and freeze objects' },
+				{ name: 'Gravity Gun', icon: 'fa-hand-holding', desc: 'Pick up and throw objects' },
+				{ name: 'Tool Gun', icon: 'fa-wrench', desc: 'Apply tools to objects' },
+				{ name: 'Camera', icon: 'fa-camera', desc: 'Take screenshots' },
+				{ name: 'Remover', icon: 'fa-eraser', desc: 'Remove objects' },
+				{ name: 'Stacker', icon: 'fa-layer-group', desc: 'Stack objects precisely' }
 			];
 			tools.forEach(tool => {
 				const card = document.createElement('div');
 				card.className = 'item-card';
 				card.innerHTML = `
-					<div class="thumb">
-						<i class="fa-solid ${tool.icon} icon-ph"></i>
-					</div>
-					<div class="info">
-						<div class="name">${tool.name}</div>
-					</div>
-				`;
+				<div class="thumb">
+					<i class="fa-solid ${tool.icon} icon-ph"></i>
+				</div>
+				<div class="info">
+					<div class="name">${tool.name}</div>
+				</div>
+			`;
 				toolsGrid.appendChild(card);
 			});
 		}
@@ -4143,24 +4144,24 @@ License: MIT
 		const wireGrid = document.getElementById('wireGrid');
 		if (wireGrid) {
 			const wireItems = [
-				{name: 'Wire Gate', icon: 'fa-microchip', desc: 'Logic gate component'},
-				{name: 'Wire Timer', icon: 'fa-clock', desc: 'Timing component'},
-				{name: 'Wire Screen', icon: 'fa-display', desc: 'Display screen'},
-				{name: 'Wire Keyboard', icon: 'fa-keyboard', desc: 'Input device'},
-				{name: 'Wire Button', icon: 'fa-circle-dot', desc: 'Simple button'},
-				{name: 'Wire Pod', icon: 'fa-gamepad', desc: 'Vehicle controller'}
+				{ name: 'Wire Gate', icon: 'fa-microchip', desc: 'Logic gate component' },
+				{ name: 'Wire Timer', icon: 'fa-clock', desc: 'Timing component' },
+				{ name: 'Wire Screen', icon: 'fa-display', desc: 'Display screen' },
+				{ name: 'Wire Keyboard', icon: 'fa-keyboard', desc: 'Input device' },
+				{ name: 'Wire Button', icon: 'fa-circle-dot', desc: 'Simple button' },
+				{ name: 'Wire Pod', icon: 'fa-gamepad', desc: 'Vehicle controller' }
 			];
 			wireItems.forEach(item => {
 				const card = document.createElement('div');
 				card.className = 'item-card';
 				card.innerHTML = `
-					<div class="thumb">
-						<i class="fa-solid ${item.icon} icon-ph"></i>
-					</div>
-					<div class="info">
-						<div class="name">${item.name}</div>
-					</div>
-				`;
+				<div class="thumb">
+					<i class="fa-solid ${item.icon} icon-ph"></i>
+				</div>
+				<div class="info">
+					<div class="name">${item.name}</div>
+				</div>
+			`;
 				wireGrid.appendChild(card);
 			});
 		}
@@ -4169,8 +4170,8 @@ License: MIT
 		const propertiesPanel = document.getElementById('propertiesPanel');
 		if (propertiesPanel) {
 			propertiesPanel.innerHTML = `
-				<div class="no-selection">Select an entity to view properties</div>
-			`;
+			<div class="no-selection">Select an entity to view properties</div>
+		`;
 		}
 
 		// Setup utilities sliders
@@ -4282,7 +4283,7 @@ License: MIT
 		e.preventDefault();
 		e.stopPropagation();
 		subtabsEl.scrollLeft += e.deltaY;
-	}, {passive: false, capture: true});
+	}, { passive: false, capture: true });
 
 </script>
 </body>

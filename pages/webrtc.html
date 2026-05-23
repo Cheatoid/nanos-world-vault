@@ -1,0 +1,1616 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
+	<title>P2P Chat - WebRTC</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+	<style>
+		:root {
+			--bg-darkest: #08090d;
+			--bg-sidebar: #0f1117;
+			--bg-primary: #161820;
+			--bg-secondary: #1c1e28;
+			--bg-tertiary: #242633;
+			--bg-elevated: #2a2d3c;
+			--bg-input: #111318;
+			--border: #1e2030;
+			--border-light: #2a2d42;
+			--text-primary: #e2e4f0;
+			--text-secondary: #8990ab;
+			--text-muted: #aaaaaa;
+			--accent: #00e599;
+			--accent-hover: #33ffbb;
+			--accent-dim: rgba(0, 229, 153, 0.08);
+			--accent-glow: rgba(0, 229, 153, 0.25);
+			--accent-solid-dim: rgba(0, 229, 153, 0.12);
+			--danger: #ff5c72;
+			--danger-dim: rgba(255, 92, 114, 0.1);
+			--warning: #ffb347;
+			--warning-dim: rgba(255, 179, 71, 0.1);
+			--font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+			--font-mono: 'JetBrains Mono', ui-monospace, monospace;
+			--radius-xs: 4px;
+			--radius-sm: 6px;
+			--radius-md: 8px;
+			--radius-lg: 12px;
+			--radius-xl: 16px;
+			--radius-2xl: 20px;
+			--radius-full: 9999px;
+			--sidebar-width: 360px;
+		}
+
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			height: 100vh;
+			width: 100vw;
+			overflow: hidden;
+			background: var(--bg-darkest);
+			font-family: var(--font-sans);
+			color: var(--text-primary);
+			-webkit-font-smoothing: antialiased;
+		}
+
+		/* ===== App Layout ===== */
+		.app {
+			display: flex;
+			width: 100%;
+			height: 100%;
+			position: relative;
+		}
+
+		/* Accent line at top */
+		.accent-line {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 2px;
+			background: linear-gradient(90deg, transparent, var(--accent), #00b4d8, var(--accent), transparent);
+			background-size: 300% 100%;
+			animation: shimmer 6s ease-in-out infinite;
+			z-index: 100;
+		}
+
+		@keyframes shimmer {
+
+			0%,
+			100% {
+				background-position: 100% 0;
+			}
+
+			50% {
+				background-position: 0% 0;
+			}
+		}
+
+		/* ===== Sidebar ===== */
+		.sidebar {
+			width: var(--sidebar-width);
+			min-width: var(--sidebar-width);
+			background: var(--bg-sidebar);
+			border-right: 1px solid var(--border);
+			display: flex;
+			flex-direction: column;
+			z-index: 10;
+			transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+		}
+
+		.sidebar.collapsed {
+			margin-left: calc(-1 * var(--sidebar-width));
+			opacity: 0;
+			pointer-events: none;
+		}
+
+		/* Sidebar Header */
+		.sidebar-header {
+			padding: 14px 16px;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			flex-shrink: 0;
+			background: rgba(15, 17, 23, 0.6);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+		}
+
+		.sidebar-header-left {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.header-icon {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 32px;
+			height: 32px;
+			border-radius: var(--radius-md);
+			background: var(--accent-solid-dim);
+			color: var(--accent);
+			font-size: 17px;
+		}
+
+		.header-titles {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.header-title {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text-primary);
+			line-height: 1.2;
+		}
+
+		.header-subtitle {
+			font-size: 10px;
+			font-weight: 500;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+
+		.close-sidebar-btn {
+			width: 28px;
+			height: 28px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: none;
+			border: none;
+			color: var(--text-muted);
+			cursor: pointer;
+			border-radius: var(--radius-sm);
+			transition: all 0.15s;
+			font-size: 16px;
+		}
+
+		.close-sidebar-btn:hover {
+			background: var(--bg-tertiary);
+			color: var(--text-primary);
+		}
+
+		/* Tabs */
+		.tabs {
+			position: relative;
+			display: flex;
+			background: var(--bg-secondary);
+			border-bottom: 1px solid var(--border);
+			flex-shrink: 0;
+		}
+
+		.tab {
+			flex: 1;
+			padding: 10px 8px;
+			font-family: var(--font-sans);
+			font-size: 12px;
+			font-weight: 500;
+			color: var(--text-muted);
+			background: none;
+			border: none;
+			cursor: pointer;
+			transition: color 0.2s;
+			position: relative;
+			z-index: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 5px;
+		}
+
+		.tab i {
+			font-size: 14px;
+		}
+
+		.tab:hover {
+			color: var(--text-secondary);
+		}
+
+		.tab.active {
+			color: var(--text-primary);
+		}
+
+		.tab-indicator {
+			position: absolute;
+			bottom: 0;
+			height: 2px;
+			background: var(--accent);
+			border-radius: 1px 1px 0 0;
+			transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			box-shadow: 0 0 8px var(--accent-glow);
+		}
+
+		/* Sidebar Content (Scrollable) */
+		.sidebar-content {
+			flex: 1;
+			overflow-y: auto;
+			padding: 12px 14px;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.sidebar-content::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		.sidebar-content::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		.sidebar-content::-webkit-scrollbar-thumb {
+			background: var(--border-light);
+			border-radius: 2px;
+		}
+
+		/* Sidebar Footer */
+		.sidebar-footer {
+			padding: 10px 16px;
+			border-top: 1px solid var(--border);
+			background: var(--bg-darkest);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			flex-shrink: 0;
+		}
+
+		/* ===== Main Chat Area ===== */
+		.chat-area {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			background: var(--bg-primary);
+			position: relative;
+		}
+
+		/* Chat Header */
+		.chat-header {
+			padding: 12px 20px;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			flex-shrink: 0;
+			background: rgba(22, 24, 32, 0.7);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			z-index: 5;
+		}
+
+		.chat-header-left {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.toggle-sidebar-btn {
+			width: 32px;
+			height: 32px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: none;
+			border: 1px solid var(--border-light);
+			color: var(--text-secondary);
+			cursor: pointer;
+			border-radius: var(--radius-md);
+			transition: all 0.15s;
+			font-size: 16px;
+		}
+
+		.toggle-sidebar-btn:hover {
+			background: var(--bg-tertiary);
+			color: var(--text-primary);
+			border-color: var(--text-muted);
+		}
+
+		.chat-peer-info {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.chat-peer-name {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+
+		.chat-peer-status {
+			font-size: 11px;
+			color: var(--text-muted);
+			display: flex;
+			align-items: center;
+			gap: 5px;
+		}
+
+		.chat-peer-status .status-dot {
+			width: 6px;
+			height: 6px;
+		}
+
+		/* Messages Container */
+		.messages {
+			flex: 1;
+			overflow-y: auto;
+			padding: 20px 0;
+			background:
+				radial-gradient(ellipse at 50% 100%, rgba(0, 229, 153, 0.01), transparent 60%),
+				var(--bg-primary);
+		}
+
+		.messages-inner {
+			max-width: 900px;
+			margin: 0 auto;
+			padding: 0 20px;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			min-height: 100%;
+			justify-content: flex-end;
+		}
+
+		.messages::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.messages::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		.messages::-webkit-scrollbar-thumb {
+			background: var(--border-light);
+			border-radius: 3px;
+		}
+
+		.messages::-webkit-scrollbar-thumb:hover {
+			background: var(--text-muted);
+		}
+
+		/* Empty state */
+		.empty-state {
+			margin: auto;
+			text-align: center;
+			padding: 40px 20px;
+		}
+
+		.empty-state>i {
+			font-size: 48px;
+			color: var(--text-muted);
+			opacity: 0.2;
+			display: block;
+			margin-bottom: 16px;
+			animation: float 4s ease-in-out infinite;
+		}
+
+		@keyframes float {
+
+			0%,
+			100% {
+				transform: translateY(0);
+			}
+
+			50% {
+				transform: translateY(-8px);
+			}
+		}
+
+		.empty-title {
+			font-size: 16px;
+			font-weight: 600;
+			color: var(--text-secondary);
+			margin-bottom: 6px;
+		}
+
+		.empty-sub {
+			font-size: 13px;
+			color: var(--text-muted);
+			max-width: 300px;
+			margin: 0 auto;
+			line-height: 1.5;
+		}
+
+		/* Message rows */
+		.msg-row {
+			display: flex;
+			animation: msgIn 0.2s ease-out both;
+			padding: 2px 0;
+		}
+
+		.msg-row.me {
+			justify-content: flex-end;
+		}
+
+		.msg-row.them {
+			justify-content: flex-start;
+		}
+
+		@keyframes msgIn {
+			from {
+				opacity: 0;
+				transform: translateY(8px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.bubble {
+			max-width: 65%;
+			padding: 8px 14px;
+			font-size: 14px;
+			line-height: 1.55;
+			word-break: break-word;
+		}
+
+		.bubble.me {
+			background: var(--accent);
+			color: var(--bg-darkest);
+			font-weight: 500;
+			border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-xs) var(--radius-2xl);
+		}
+
+		.bubble.them {
+			background: var(--bg-tertiary);
+			color: var(--text-primary);
+			border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-2xl) var(--radius-xs);
+			border: 1px solid var(--border);
+		}
+
+		/* System message */
+		.sys-msg {
+			text-align: center;
+			padding: 6px 0;
+			animation: msgIn 0.2s ease-out both;
+		}
+
+		.sys-msg-inner {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 11px;
+			font-weight: 500;
+			color: var(--text-muted);
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-full);
+			padding: 4px 12px;
+		}
+
+		.sys-msg-inner i {
+			font-size: 13px;
+		}
+
+		.sys-msg-inner.success {
+			color: var(--accent);
+			border-color: rgba(0, 229, 153, 0.2);
+			background: var(--accent-dim);
+		}
+
+		.sys-msg-inner.error {
+			color: var(--danger);
+			border-color: rgba(255, 92, 114, 0.2);
+			background: var(--danger-dim);
+		}
+
+		/* Chat Footer / Input Area */
+		.chat-footer {
+			padding: 16px 20px 24px;
+			background: var(--bg-primary);
+			flex-shrink: 0;
+		}
+
+		.input-wrapper {
+			max-width: 900px;
+			margin: 0 auto;
+			display: flex;
+			align-items: center;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-2xl);
+			padding: 4px 4px 4px 18px;
+			transition: border-color 0.2s, box-shadow 0.2s;
+		}
+
+		.input-wrapper:focus-within {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px var(--accent-dim);
+		}
+
+		.msg-input {
+			flex: 1;
+			font-family: var(--font-sans);
+			font-size: 14px;
+			color: var(--text-primary);
+			background: none;
+			border: none;
+			outline: none;
+			padding: 8px 0;
+		}
+
+		.msg-input::placeholder {
+			color: var(--text-muted);
+		}
+
+		.msg-input:disabled {
+			opacity: 0.4;
+		}
+
+		.send-btn {
+			width: 38px;
+			height: 38px;
+			border-radius: 50%;
+			background: var(--accent);
+			color: var(--bg-darkest);
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			transition: all 0.15s;
+			font-size: 17px;
+		}
+
+		.send-btn:hover:not(:disabled) {
+			background: var(--accent-hover);
+			box-shadow: 0 0 16px var(--accent-glow);
+			transform: scale(1.05);
+		}
+
+		.send-btn:active:not(:disabled) {
+			transform: scale(0.95);
+		}
+
+		.send-btn:disabled {
+			opacity: 0.15;
+			cursor: not-allowed;
+		}
+
+		/* ===== Shared UI Components ===== */
+		.panel-row {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 10px;
+		}
+
+		.panel-row:last-child {
+			margin-bottom: 0;
+		}
+
+		.panel-label {
+			font-size: 11px;
+			font-weight: 600;
+			color: var(--text-muted);
+			white-space: nowrap;
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			flex-shrink: 0;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+		}
+
+		.panel-label i {
+			font-size: 14px;
+		}
+
+		.id-display {
+			flex: 1;
+			min-width: 0;
+			font-family: var(--font-mono);
+			font-size: 11px;
+			font-weight: 500;
+			color: var(--text-primary);
+			background: var(--bg-primary);
+			border: 1px solid var(--border);
+			padding: 6px 12px;
+			border-radius: var(--radius-md);
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			display: block;
+		}
+
+		.panel-warning {
+			font-size: 11px;
+			color: var(--warning);
+			background: var(--warning-dim);
+			border: 1px solid rgba(255, 179, 71, 0.15);
+			border-radius: var(--radius-md);
+			padding: 8px 12px;
+			display: flex;
+			align-items: flex-start;
+			gap: 8px;
+			line-height: 1.4;
+		}
+
+		.panel-warning i {
+			font-size: 16px;
+			flex-shrink: 0;
+			margin-top: -1px;
+		}
+
+		.panel-warning strong {
+			color: var(--warning);
+		}
+
+		/* Steps */
+		.manual-steps {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.step {
+			background: var(--bg-primary);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-lg);
+			overflow: hidden;
+		}
+
+		.step-header {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 12px;
+			background: var(--bg-tertiary);
+			border-bottom: 1px solid var(--border);
+		}
+
+		.step-num {
+			width: 20px;
+			height: 20px;
+			border-radius: var(--radius-full);
+			background: var(--accent-solid-dim);
+			color: var(--accent);
+			font-size: 10px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.step-title {
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+
+		.step-body {
+			padding: 10px 12px;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.step-or {
+			font-size: 11px;
+			color: var(--text-muted);
+			text-align: center;
+			position: relative;
+		}
+
+		.step-or::before,
+		.step-or::after {
+			content: '';
+			position: absolute;
+			top: 50%;
+			width: 30%;
+			height: 1px;
+			background: var(--border);
+		}
+
+		.step-or::before {
+			left: 0;
+		}
+
+		.step-or::after {
+			right: 0;
+		}
+
+		.sdp-input {
+			width: 100%;
+			font-family: var(--font-mono);
+			font-size: 9.5px;
+			line-height: 1.5;
+			background: var(--bg-darkest);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			padding: 8px 10px;
+			color: var(--text-primary);
+			resize: none;
+			transition: border-color 0.2s;
+		}
+
+		.sdp-input:focus {
+			outline: none;
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px var(--accent-dim);
+		}
+
+		.sdp-input::placeholder {
+			color: var(--text-muted);
+		}
+
+		/* Buttons */
+		.btn-accent {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 5px;
+			padding: 8px 16px;
+			font-family: var(--font-sans);
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--bg-darkest);
+			background: var(--accent);
+			border: none;
+			border-radius: var(--radius-md);
+			cursor: pointer;
+			transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+			white-space: nowrap;
+			width: 100%;
+		}
+
+		.btn-accent:hover:not(:disabled) {
+			background: var(--accent-hover);
+			box-shadow: 0 0 14px var(--accent-glow);
+		}
+
+		.btn-accent:active:not(:disabled) {
+			transform: scale(0.97);
+		}
+
+		.btn-accent:disabled {
+			opacity: 0.35;
+			cursor: not-allowed;
+		}
+
+		.btn-accent i {
+			font-size: 14px;
+		}
+
+		.btn-outline {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 5px;
+			padding: 8px 16px;
+			font-family: var(--font-sans);
+			font-size: 12px;
+			font-weight: 500;
+			color: var(--text-secondary);
+			background: var(--bg-secondary);
+			border: 1px solid var(--border-light);
+			border-radius: var(--radius-md);
+			cursor: pointer;
+			transition: all 0.15s;
+			white-space: nowrap;
+			width: 100%;
+		}
+
+		.btn-outline:hover:not(:disabled) {
+			color: var(--text-primary);
+			border-color: var(--text-muted);
+			background: var(--bg-tertiary);
+		}
+
+		.btn-outline:active:not(:disabled) {
+			transform: scale(0.97);
+		}
+
+		.btn-outline:disabled {
+			opacity: 0.35;
+			cursor: not-allowed;
+		}
+
+		.btn-outline i {
+			font-size: 14px;
+		}
+
+		.btn-icon {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 32px;
+			height: 32px;
+			font-size: 15px;
+			color: var(--text-muted);
+			background: var(--bg-primary);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			cursor: pointer;
+			transition: all 0.15s;
+			flex-shrink: 0;
+		}
+
+		.btn-icon:hover {
+			color: var(--accent);
+			border-color: var(--accent);
+			background: var(--accent-dim);
+		}
+
+		.btn-icon:active {
+			transform: scale(0.93);
+		}
+
+		.input {
+			flex: 1;
+			font-family: var(--font-sans);
+			font-size: 13px;
+			color: var(--text-primary);
+			background: var(--bg-primary);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			padding: 8px 12px;
+			outline: none;
+			transition: border-color 0.2s, box-shadow 0.2s;
+		}
+
+		.input::placeholder {
+			color: var(--text-muted);
+		}
+
+		.input:focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px var(--accent-dim);
+		}
+
+		/* Status & Toast */
+		.status-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--text-muted);
+			flex-shrink: 0;
+			transition: background 0.3s, box-shadow 0.3s;
+		}
+
+		.status-dot.ok {
+			background: var(--accent);
+			box-shadow: 0 0 8px var(--accent-glow);
+		}
+
+		.status-dot.warn {
+			background: var(--warning);
+			box-shadow: 0 0 8px rgba(255, 179, 71, 0.4);
+			animation: pulse-warn 2s ease-in-out infinite;
+		}
+
+		.status-dot.err {
+			background: var(--danger);
+			box-shadow: 0 0 8px rgba(255, 92, 114, 0.4);
+		}
+
+		@keyframes pulse-warn {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0.5;
+			}
+		}
+
+		.status-text {
+			font-size: 11px;
+			font-weight: 500;
+			color: var(--text-secondary);
+		}
+
+		.toast {
+			font-size: 11px;
+			font-weight: 500;
+			color: var(--accent);
+			opacity: 0;
+			transform: translateY(4px);
+			transition: opacity 0.25s, transform 0.25s;
+			pointer-events: none;
+		}
+
+		.toast.visible {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		.stun-badge {
+			font-size: 9px;
+			font-weight: 600;
+			letter-spacing: 0.06em;
+			padding: 2px 6px;
+			border-radius: var(--radius-full);
+			background: var(--bg-tertiary);
+			border: 1px solid var(--border-light);
+			color: var(--text-muted);
+			display: inline-flex;
+			align-items: center;
+			gap: 3px;
+			text-transform: uppercase;
+		}
+
+		.stun-badge i {
+			font-size: 10px;
+		}
+
+		/* Utilities */
+		.hidden {
+			display: none !important;
+		}
+
+		*:focus-visible {
+			outline: 2px solid var(--accent);
+			outline-offset: 2px;
+		}
+
+		.msg-input:focus-visible,
+		.sdp-input:focus-visible,
+		.input:focus-visible {
+			outline: none;
+		}
+
+		.sr-only {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+			border: 0;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			*,
+			*::before,
+			*::after {
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.sidebar {
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				z-index: 50;
+				box-shadow: 8px 0 30px rgba(0, 0, 0, 0.5);
+			}
+
+			.sidebar.collapsed {
+				margin-left: calc(-1 * var(--sidebar-width));
+			}
+
+			.messages-inner,
+			.input-wrapper {
+				max-width: 100%;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="app" role="application" aria-label="P2P Chat application">
+		<div class="accent-line" aria-hidden="true"></div>
+
+		<!-- Sidebar -->
+		<aside class="sidebar" id="sidebar">
+			<div class="sidebar-header">
+				<div class="sidebar-header-left">
+					<span class="header-icon" aria-hidden="true"><i class="ti ti-antenna"></i></span>
+					<div class="header-titles">
+						<h2 class="header-title">P2P Chat</h2>
+						<span class="header-subtitle"><i class="ti ti-brand-google" aria-hidden="true"
+								style="font-size:9px;margin-right:2px"></i>WebRTC STUN</span>
+					</div>
+				</div>
+				<button class="close-sidebar-btn" onclick="toggleSidebar()" aria-label="Close sidebar"
+					title="Close sidebar">
+					<i class="ti ti-x" aria-hidden="true"></i>
+				</button>
+			</div>
+
+			<nav class="tabs" role="tablist" aria-label="Connection mode">
+				<button class="tab active" id="tab-auto" role="tab" aria-selected="true" aria-controls="auto-panel"
+					onclick="switchMode('auto')">
+					<i class="ti ti-bolt" aria-hidden="true"></i> Auto
+				</button>
+				<button class="tab" id="tab-manual" role="tab" aria-selected="false" aria-controls="manual-panel"
+					onclick="switchMode('manual')">
+					<i class="ti ti-hand-finger" aria-hidden="true"></i> Manual
+				</button>
+				<div class="tab-indicator" id="tab-indicator" aria-hidden="true"></div>
+			</nav>
+
+			<div class="sidebar-content">
+				<!-- Auto Mode Panel -->
+				<section id="auto-panel" role="tabpanel" aria-labelledby="tab-auto">
+					<div class="panel-row">
+						<label class="panel-label" for="my-id"><i class="ti ti-id" aria-hidden="true"></i> Your
+							ID</label>
+					</div>
+					<div class="panel-row">
+						<code class="id-display" id="my-id" role="textbox" aria-readonly="true">Connecting…</code>
+						<button class="btn-icon" onclick="copyToClipboard(document.getElementById('my-id').textContent)"
+							aria-label="Copy your ID" title="Copy ID">
+							<i class="ti ti-copy" aria-hidden="true"></i>
+						</button>
+					</div>
+					<div class="panel-row" style="margin-top:8px">
+						<input type="text" id="peer-input" class="input" placeholder="Enter peer ID to connect…"
+							aria-label="Peer ID" />
+						<button class="btn-accent" onclick="connectPeer()" id="btn-connect"
+							style="width:auto; padding: 8px 14px;">
+							<i class="ti ti-plug-connected" aria-hidden="true"></i> Go
+						</button>
+					</div>
+					<div class="panel-warning hidden" id="auto-warn" style="margin-top:12px">
+						<i class="ti ti-alert-triangle" aria-hidden="true"></i>
+						<span>PeerJS unreachable - try the <strong>Manual</strong> tab</span>
+					</div>
+				</section>
+
+				<!-- Manual Mode Panel -->
+				<section class="hidden" id="manual-panel" role="tabpanel" aria-labelledby="tab-manual">
+					<div class="manual-steps">
+						<div class="step" id="step-offer">
+							<div class="step-header">
+								<span class="step-num">1</span>
+								<span class="step-title">Create or accept an offer</span>
+							</div>
+							<div class="step-body">
+								<button class="btn-outline" onclick="createOffer()" id="btn-create-offer">
+									<i class="ti ti-file-plus" aria-hidden="true"></i> Create offer
+								</button>
+								<span class="step-or">or paste their offer below</span>
+								<textarea class="sdp-input" id="remote-offer"
+									placeholder="Paste the other person's offer…" rows="3"
+									aria-label="Remote offer"></textarea>
+								<button class="btn-accent" onclick="acceptOffer()">
+									<i class="ti ti-check" aria-hidden="true"></i> Accept & generate answer
+								</button>
+							</div>
+						</div>
+
+						<div class="step hidden" id="step-copy">
+							<div class="step-header">
+								<span class="step-num">2</span>
+								<span class="step-title" id="copy-title">Copy your offer</span>
+							</div>
+							<div class="step-body">
+								<textarea class="sdp-input" id="local-sdp" readonly rows="3"
+									aria-label="Your SDP"></textarea>
+								<button class="btn-outline"
+									onclick="copyToClipboard(document.getElementById('local-sdp').value)">
+									<i class="ti ti-copy" aria-hidden="true"></i> Copy to clipboard
+								</button>
+							</div>
+						</div>
+
+						<div class="step hidden" id="step-answer">
+							<div class="step-header">
+								<span class="step-num">3</span>
+								<span class="step-title">Paste their answer</span>
+							</div>
+							<div class="step-body">
+								<textarea class="sdp-input" id="remote-answer"
+									placeholder="Paste the answer you received…" rows="3"
+									aria-label="Remote answer"></textarea>
+								<button class="btn-accent" onclick="applyAnswer()">
+									<i class="ti ti-plug-connected" aria-hidden="true"></i> Connect
+								</button>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+
+			<div class="sidebar-footer">
+				<div class="status-dot" id="status-dot" aria-hidden="true"></div>
+				<span class="status-text" id="status-text">Starting…</span>
+				<span class="toast" id="toast" role="status" aria-live="polite" style="margin-left:auto">Copied!</span>
+			</div>
+		</aside>
+
+		<!-- Main Chat Area -->
+		<main class="chat-area">
+			<header class="chat-header">
+				<div class="chat-header-left">
+					<button class="toggle-sidebar-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar"
+						title="Toggle sidebar">
+						<i class="ti ti-menu-2" aria-hidden="true"></i>
+					</button>
+					<div class="chat-peer-info">
+						<span class="chat-peer-name" id="chat-peer-name">No Peer Connected</span>
+						<span class="chat-peer-status" id="chat-peer-status">
+							<span class="status-dot" id="chat-status-dot" aria-hidden="true"></span>
+							<span id="chat-status-text">Waiting for connection</span>
+						</span>
+					</div>
+				</div>
+				<div>
+					<span class="stun-badge"><i class="ti ti-lock" aria-hidden="true"></i> E2E Encrypted</span>
+				</div>
+			</header>
+
+			<div class="messages" id="messages" role="log" aria-live="polite" aria-label="Chat messages">
+				<div class="messages-inner" id="messages-inner">
+					<div class="empty-state" id="empty-state">
+						<i class="ti ti-message-dots" aria-hidden="true"></i>
+						<p class="empty-title">No messages yet</p>
+						<p class="empty-sub">Open the sidebar to connect to a peer and start a secure end-to-end
+							encrypted conversation</p>
+					</div>
+				</div>
+			</div>
+
+			<footer class="chat-footer">
+				<div class="input-wrapper" id="input-wrapper">
+					<input type="text" id="msg-input" class="msg-input" placeholder="Message" disabled
+						onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+						aria-label="Type a message" />
+					<button class="send-btn" id="send-btn" onclick="sendMessage()" disabled aria-label="Send message">
+						<i class="ti ti-send" aria-hidden="true"></i>
+					</button>
+				</div>
+			</footer>
+		</main>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js"></script>
+	<script>
+		/* ===== ICE Server Configuration ===== */
+		const ICE_SERVERS = {
+			iceServers: [
+				{ urls: 'stun:stun.l.google.com:19302' },
+				{ urls: 'stun:stun1.l.google.com:19302' },
+				{ urls: 'stun:stun2.l.google.com:19302' },
+				{ urls: 'stun:stun3.l.google.com:19302' },
+				{ urls: 'stun:stun4.l.google.com:19302' }
+			]
+		};
+
+		/* ===== Application State ===== */
+		let peer = null;
+		let peerConn = null;
+		let rtcPc = null;
+		let rtcChan = null;
+		let currentMode = 'auto';
+		let toastTimer = null;
+		let connectedPeerId = null;
+
+		/* ===== DOM Helpers ===== */
+		const $ = (id) => document.getElementById(id);
+
+		/* ===== UI Updates ===== */
+		function setStatus(state, text) {
+			const dot = $('status-dot');
+			const label = $('status-text');
+			dot.classList.remove('ok', 'warn', 'err');
+			if (state) dot.classList.add(state);
+			label.textContent = text;
+
+			// Also update the chat header status
+			const chatDot = $('chat-status-dot');
+			const chatText = $('chat-status-text');
+			chatDot.classList.remove('ok', 'warn', 'err');
+			if (state) chatDot.classList.add(state);
+
+			if (state === 'ok' && connectedPeerId) {
+				chatText.textContent = 'Connected';
+				$('chat-peer-name').textContent = connectedPeerId;
+			} else if (state === 'ok') {
+				chatText.textContent = 'Ready to connect';
+				$('chat-peer-name').textContent = 'No Peer Connected';
+			} else if (state === 'warn') {
+				chatText.textContent = text;
+			} else if (state === 'err') {
+				chatText.textContent = 'Connection error';
+			}
+		}
+
+		function showToast(message) {
+			const toast = $('toast');
+			toast.textContent = message;
+			toast.classList.add('visible');
+			clearTimeout(toastTimer);
+			toastTimer = setTimeout(() => toast.classList.remove('visible'), 1800);
+		}
+
+		function toggleSidebar() {
+			$('sidebar').classList.toggle('collapsed');
+		}
+
+		function updateTabIndicator() {
+			const activeTab = document.querySelector('.tab.active');
+			const indicator = $('tab-indicator');
+			if (activeTab && indicator) {
+				indicator.style.left = activeTab.offsetLeft + 'px';
+				indicator.style.width = activeTab.offsetWidth + 'px';
+			}
+		}
+
+		/* ===== Mode Switching ===== */
+		function switchMode(mode) {
+			if (mode === currentMode) return;
+			currentMode = mode;
+
+			$('tab-auto').classList.toggle('active', mode === 'auto');
+			$('tab-manual').classList.toggle('active', mode === 'manual');
+			$('tab-auto').setAttribute('aria-selected', mode === 'auto');
+			$('tab-manual').setAttribute('aria-selected', mode === 'manual');
+
+			$('auto-panel').classList.toggle('hidden', mode !== 'auto');
+			$('manual-panel').classList.toggle('hidden', mode !== 'manual');
+
+			requestAnimationFrame(updateTabIndicator);
+
+			if (mode === 'auto') {
+				resetManualFlow();
+			}
+		}
+
+		/* ===== Chat Enable/Disable ===== */
+		function enableChat(peerId) {
+			connectedPeerId = peerId || 'Peer';
+			$('msg-input').disabled = false;
+			$('send-btn').disabled = false;
+			$('msg-input').placeholder = 'Message ' + connectedPeerId;
+			$('msg-input').focus();
+			setStatus('ok', 'Connected');
+		}
+
+		function disableChat(reason) {
+			connectedPeerId = null;
+			$('msg-input').disabled = true;
+			$('send-btn').disabled = true;
+			$('msg-input').placeholder = reason || 'Connect to a peer first';
+			$('chat-peer-name').textContent = 'No Peer Connected';
+			$('chat-status-text').textContent = reason || 'Disconnected';
+		}
+
+		/* ===== Message Rendering ===== */
+		function scrollToBottom() {
+			const el = $('messages');
+			el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+		}
+
+		function clearEmptyState() {
+			const el = $('empty-state');
+			if (el) el.remove();
+		}
+
+		function addSystemMessage(text, type) {
+			clearEmptyState();
+			const div = document.createElement('div');
+			div.className = 'sys-msg';
+			const inner = document.createElement('span');
+			inner.className = 'sys-msg-inner' + (type ? ' ' + type : '');
+			let icon = 'ti-info-circle';
+			if (type === 'success') icon = 'ti-circle-check';
+			else if (type === 'error') icon = 'ti-alert-circle';
+			inner.innerHTML = '<i class="ti ' + icon + '" aria-hidden="true"></i> ' + escapeHtml(text);
+			div.appendChild(inner);
+			$('messages-inner').appendChild(div);
+			scrollToBottom();
+		}
+
+		function addMessage(text, isMe) {
+			clearEmptyState();
+			const row = document.createElement('div');
+			row.className = 'msg-row ' + (isMe ? 'me' : 'them');
+			const bubble = document.createElement('div');
+			bubble.className = 'bubble ' + (isMe ? 'me' : 'them');
+			bubble.textContent = text;
+			row.appendChild(bubble);
+			$('messages-inner').appendChild(row);
+			scrollToBottom();
+		}
+
+		function escapeHtml(str) {
+			const div = document.createElement('div');
+			div.textContent = str;
+			return div.innerHTML;
+		}
+
+		/* ===== Send Message ===== */
+		function sendMessage() {
+			const input = $('msg-input');
+			const text = input.value.trim();
+			if (!text) return;
+
+			input.value = '';
+			addMessage(text, true);
+
+			try {
+				if (currentMode === 'auto' && peerConn) {
+					peerConn.send(text);
+				} else if (currentMode === 'manual' && rtcChan && rtcChan.readyState === 'open') {
+					rtcChan.send(text);
+				}
+			} catch (e) {
+				addSystemMessage('Send failed: ' + e.message, 'error');
+			}
+		}
+
+		/* ===== Clipboard ===== */
+		function copyToClipboard(text) {
+			if (!text || text === 'Connecting…') return;
+			navigator.clipboard.writeText(text).then(() => showToast('Copied!')).catch(() => { });
+		}
+
+		/* ===== PeerJS (Auto Mode) ===== */
+		let peerJsTimeout = null;
+
+		function initPeer() {
+			setStatus('warn', 'Connecting…');
+
+			peerJsTimeout = setTimeout(() => {
+				$('auto-warn').classList.remove('hidden');
+				setStatus('err', 'PeerJS timeout');
+			}, 10000);
+
+			try {
+				peer = new Peer(undefined, { config: ICE_SERVERS, debug: 0 });
+
+				peer.on('open', (id) => {
+					clearTimeout(peerJsTimeout);
+					$('my-id').textContent = id;
+					$('auto-warn').classList.add('hidden');
+					setStatus('ok', 'Ready');
+				});
+
+				peer.on('connection', (conn) => {
+					if (peerConn && peerConn.open) {
+						conn.close();
+						return;
+					}
+					handlePeerConnection(conn);
+					addSystemMessage('Incoming connection…');
+				});
+
+				peer.on('error', (err) => {
+					clearTimeout(peerJsTimeout);
+					setStatus('err', 'PeerJS error');
+					$('auto-warn').classList.remove('hidden');
+					const msg = err.type === 'peer-unavailable'
+						? 'Peer not found - check the ID'
+						: 'PeerJS error: ' + err.type;
+					addSystemMessage(msg + ' - try Manual tab', 'error');
+				});
+
+				peer.on('disconnected', () => {
+					setStatus('warn', 'Reconnecting…');
+					if (peer && !peer.destroyed) peer.reconnect();
+				});
+			} catch (e) {
+				clearTimeout(peerJsTimeout);
+				setStatus('err', 'PeerJS failed');
+				$('auto-warn').classList.remove('hidden');
+			}
+		}
+
+		function handlePeerConnection(conn) {
+			peerConn = conn;
+
+			conn.on('open', () => {
+				enableChat(conn.peer);
+				addSystemMessage('Connected via PeerJS', 'success');
+			});
+
+			conn.on('data', (data) => {
+				if (typeof data === 'string') addMessage(data, false);
+			});
+
+			conn.on('close', () => {
+				peerConn = null;
+				disableChat('Peer disconnected');
+				setStatus('ok', 'Ready');
+				addSystemMessage('Peer disconnected');
+			});
+		}
+
+		function connectPeer() {
+			const id = $('peer-input').value.trim();
+			if (!id || !peer) return;
+
+			if (peerConn && peerConn.open) {
+				addSystemMessage('Already connected - disconnect first', 'error');
+				return;
+			}
+
+			setStatus('warn', 'Connecting…');
+			const conn = peer.connect(id, { reliable: true, config: ICE_SERVERS });
+			handlePeerConnection(conn);
+			addSystemMessage('Connecting to peer…');
+		}
+
+		/* ===== Manual SDP Mode ===== */
+		function createManualPC() {
+			if (rtcPc) { rtcPc.close(); rtcPc = null; }
+			rtcChan = null;
+
+			rtcPc = new RTCPeerConnection(ICE_SERVERS);
+
+			rtcPc.oniceconnectionstatechange = () => {
+				const state = rtcPc.iceConnectionState;
+				if (state === 'connected' || state === 'completed') {
+					enableChat('Manual Peer');
+					addSystemMessage('Connected via manual WebRTC', 'success');
+				}
+				if (state === 'disconnected' || state === 'failed') {
+					setStatus('err', 'Connection lost');
+					disableChat('Connection lost');
+					addSystemMessage('WebRTC connection ' + state, 'error');
+				}
+			};
+
+			rtcPc.ondatachannel = (e) => {
+				setupDataChannel(e.channel);
+			};
+		}
+
+		function setupDataChannel(channel) {
+			rtcChan = channel;
+
+			channel.onopen = () => {
+				enableChat('Manual Peer');
+				addSystemMessage('Data channel open', 'success');
+			};
+
+			channel.onclose = () => {
+				disableChat('Channel closed');
+				setStatus('ok', 'Ready');
+				addSystemMessage('Data channel closed');
+			};
+
+			channel.onmessage = (ev) => {
+				if (typeof ev.data === 'string') addMessage(ev.data, false);
+			};
+		}
+
+		function waitIceGathering(pc, timeoutMs) {
+			timeoutMs = timeoutMs || 15000;
+			return new Promise((resolve) => {
+				if (pc.iceGatheringState === 'complete') { resolve(); return; }
+				const timer = setTimeout(() => resolve(), timeoutMs);
+				pc.addEventListener('icegatheringstatechange', () => {
+					if (pc.iceGatheringState === 'complete') { clearTimeout(timer); resolve(); }
+				});
+			});
+		}
+
+		async function createOffer() {
+			const btn = $('btn-create-offer');
+			if (btn.disabled) return;
+			btn.disabled = true;
+			btn.innerHTML = '<i class="ti ti-loader" aria-hidden="true"></i> Gathering…';
+
+			try {
+				createManualPC();
+				const channel = rtcPc.createDataChannel('chat', { ordered: true });
+				setupDataChannel(channel);
+
+				const offer = await rtcPc.createOffer();
+				await rtcPc.setLocalDescription(offer);
+				await waitIceGathering(rtcPc);
+
+				$('local-sdp').value = JSON.stringify(rtcPc.localDescription);
+				$('copy-title').textContent = 'Your offer - copy & send to peer';
+				$('step-copy').classList.remove('hidden');
+				$('step-answer').classList.remove('hidden');
+
+				setStatus('warn', 'Waiting for answer…');
+				addSystemMessage('Offer created - share it and paste their answer');
+			} catch (e) {
+				addSystemMessage('Failed to create offer: ' + e.message, 'error');
+				setStatus('err', 'Offer failed');
+			} finally {
+				btn.disabled = false;
+				btn.innerHTML = '<i class="ti ti-file-plus" aria-hidden="true"></i> Create offer';
+			}
+		}
+
+		async function acceptOffer() {
+			const raw = $('remote-offer').value.trim();
+			if (!raw) return;
+
+			try {
+				const offer = JSON.parse(raw);
+				createManualPC();
+				await rtcPc.setRemoteDescription(new RTCSessionDescription(offer));
+				const answer = await rtcPc.createAnswer();
+				await rtcPc.setLocalDescription(answer);
+				await waitIceGathering(rtcPc);
+
+				$('local-sdp').value = JSON.stringify(rtcPc.localDescription);
+				$('copy-title').textContent = 'Your answer - copy & send back';
+				$('step-copy').classList.remove('hidden');
+				$('step-answer').classList.add('hidden');
+
+				setStatus('warn', 'Waiting for connection…');
+				addSystemMessage('Answer created - send it back to the initiator');
+			} catch (e) {
+				addSystemMessage('Invalid offer: ' + e.message, 'error');
+			}
+		}
+
+		async function applyAnswer() {
+			const raw = $('remote-answer').value.trim();
+			if (!raw || !rtcPc) return;
+
+			try {
+				const answer = JSON.parse(raw);
+				await rtcPc.setRemoteDescription(new RTCSessionDescription(answer));
+				addSystemMessage('Answer applied - connecting…');
+				setStatus('warn', 'Connecting…');
+			} catch (e) {
+				addSystemMessage('Invalid answer: ' + e.message, 'error');
+			}
+		}
+
+		function resetManualFlow() {
+			if (rtcPc) { rtcPc.close(); rtcPc = null; }
+			rtcChan = null;
+
+			$('step-offer').classList.remove('hidden');
+			$('step-copy').classList.add('hidden');
+			$('step-answer').classList.add('hidden');
+			$('remote-offer').value = '';
+			$('local-sdp').value = '';
+			$('remote-answer').value = '';
+
+			const btn = $('btn-create-offer');
+			btn.disabled = false;
+			btn.innerHTML = '<i class="ti ti-file-plus" aria-hidden="true"></i> Create offer';
+		}
+
+		/* ===== Initialization ===== */
+		function init() {
+			requestAnimationFrame(updateTabIndicator);
+			window.addEventListener('resize', updateTabIndicator);
+			initPeer();
+
+			// On mobile, collapse sidebar by default
+			if (window.innerWidth <= 768) {
+				$('sidebar').classList.add('collapsed');
+			}
+		}
+
+		init();
+	</script>
+</body>
+
+</html>
