@@ -1688,8 +1688,8 @@ internal static partial class Program
 			| RegexOptions.Compiled
 			| RegexOptions.Singleline
 			| RegexOptions.IgnorePatternWhitespace
-			| RegexOptions.RightToLeft // for performance
-		//| RegexOptions.NonBacktracking
+			// NOTE: no RightToLeft - the (?!...) exclude-guards below are evaluated from ^ and only cover the whole path left-to-right
+			//| RegexOptions.NonBacktracking
 		;
 
 	private static readonly Regex ZipFilesFilterRegex,
@@ -1703,11 +1703,12 @@ internal static partial class Program
 	static Program()
 	{
 		// Include .css, .html, .js, .lua, .toml but exclude .tests.lua and .md files using negative lookahead
-		ZipFilesFilterRegex = new(@"(?!.*\.tests?\.lua$)\.(css|html|js|lua|toml)$", RegexFlags);
-		ZipAdditionalFilesRegex = new(@"/(LICENSE)$", RegexFlags); // |README\.md
+		// Also exclude anything inside a "tests" or "benchmarks" folder (anywhere), so publish/*.zip never contains them
+		ZipFilesFilterRegex = new(@"^(?!.*/(tests|benchmarks)/)(?!.*\.tests?\.lua$).*\.(css|html|js|lua|toml)$", RegexFlags);
+		ZipAdditionalFilesRegex = new(@"^(?!.*/(tests|benchmarks)/).*/(LICENSE)$", RegexFlags); // |README\.md
 		ZipFilterRegexes = [ZipFilesFilterRegex, ZipAdditionalFilesRegex];
-		ZipCompileFilesFilterRegex = new(@"(?!.*(examples?|\.tests?)\.lua$)\.(css|html|js|lua|toml)$", RegexFlags);
-		ZipCompileAdditionalFilesRegex = new(@"/(LICENSE)$", RegexFlags);
+		ZipCompileFilesFilterRegex = new(@"^(?!.*/(tests|benchmarks)/)(?!.*(examples?|\.tests?)\.lua$).*\.(css|html|js|lua|toml)$", RegexFlags);
+		ZipCompileAdditionalFilesRegex = new(@"^(?!.*/(tests|benchmarks)/).*/(LICENSE)$", RegexFlags);
 		ZipCompileModeFilterRegexes = [ZipCompileFilesFilterRegex, ZipCompileAdditionalFilesRegex];
 		var executingAssembly = Assembly.GetExecutingAssembly();
 		ToolVersion =
