@@ -18,12 +18,12 @@
 
 ---@type library.metadata_gen
 return {
-	package_version = "0.0.47",
-	timestamp = "2026-09-06 16:23:07",
-	commit_count = 309,
+	package_version = "0.0.48",
+	timestamp = "2026-09-06 17:16:25",
+	commit_count = 310,
 	tag_count = 44,
 	branch_name = "main",
-	prev_hash = "d42456453819633491de69f267695d2619500c16",
+	prev_hash = "3e1896e8b1c7465856e120a6123d1781e31eb15f",
 	is_preview = false,
 	tag = "v0.0.48",
 	owner = "Cheatoid",
@@ -32,7 +32,7 @@ return {
 	filenames_hash = "03fac136bac7ffa2d306b59c34afaa5b8fca2025c9980cbc24c70dc2407c7551",
 	files_hash = {
 		["LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
-		["Package.toml"] = "8b72d23252d2e700ce9876a129a4b3ce363b03290ffc0bfedcd7497c929f6e09",
+		["Package.toml"] = "bd6df6e718330bdd553db03a25b07cb9d8dcf6e3e18b4561441bcc77805c1b71",
 		["Client/Bind.lua"] = "5ca383d020c3d195aa2a3fab18e61856b913f807489f01fe0386ac189f12cb97",
 		["Client/ConsoleEngine.lua"] = "f709ea00bf6029172073f75be394ef620e7dd8822aa965477f8c4ea2af899804",
 		["Client/EvalAPI.lua"] = "6585763d996d3c16cd8ca924e4f703249a64d35e930675bcfac99cf7c8b35629",
@@ -51,7 +51,7 @@ return {
 		["Client/UI/Fake3D.html"] = "53bd83140408d22843e79d9975d69fcb9cad005f1b59a6a1b3f5138c178bdfc2",
 		["Client/UI/HashAPI.html"] = "bc72bea4faa9949df900649e3017c2018cd148dd6862dfc718d6435cf8bc1820",
 		["Client/UI/NUI.html"] = "645d110b2df41e1a0bb4d2745f254c67e42c0c71a5b651bc86b31cf6839064aa",
-		["Client/UI/NewTabPage.html"] = "aef465abbe1915f1b769ce221d93c5f94526afea9389929779235c76ab3427a6",
+		["Client/UI/NewTabPage.html"] = "4f0b4b6b7574b7c7b6a8f6d09c1363c976b17d58cc4f6a78d21789891ea4246a",
 		["Client/UI/RegexAPI.html"] = "e5668cf755adbe80de9c1531b47eddf068350d65f999c5046e36a613f7aec481",
 		["Client/UI/SpawnMenu.html"] = "dbd04a12b0ce4b5042e9d0c1aeb70da4ad8be71aad0a9e1f31237a405884bbc2",
 		["Client/UI/Transparent.html"] = "11bb9e0e7ffab3c6123eb06038fe2eab312f333e518361d0a43a71f8e1a3d373",
