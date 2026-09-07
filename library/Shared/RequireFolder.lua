@@ -34,8 +34,8 @@ end
 --- Recursively collects all Lua files from the specified path.
 ---@param path string The directory path to collect files from.
 ---@param out table Array to append collected file paths to (modified in-place).
----@param recursive boolean|nil If true, recursively collects files from subfolders.
----@param vfs table|nil Optional VFS interface with list_files, list_directories, is_directory methods.
+---@param recursive? boolean If true, recursively collects files from subfolders.
+---@param vfs? table Optional VFS interface with `list_files`, `list_directories`, `is_directory` methods.
 local function collect_files(path, out, recursive, vfs)
 	path = normalize_path(path)
 	out = out or {}
@@ -163,7 +163,7 @@ end
 ---@param priority_lookup table Lookup table for priority and skip (exact paths)
 ---@param skip_patterns table List of patterns for files to skip
 ---@param load_file_fn function Function to use for loading individual files
----@param vfs table|nil Optional VFS interface
+---@param vfs? table Optional VFS interface
 local function load_priority_path(path, all_files, file_exists, priority_lookup, skip_patterns, load_file_fn, vfs)
 	-- Check if it's a directory (even if not in file_exists)
 	if is_directory(path, vfs) then
@@ -188,13 +188,13 @@ end
 --- Requires all Lua files from the specified folder with optional priority ordering and ignore list.<br>
 --- Supports currying: calling with just a folder returns a function that takes load_priority, recursive, and vfs.
 ---@param folder string The folder path to load Lua files from.
----@param load_priority table|nil Optional table defining:<br>
---- Keyed entries with Lua patterns (e.g., `"%.tests%.lua$"`) will be matched against file paths.
+---@param load_priority? table Optional table defining:<br>
+--- Keyed entries with Lua patterns (e.g. `"%.tests%.lua$"`) will be matched against file paths.
 --- - special index `[0]` can be used to pass a VFS instance
 --- - array entries = priority load order (e.g. `"file1.lua"`)
 --- - keyed entries = false to skip, or true to force include (e.g. `["file2.lua"] = false`)
----@param recursive boolean|nil If true, recursively collects files from subfolders (default: true).
----@param vfs table|nil Optional VFS interface with list_files, list_directories, is_directory, load methods.
+---@param recursive? boolean If true, recursively collects files from subfolders (default: true).
+---@param vfs? table Optional VFS interface with `list_files`, `list_directories`, `is_directory`, `load` methods.
 local function RequireFolder(folder, load_priority, recursive, vfs)
 	--print("[RequireFolder] Called with:", "folder=", folder, "load_priority=", type(load_priority), "recursive=", recursive, "vfs=", vfs)
 	folder = normalize_path(folder)
@@ -264,7 +264,7 @@ local function RequireFolder(folder, load_priority, recursive, vfs)
 				local entry = normalize_path(entry) -- intentionally shadowing to avoid reassigning loop variable
 				-- Prepend folder path if entry doesn't start with it
 				if not string_match(entry, "^" .. folder) then
-					-- Check if entry overlaps with last folder component (e.g., folder="Shared/@cheatoid", entry="@cheatoid/standard")
+					-- Check if entry overlaps with last folder component (e.g. folder="Shared/@cheatoid", entry="@cheatoid/standard")
 					local last_component = string_match(folder, "([^/]+)$")
 					if last_component and string_match(entry, "^" .. last_component .. "/") then
 						-- Entry already includes the folder's last component, just append rest

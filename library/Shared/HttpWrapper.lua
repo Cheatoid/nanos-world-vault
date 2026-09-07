@@ -211,9 +211,9 @@ end
 --- Perform an HTTP GET request.<br>
 --- The GET method requests a representation of the specified resource. Requests using GET should only retrieve data.
 ---@param url string The URL to request.
----@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
----@param on_fail HttpFailCallback|nil Callback function called on failure with (data, status, url).
----@param headers HttpOptions|nil Optional request headers table.
+---@param on_success? HttpSuccessCallback Callback function called on success with (data, status, url).
+---@param on_fail? HttpFailCallback Callback function called on failure with (data, status, url).
+---@param headers? HttpOptions Optional request headers table.
 ---@return unknown unknown The result of the HTTP request.
 ---@usage <br>
 --- ```
@@ -235,9 +235,9 @@ M.get = HttpWrapper(HTTPMethod.GET)
 --- Perform an HTTP POST request.<br>
 --- The POST method submits an entity to the specified resource, often causing a change in state or side effects on the server.
 ---@param url string The URL to request.
----@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
----@param on_fail HttpFailCallback|nil Callback function called on failure with (data, status, url).
----@param headers HttpOptions|nil Optional request headers table.
+---@param on_success? HttpSuccessCallback Callback function called on success with (data, status, url).
+---@param on_fail? HttpFailCallback Callback function called on failure with (data, status, url).
+---@param headers? HttpOptions Optional request headers table.
 ---@return unknown unknown The result of the HTTP request.
 ---@usage <br>
 --- ```
@@ -252,9 +252,9 @@ M.post = HttpWrapper(HTTPMethod.POST)
 --- Perform an HTTP PUT request.<br>
 --- The PUT method replaces all current representations of the target resource with the request payload.
 ---@param url string The URL to request.
----@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
----@param on_fail HttpFailCallback|nil Callback function called on failure with (data, status, url).
----@param headers HttpOptions|nil Optional request headers table.
+---@param on_success? HttpSuccessCallback Callback function called on success with (data, status, url).
+---@param on_fail? HttpFailCallback Callback function called on failure with (data, status, url).
+---@param headers? HttpOptions Optional request headers table.
 ---@return unknown unknown The result of the HTTP request.
 ---@usage <br>
 --- ```
@@ -269,9 +269,9 @@ M.put = HttpWrapper(HTTPMethod.PUT)
 --- Perform an HTTP DELETE request.<br>
 --- The DELETE method deletes the specified resource.
 ---@param url string The URL to request.
----@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
----@param on_fail HttpFailCallback|nil Callback function called on failure with (data, status, url).
----@param headers HttpOptions|nil Optional request headers table.
+---@param on_success? HttpSuccessCallback Callback function called on success with (data, status, url).
+---@param on_fail? HttpFailCallback Callback function called on failure with (data, status, url).
+---@param headers? HttpOptions Optional request headers table.
 ---@return unknown unknown The result of the HTTP request.
 ---@usage <br>
 --- ```
@@ -286,9 +286,9 @@ M.delete = HttpWrapper(HTTPMethod.DELETE)
 --- Perform an HTTP HEAD request.<br>
 --- The HEAD method asks for a response identical to a GET request, but without the response body.
 ---@param url string The URL to request.
----@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
----@param on_fail HttpFailCallback|nil Callback function called on failure with (data, status, url).
----@param headers HttpOptions|nil Optional request headers table.
+---@param on_success? HttpSuccessCallback Callback function called on success with (data, status, url).
+---@param on_fail? HttpFailCallback Callback function called on failure with (data, status, url).
+---@param headers? HttpOptions Optional request headers table.
 ---@return unknown unknown The result of the HTTP request.
 ---@usage <br>
 --- ```
@@ -303,9 +303,9 @@ M.head = HttpWrapper(HTTPMethod.HEAD)
 --- Perform an HTTP PATCH request.<br>
 --- The PATCH method applies partial modifications to a resource.
 ---@param url string The URL to request.
----@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
----@param on_fail HttpFailCallback|nil Callback function called on failure with (data, status, url).
----@param headers HttpOptions|nil Optional request headers table.
+---@param on_success? HttpSuccessCallback Callback function called on success with (data, status, url).
+---@param on_fail? HttpFailCallback Callback function called on failure with (data, status, url).
+---@param headers? HttpOptions Optional request headers table.
 ---@return unknown unknown The result of the HTTP request.
 ---@usage <br>
 --- ```
@@ -320,9 +320,9 @@ M.patch = HttpWrapper(HTTPMethod.PATCH)
 --- Perform an HTTP OPTIONS request.<br>
 --- The OPTIONS method describes the communication options for the target resource.
 ---@param url string The URL to request.
----@param on_success HttpSuccessCallback|nil Callback function called on success with (data, status, url).
----@param on_fail HttpFailCallback|nil Callback function called on failure with (data, status, url).
----@param headers HttpOptions|nil Optional request headers table.
+---@param on_success? HttpSuccessCallback Callback function called on success with (data, status, url).
+---@param on_fail? HttpFailCallback Callback function called on failure with (data, status, url).
+---@param headers? HttpOptions Optional request headers table.
 ---@return unknown unknown The result of the HTTP request.
 ---@usage <br>
 --- ```

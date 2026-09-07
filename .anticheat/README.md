@@ -4330,7 +4330,7 @@ BOOL AC_ValidateNetworkTiming(DOUBLE clientTime)
  * ========================================================================== */
 
 typedef struct _AC_SYSCALL_STUB {
-    CHAR     functionName[64];  /* Function name (e.g., "NtQuerySystemTime") */
+    CHAR     functionName[64];  /* Function name (e.g. "NtQuerySystemTime") */
     ULONG    syscallId;         /* Extracted syscall ID          */
     PVOID    stubAddress;       /* Address in ntdll             */
     BOOL     valid;             /* Successfully extracted       */

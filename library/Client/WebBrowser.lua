@@ -672,7 +672,7 @@ WebBrowser.on_close = nil
 local isBrowserOpen = false
 
 --- Opens the browser
----@param url string|nil Optional URL to load in first tab
+---@param url? string Optional URL to load in first tab
 function WebBrowser.Open(url)
 	print("[WebBrowser DEBUG] WebBrowser.Open called, url:", url)
 	require("ConsoleEngine").Initialize()

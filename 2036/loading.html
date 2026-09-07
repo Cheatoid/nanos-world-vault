@@ -3885,7 +3885,7 @@ License: MIT
 		// Add a line to the terminal
 		// action: 'REQUEST', 'DOWNLOAD', 'EXTRACT', 'VERIFY', 'COMPLETE', 'INFO', 'WARNING', 'ERROR'
 		// file: file path/name
-		// progress: optional progress percentage string (e.g., '45%')
+		// progress: optional progress percentage string (e.g. '45%')
 		// type: optional class modifier
 		printToTerminal: function (action, file, progress, type) {
 			addTerminalLine(action || 'INFO', file || '', progress || '', type || '');
@@ -3894,7 +3894,7 @@ License: MIT
 		// Add a file operation with progress tracking
 		// action: 'REQUEST', 'DOWNLOAD', 'EXTRACT', 'VERIFY'
 		// file: file path
-		// size: file size string (e.g., '12.5 MB')
+		// size: file size string (e.g. '12.5 MB')
 		// Returns an operation ID that can be used to update progress
 		startFileOperation: function (action, file, size) {
 			const opId = Date.now() + Math.random();
@@ -4450,7 +4450,7 @@ License: MIT
 
 		// === LOGO AND SUBTITLE CONTROL ===
 
-		// Set logo brand text (e.g., "NEO WARS")
+		// Set logo brand text (e.g. "NEO WARS")
 		setLogoBrand: function (text) {
 			const logoBrand = document.getElementById('logoBrand');
 			if (logoBrand && text) {
@@ -4458,7 +4458,7 @@ License: MIT
 			}
 		},
 
-		// Set logo subtitle text (e.g., "nanos world - loading")
+		// Set logo subtitle text (e.g. "nanos world - loading")
 		setLogoSubtitle: function (text) {
 			const logoSubtitle = document.getElementById('logoSubtitle');
 			if (logoSubtitle && text) {
@@ -4466,7 +4466,7 @@ License: MIT
 			}
 		},
 
-		// Set logo signature text (e.g., "nanos")
+		// Set logo signature text (e.g. "nanos")
 		setLogoSignature: function (text) {
 			const logoSig = document.getElementById('logoSig');
 			if (logoSig && text) {
@@ -4474,7 +4474,7 @@ License: MIT
 			}
 		},
 
-		// Set main subtitle text (e.g., "Connecting to server cluster...")
+		// Set main subtitle text (e.g. "Connecting to server cluster...")
 		setMainSubtitle: function (text) {
 			const mainSubtitle = document.getElementById('mainSubtitle');
 			if (mainSubtitle && text) {
@@ -4490,7 +4490,7 @@ License: MIT
 			}
 		},
 
-		// Set terminal prompt text (e.g., "cheatoid@neowars:~$")
+		// Set terminal prompt text (e.g. "cheatoid@neowars:~$")
 		setTerminalPrompt: function (text) {
 			const terminalPrompt = document.getElementById('terminalPrompt');
 			if (terminalPrompt && text) {
@@ -4498,7 +4498,7 @@ License: MIT
 			}
 		},
 
-		// Set terminal header title (e.g., "// FILE_OPERATIONS.exe")
+		// Set terminal header title (e.g. "// FILE_OPERATIONS.exe")
 		setTerminalTitle: function (text) {
 			const terminalTitle = document.getElementById('terminalTitle');
 			if (terminalTitle && text) {

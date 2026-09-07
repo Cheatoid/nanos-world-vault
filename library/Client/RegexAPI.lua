@@ -16,8 +16,8 @@ function RegexAPI.Initialize()
 		"file://UI/RegexAPI.html",
 		WidgetVisibility.Hidden, true, false, 0, 0
 	)
-	local pending = {} ---@type table<integer, function|nil>
-	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}|nil>
+	local pending = {} ---@type table<integer, function?>
+	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}?>
 	local req_id = math.mininteger or 0
 	local is_ready = false
 
@@ -36,7 +36,7 @@ function RegexAPI.Initialize()
 	---@param event string
 	---@param args table
 	---@param callback function
-	---@param use_req_id integer|nil
+	---@param use_req_id? integer
 	---@return integer req_id
 	local function dispatch(event, args, callback, use_req_id)
 		local id = use_req_id or (req_id + 1)
@@ -91,7 +91,7 @@ end
 --- Returns the first match of the pattern in the text.
 ---@param pattern string The regular expression pattern to match.
 ---@param text string The text to search within.
----@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
+---@param flags string|nil Optional regex flags (e.g. "i" for case-insensitive, "m" for multiline).
 ---@param callback function Callback function to receive the match result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>
@@ -115,7 +115,7 @@ end
 --- Returns all non-overlapping matches of the pattern in the text.
 ---@param pattern string The regular expression pattern to match.
 ---@param text string The text to search within.
----@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
+---@param flags string|nil Optional regex flags (e.g. "i" for case-insensitive, "m" for multiline).
 ---@param callback function Callback function to receive all matches (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>
@@ -141,7 +141,7 @@ end
 --- Returns a boolean indicating whether the pattern matches anywhere in the text.
 ---@param pattern string The regular expression pattern to test.
 ---@param text string The text to test against.
----@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
+---@param flags string|nil Optional regex flags (e.g. "i" for case-insensitive, "m" for multiline).
 ---@param callback function Callback function to receive the test result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>
@@ -164,7 +164,7 @@ end
 ---@param pattern string The regular expression pattern to search for.
 ---@param text string The text to perform replacements in.
 ---@param replacement string The replacement string (can use $& for matched text, $1 for capture groups, etc.).
----@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive). Note: "g" is always applied.
+---@param flags string|nil Optional regex flags (e.g. "i" for case-insensitive). Note: "g" is always applied.
 ---@param callback function Callback function to receive the replaced result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>
@@ -188,7 +188,7 @@ end
 --- Returns an array of strings split by the pattern.
 ---@param pattern string The regular expression pattern to use as delimiter.
 ---@param text string The text to split.
----@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive).
+---@param flags string|nil Optional regex flags (e.g. "i" for case-insensitive).
 ---@param callback function Callback function to receive the split result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>
@@ -214,7 +214,7 @@ end
 --- Similar to match but returns detailed match information including capture groups.
 ---@param pattern string The regular expression pattern to execute.
 ---@param text string The text to execute against.
----@param flags string|nil Optional regex flags (e.g., "i" for case-insensitive, "m" for multiline).
+---@param flags string|nil Optional regex flags (e.g. "i" for case-insensitive, "m" for multiline).
 ---@param callback function Callback function to receive the exec result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>

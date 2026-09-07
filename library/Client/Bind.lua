@@ -68,8 +68,8 @@ M.Register = M.RegisterAction
 --- This is a convenience function that combines `RegisterAction` and `Console.RegisterCommand`.
 ---@param name string The name of the command/action
 ---@param callback function The function to execute when the command is run
----@param description string|nil The command description to display in the console (default: "")
----@param parameters string[]|nil The list of supported parameters to display in the console (default: {})
+---@param description? string The command description to display in the console (default: "")
+---@param parameters? string[] The list of supported parameters to display in the console (default: {})
 function M.RegisterCommand(name, callback, description, parameters)
 	M.RegisterAction(name, callback)
 	return Console.RegisterCommand(name, callback, description, parameters)
@@ -142,10 +142,10 @@ function M.ListBindings()
 end
 
 --- Bind a key to an action.
----@param key string The key to bind (e.g., "F10", "Space", "A")
+---@param key string The key to bind (e.g. "F10", "Space", "A")
 ---@param action string The action name to bind to
----@param description string|nil The action description to display in the tooltip
----@param force boolean|nil Whether to force the binding even if the action doesn't exist (default: false)
+---@param description? string The action description to display in the tooltip
+---@param force? boolean Whether to force the binding even if the action doesn't exist (default: false)
 ---@return boolean success Whether the binding was successful
 ---@usage <br>
 --- ```

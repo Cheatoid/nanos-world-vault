@@ -79,8 +79,8 @@ end
 self.Match = GetMatchingPackages
 
 --- Reloads all packages with optional filtering.
----@param onlyLoaded boolean|nil Whether to only reload loaded packages (default: true).
----@param typeFilter integer|nil Package type filter (default: -1 for all types).
+---@param onlyLoaded? boolean Whether to only reload loaded packages (default: true).
+---@param typeFilter? integer Package type filter (default: -1 for all types).
 local function ReloadAllPackages(onlyLoaded, typeFilter)
 	if onlyLoaded == nil then onlyLoaded = true end
 	--if typeFilter == nil then typeFilter = -1 end -- PackageType.* or -1 for all

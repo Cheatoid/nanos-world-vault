@@ -94,7 +94,7 @@ if Server then
 
 	-- Broadcast the convar's value initially
 	Server.SetValue(ID, Enabled, true)
-	--Events.BroadcastRemote(ID, Enabled)
+	--Events.BroadcastRemote(ID, Reliability.Reliable, Enabled)
 
 	Enabled = nil -- NOTE: Stop using 'Enabled' after this point, and use ref cfg.enable_cslua instead :)
 
@@ -113,8 +113,8 @@ if Server then
 	-- When a Player joins the server
 	Player.Subscribe("Spawn", function(ply)
 		--print("[Player.Spawn]", ply:GetSteamID())
-		--Events.BroadcastRemote(ID, cfg.enable_cslua)
-		Events.CallRemote(ID, ply, cfg.enable_cslua)
+		--Events.BroadcastRemote(ID, Reliability.Reliable, cfg.enable_cslua)
+		Events.CallRemote(ID, Reliability.Reliable, ply, cfg.enable_cslua)
 	end)
 
 	-- When the Player leaves the server
@@ -124,7 +124,7 @@ if Server then
 
 	-- C2S: Query the convar's value; old approach
 	--Events.SubscribeRemote(ID, function(player)
-	--	Events.CallRemote(ID, player, cfg.enable_cslua)
+	--	Events.CallRemote(ID, Reliability.Reliable, player, cfg.enable_cslua)
 	--end)
 
 	-- ConVar to enable/disable client-side Lua console command
@@ -155,7 +155,7 @@ if Server then
 			local enabled = cfg.enable_cslua
 			if changed then -- only broadcast a message if the state has changed
 				Server.SetValue(ID, enabled, true)
-				Events.BroadcastRemote(ID, enabled)
+				Events.BroadcastRemote(ID, Reliability.Reliable, enabled)
 				Package.SetPersistentData("enable_cslua", enabled)
 				--Config.set("enable_cslua", enabled)
 				--Config.write(true)

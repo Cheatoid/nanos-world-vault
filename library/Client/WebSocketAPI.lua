@@ -16,8 +16,8 @@ function WebSocketAPI.Initialize()
 		"file://UI/WebSocketAPI.html",
 		WidgetVisibility.Hidden, true, false, 0, 0
 	)
-	local pending = {} ---@type table<integer, function|nil>
-	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}|nil>
+	local pending = {} ---@type table<integer, function?>
+	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}?>
 	local req_id = math.mininteger or 0
 	local is_ready = false
 
@@ -36,7 +36,7 @@ function WebSocketAPI.Initialize()
 	---@param event string
 	---@param args table
 	---@param callback function
-	---@param use_req_id integer|nil
+	---@param use_req_id? integer
 	---@return integer req_id
 	local function dispatch(event, args, callback, use_req_id)
 		local id = use_req_id or (req_id + 1)
@@ -89,7 +89,7 @@ end
 
 --- Creates a WebSocket connection to the specified URL.<br>
 --- Establishes a WebSocket connection that can be used for real-time communication.
----@param url string The WebSocket server URL (e.g., "ws://localhost:8080").
+---@param url string The WebSocket server URL (e.g. "ws://localhost:8080").
 ---@param protocols string|nil Optional WebSocket protocols array or single protocol string.
 ---@param callback function Callback function to receive the connection result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.

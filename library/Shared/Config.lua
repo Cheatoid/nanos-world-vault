@@ -17,7 +17,7 @@ local ParseJSON = JSON.parse
 ---@field type "boolean"|"string"|"number"|"integer"|"table"
 ---@field default any
 ---@field required boolean
----@field validate nil|fun(value: any): boolean, string|nil
+---@field validate? fun(value: any): (boolean, string?)
 
 ---@class cheatoidlib.config.schema
 ---@field [string] cheatoidlib.config.field
@@ -76,8 +76,8 @@ local DEFAULTS = {
 -- Module state
 local is_dirty = false
 local is_initialized = false
-local config_data ---@type cheatoidlib.config|nil
-local file_handle ---@type File|nil
+local config_data ---@type cheatoidlib.config?
+local file_handle ---@type File?
 local file_name = Package.GetName() .. ".json"
 
 --- Gets the current config filename
@@ -89,7 +89,7 @@ end
 --- Sets the config filename (closes any open file handle)
 ---@param filename string The new configuration filename
 ---@return boolean success Whether the filename was set successfully
----@return string|nil error Error message if failed
+---@return string? error Error message if failed
 local function setFileName(filename)
 	if type(filename) ~= "string" or filename == "" then
 		return false, "Filename must be a non-empty string"
@@ -121,7 +121,7 @@ end
 ---@param value any
 ---@param schema cheatoidlib.config.field
 ---@return boolean valid
----@return string|nil error
+---@return string? error
 local function validate_field(key, value, schema)
 	if value == nil then
 		if schema.required then
@@ -188,7 +188,7 @@ local function merge_tables(target, source, overwrite)
 end
 
 --- Applies defaults to missing fields
----@param data table|nil
+---@param data? table
 ---@return cheatoidlib.config
 local function apply_defaults(data)
 	local result = {}
@@ -201,11 +201,12 @@ local function apply_defaults(data)
 	return result
 end
 
+-- Forward declarations
 local init, read, get, set, update, write, reset, isDirty, getSchema, getDefaults, registerField, getFileName, setFileName
 
 --- Initializes the config module
 ---@return boolean success
----@return string|nil error
+---@return string? error
 function init()
 	if is_initialized then
 		return true
@@ -272,7 +273,7 @@ function init()
 end
 
 --- Reads current config
----@return cheatoidlib.config|nil
+---@return cheatoidlib.config?
 function read()
 	if not is_initialized then
 		local ok, err = init()
@@ -304,7 +305,7 @@ end
 ---@param key string
 ---@param value any
 ---@return boolean success
----@return string|nil error
+---@return string? error
 function set(key, value)
 	if not is_initialized then
 		local ok, err = init()
@@ -331,7 +332,7 @@ end
 ---@param updates table
 ---@param overwrite boolean
 ---@return boolean success
----@return string|nil error
+---@return string? error
 function update(updates, overwrite)
 	if type(updates) ~= "table" then
 		return false, "updates must be a table"
@@ -361,9 +362,9 @@ function update(updates, overwrite)
 end
 
 --- Writes current config to file
----@param force boolean|nil
+---@param force? boolean
 ---@return boolean success
----@return string|nil error
+---@return string? error
 function write(force)
 	if not is_initialized then
 		return false, "Config not initialized"

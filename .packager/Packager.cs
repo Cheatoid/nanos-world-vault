@@ -119,6 +119,7 @@ var isReleaseMode = false;
 var isUploadPackagesMode = false;
 var isCompileMode = false;
 string? singlePackage = null;
+string? ignoreListPath = null;
 
 // Parse arguments
 string[]? dirs;
@@ -170,6 +171,10 @@ if (args is { Length: > 0 })
 		{
 			token = args[++index];
 		}
+		else if (argLower is "--ignore-list" && index + 1 < args.Length)
+		{
+			ignoreListPath = args[++index];
+		}
 		else
 		{
 			tmp.Add(args[index]);
@@ -196,6 +201,11 @@ if (isReleaseMode || isUploadPackagesMode)
 			"❗ error: token is required for release/upload-packages mode. Use --token or set environment variable.");
 		return 1;
 	}
+}
+
+if (!string.IsNullOrWhiteSpace(ignoreListPath))
+{
+	Program.ReloadZipFiltersFromFile(ignoreListPath);
 }
 
 foreach (var dir in dirs)
@@ -349,8 +359,7 @@ foreach (var dir in dirs)
 					c.WriteLine($"ℹ skipped (gitignored): {entryName}");
 					continue;
 				}
-				var regexesToUse = isCompileMode ? ZipCompileModeFilterRegexes : ZipFilterRegexes;
-				if (!regexesToUse.Any(r => r.IsMatch('/' + entryName)))
+				if (!IsZipEntryIncluded('/' + entryName, isCompileMode))
 					continue;
 				try
 				{
@@ -829,8 +838,7 @@ foreach (var dir in dirs)
 					return !repo.Ignore.IsPathIgnored(relativePath);
 				})
 				.ToArray();
-			var zipBytes = CreateZipFromFiles(packageFiles, packageRoot,
-				isCompileMode ? ZipCompileModeFilterRegexes : ZipFilterRegexes);
+			var zipBytes = CreateZipFromFiles(packageFiles, packageRoot, isCompileMode);
 			var zipFileSize = zipBytes.Length;
 			if (zipFileSize <= 0)
 			{
@@ -1446,7 +1454,7 @@ byte[] CreateZipInMemory(HashSet<string> filePaths, string? basePath = null)
 static byte[] CreateZipFromFiles(
 	string[] files,
 	string basePath,
-	Regex[] includeEntryNameRegexes
+	bool compileMode
 )
 {
 	using var ms = new MemoryStream();
@@ -1456,10 +1464,7 @@ static byte[] CreateZipFromFiles(
 		foreach (var file in files)
 		{
 			var entryName = Path.GetRelativePath(basePath, file).Replace('\\', '/');
-			if (!includeEntryNameRegexes.Any(r => r.IsMatch('/' + entryName)))
-				continue;
-			// Explicitly exclude .tests.lua files
-			if (entryName.EndsWith(".tests.lua", StringComparison.OrdinalIgnoreCase))
+			if (!IsZipEntryIncluded('/' + entryName, compileMode))
 				continue;
 			try
 			{
@@ -1487,9 +1492,6 @@ static byte[] CreateZipFromFilesNoFilter(
 		foreach (var file in files)
 		{
 			var entryName = Path.GetRelativePath(basePath, file).Replace('\\', '/');
-			// Files are already filtered above, but still exclude .tests.lua
-			if (entryName.EndsWith(".tests.lua", StringComparison.OrdinalIgnoreCase))
-				continue;
 			try
 			{
 				c.WriteLine($"ℹ adding file to zip: {entryName}");
@@ -1687,34 +1689,146 @@ internal static partial class Program
 			RegexOptions.IgnoreCase
 			| RegexOptions.Compiled
 			| RegexOptions.Singleline
-			| RegexOptions.IgnorePatternWhitespace
-			// NOTE: no RightToLeft - the (?!...) exclude-guards below are evaluated from ^ and only cover the whole path left-to-right
+			//| RegexOptions.IgnorePatternWhitespace
+			// NOTE: no RightToLeft - the (?!...) exclude-guards in ignore-list.json are evaluated from ^ left-to-right
 			//| RegexOptions.NonBacktracking
 		;
 
-	private static readonly Regex ZipFilesFilterRegex,
-		ZipAdditionalFilesRegex,
-		ZipCompileFilesFilterRegex,
-		ZipCompileAdditionalFilesRegex;
+	private const string ZipFiltersFileName = "ignore-list.json";
 
-	private static readonly Regex[] ZipFilterRegexes, ZipCompileModeFilterRegexes;
+	// Lenient JSON options for the hand-edited ignore-list.json: // and /* */ comments,
+	// trailing commas, any key casing, and unknown properties (e.g. "_comment") are all accepted.
+	private static readonly JsonSerializerOptions ZipFilterJsonOptions = new()
+	{
+		AllowTrailingCommas = true,
+		ReadCommentHandling = JsonCommentHandling.Skip,
+		PropertyNameCaseInsensitive = true,
+		UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+	};
+
+	private static Regex[] ZipFilterRegexes, ZipCompileModeFilterRegexes;
+	private static Regex[] ZipExcludeRegexes, ZipCompileExcludeRegexes;
 	private static readonly string ToolVersion;
 
 	static Program()
 	{
-		// Include .css, .html, .js, .lua, .toml but exclude .tests.lua and .md files using negative lookahead
-		// Also exclude anything inside a "tests" or "benchmarks" folder (anywhere), so publish/*.zip never contains them
-		ZipFilesFilterRegex = new(@"^(?!.*/(tests|benchmarks)/)(?!.*\.tests?\.lua$).*\.(css|html|js|lua|toml)$", RegexFlags);
-		ZipAdditionalFilesRegex = new(@"^(?!.*/(tests|benchmarks)/).*/(LICENSE)$", RegexFlags); // |README\.md
-		ZipFilterRegexes = [ZipFilesFilterRegex, ZipAdditionalFilesRegex];
-		ZipCompileFilesFilterRegex = new(@"^(?!.*/(tests|benchmarks)/)(?!.*(examples?|\.tests?)\.lua$).*\.(css|html|js|lua|toml)$", RegexFlags);
-		ZipCompileAdditionalFilesRegex = new(@"^(?!.*/(tests|benchmarks)/).*/(LICENSE)$", RegexFlags);
-		ZipCompileModeFilterRegexes = [ZipCompileFilesFilterRegex, ZipCompileAdditionalFilesRegex];
+		// All zip filter patterns come from ignore-list.json (copied to the output directory
+		// via packager.csproj). There are no hardcoded fallbacks: edit the file, not the code.
+		var config = LoadZipFilterConfig();
+		ZipFilterRegexes = CompileZipFilterRegexes(config.ZipFilter);
+		ZipCompileModeFilterRegexes = CompileZipFilterRegexes(config.ZipCompileFilter);
+		ZipExcludeRegexes = CompileZipFilterRegexes(config.ZipExclude);
+		ZipCompileExcludeRegexes = CompileZipFilterRegexes(config.ZipCompileExclude);
 		var executingAssembly = Assembly.GetExecutingAssembly();
 		ToolVersion =
 			executingAssembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version ??
 			executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
 			"0.0.0";
+	}
+
+	// Reload filters from an explicit path (used by --ignore-list). Fails fast on error.
+	internal static void ReloadZipFiltersFromFile(string path)
+	{
+		var config = ParseZipFilterConfig(path);
+		ZipFilterRegexes = CompileZipFilterRegexes(config.ZipFilter);
+		ZipCompileModeFilterRegexes = CompileZipFilterRegexes(config.ZipCompileFilter);
+		ZipExcludeRegexes = CompileZipFilterRegexes(config.ZipExclude);
+		ZipCompileExcludeRegexes = CompileZipFilterRegexes(config.ZipCompileExclude);
+		c.WriteLine($"ℹ loaded zip filters from: {path}");
+	}
+
+	// A zip entry (with leading '/', e.g. "/Client/index.lua") is included when any allow
+	// pattern matches and no deny pattern matches.
+	private static bool IsZipEntryIncluded(string entryWithLeadingSlash, bool compileMode)
+	{
+		var allow = compileMode ? ZipCompileModeFilterRegexes : ZipFilterRegexes;
+		if (!allow.Any(r => r.IsMatch(entryWithLeadingSlash)))
+			return false;
+		var deny = compileMode ? ZipCompileExcludeRegexes : ZipExcludeRegexes;
+		return !deny.Any(r => r.IsMatch(entryWithLeadingSlash));
+	}
+
+	private sealed class ZipFilterConfig
+	{
+		[J("zip_filter")] public string[] ZipFilter { get; set; } = [];
+		[J("zip_exclude")] public string[] ZipExclude { get; set; } = [];
+		[J("zip_compile_filter")] public string[] ZipCompileFilter { get; set; } = [];
+		[J("zip_compile_exclude")] public string[] ZipCompileExclude { get; set; } = [];
+	}
+
+	private static ZipFilterConfig LoadZipFilterConfig()
+	{
+		foreach (var candidate in GetZipFilterCandidatePaths())
+		{
+			if (!File.Exists(candidate))
+				continue;
+			try
+			{
+				var config = ParseZipFilterConfig(candidate);
+				c.WriteLine($"ℹ loaded zip filters from: {candidate}");
+				return config;
+			}
+			catch (Exception ex)
+			{
+				c.Error.WriteLine($"⚠ warning: skipping invalid '{candidate}': {ex.Message}");
+			}
+		}
+		FailZipFilters(
+			$"{ZipFiltersFileName} not found. Searched: {string.Join(", ", GetZipFilterCandidatePaths())}. " +
+			"Restore the file or point --ignore-list / PACKAGER_IGNORE_LIST at a valid one.");
+		throw new UnreachableException();
+	}
+
+	private static IEnumerable<string> GetZipFilterCandidatePaths()
+	{
+		// Explicit override wins (no recompile needed to point at a custom file)
+		var envOverride = Environment.GetEnvironmentVariable("PACKAGER_IGNORE_LIST");
+		if (!string.IsNullOrWhiteSpace(envOverride))
+			yield return envOverride;
+		// Output directory (ignore-list.json is copied here via packager.csproj)
+		yield return Path.Combine(AppContext.BaseDirectory, ZipFiltersFileName);
+		// Executable directory (may differ from BaseDirectory for single-file publishes)
+		var exeDir = Path.GetDirectoryName(Environment.ProcessPath);
+		if (!string.IsNullOrEmpty(exeDir))
+			yield return Path.Combine(exeDir, ZipFiltersFileName);
+		// Current working directory (covers `dotnet run` / `dotnet watch run` from .packager/)
+		yield return Path.Combine(Environment.CurrentDirectory, ZipFiltersFileName);
+	}
+
+	private static ZipFilterConfig ParseZipFilterConfig(string path)
+	{
+		var config = JsonSerializer.Deserialize<ZipFilterConfig>(File.ReadAllText(path), ZipFilterJsonOptions)
+			?? throw new InvalidDataException(
+				$"expected an object with \"zip_filter\" and \"zip_compile_filter\" arrays in '{path}'.");
+		// Empty (or missing) arrays are allowed: an empty allowlist matches nothing.
+		return config;
+	}
+
+	private static Regex[] CompileZipFilterRegexes(string[] patterns)
+	{
+		var compiled = new List<Regex>(patterns.Length);
+		foreach (var pattern in patterns)
+		{
+			if (string.IsNullOrWhiteSpace(pattern))
+				continue;
+			try
+			{
+				compiled.Add(new Regex(pattern, RegexFlags)); // optimized (Compiled), loaded from file
+			}
+			catch (Exception ex)
+			{
+				c.Error.WriteLine($"⚠ warning: skipping invalid zip filter pattern '{pattern}': {ex.Message}");
+			}
+		}
+		if (compiled.Count == 0 && patterns.Length > 0)
+			c.Error.WriteLine("⚠ warning: no valid zip filter patterns found, allowlist is empty (matches nothing).");
+		return [.. compiled]; // may be empty: an empty allowlist matches nothing
+	}
+
+	private static void FailZipFilters(string message)
+	{
+		c.Error.WriteLine($"❗ error: {message}");
+		Environment.Exit(1);
 	}
 
 	extension(FileInfo fileInfo)

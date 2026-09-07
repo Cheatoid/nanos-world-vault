@@ -10,12 +10,12 @@ local ID = "BroadcastLua"
 if Server then
 	local function BroadcastLua(code)
 		check_string(1)
-		return Events.BroadcastRemote(ID, code)
+		return Events.BroadcastRemote(ID, Reliability.Reliable, code)
 	end
 
 	local function SendLua(player, code)
 		check_string(2)
-		return Events.CallRemote(ID, player, code)
+		return Events.CallRemote(ID, Reliability.Reliable, player, code)
 	end
 
 	-- Export the API to be accessed by other packages

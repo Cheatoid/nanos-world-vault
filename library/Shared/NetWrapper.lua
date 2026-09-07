@@ -638,7 +638,7 @@ local M = {
 --- Defines a schema with field names and their data types.<br>
 --- Fields are sorted alphabetically to ensure consistent ordering between client and server.<br>
 --- Supported types: boolean, byte, sbyte, ushort, short, uint, int, float, double, string, Vector.<br>
----@param definition table Field name to type mapping (e.g., {name = "string", health = "int"}).
+---@param definition table Field name to type mapping (e.g. {name = "string", health = "int"}).
 ---@return table scheme The scheme object with read/write methods.
 ---@usage <br>
 --- ```

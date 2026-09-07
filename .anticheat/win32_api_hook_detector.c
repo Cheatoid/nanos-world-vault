@@ -1004,7 +1004,7 @@ int main(int argc, char* argv[])
             printf("Usage:\n");
             printf("  %s                    - Scan main executable for hooks\n", argv[0]);
             printf("  %s --all-modules      - Scan all loaded modules\n", argv[0]);
-            printf("  %s --module <name>    - Scan specific module (e.g., kernel32.dll)\n", argv[0]);
+            printf("  %s --module <name>    - Scan specific module (e.g. kernel32.dll)\n", argv[0]);
             return 1;
         }
     } else {

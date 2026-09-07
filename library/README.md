@@ -2043,7 +2043,7 @@ local b58 = Base.new(Base.BASE58)
 local address = b58.encode("\x00\x00SomeData")
 print("Base58:", address)
 
--- Custom alphabet (e.g., Base5)
+-- Custom alphabet (e.g. Base5)
 local b5 = Base.new("01234")
 print("Base5 of 65:", b5.encode("A")) -- "230"
 

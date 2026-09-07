@@ -123,7 +123,7 @@ M.exists = exists
 --- Get file modification time in Unix time.<br>
 --- Uses File.Time to get the last modification time.
 ---@param path string The file path to get information for.
----@return integer|nil time The last modification time in Unix time, or nil on failure.
+---@return integer? time The last modification time in Unix time, or nil on failure.
 ---@usage <br>
 --- ```
 --- local time = file.time("my_script.lua")
@@ -143,8 +143,8 @@ M.time = file_time
 --- Opens the file using File API and reads its content.<br>
 --- Returns nil and an error message if the file cannot be opened or read.
 ---@param path string The file path to read.
----@return string|nil content The file content, or nil on failure.
----@return string|nil error Error message if the operation failed.
+---@return string? content The file content, or nil on failure.
+---@return string? error Error message if the operation failed.
 ---@usage <br>
 --- ```
 --- local content, err = file.read("my_script.lua")
@@ -177,8 +177,8 @@ M.read = read_file
 --- Returns nil and an error message if the file cannot be opened or written.
 ---@param path string The file path to write.
 ---@param content string The content to write to the file.
----@return boolean|nil success True on success, nil on failure.
----@return string|nil error Error message if the operation failed.
+---@return boolean? success True on success, nil on failure.
+---@return string? error Error message if the operation failed.
 ---@usage <br>
 --- ```
 --- local success, err = file.write("my_script.lua", "print('Hello, World!')")
@@ -212,8 +212,8 @@ M.write = write_file
 --- Returns nil and an error message if the operation fails.
 ---@param path string The file path to append to.
 ---@param content string The content to append to the file.
----@return boolean|nil success True on success, nil on failure.
----@return string|nil error Error message if the operation failed.
+---@return boolean? success True on success, nil on failure.
+---@return string? error Error message if the operation failed.
 ---@usage <br>
 --- ```
 --- -- Append to existing file
@@ -265,8 +265,8 @@ M.delete = remove_file -- alias
 --- Returns nil and an error message if the operation fails.
 ---@param old_path string The current file path.
 ---@param new_path string The new file path.
----@return boolean|nil success True on success, nil on failure.
----@return string|nil error Error message if the operation failed.
+---@return boolean? success True on success, nil on failure.
+---@return string? error Error message if the operation failed.
 ---@usage <br>
 --- ```
 --- local success, err = file.rename("old_name.lua", "new_name.lua")
@@ -303,8 +303,8 @@ M.move = rename_file -- alias
 --- Returns nil and an error message if the operation fails.
 ---@param source string The source file path.
 ---@param destination string The destination file path.
----@return boolean|nil success True on success, nil on failure.
----@return string|nil error Error message if the operation failed.
+---@return boolean? success True on success, nil on failure.
+---@return string? error Error message if the operation failed.
 ---@usage <br>
 --- ```
 --- local success, err = file.copy("source.lua", "destination.lua")
@@ -329,9 +329,9 @@ M.copy = copy_file
 --- List all files in the package with optional filters.<br>
 --- Uses File.GetFiles to get a list of file paths.<br>
 --- Returns a table of file paths matching the filters.
----@param path_filter string|nil Path filter (default: "").
----@param extension_filter string|nil Extension filter (e.g., ".lua", default: "").
----@param max_depth integer|nil Maximum depth to search (-1 for unlimited, default: -1).
+---@param path_filter? string Path filter (default: "").
+---@param extension_filter? string Extension filter (e.g. ".lua", default: "").
+---@param max_depth? integer Maximum depth to search (-1 for unlimited, default: -1).
 ---@return string[] files Table of file paths.
 ---@usage <br>
 --- ```
@@ -353,8 +353,8 @@ M.list_files = list_files
 --- Iterate over files in the package with optional filters.<br>
 --- Returns an iterator function that yields file paths one at a time.<br>
 --- Useful for processing large numbers of files without loading them all into memory.
----@param path_filter string|nil Path filter (default: "").
----@param extension_filter string|nil Extension filter (e.g., ".lua", default: "").
+---@param path_filter? string Path filter (default: "").
+---@param extension_filter? string Extension filter (e.g. ".lua", default: "").
 ---@return fun() iterator Iterator function that yields file paths.
 ---@usage <br>
 --- ```
@@ -377,8 +377,8 @@ M.iterate_files = iterate_files
 --- List all directories in the package with optional path filter.<br>
 --- Uses File.GetDirectories to get a list of directory paths.<br>
 --- Returns a table of directory paths matching the filter.
----@param path_filter string|nil Path filter (default: "").
----@param max_depth integer|nil Maximum depth to search (-1 for unlimited, default: -1).
+---@param path_filter? string Path filter (default: "").
+---@param max_depth? integer Maximum depth to search (-1 for unlimited, default: -1).
 ---@return string[] directories Table of directory paths.
 ---@usage <br>
 --- ```
@@ -400,7 +400,7 @@ M.list_directories = list_directories
 --- Iterate over directories in the package with optional path filter.<br>
 --- Returns an iterator function that yields directory paths one at a time.<br>
 --- Useful for processing large directory structures without loading them all into memory.
----@param path_filter string|nil Path filter (default: "").
+---@param path_filter? string Path filter (default: "").
 ---@return fun() iterator Iterator function that yields directory paths.
 ---@usage <br>
 --- ```
@@ -442,7 +442,7 @@ M.mkdir = create_directory -- alias
 --- Uses File.GetFullPath to resolve the full path based on the current side.<br>
 --- Returns the full path or nil on failure.
 ---@param path string The relative path to resolve.
----@return string|nil full_path The full path, or nil on failure.
+---@return string? full_path The full path, or nil on failure.
 ---@usage <br>
 --- ```
 --- local full_path = file.get_full_path("my_script.lua")
@@ -483,8 +483,8 @@ M.pwd = cwd -- alias
 --- Updates the locally tracked working directory if the path exists and is a directory.<br>
 --- Returns nil and an error message if the path is invalid or not a directory.
 ---@param path string The directory path to change to.
----@return boolean|nil success True on success, nil on failure.
----@return string|nil error Error message if the operation failed.
+---@return boolean? success True on success, nil on failure.
+---@return string? error Error message if the operation failed.
 ---@usage <br>
 --- ```
 --- local success, err = file.cd("scripts/")
@@ -506,7 +506,7 @@ local function cd(path)
 		return true
 	end
 
-	-- Handle package name prefix (e.g., "mypackage:scripts" -> "Packages/mypackage/scripts")
+	-- Handle package name prefix (e.g. "mypackage:scripts" -> "Packages/mypackage/scripts")
 	local package_name, package_rest = string_match(path, "^([0-9A-Za-z_%.]+):(.+)")
 	if package_name and package_rest then
 		path = "Packages/" .. package_name .. "/" .. package_rest
@@ -564,9 +564,9 @@ M.cd = cd
 --- List files and directories in the current or specified path.<br>
 --- Combines files and directories into a single list with type indicators.<br>
 --- Returns a table of entries with name and type fields.
----@param path string|nil The path to list (default: current working directory).
+---@param path? string The path to list (default: current working directory).
 ---@return table[] entries Table of entries with {name, type} fields.
----@return string|nil error Error message if the operation failed.
+---@return string? error Error message if the operation failed.
 ---@usage <br>
 --- ```
 --- -- List current directory
@@ -644,10 +644,10 @@ end
 --- Automatically creates parent directories if they don't exist.<br>
 --- Returns nil and an error message if the operation fails.
 ---@param vfs table The VFS instance
----@param path string The file path within the VFS (e.g., "scripts/main.lua")
+---@param path string The file path within the VFS (e.g. "scripts/main.lua")
 ---@param content string The file content
----@return boolean|nil success True on success, nil on failure
----@return string|nil error Error message if the operation failed
+---@return boolean? success True on success, nil on failure
+---@return string? error Error message if the operation failed
 ---@usage <br>
 --- ```
 --- local vfs = file.vfs.create()
@@ -695,9 +695,9 @@ end
 --- Automatically creates parent directories if they don't exist.<br>
 --- Returns nil and an error message if the operation fails.
 ---@param vfs table The VFS instance
----@param path string The directory path within the VFS (e.g., "scripts/utils")
----@return boolean|nil success True on success, nil on failure
----@return string|nil error Error message if the operation failed
+---@param path string The directory path within the VFS (e.g. "scripts/utils")
+---@return boolean? success True on success, nil on failure
+---@return string? error Error message if the operation failed
 ---@usage <br>
 --- ```
 --- local vfs = file.vfs.create()
@@ -742,7 +742,7 @@ end
 --- Navigates the VFS table structure and returns the value at the given path.<br>
 --- Returns nil if the path does not exist.
 ---@param vfs table The VFS instance
----@param path string The path to get the value from (e.g., "scripts/config")
+---@param path string The path to get the value from (e.g. "scripts/config")
 ---@return any value The value at the path, or nil if not found
 ---@usage <br>
 --- ```
@@ -783,10 +783,10 @@ end
 --- If the final path component is a table, it will be replaced with the new value.<br>
 --- Returns nil and an error message if the operation fails.
 ---@param vfs table The VFS instance
----@param path string The path to set the value at (e.g., "scripts/config")
+---@param path string The path to set the value at (e.g. "scripts/config")
 ---@param value any The value to set (string for files, table for directories, or any other value)
----@return boolean|nil success True on success, nil on failure
----@return string|nil error Error message if the operation failed
+---@return boolean? success True on success, nil on failure
+---@return string? error Error message if the operation failed
 ---@usage <br>
 --- ```
 --- local vfs = file.vfs.create()
@@ -832,7 +832,7 @@ end
 --- Check if a path exists in the VFS.<br>
 --- Returns true if the path exists (file or directory), false otherwise.
 ---@param vfs table The VFS instance
----@param path string The path to check (e.g., "scripts/main.lua")
+---@param path string The path to check (e.g. "scripts/main.lua")
 ---@return boolean exists True if the path exists
 ---@usage <br>
 --- ```
@@ -849,7 +849,7 @@ end
 --- Check if a path is a directory in the VFS.<br>
 --- Returns true if the path exists and is a directory (table), false otherwise.
 ---@param vfs table The VFS instance
----@param path string The path to check (e.g., "scripts/utils")
+---@param path string The path to check (e.g. "scripts/utils")
 ---@return boolean is_directory True if the path is a directory
 ---@usage <br>
 --- ```
@@ -867,7 +867,7 @@ end
 --- Check if a path is a file in the VFS.<br>
 --- Returns true if the path exists and is a file (string), false otherwise.
 ---@param vfs table The VFS instance
----@param path string The path to check (e.g., "scripts/main.lua")
+---@param path string The path to check (e.g. "scripts/main.lua")
 ---@return boolean is_file True if the path is a file
 ---@usage <br>
 --- ```
@@ -887,9 +887,9 @@ end
 --- If the path is a directory, deletes it recursively including all contents.<br>
 --- Returns nil and an error message if the operation fails.
 ---@param vfs table The VFS instance
----@param path string The path to delete (e.g., "scripts/old_file.lua" or "scripts/old_folder")
----@return boolean|nil success True on success, nil on failure
----@return string|nil error Error message if the operation failed
+---@param path string The path to delete (e.g. "scripts/old_file.lua" or "scripts/old_folder")
+---@return boolean? success True on success, nil on failure
+---@return string? error Error message if the operation failed
 ---@usage <br>
 --- ```
 --- local vfs = file.vfs.create()
@@ -976,8 +976,8 @@ end
 --- Returns nil and an error message if the operation fails.
 ---@param vfs table The VFS instance
 ---@param base_path string The base directory path on disk where to write the VFS
----@return boolean|nil success True on success, nil on failure
----@return string|nil error Error message if the operation failed
+---@return boolean? success True on success, nil on failure
+---@return string? error Error message if the operation failed
 ---@usage <br>
 --- ```
 --- local vfs = file.vfs.create()
@@ -1005,7 +1005,7 @@ end
 --- Create a VFS from a tree-formatted table.<br>
 --- Converts a nested table structure into a VFS format.<br>
 --- String values become files, table values become directories.
----@param tree table The tree-formatted table (e.g., { scripts = { ["main.lua"] = "print('Hello')" } })
+---@param tree table The tree-formatted table (e.g. { scripts = { ["main.lua"] = "print('Hello')" } })
 ---@return table vfs The VFS instance populated from the tree
 ---@usage <br>
 --- ```
@@ -1049,8 +1049,8 @@ end
 --- Reads files and directories from disk and populates a VFS structure.<br>
 --- Uses the existing file API functions to recursively load the directory structure.
 ---@param base_path string The base directory path on disk to load from
----@return table|nil vfs The populated VFS instance, or nil on failure
----@return string|nil error Error message if the operation failed
+---@return table? vfs The populated VFS instance, or nil on failure
+---@return string? error Error message if the operation failed
 ---@usage <br>
 --- ```
 --- local vfs, err = file.vfs.load_from_disk("my_package")

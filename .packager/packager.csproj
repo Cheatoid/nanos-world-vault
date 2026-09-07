@@ -16,7 +16,10 @@
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="LibGit2Sharp" Version="0.31.0" />
-		<PackageReference Include="Tomlyn" Version="2.3.0" />
+		<PackageReference Include="LibGit2Sharp" Version="0.32.0" />
+		<PackageReference Include="Tomlyn" Version="2.10.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="ignore-list.json" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 </Project>

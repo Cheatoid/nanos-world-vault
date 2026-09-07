@@ -138,8 +138,8 @@ local function SetupPermissions(extras)
 
 	-- Define command category (core)
 	permission.define_category_on(perm_registry, "cmd", {
-		{ name = "execute",   default = true,  description = "Execute remote commands" },
-		{ name = "help",      default = true,  description = "View command help" },
+		{ name = "execute", default = true, description = "Execute remote commands" },
+		{ name = "help",    default = true, description = "View command help" },
 	})
 
 	if extras then
@@ -178,7 +178,7 @@ end
 
 --- Grant a permission to a player
 ---@param ply Player|string The player or "SERVER"
----@param perm string The permission (e.g., "admin.kick")
+---@param perm string The permission (e.g. "admin.kick")
 function M.GrantPermission(ply, perm)
 	local ctx = get_context(ply)
 	permission.grant(ctx, perm)
@@ -186,7 +186,7 @@ end
 
 --- Deny a permission to a player
 ---@param ply Player|string The player or "SERVER"
----@param perm string The permission (e.g., "admin.kick")
+---@param perm string The permission (e.g. "admin.kick")
 function M.DenyPermission(ply, perm)
 	local ctx = get_context(ply)
 	permission.deny(ctx, perm)
@@ -194,7 +194,7 @@ end
 
 --- Reset a permission for a player (back to default)
 ---@param ply Player|string The player or "SERVER"
----@param perm string The permission (e.g., "admin.kick")
+---@param perm string The permission (e.g. "admin.kick")
 function M.ResetPermission(ply, perm)
 	local ctx = get_context(ply)
 	permission.reset(ctx, perm)
@@ -202,7 +202,7 @@ end
 
 --- Check if a player has a permission
 ---@param ply Player|string The player or "SERVER"
----@param perm string The permission (e.g., "admin.kick")
+---@param perm string The permission (e.g. "admin.kick")
 ---@return boolean allowed Whether the permission is granted
 function M.HasPermission(ply, perm)
 	local ctx = get_context(ply)
@@ -211,7 +211,7 @@ end
 
 --- Require a permission for a player (throws error if not granted)
 ---@param ply Player|string The player or "SERVER"
----@param perm string The permission (e.g., "admin.kick")
+---@param perm string The permission (e.g. "admin.kick")
 function M.RequirePermission(ply, perm)
 	local ctx = get_context(ply)
 	permission.require(ctx, perm)
@@ -221,17 +221,19 @@ end
 -- Command registration
 ----------------------------------------------------------------------
 
+---@class RemoteCommand.Options
+---@field handler fun(ply: Player, ...) The command handler
+---@field permission? string Required permission (e.g. "admin.kick")
+---@field description? string Command description for help
+---@field args? string[] Argument names for help (e.g. {"player", "reason"})
+---@field hidden? boolean If true, command won't show in help
+---@field server_only? boolean If true, only executable on server
+---@field client_only? boolean If true, only executable on client
+---@field local_only? boolean If true, command runs locally (no remote broadcast/call)
+
 --- Register a new command
 ---@param name string The command name
----@param opts table|function Options table or handler function:
---- - `handler` function(ply, ...args): The command handler
---- - `permission` string|nil: Required permission (e.g., "admin.kick")
---- - `description` string|nil: Command description for help
---- - `args` table|nil: Argument names for help (e.g., {"player", "reason"})
---- - `hidden` boolean|nil: If true, command won't show in help
---- - `server_only` boolean|nil: If true, only executable on server
---- - `client_only` boolean|nil: If true, only executable on client
---- - `local_only` boolean|nil: If true, command runs locally (no remote broadcast/call)
+---@param opts RemoteCommand.Options|fun(ply: Player, ...) Options table or handler function
 function M.Register(name, opts)
 	if type(name) ~= "string" or name == "" then
 		return error("Command name must be a non-empty string", 2)
@@ -289,7 +291,7 @@ end
 
 --- Get a registered command
 ---@param name string The command name
----@return table|nil cmd The command definition or nil
+---@return table? cmd The command definition or nil
 function M.GetCommand(name)
 	return commands[name]
 end
@@ -317,7 +319,7 @@ end
 ---@param ply Player|string The invoking player or "SERVER"
 ---@param args table The command arguments
 ---@return boolean success Whether the command executed successfully
----@return string|nil error Error message if failed
+---@return string? error Error message if failed
 function M.Execute(name, ply, args)
 	local cmd = commands[name]
 
@@ -358,10 +360,10 @@ function M.Execute(name, ply, args)
 end
 
 --- Handle a command string (parses command and arguments)
----@param str string The command string (e.g., "kick player1 reason")
+---@param str string The command string (e.g. "kick player1 reason")
 ---@param ply Player|string The invoking player or "SERVER"
 ---@return boolean success Whether the command executed successfully
----@return string|nil output Output or error message
+---@return string? output Output or error message
 function M.HandleCommand(str, ply)
 	str = string_trim(str) --string_match(str, "^%s*(.-)%s*$") -- trim
 	if str == "" then
@@ -384,7 +386,7 @@ end
 ----------------------------------------------------------------------
 
 --- Get help for a command
----@param name string|nil Command name or nil for general help
+---@param name? string Command name, or nil for general help
 ---@return string help The help text
 function M.GetHelp(name)
 	if not name then
@@ -498,12 +500,12 @@ local function console_callback(...)
 
 	if Server then
 		-- Broadcast to all clients
-		Events.BroadcastRemote(ID, ...)
+		Events.BroadcastRemote(ID, Reliability.Reliable, ...)
 		-- Also execute on server
 		M.HandleCommand(cmd_str, "SERVER")
 	else
 		-- NOTE: nanos world engine will inject the local player as the first argument
-		Events.CallRemote(ID, ...)
+		Events.CallRemote(ID, Reliability.Reliable, ...)
 		-- Also execute on client
 		M.HandleCommand(cmd_str, Client.GetLocalPlayer())
 	end

@@ -16,8 +16,8 @@ function WebAudioAPI.Initialize()
 		"file://UI/WebAudioAPI.html",
 		WidgetVisibility.Hidden, true, false, 0, 0
 	)
-	local pending = {} ---@type table<integer, function|nil>
-	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}|nil>
+	local pending = {} ---@type table<integer, function?>
+	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}?>
 	local req_id = math.mininteger or 0
 	local is_ready = false
 
@@ -36,7 +36,7 @@ function WebAudioAPI.Initialize()
 	---@param event string
 	---@param args table
 	---@param callback function
-	---@param use_req_id integer|nil
+	---@param use_req_id? integer
 	---@return integer req_id
 	local function dispatch(event, args, callback, use_req_id)
 		local id = use_req_id or (req_id + 1)
@@ -219,7 +219,7 @@ function WebAudioAPI.DestroyInstance(instanceId, callback)
 end
 
 --- Loads an impulse response for reverb/acoustic spaces.<br>
----@param name string Name of the acoustic space (e.g., "Binaural", "Warehouse_Omni_35_10").
+---@param name string Name of the acoustic space (e.g. "Binaural", "Warehouse_Omni_35_10").
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.LoadIR(name, callback)
@@ -327,7 +327,7 @@ end
 
 --- Sets the acoustic space (reverb) for a sound instance.<br>
 ---@param instanceId string ID of the sound instance.
----@param name string Name of the acoustic space (e.g., "Binaural", "Warehouse_Omni_35_10").
+---@param name string Name of the acoustic space (e.g. "Binaural", "Warehouse_Omni_35_10").
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.InstanceSetAcousticSpace(instanceId, name, callback)

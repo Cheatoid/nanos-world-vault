@@ -93,9 +93,14 @@ requiref "Shared/@cheatoid" {
 	["@cheatoid/extensions/.*"] = false,                    -- skip; extensions must be explicitly loaded because they modify default Lua types
 	["@cheatoid/patch/.*"] = false,                         -- skip; patches must be explicitly loaded
 	["/?examples?%.lua$"] = false,                          -- ignore examples
+	["/benchmarks/.*"] = false,                             -- ignore benchmarks
+	["/tests/.*"] = false,                                  -- ignore tests
+	["@cheatoid/anticheat/.*"] = false,                     -- ignore (let consumers explicitly load it)
+	["@cheatoid/meta/.*"] = false,                          -- ignore (let consumers explicitly load it)
 	["@cheatoid/require_finder/find_requires%.lua$"] = false, -- ignore
 	["@cheatoid/plugin_framework/hello_plugin%.lua$"] = false, -- ignore
 	["@cheatoid/standard/global%.lua$"] = false,            -- ignore (let consumers explicitly load it)
+	["@cheatoid/vm/luavm%.lua$"] = false,                   -- ignore
 }
 
 --dbg.debugger.disable()
@@ -118,6 +123,7 @@ local permission    = require "@cheatoid/permission/permission"
 local plugins       = require "@cheatoid/plugin_framework/plugin_framework"
 local rate_limiter  = require "@cheatoid/rate_limiter/rate_limiter"
 local chat_cmd      = require "@cheatoid/chat_commander/chat_commander"
+--local meta          = require "@cheatoid/meta/init"
 local oop           = require "@cheatoid/oop/oop"
 local ref           = require "@cheatoid/ref/ref"
 local vm            = require "@cheatoid/vm/vm"

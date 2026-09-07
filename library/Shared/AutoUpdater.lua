@@ -19,20 +19,20 @@ local tsl = require "@cheatoid/standalone/to_string_literal"
 --- Configuration options for the AutoUpdater.<br>
 --- All fields are optional and will fall back to values from metadata_gen.lua or sensible defaults.
 ---@class AutoUpdaterConfig
----@field owner string|nil GitHub repository owner (default: from metadata_gen)
----@field repo string|nil GitHub repository name (default: from metadata_gen)
----@field branch string|nil Branch to check for updates (default: from metadata_gen or "main")
----@field package_path string|nil Path in repo to metadata_gen.lua (default: from metadata_gen)
----@field package_name string|nil Package name for zip download (default: Package.GetName())
----@field check_asset_store boolean|nil Whether to check nanos-world asset store API (default: true)
----@field auto_download boolean|nil Whether to automatically download updates (default: false)
----@field debug boolean|nil Enable debug logging (default: false)
----@field on_update_available fun(remote_version: string, current_version: string, metadata: table)|nil Callback when update is available
----@field on_no_update fun(current_version: string)|nil Callback when no update is available
----@field on_download_complete fun(zip_data: string, version: string)|nil Callback when zip download completes
----@field on_error fun(err: string, context: string)|nil Callback on errors
----@field on_check_start fun()|nil Callback when update check starts
----@field on_check_complete fun()|nil Callback when update check completes
+---@field owner? string GitHub repository owner (default: from metadata_gen)
+---@field repo? string GitHub repository name (default: from metadata_gen)
+---@field branch? string Branch to check for updates (default: from metadata_gen or "main")
+---@field package_path? string Path in repo to metadata_gen.lua (default: from metadata_gen)
+---@field package_name? string Package name for zip download (default: Package.GetName())
+---@field check_asset_store? boolean Whether to check nanos-world asset store API (default: true)
+---@field auto_download? boolean Whether to automatically download updates (default: false)
+---@field debug? boolean Enable debug logging (default: false)
+---@field on_update_available? fun(remote_version: string, current_version: string, metadata: table) Callback when update is available
+---@field on_no_update? fun(current_version: string) Callback when no update is available
+---@field on_download_complete? fun(zip_data: string, version: string) Callback when zip download completes
+---@field on_error? fun(err: string, context: string) Callback on errors
+---@field on_check_start? fun() Callback when update check starts
+---@field on_check_complete? fun() Callback when update check completes
 
 --- Auto-update engine for GitHub-based packages using metadata_gen.lua.<br>
 --- This module provides a clean API for checking for updates, downloading release zips,<br>
@@ -41,9 +41,9 @@ local tsl = require "@cheatoid/standalone/to_string_literal"
 ---@field config AutoUpdaterConfig Configuration options for the updater
 ---@field current_metadata table Local metadata_gen.lua data
 ---@field current_version string Current package version
----@field remote_metadata table|nil Remote metadata_gen.lua data (after fetch)
----@field remote_version string|nil Remote package version (after fetch)
----@field latest_version string|nil Latest release version (after fetch)
+---@field remote_metadata? table Remote metadata_gen.lua data (after fetch)
+---@field remote_version? string Remote package version (after fetch)
+---@field latest_version? string Latest release version (after fetch)
 ---@field is_preview boolean Whether running a preview version
 local AutoUpdater = {}
 AutoUpdater.__index = AutoUpdater
@@ -61,7 +61,7 @@ AutoUpdater.__index = AutoUpdater
 --- })
 --- updater:checkForUpdates()
 --- ```
----@param config AutoUpdaterConfig|nil Configuration options (uses defaults if nil)
+---@param config? AutoUpdaterConfig Configuration options (uses defaults if nil)
 ---@return AutoUpdater updater The configured AutoUpdater instance
 function AutoUpdater.new(config)
 	local metadata = require "metadata_gen" ---@type library.metadata_gen
@@ -95,7 +95,7 @@ end
 --- Only logs if debug mode is enabled or running a preview version.
 ---@param self AutoUpdater The AutoUpdater instance
 ---@param format string The format string for the log message
----@param ... any Additional arguments for string.format
+---@param ... any Additional arguments for `string.format`
 local function debugLog(self, format, ...)
 	if self.config.debug or self.is_preview then
 		print(string_format("[AutoUpdater] " .. format, ...))
@@ -120,7 +120,7 @@ end
 --- This is used to detect if the current version is a preview/delayed version.<br>
 --- The callback receives the store version string, or nil if the check fails.
 ---@param self AutoUpdater The AutoUpdater instance
----@param callback fun(store_version: string|nil) Callback invoked with the store version
+---@param callback fun(store_version?: string) Callback invoked with the store version
 local function checkAssetStore(self, callback)
 	local target_url = string_format("https://api.nanos-world.com/store/packages/%s", self.config.package_name)
 	debugLog(self, "Checking asset store: %q", target_url)
@@ -154,7 +154,7 @@ end
 --- This retrieves version information, commit counts, tags, and other metadata from the remote repository.<br>
 --- The callback receives the parsed metadata table, or nil if the fetch fails.
 ---@param self AutoUpdater The AutoUpdater instance
----@param callback fun(metadata: table|nil) Callback invoked with the remote metadata
+---@param callback fun(metadata?: table) Callback invoked with the remote metadata
 local function fetchRemoteMetadata(self, callback)
 	local target_url = string_format(
 		"https://raw.github.com/%s/%s/%s/%s/Shared/metadata_gen.lua",
@@ -200,7 +200,7 @@ end
 --- If the VERSION file cannot be fetched, falls back to the tag from remote metadata.<br>
 --- The callback receives the version string (with "v" prefix), or nil if unavailable.
 ---@param self AutoUpdater The AutoUpdater instance
----@param callback fun(version: string|nil) Callback invoked with the latest version
+---@param callback fun(version?: string) Callback invoked with the latest version
 local function fetchRepoVersion(self, callback)
 	local version_url = string_format(
 		"https://raw.github.com/%s/%s/%s/VERSION",
@@ -245,8 +245,8 @@ end
 --- The zip file contains the full package for that release.<br>
 --- The callback receives the raw zip data as a string, or nil if the download fails.
 ---@param self AutoUpdater The AutoUpdater instance
----@param version string The version tag to download (e.g., "v0.0.27")
----@param callback fun(zip_data: string|nil) Callback invoked with the zip data
+---@param version string The version tag to download (e.g. "v0.0.27")
+---@param callback fun(zip_data?: string) Callback invoked with the zip data
 local function downloadZip(self, version, callback)
 	local zip_url = string_format(
 		"https://github.com/%s/%s/releases/download/%s/%s.zip",
@@ -291,7 +291,7 @@ end
 ---   end
 --- end)
 --- ```
----@param callback fun(has_update: boolean, remote_version: string|nil, latest_version: string|nil)|nil Optional callback with update status
+---@param callback? fun(has_update: boolean, remote_version?: string, latest_version?: string) Optional callback with update status
 function AutoUpdater:checkForUpdates(callback)
 	if self.config.on_check_start then
 		self.config.on_check_start()
@@ -321,7 +321,7 @@ end
 --- This method fetches remote metadata and compares versions directly.<br>
 --- Use this if you want to skip the asset store check.<br>
 --- The callback receives the update status and version information.
----@param callback fun(has_update: boolean, remote_version: string|nil, latest_version: string|nil)|nil Optional callback with update status
+---@param callback? fun(has_update: boolean, remote_version?: string, latest_version?: string) Optional callback with update status
 function AutoUpdater:checkGithubUpdates(callback)
 	fetchRemoteMetadata(self, function(metadata)
 		if not metadata then
@@ -376,8 +376,8 @@ end
 ---   end
 --- end)
 --- ```
----@param version string|nil Version to download (defaults to latest_version)
----@param callback fun(zip_data: string|nil, version: string)|nil Optional callback with zip data and version
+---@param version? string Version to download (defaults to latest_version)
+---@param callback? fun(zip_data?: string, version?: string) Optional callback with zip data and version
 function AutoUpdater:downloadUpdate(version, callback)
 	version = version or self.latest_version
 	if not version then
@@ -403,14 +403,14 @@ end
 
 --- Gets the remote package version from the last metadata fetch.<br>
 --- Returns nil if no remote check has been performed yet.
----@return string|nil version The remote package version, or nil if not checked
+---@return string? version The remote package version, or nil if not checked
 function AutoUpdater:getRemoteVersion()
 	return self.remote_version
 end
 
 --- Gets the latest release version from the last VERSION file fetch.<br>
 --- Returns nil if no version check has been performed yet.
----@return string|nil version The latest release version, or nil if not checked
+---@return string? version The latest release version, or nil if not checked
 function AutoUpdater:getLatestVersion()
 	return self.latest_version
 end
@@ -418,13 +418,13 @@ end
 --- Gets the remote metadata table from the last metadata fetch.<br>
 --- This contains commit counts, tags, and other information from the remote repository.<br>
 --- Returns nil if no remote check has been performed yet.
----@return table|nil metadata The remote metadata table, or nil if not fetched
+---@return table? metadata The remote metadata table, or nil if not fetched
 function AutoUpdater:getRemoteMetadata()
 	return self.remote_metadata
 end
 
 --- Checks if the current version is a preview version.<br>
---- Preview versions are detected by the presence of a hyphen in the tag (e.g., "v0.0.28-alpha").
+--- Preview versions are detected by the presence of a hyphen in the tag (e.g. "v0.0.28-alpha").
 ---@usage <br>
 --- ```
 --- if updater:isPreviewVersion() then
@@ -447,8 +447,8 @@ end
 ---   end
 --- end)
 --- ```
----@param options AutoUpdaterConfig|nil Optional configuration overrides
----@param callback fun(has_update: boolean, remote_version: string|nil, latest_version: string|nil) Callback with update status
+---@param options? AutoUpdaterConfig Optional configuration overrides (uses defaults if nil)
+---@param callback? fun(has_update: boolean, remote_version?: string, latest_version?: string) Optional callback with update status
 function AutoUpdater.check(options, callback)
 	local updater = AutoUpdater.new(options or {})
 	updater:checkForUpdates(callback)

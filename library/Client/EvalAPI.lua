@@ -16,8 +16,8 @@ function EvalAPI.Initialize()
 		"file://UI/EvalAPI.html",
 		WidgetVisibility.Hidden, true, false, 0, 0
 	)
-	local pending = {} ---@type table<integer, function|nil>
-	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}|nil>
+	local pending = {} ---@type table<integer, function?>
+	local queued = {} ---@type table<integer, {event:string, args:table, callback:function, req_id:integer}?>
 	local req_id = math.mininteger or 0
 	local is_ready = false
 
@@ -36,7 +36,7 @@ function EvalAPI.Initialize()
 	---@param event string
 	---@param args table
 	---@param callback function
-	---@param use_req_id integer|nil
+	---@param use_req_id? integer
 	---@return integer req_id
 	local function dispatch(event, args, callback, use_req_id)
 		local id = use_req_id or (req_id + 1)

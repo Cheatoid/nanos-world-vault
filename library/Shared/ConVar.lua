@@ -54,7 +54,9 @@ local check_type, opt_type = tc.check, tc.opt
 local check_boolean, check_integer, check_string, check_number, check_function, check_userdata =
 	tc.check_boolean, tc.check_integer, tc.check_string, tc.check_number, tc.check_function, tc.check_userdata
 local opt_number, opt_string, opt_table = tc.opt_number, tc.opt_string, tc.opt_table
-local make_bit_enum = require("@cheatoid/standalone/5_3/bitflags").make_enum
+local bitflags = require "@cheatoid/standalone/5_3/bitflags"
+local has_flags = bitflags.has
+local make_bit_enum = bitflags.make_enum
 
 local table = require "@cheatoid/standard/table"
 local table_ensure_lazy = table.ensure_lazy
@@ -71,14 +73,15 @@ local config = require "Config"
 ---@field Flags number Bitwise flags for ConVar behavior
 ---@field Help string Help text description
 ---@field Callbacks table Callback functions for value changes
----@field Min number|nil Minimum value constraint
----@field Max number|nil Maximum value constraint
+---@field Min? number Minimum value constraint
+---@field Max? number Maximum value constraint
 local ConVar = {}
 ConVar.__index = ConVar
 
 ----------------------------------------------------------------------
 -- Internal Configuration & State
 ----------------------------------------------------------------------
+
 local REPLICATE_EVENT = "ConVar::Replicate"
 local REQUEST_EVENT = "ConVar::RequestSet"
 local USERINFO_EVENT = "ConVar::UserInfoUpdate"
@@ -106,7 +109,7 @@ do
 		NONE               = 0,
 		ARCHIVE            = FCVAR(), -- Save to config - TODO
 		REPLICATED         = FCVAR(), -- Server sends this to clients
-		CLIENT_CAN_EXECUTE = FCVAR(), -- Clients can change this (e.g., graphical settings)
+		CLIENT_CAN_EXECUTE = FCVAR(), -- Clients can change this (e.g. graphical settings)
 		CHEAT              = FCVAR(), -- Only usable if sv_cheats is 1
 		HIDDEN             = FCVAR(), -- Don't show in generic find commands
 		NEVER_AS_STRING    = FCVAR(), -- Prevent displaying the value
@@ -262,12 +265,12 @@ end
 
 --- Creates a new ConVar or retrieves an existing one.
 ---@param name string The name of the console variable.
----@param default boolean|number|integer|string|nil The default value.
----@param help string|nil Description of the ConVar.
----@param flags integer|nil Bitwise flags (ConVar.FLAG).
----@param min_val number|integer|nil Minimum value (numeric only).
----@param max_val number|integer|nil Maximum value (numeric only).
----@param params table|nil The list of supported parameters to display in the console (strings only).
+---@param default? boolean|number|integer|string The default value.
+---@param help? string Description of the ConVar.
+---@param flags? integer Bitwise flags (ConVar.FLAG).
+---@param min_val? number|integer Minimum value (numeric only).
+---@param max_val? number|integer Maximum value (numeric only).
+---@param params? string[] The list of supported parameters to display in the console (strings only).
 ---@return ConVar ConVar The console variable object.
 local function ConVar_Register(name, default, help, flags, min_val, max_val, params)
 	check_string(1)
@@ -390,14 +393,14 @@ function ConVar:OnConsoleCommand(args)
 		if (self.Flags & FLAG.CLIENT_CAN_EXECUTE) ~= 0 or (self.Flags & FLAG.USERINFO) ~= 0 then
 			self:SetValue(new_val, "Client Console")
 		else
-			Events_CallRemote(REQUEST_EVENT, self.Name, ValueToString(new_val))
+			Events_CallRemote(REQUEST_EVENT, Reliability.Reliable, self.Name, ValueToString(new_val))
 		end
 	end
 end
 
 --- Sets the value of the ConVar.
 ---@param value any
----@param source string|nil Optional identifier of who changed the value.
+---@param source? string Optional identifier of who changed the value.
 function ConVar:SetValue(value, source)
 	local typed_val
 	if self.Type == "boolean" then
@@ -451,12 +454,12 @@ function ConVar:SetValue(value, source)
 
 		-- Lua Callback Sync (for clients)
 		if (self.Flags & FLAG.REPLICATED) ~= 0 then
-			Events_BroadcastRemote(REPLICATE_EVENT, self.Name, ValueToString(value))
+			Events_BroadcastRemote(REPLICATE_EVENT, Reliability.Reliable, self.Name, ValueToString(value))
 		end
 	elseif Client then
 		-- USERINFO Logic: Send to server
 		if (self.Flags & FLAG.USERINFO) ~= 0 then
-			Events_CallRemote(USERINFO_EVENT, self.Name, ValueToString(value))
+			Events_CallRemote(USERINFO_EVENT, Reliability.Reliable, self.Name, ValueToString(value))
 			Client_SetValue(self.Name, ValueToString(value))
 		end
 	end
@@ -554,7 +557,7 @@ end
 
 --- Retrieves a ConVar by name.
 ---@param name string The name of the console variable.
----@return ConVar|nil ConVar The console variable object, or nil if not found.
+---@return ConVar? ConVar The console variable object, or nil if not found.
 local function ConVar_Get(name)
 	check_string(1)
 	return ConVars[name]
@@ -563,12 +566,12 @@ ConVar.Get = ConVar_Get
 
 --- Gets an existing ConVar or creates a new one if it doesn't exist.
 ---@param name string The name of the console variable.
----@param default boolean|number|integer|string|nil The default value.
----@param help string|nil Description of the ConVar.
----@param flags integer|nil Bitwise flags (ConVar.FLAG).
----@param min_val number|integer|nil Minimum value (numeric only).
----@param max_val number|integer|nil Maximum value (numeric only).
----@param params table|nil The list of supported parameters to display in the console (strings only).
+---@param default? boolean|number|integer|string The default value.
+---@param help? string Description of the ConVar.
+---@param flags? integer Bitwise flags (ConVar.FLAG).
+---@param min_val? number|integer Minimum value (numeric only).
+---@param max_val? number|integer Maximum value (numeric only).
+---@param params? string[] The list of supported parameters to display in the console (strings only).
 ---@return ConVar ConVar The console variable object.
 local function ConVar_GetOrCreate(name, default, help, flags, min_val, max_val, params)
 	check_string(1)
@@ -623,7 +626,7 @@ ConVar.GetIterator = ConVar_GetIterator
 --- Returns true if the ConVar should be displayed, false otherwise.
 ---@param name string The ConVar name.
 ---@param cvar ConVar The ConVar object.
----@param filter string|nil Optional filter pattern string.
+---@param filter? string Optional filter pattern string.
 ---@return boolean boolean True if the ConVar was displayed.
 local function LogConVarEntry(name, cvar, filter)
 	-- Check filter

@@ -1,0 +1,38 @@
+{
+	"_comment": "Which package files go into publish/*.zip. Edit freely - no recompile needed. Parsed leniently: // and /* */ comments, trailing commas, any key casing, and unknown properties are all accepted.",
+	// How matching works: each entry is tested as "/<path-inside-package>" (leading slash), case-insensitively.
+	// An entry is zipped when ANY allow pattern matches and NO deny pattern matches.
+	// An empty array is allowed and matches nothing. Invalid patterns are skipped with a warning.
+	"zip_filter": [
+		"\\.css$", // stylesheets
+		"\\.html$", // web UI
+		"\\.js$", // web UI scripts
+		"\\.lua$", // package scripts
+		"\\.toml$", // Package.toml and friends
+		"/LICENSE$", // license files, anywhere in the package
+	],
+	"zip_exclude": [
+		"/tests/",
+		"/benchmarks/",
+		"\\.tests?\\.lua$",
+		"examples?\\.lua$", // example.lua / examples.lua files
+		"luavm\\.lua$",
+	],
+	// Same as above, but for --compile mode, which additionally drops example scripts
+	// (they are documentation, not package code).
+	"zip_compile_filter": [
+		"\\.css$",
+		"\\.html$",
+		"\\.js$",
+		"\\.lua$",
+		"\\.toml$",
+		"/LICENSE$",
+	],
+	"zip_compile_exclude": [
+		"/tests/",
+		"/benchmarks/",
+		"\\.tests?\\.lua$",
+		"examples?\\.lua$", // example.lua / examples.lua files
+		"luavm\\.lua$",
+	],
+}
