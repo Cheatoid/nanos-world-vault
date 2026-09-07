@@ -15,7 +15,7 @@ if Server then
 
 	local function SendLua(player, code)
 		check_string(2)
-		return Events.CallRemote(ID, Reliability.Reliable, player, code)
+		return Events.CallRemote(ID, player, Reliability.Reliable, code)
 	end
 
 	-- Export the API to be accessed by other packages

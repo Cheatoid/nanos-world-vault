@@ -114,7 +114,7 @@ if Server then
 	Player.Subscribe("Spawn", function(ply)
 		--print("[Player.Spawn]", ply:GetSteamID())
 		--Events.BroadcastRemote(ID, Reliability.Reliable, cfg.enable_cslua)
-		Events.CallRemote(ID, Reliability.Reliable, ply, cfg.enable_cslua)
+		Events.CallRemote(ID, ply, Reliability.Reliable, cfg.enable_cslua)
 	end)
 
 	-- When the Player leaves the server
@@ -123,8 +123,8 @@ if Server then
 	--end)
 
 	-- C2S: Query the convar's value; old approach
-	--Events.SubscribeRemote(ID, function(player)
-	--	Events.CallRemote(ID, Reliability.Reliable, player, cfg.enable_cslua)
+	--Events.SubscribeRemote(ID, function(ply)
+	--	Events.CallRemote(ID, ply, Reliability.Reliable, cfg.enable_cslua)
 	--end)
 
 	-- ConVar to enable/disable client-side Lua console command
@@ -180,7 +180,7 @@ else
 	Enabled = Client.GetValue(ID, Enabled)
 
 	-- S2C: synchronise convar state
-	Events.SubscribeRemote(ID, function(enable)
+	Events.SubscribeRemote(ID, function(ply, enable)
 		--Enabled = not not enable -- old approach; make sure we have a boolean
 		Enabled = Client.GetValue(ID, enable) -- new approach
 		if Enabled then
