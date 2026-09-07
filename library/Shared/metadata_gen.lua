@@ -18,21 +18,21 @@
 
 ---@type library.metadata_gen
 return {
-	package_version = "0.0.49",
-	timestamp = "2026-09-07 12:35:56",
-	commit_count = 322,
-	tag_count = 45,
+	package_version = "0.0.50",
+	timestamp = "2026-09-07 12:39:57",
+	commit_count = 323,
+	tag_count = 46,
 	branch_name = "main",
-	prev_hash = "9f39b389dec05911628f857b3bfc9fb4765ea96a",
+	prev_hash = "b8bd5a268f90b08f3a4efd455231b175cb25d05e",
 	is_preview = false,
-	tag = "v0.0.49",
+	tag = "v0.0.50",
 	owner = "Cheatoid",
 	repo = "nanos-world-vault",
 	path = "library",
 	filenames_hash = "a151233ad9f7544eaaff2c2a2df5526dc55138b02ad245126d89b8a0e5f9af98",
 	files_hash = {
 		["LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
-		["Package.toml"] = "c791859ef381ac6ef44d4976e4c568be140377fb77e34ca88af1df22a88dab1b",
+		["Package.toml"] = "1edb0e5c3d34c6556c9b7740ca8408368c3d5ec498bb4394876e42f35ebad354",
 		["Client/Bind.lua"] = "a74ba688e48c5d41925925a2d4f5fe63c52afd844a92aee9321959436a876e8d",
 		["Client/ConsoleEngine.lua"] = "f709ea00bf6029172073f75be394ef620e7dd8822aa965477f8c4ea2af899804",
 		["Client/EvalAPI.lua"] = "935f456701c414a3b74fc39bc09e2ea934674c5e866cef9bb10dc40bfb782b20",
