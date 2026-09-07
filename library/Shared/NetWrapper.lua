@@ -90,7 +90,7 @@ end
 
 --- Set the read buffer with received data before reading.<br>
 --- Resets the read position and bit accumulator to prepare for reading.<br>
---- Call this before any read operations with data received from network.<br>
+--- Call this before any read operations with data received from network.
 ---@param data string The binary data to read from.
 ---@usage <br>
 --- ```
@@ -106,7 +106,7 @@ end
 
 --- Get the write buffer after writing to get data to send.<br>
 --- Flushes any remaining bits in the bit accumulator before returning.<br>
---- Call this after all write operations to get the serialized binary data.<br>
+--- Call this after all write operations to get the serialized binary data.
 ---@return string data The serialized binary data ready to send.
 ---@usage <br>
 --- ```
@@ -152,7 +152,7 @@ end
 ----------------------------------------------------------------------
 
 --- Write a single byte (8-bit unsigned integer) to the buffer.<br>
---- Packs the value as an unsigned 8-bit integer.<br>
+--- Packs the value as an unsigned 8-bit integer.
 ---@param value number The byte value to write (0-255).
 ---@usage <br>
 --- ```
@@ -163,7 +163,7 @@ local function net_writeByte(value)
 end
 
 --- Read a single byte (8-bit unsigned integer) from the buffer.<br>
---- Unpacks the value as an unsigned 8-bit integer.<br>
+--- Unpacks the value as an unsigned 8-bit integer.
 ---@return number value The byte value read (0-255).
 ---@usage <br>
 --- ```
@@ -181,7 +181,7 @@ end
 ----------------------------------------------------------------------
 
 --- Write a boolean value as a single bit to the buffer.<br>
---- Uses bit-packing to store booleans efficiently (8 bools per byte).<br>
+--- Uses bit-packing to store booleans efficiently (8 bools per byte).
 ---@param value boolean The boolean value to write.
 ---@usage <br>
 --- ```
@@ -202,7 +202,7 @@ local function net_writeBool(value)
 end
 
 --- Read a boolean value from a single bit in the buffer.<br>
---- Uses bit-packing to read booleans efficiently (8 bools per byte).<br>
+--- Uses bit-packing to read booleans efficiently (8 bools per byte).
 ---@return boolean value The boolean value read.
 ---@usage <br>
 --- ```
@@ -225,7 +225,7 @@ end
 ----------------------------------------------------------------------
 
 --- Write an unsigned integer to the buffer.<br>
---- Supports 8, 16, or 32-bit values in little-endian byte order.<br>
+--- Supports 8, 16, or 32-bit values in little-endian byte order.
 ---@param value number The unsigned integer value to write.
 ---@param num_bits number The bit width (8, 16, or 32).
 ---@usage <br>
@@ -248,7 +248,7 @@ local function net_writeUInt(value, num_bits)
 end
 
 --- Read an unsigned integer from the buffer.<br>
---- Supports 8, 16, or 32-bit values in little-endian byte order.<br>
+--- Supports 8, 16, or 32-bit values in little-endian byte order.
 ---@param num_bits number The bit width (8, 16, or 32).
 ---@return number value The unsigned integer value read.
 ---@usage <br>
@@ -284,7 +284,7 @@ end
 ----------------------------------------------------------------------
 
 --- Write a signed integer to the buffer.<br>
---- Supports 8, 16, or 32-bit values in little-endian byte order.<br>
+--- Supports 8, 16, or 32-bit values in little-endian byte order.
 ---@param value number The signed integer value to write.
 ---@param num_bits number The bit width (8, 16, or 32).
 ---@usage <br>
@@ -309,7 +309,7 @@ local function net_writeInt(value, num_bits)
 end
 
 --- Read a signed integer from the buffer.<br>
---- Supports 8, 16, or 32-bit values in little-endian byte order.<br>
+--- Supports 8, 16, or 32-bit values in little-endian byte order.
 ---@param num_bits number The bit width (8, 16, or 32).
 ---@return number value The signed integer value read.
 ---@usage <br>
@@ -346,7 +346,7 @@ end
 
 --- Write a 32-bit IEEE 754 float to the buffer.<br>
 --- Converts Lua number (double) to 32-bit float representation.<br>
---- Handles special values: 0, -0, NaN, Infinity, -Infinity.<br>
+--- Handles special values: 0, -0, NaN, Infinity, -Infinity.
 ---@param value number The float value to write.
 ---@usage <br>
 --- ```
@@ -394,7 +394,7 @@ end
 
 --- Read a 32-bit IEEE 754 float from the buffer.<br>
 --- Converts 32-bit float representation back to Lua number (double).<br>
---- Handles special values: 0, -0, NaN, Infinity, -Infinity.<br>
+--- Handles special values: 0, -0, NaN, Infinity, -Infinity.
 ---@return number value The float value read.
 ---@usage <br>
 --- ```
@@ -434,7 +434,7 @@ end
 ----------------------------------------------------------------------
 
 --- Write a 64-bit IEEE 754 double to the buffer.<br>
---- Uses the bits library for double to uint32 conversion.<br>
+--- Uses the bits library for double to uint32 conversion.
 ---@param value number The double value to write.
 ---@usage <br>
 --- ```
@@ -447,7 +447,7 @@ local function net_writeDouble(value)
 end
 
 --- Read a 64-bit IEEE 754 double from the buffer.<br>
---- Uses the bits library for uint32 to double conversion.<br>
+--- Uses the bits library for uint32 to double conversion.
 ---@return number value The double value read.
 ---@usage <br>
 --- ```
@@ -468,7 +468,7 @@ end
 
 --- Write a string to the buffer with a 16-bit length prefix.<br>
 --- The string length is written first as a 16-bit unsigned integer,<br>
---- followed by the string content. Supports empty strings.<br>
+--- followed by the string content. Supports empty strings.
 ---@param str string The string to write.
 ---@usage <br>
 --- ```
@@ -484,7 +484,7 @@ local function net_writeString(str)
 end
 
 --- Read a string from the buffer with a 16-bit length prefix.<br>
---- Reads the 16-bit length first, then reads that many bytes as the string.<br>
+--- Reads the 16-bit length first, then reads that many bytes as the string.
 ---@return string str The string read.
 ---@usage <br>
 --- ```
@@ -507,7 +507,7 @@ end
 
 --- Write a 3D vector to the buffer as three floats.<br>
 --- The vector is written as x, y, z float values in sequence.<br>
---- Missing components default to 0.<br>
+--- Missing components default to 0.
 ---@param vec table The vector table with indices 1, 2, 3 for x, y, z.
 ---@usage <br>
 --- ```
@@ -518,7 +518,7 @@ local function net_writeVector(vec)
 end
 
 --- Read a 3D vector from the buffer as three floats.<br>
---- Reads x, y, z float values in sequence and returns them as a table.<br>
+--- Reads x, y, z float values in sequence and returns them as a table.
 ---@return table vec The vector table with indices 1, 2, 3 for x, y, z.
 ---@usage <br>
 --- ```
@@ -637,7 +637,7 @@ local M = {
 --- Create a data scheme for structured serialization.<br>
 --- Defines a schema with field names and their data types.<br>
 --- Fields are sorted alphabetically to ensure consistent ordering between client and server.<br>
---- Supported types: boolean, byte, sbyte, ushort, short, uint, int, float, double, string, Vector.<br>
+--- Supported types: boolean, byte, sbyte, ushort, short, uint, int, float, double, string, Vector.
 ---@param definition table Field name to type mapping (e.g. {name = "string", health = "int"}).
 ---@return table scheme The scheme object with read/write methods.
 ---@usage <br>

@@ -399,7 +399,7 @@ chat_commander.unregister_command("old_command")
 #### Argument Reference
 
 | Field      | Type          | Description                                               |
-|------------|---------------|-----------------------------------------------------------|
+| ---------- | ------------- | --------------------------------------------------------- |
 | `name`     | string        | Argument name (auto-generated if omitted)                 |
 | `type`     | string\|table | Type or array of types (supports `?` suffix for optional) |
 | `required` | boolean       | Whether argument is required (auto-detected from default) |
@@ -410,7 +410,7 @@ chat_commander.unregister_command("old_command")
 #### Command Schema Reference
 
 | Field          | Type     | Description                               |
-|----------------|----------|-------------------------------------------|
+| -------------- | -------- | ----------------------------------------- |
 | `description`  | string   | Command description for help              |
 | `args`         | table    | Array of argument specifications          |
 | `aliases`      | table    | Alternative command names                 |
@@ -1868,7 +1868,7 @@ suite:compare()
 Various standalone utility modules:
 
 | Module                                                                                                             | Description                                  |
-|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
 | [`base_encoder_decoder`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/base_encoder_decoder.lua) | Arbitrary Base encoding/decoding             |
 | [`benchmark`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/benchmark/init.lua)                             | Performance benchmarking toolkit             |
 | [`biginteger`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/standalone/biginteger.lua)                     | Arbitrary precision integers                 |
@@ -1900,7 +1900,7 @@ Various standalone utility modules:
 **Extensions** (globally modify built-in types, extends Lua syntax):
 
 | Module                                                                                                                          | Description                                                                       |
-|---------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | [`extensions/number`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/extensions/number.lua)                               | Adds time units, data sizes, duration objects to numbers                          |
 | [`extensions/string`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/extensions/string.lua)                               | Adds `+` for concatenation, `*` for repetition, `<<`/`>>` for rotation to strings |
 | [`extensions/pretty_print_function`](https://github.com/Cheatoid/Lua.Scripts/blob/develop/extensions/pretty_print_function.lua) | Pretty-print functions with source info                                           |

@@ -1,0 +1,113 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
+	<style>
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+			background: transparent !important;
+		}
+
+		iframe {
+			display: block;
+			position: fixed;
+			inset: 0;
+			right: 0;
+			bottom: 0;
+			min-width: 100%;
+			min-height: 100%;
+			width: 100vw;
+			height: 100vh;
+			background: transparent !important;
+			cursor: default;
+		}
+
+		body,
+		iframe {
+			-webkit-user-select: none;
+			user-select: none;
+			-webkit-touch-callout: none;
+			touch-action: none;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- NOTE: allow="webgpu" delegates WebGPU to the cross-origin frame;
+		without it the embedded demo cannot initialize its renderer. -->
+	<iframe id="imgui" src="https://cheatoid.github.io/nanos-world-vault/imgui_web_demo/index.html" frameborder="0"
+		scrolling="no" allowtransparency="true" allow="webgpu">
+		<p>Your browser does not support HTML iframes!</p>
+	</iframe>
+	<script type="module">
+		// -----------------------------
+		// SETTINGS
+		// -----------------------------
+		const settings = {
+			frameId: "imgui",
+			forceTransparentBackgrounds: true,
+		};
+
+		// -----------------------------
+		// HOST API
+		// -----------------------------
+		const ImGuiHost = {
+			/**
+			 * Returns the embedded ImGui frame element.
+			 * @returns {HTMLIFrameElement|null} Frame element, or null when missing.
+			 */
+			getFrame() {
+				return document.getElementById(settings.frameId);
+			},
+
+			/**
+			 * Forces transparent backgrounds so only ImGui windows stay visible.
+			 * @returns {void}
+			 */
+			forceTransparency() {
+				if (!settings.forceTransparentBackgrounds) return;
+				try {
+					if (document.documentElement) document.documentElement.style.background = "transparent";
+					if (document.body) document.body.style.background = "transparent";
+					const frame = ImGuiHost.getFrame();
+					if (frame) frame.style.background = "transparent";
+				} catch (error) {
+					console.warn("ImGuiHost: failed to force transparency:", error);
+				}
+			},
+		};
+
+		// Expose host API to window for external access
+		window.ImGuiHost = ImGuiHost;
+
+		// -----------------------------
+		// EVENT HANDLERS
+		// -----------------------------
+		const frame = ImGuiHost.getFrame();
+		if (frame) {
+			frame.addEventListener("load", () => {
+				console.log("ImGui frame loaded.");
+			});
+		} else {
+			console.warn(`ImGuiHost: no frame found with id "${settings.frameId}".`);
+		}
+
+		// DOM should be ready because we are in ES module
+		ImGuiHost.forceTransparency();
+	</script>
+</body>
+
+</html>

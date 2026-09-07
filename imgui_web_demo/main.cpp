@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <vector>
 #include <GLFW/glfw3.h>
 
 #ifdef __EMSCRIPTEN__
@@ -1084,13 +1085,467 @@ extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_RadioButtonEx(const char* label, int*
 // Drag
 extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragFloat(const char* label, float* v, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {
-	return ImGui::DragFloat(label, v, v_speed, v_min, v_max, format, flags);
+	return ImGui::DragFloat(label, v, v_speed, v_min, v_max, (format && format[0]) ? format : "%.3f", flags);
 }
 
 extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragInt(const char* label, int* v, float v_speed, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
 {
-	return ImGui::DragInt(label, v, v_speed, v_min, v_max, format, flags);
+	return ImGui::DragInt(label, v, v_speed, v_min, v_max, (format && format[0]) ? format : "%d", flags);
 }
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragFloat2(const char* label, float* v, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::DragFloat2(label, v, v_speed, v_min, v_max, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragFloat3(const char* label, float* v, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::DragFloat3(label, v, v_speed, v_min, v_max, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragFloat4(const char* label, float* v, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::DragFloat4(label, v, v_speed, v_min, v_max, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragInt2(const char* label, int* v, float v_speed, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::DragInt2(label, v, v_speed, v_min, v_max, (format && format[0]) ? format : "%d", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragInt3(const char* label, int* v, float v_speed, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::DragInt3(label, v, v_speed, v_min, v_max, (format && format[0]) ? format : "%d", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragInt4(const char* label, int* v, float v_speed, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::DragInt4(label, v, v_speed, v_min, v_max, (format && format[0]) ? format : "%d", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragFloatRange2(const char* label, float* v_min_cur, float* v_max_cur, float v_speed, float v_min, float v_max, const char* format, const char* format_max, ImGuiSliderFlags flags)
+{
+	return ImGui::DragFloatRange2(label, v_min_cur, v_max_cur, v_speed, v_min, v_max, (format && format[0]) ? format : "%.3f", (format_max && format_max[0]) ? format_max : nullptr, flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_DragIntRange2(const char* label, int* v_min_cur, int* v_max_cur, float v_speed, int v_min, int v_max, const char* format, const char* format_max, ImGuiSliderFlags flags)
+{
+	return ImGui::DragIntRange2(label, v_min_cur, v_max_cur, v_speed, v_min, v_max, (format && format[0]) ? format : "%d", (format_max && format_max[0]) ? format_max : nullptr, flags);
+}
+
+// Multi-component sliders
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SliderFloat2(const char* label, float* v, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::SliderFloat2(label, v, v_min, v_max, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SliderFloat3(const char* label, float* v, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::SliderFloat3(label, v, v_min, v_max, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SliderFloat4(const char* label, float* v, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::SliderFloat4(label, v, v_min, v_max, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SliderInt2(const char* label, int* v, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::SliderInt2(label, v, v_min, v_max, (format && format[0]) ? format : "%d", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SliderInt3(const char* label, int* v, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::SliderInt3(label, v, v_min, v_max, (format && format[0]) ? format : "%d", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SliderInt4(const char* label, int* v, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::SliderInt4(label, v, v_min, v_max, (format && format[0]) ? format : "%d", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SliderAngle(const char* label, float* v_rad, float v_min_deg, float v_max_deg, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::SliderAngle(label, v_rad, v_min_deg, v_max_deg, (format && format[0]) ? format : "%.0f deg", flags);
+}
+
+// JS-safe (float size) vertical sliders
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_VSliderFloat(const char* label, float w, float h, float* v, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::VSliderFloat(label, ImVec2(w, h), v, v_min, v_max, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_VSliderInt(const char* label, float w, float h, int* v, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+	return ImGui::VSliderInt(label, ImVec2(w, h), v, v_min, v_max, (format && format[0]) ? format : "%d", flags);
+}
+
+// ---- Text / labels ----
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_TextDisabled(const char* text)
+{
+	ImGui::TextDisabled("%s", text ? text : "");
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_TextColored(float r, float g, float b, float a, const char* text)
+{
+	ImGui::TextColored(ImVec4(r, g, b, a), "%s", text ? text : "");
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_LabelText(const char* label, const char* text)
+{
+	ImGui::LabelText(label ? label : "", "%s", text ? text : "");
+}
+
+// ---- Buttons (JS-safe float sizes) ----
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_ArrowButton(const char* str_id, int dir)
+{
+	return ImGui::ArrowButton(str_id ? str_id : "arrow", (ImGuiDir)dir);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InvisibleButton(const char* str_id, float w, float h, int flags)
+{
+	return ImGui::InvisibleButton(str_id ? str_id : "", ImVec2(w, h), flags);
+}
+
+// ---- Combo / ListBox helpers (newline-separated items, JS-friendly) ----
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_ComboStr(const char* label, int* current_item, const char* items_newline_separated, int popup_max_height_in_items, ImGuiComboFlags flags)
+{
+	if (!current_item || !items_newline_separated)
+		return false;
+	std::string s(items_newline_separated);
+	for (char& c : s)
+		if (c == '\n')
+			c = '\0';
+	s.push_back('\0');
+	(void)flags; // BeginCombo-style flags not used by this overload; kept for API symmetry
+	return ImGui::Combo(label ? label : "", current_item, s.c_str(), popup_max_height_in_items);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_ListBoxStr(const char* label, int* current_item, const char* items_newline_separated, int height_in_items)
+{
+	if (!current_item || !items_newline_separated)
+		return false;
+	std::string src(items_newline_separated);
+	std::vector<std::string> storage;
+	std::string cur;
+	for (size_t i = 0; i <= src.size(); ++i)
+	{
+		if (i == src.size() || src[i] == '\n')
+		{
+			storage.push_back(cur);
+			cur.clear();
+		}
+		else
+		{
+			cur.push_back(src[i]);
+		}
+	}
+	// Drop single trailing empty entry caused by trailing newline
+	if (storage.size() > 1 && storage.back().empty())
+		storage.pop_back();
+	if (storage.empty())
+		return false;
+	std::vector<const char*> ptrs;
+	ptrs.reserve(storage.size());
+	for (auto& s : storage)
+		ptrs.push_back(s.c_str());
+	return ImGui::ListBox(label ? label : "", current_item, ptrs.data(), (int)ptrs.size(), height_in_items);
+}
+
+// ---- Multi-component inputs ----
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputFloat2(const char* label, float* v, const char* format, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputFloat2(label, v, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputFloat3(const char* label, float* v, const char* format, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputFloat3(label, v, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputFloat4(const char* label, float* v, const char* format, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputFloat4(label, v, (format && format[0]) ? format : "%.3f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputInt2(const char* label, int* v, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputInt2(label, v, flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputInt3(const char* label, int* v, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputInt3(label, v, flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputInt4(const char* label, int* v, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputInt4(label, v, flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputDouble(const char* label, double* v, double step, double step_fast, const char* format, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputDouble(label, v, step, step_fast, (format && format[0]) ? format : "%.6f", flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputTextMultiline(const char* label, char* buf, size_t buf_size, float w, float h, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputTextMultiline(label, buf, buf_size, ImVec2(w, h), flags, nullptr, nullptr);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_InputTextWithHint(const char* label, const char* hint, char* buf, size_t buf_size, ImGuiInputTextFlags flags)
+{
+	return ImGui::InputTextWithHint(label, hint ? hint : "", buf, buf_size, flags, nullptr, nullptr);
+}
+
+// ---- Color picker / button ----
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_ColorPicker3(const char* label, float* col, ImGuiColorEditFlags flags)
+{
+	return ImGui::ColorPicker3(label, col, flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_ColorPicker4(const char* label, float* col, ImGuiColorEditFlags flags)
+{
+	return ImGui::ColorPicker4(label, col, flags, nullptr);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_ColorButton(const char* desc_id, float r, float g, float b, float a, ImGuiColorEditFlags flags, float w, float h)
+{
+	return ImGui::ColorButton(desc_id ? desc_id : "", ImVec4(r, g, b, a), flags, ImVec2(w, h));
+}
+
+// ---- Plots (float array + count, JS allocates the array) ----
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_PlotLines(const char* label, float* values, int values_count, const char* overlay, float scale_min, float scale_max, float w, float h)
+{
+	if (!values || values_count <= 0)
+		return;
+	ImGui::PlotLines(label ? label : "", values, values_count, 0, (overlay && overlay[0]) ? overlay : nullptr, scale_min, scale_max, ImVec2(w, h));
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_PlotHistogram(const char* label, float* values, int values_count, const char* overlay, float scale_min, float scale_max, float w, float h)
+{
+	if (!values || values_count <= 0)
+		return;
+	ImGui::PlotHistogram(label ? label : "", values, values_count, 0, (overlay && overlay[0]) ? overlay : nullptr, scale_min, scale_max, ImVec2(w, h));
+}
+
+// ---- Tables (modern replacement for Columns) ----
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_BeginTable(const char* str_id, int columns, int flags, float outer_w, float outer_h, float inner_width)
+{
+	return ImGui::BeginTable(str_id ? str_id : "", columns, flags, ImVec2(outer_w, outer_h), inner_width);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_EndTable()
+{
+	ImGui::EndTable();
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_TableNextRow(int row_flags, float min_row_height)
+{
+	ImGui::TableNextRow(row_flags, min_row_height);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_TableNextColumn()
+{
+	return ImGui::TableNextColumn();
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_TableSetColumnIndex(int column_n)
+{
+	return ImGui::TableSetColumnIndex(column_n);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_TableSetupColumn(const char* label, int flags, float init_width_or_weight, unsigned int user_id)
+{
+	ImGui::TableSetupColumn(label ? label : "", flags, init_width_or_weight, user_id);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_TableHeadersRow()
+{
+	ImGui::TableHeadersRow();
+}
+
+// ---- JS-safe wrappers for ImVec2/ImVec4 APIs (avoid struct ABI issues) ----
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SelectableEx(const char* label, bool selected, ImGuiSelectableFlags flags, float w, float h)
+{
+	return ImGui::Selectable(label, selected, flags, ImVec2(w, h));
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_SelectableState(const char* label, bool* p_selected, ImGuiSelectableFlags flags, float w, float h)
+{
+	if (!p_selected)
+		return false;
+	return ImGui::Selectable(label, p_selected, flags, ImVec2(w, h));
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_ProgressBarEx(float fraction, float w, float h, const char* overlay)
+{
+	ImGui::ProgressBar(fraction, ImVec2(w, h), (overlay && overlay[0]) ? overlay : nullptr);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_BeginChildEx(const char* str_id, float w, float h, int child_flags, int window_flags)
+{
+	return ImGui::BeginChild(str_id ? str_id : "", ImVec2(w, h), child_flags, window_flags);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_Dummy(float w, float h)
+{
+	ImGui::Dummy(ImVec2(w, h));
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_PushStyleColorFloat(int idx, float r, float g, float b, float a)
+{
+	ImGui::PushStyleColor(idx, ImVec4(r, g, b, a));
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_PushStyleVarVec2Float(int idx, float x, float y)
+{
+	ImGui::PushStyleVar(idx, ImVec2(x, y));
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_TextColoredV(float r, float g, float b, float a, const char* text)
+{
+	ImGui::TextColored(ImVec4(r, g, b, a), "%s", text ? text : "");
+}
+
+// Scalar getters avoiding ImVec2 return ABI issues
+extern "C" float EMSCRIPTEN_KEEPALIVE imgui_GetContentRegionAvailHeight()
+{
+	return ImGui::GetContentRegionAvail().y;
+}
+
+extern "C" float EMSCRIPTEN_KEEPALIVE imgui_GetWindowWidth()
+{
+	return ImGui::GetWindowSize().x;
+}
+
+extern "C" float EMSCRIPTEN_KEEPALIVE imgui_GetWindowHeight()
+{
+	return ImGui::GetWindowSize().y;
+}
+
+extern "C" float EMSCRIPTEN_KEEPALIVE imgui_GetCursorPosX()
+{
+	return ImGui::GetCursorPos().x;
+}
+
+extern "C" float EMSCRIPTEN_KEEPALIVE imgui_GetCursorPosY()
+{
+	return ImGui::GetCursorPos().y;
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetCursorPosX(float x)
+{
+	ImGui::SetCursorPosX(x);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetCursorPosY(float y)
+{
+	ImGui::SetCursorPosY(y);
+}
+
+// ---- State / queries / tooltips / disabled ----
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_BeginDisabled(bool disabled)
+{
+	ImGui::BeginDisabled(disabled);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_EndDisabled()
+{
+	ImGui::EndDisabled();
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_IsItemHovered(int flags)
+{
+	return ImGui::IsItemHovered(flags);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_IsItemActive()
+{
+	return ImGui::IsItemActive();
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_IsItemClicked(int mouse_button)
+{
+	return ImGui::IsItemClicked(mouse_button);
+}
+
+extern "C" bool EMSCRIPTEN_KEEPALIVE imgui_IsItemEdited()
+{
+	return ImGui::IsItemEdited();
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetTooltip(const char* text)
+{
+	ImGui::SetTooltip("%s", text ? text : "");
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetItemTooltip(const char* text)
+{
+	ImGui::SetItemTooltip("%s", text ? text : "");
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetKeyboardFocusHere(int offset)
+{
+	ImGui::SetKeyboardFocusHere(offset);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_AlignTextToFramePadding()
+{
+	ImGui::AlignTextToFramePadding();
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetNextWindowBgAlpha(float alpha)
+{
+	ImGui::SetNextWindowBgAlpha(alpha);
+}
+
+// ---- Extra enum getters ----
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_Dir_None() { return ImGuiDir_None; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_Dir_Left() { return ImGuiDir_Left; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_Dir_Right() { return ImGuiDir_Right; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_Dir_Up() { return ImGuiDir_Up; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_Dir_Down() { return ImGuiDir_Down; }
+
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_SelectableFlags_SpanAllColumns() { return ImGuiSelectableFlags_SpanAllColumns; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_SelectableFlags_Disabled() { return ImGuiSelectableFlags_Disabled; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_SelectableFlags_AllowOverlap() { return ImGuiSelectableFlags_AllowOverlap; }
+
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ChildFlags_None() { return ImGuiChildFlags_None; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ChildFlags_Borders() { return ImGuiChildFlags_Borders; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ChildFlags_AutoResizeX() { return ImGuiChildFlags_AutoResizeX; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ChildFlags_AutoResizeY() { return ImGuiChildFlags_AutoResizeY; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ChildFlags_FrameStyle() { return ImGuiChildFlags_FrameStyle; }
+
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ComboFlags_None() { return ImGuiComboFlags_None; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ComboFlags_HeightSmall() { return ImGuiComboFlags_HeightSmall; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ComboFlags_HeightRegular() { return ImGuiComboFlags_HeightRegular; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ComboFlags_HeightLarge() { return ImGuiComboFlags_HeightLarge; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ComboFlags_NoArrowButton() { return ImGuiComboFlags_NoArrowButton; }
+
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_SliderFlags_None() { return ImGuiSliderFlags_None; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_SliderFlags_AlwaysClamp() { return ImGuiSliderFlags_AlwaysClamp; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_SliderFlags_Logarithmic() { return ImGuiSliderFlags_Logarithmic; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_SliderFlags_NoInput() { return ImGuiSliderFlags_NoInput; }
+
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_InputTextFlags_None() { return ImGuiInputTextFlags_None; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_InputTextFlags_Password() { return ImGuiInputTextFlags_Password; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_InputTextFlags_ReadOnly() { return ImGuiInputTextFlags_ReadOnly; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_InputTextFlags_EnterReturnsTrue() { return ImGuiInputTextFlags_EnterReturnsTrue; }
+
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ColorEditFlags_None() { return ImGuiColorEditFlags_None; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ColorEditFlags_NoAlpha() { return ImGuiColorEditFlags_NoAlpha; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ColorEditFlags_NoInputs() { return ImGuiColorEditFlags_NoInputs; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ColorEditFlags_NoLabel() { return ImGuiColorEditFlags_NoLabel; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ColorEditFlags_AlphaBar() { return ImGuiColorEditFlags_AlphaBar; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ColorEditFlags_PickerHueBar() { return ImGuiColorEditFlags_PickerHueBar; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_ColorEditFlags_PickerHueWheel() { return ImGuiColorEditFlags_PickerHueWheel; }
+
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_TableFlags_None() { return ImGuiTableFlags_None; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_TableFlags_Borders() { return ImGuiTableFlags_Borders; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_TableFlags_RowBg() { return ImGuiTableFlags_RowBg; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_TableFlags_Resizable() { return ImGuiTableFlags_Resizable; }
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_TableFlags_ScrollY() { return ImGuiTableFlags_ScrollY; }
 
 // Helper to call JavaScript render function
 extern "C" void EMSCRIPTEN_KEEPALIVE imgui_CallJSRender()

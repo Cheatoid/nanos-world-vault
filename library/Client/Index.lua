@@ -14,6 +14,7 @@ local WebAudioAPI = require "WebAudioAPI"
 local WebSocketAPI = require "WebSocketAPI"
 local WebBrowser = require "WebBrowser"
 local ConsoleEngine = require "ConsoleEngine"
+local ImGui = require "ImGui"
 
 Bind.Initialize()
 ConsoleEngine.Initialize()

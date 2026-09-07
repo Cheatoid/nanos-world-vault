@@ -128,7 +128,7 @@ function WebAudioAPI.SetListenerTransform(px, py, pz, fx, fy, fz, ux, uy, uz, ca
 	return send("DoSetListenerTransform", { px, py, pz, fx, fy, fz, ux, uy, uz }, callback)
 end
 
---- Sets the main master gain (volume).<br>
+--- Sets the main master gain (volume).
 ---@param value number Gain value (1.0 = normal volume).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
@@ -136,7 +136,7 @@ function WebAudioAPI.SetMainGain(value, callback)
 	return send("DoSetMainGain", { value }, callback)
 end
 
---- Sets the ambience gain (volume for ambient sounds).<br>
+--- Sets the ambience gain (volume for ambient sounds).
 ---@param value number Gain value (0.5 = default).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
@@ -153,7 +153,7 @@ function WebAudioAPI.SetLowpassCutoff(freqHz, callback)
 	return send("DoSetLowpassCutoff", { freqHz }, callback)
 end
 
---- Sets the maximum number of simultaneous voices (polyphony).<br>
+--- Sets the maximum number of simultaneous voices (polyphony).
 ---@param count number Maximum voice count (64 = default).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
@@ -179,7 +179,7 @@ function WebAudioAPI.LoadSoundToCache(url, callback)
 	return send("DoLoadSoundToCache", { url }, callback)
 end
 
---- Creates a new sound instance.<br>
+--- Creates a new sound instance.
 ---@param instanceId string Unique ID for this sound instance.
 ---@param url string URL of the sound file.
 ---@param options table|nil Options table (position, loop, pitch, gain, distanceModel, refDistance, maxDistance, rolloffFactor, spatialBlend).
@@ -202,7 +202,7 @@ function WebAudioAPI.CreateSoundInstance(instanceId, url, options, callback)
 	return send("DoCreateSoundInstance", { instanceId, url, options }, callback)
 end
 
---- Checks if a sound instance exists.<br>
+--- Checks if a sound instance exists.
 ---@param instanceId string ID of the sound instance.
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
@@ -210,7 +210,7 @@ function WebAudioAPI.GetInstance(instanceId, callback)
 	return send("DoGetInstance", { instanceId }, callback)
 end
 
---- Destroys a sound instance.<br>
+--- Destroys a sound instance.
 ---@param instanceId string ID of the sound instance.
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
@@ -218,7 +218,7 @@ function WebAudioAPI.DestroyInstance(instanceId, callback)
 	return send("DoDestroyInstance", { instanceId }, callback)
 end
 
---- Loads an impulse response for reverb/acoustic spaces.<br>
+--- Loads an impulse response for reverb/acoustic spaces.
 ---@param name string Name of the acoustic space (e.g. "Binaural", "Warehouse_Omni_35_10").
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
@@ -230,7 +230,7 @@ end
 -- Public API - Instance
 ----------------------------------------------------------------------
 
---- Plays a sound instance.<br>
+--- Plays a sound instance.
 ---@param instanceId string ID of the sound instance.
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
@@ -238,7 +238,7 @@ function WebAudioAPI.InstancePlay(instanceId, callback)
 	return send("DoInstancePlay", { instanceId }, callback)
 end
 
---- Stops a sound instance.<br>
+--- Stops a sound instance.
 ---@param instanceId string ID of the sound instance.
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
@@ -246,7 +246,7 @@ function WebAudioAPI.InstanceStop(instanceId, callback)
 	return send("DoInstanceStop", { instanceId }, callback)
 end
 
---- Sets the position of a sound instance in 3D space.<br>
+--- Sets the position of a sound instance in 3D space.
 ---@param instanceId string ID of the sound instance.
 ---@param x number Position X
 ---@param y number Position Y
@@ -257,7 +257,7 @@ function WebAudioAPI.InstanceSetPosition(instanceId, x, y, z, callback)
 	return send("DoInstanceSetPosition", { instanceId, x, y, z }, callback)
 end
 
---- Sets the velocity of a sound instance (for Doppler effects).<br>
+--- Sets the velocity of a sound instance (for Doppler effects).
 ---@param instanceId string ID of the sound instance.
 ---@param vx number Velocity X
 ---@param vy number Velocity Y
@@ -268,7 +268,7 @@ function WebAudioAPI.InstanceSetVelocity(instanceId, vx, vy, vz, callback)
 	return send("DoInstanceSetVelocity", { instanceId, vx, vy, vz }, callback)
 end
 
---- Sets the gain (volume) of a sound instance.<br>
+--- Sets the gain (volume) of a sound instance.
 ---@param instanceId string ID of the sound instance.
 ---@param value number Gain value (1.0 = normal volume).
 ---@param callback function Callback function to receive the result (function(success, payload)).
@@ -277,7 +277,7 @@ function WebAudioAPI.InstanceSetGain(instanceId, value, callback)
 	return send("DoInstanceSetGain", { instanceId, value }, callback)
 end
 
---- Sets the pitch of a sound instance.<br>
+--- Sets the pitch of a sound instance.
 ---@param instanceId string ID of the sound instance.
 ---@param value number Pitch multiplier (1.0 = normal pitch).
 ---@param callback function Callback function to receive the result (function(success, payload)).
@@ -286,7 +286,7 @@ function WebAudioAPI.InstanceSetPitch(instanceId, value, callback)
 	return send("DoInstanceSetPitch", { instanceId, value }, callback)
 end
 
---- Sets the distance model for spatial audio attenuation.<br>
+--- Sets the distance model for spatial audio attenuation.
 ---@param instanceId string ID of the sound instance.
 ---@param model string Distance model ("inverse", "linear", or "exponential").
 ---@param callback function Callback function to receive the result (function(success, payload)).
@@ -295,7 +295,7 @@ function WebAudioAPI.InstanceSetDistanceModel(instanceId, model, callback)
 	return send("DoInstanceSetDistanceModel", { instanceId, model }, callback)
 end
 
---- Sets the rolloff parameters for distance attenuation.<br>
+--- Sets the rolloff parameters for distance attenuation.
 ---@param instanceId string ID of the sound instance.
 ---@param refDistance number|nil Reference distance where attenuation begins (default: 1.0).
 ---@param maxDistance number|nil Maximum distance where sound is audible (default: 100.0).
@@ -306,7 +306,7 @@ function WebAudioAPI.InstanceSetRolloff(instanceId, refDistance, maxDistance, ro
 	return send("DoInstanceSetRolloff", { instanceId, refDistance, maxDistance, rolloffFactor }, callback)
 end
 
---- Sets the spatial blend between 2D and 3D audio.<br>
+--- Sets the spatial blend between 2D and 3D audio.
 ---@param instanceId string ID of the sound instance.
 ---@param value number Blend value (0.0 = fully 2D, 1.0 = fully 3D).
 ---@param callback function Callback function to receive the result (function(success, payload)).
@@ -315,7 +315,7 @@ function WebAudioAPI.InstanceSetSpatialBlend(instanceId, value, callback)
 	return send("DoInstanceSetSpatialBlend", { instanceId, value }, callback)
 end
 
---- Sets echo/delay effect parameters.<br>
+--- Sets echo/delay effect parameters.
 ---@param instanceId string ID of the sound instance.
 ---@param delaySeconds number Delay time in seconds.
 ---@param feedbackGain number Feedback gain (0.0 = no echo).
@@ -325,7 +325,7 @@ function WebAudioAPI.InstanceSetEcho(instanceId, delaySeconds, feedbackGain, cal
 	return send("DoInstanceSetEcho", { instanceId, delaySeconds, feedbackGain }, callback)
 end
 
---- Sets the acoustic space (reverb) for a sound instance.<br>
+--- Sets the acoustic space (reverb) for a sound instance.
 ---@param instanceId string ID of the sound instance.
 ---@param name string Name of the acoustic space (e.g. "Binaural", "Warehouse_Omni_35_10").
 ---@param callback function Callback function to receive the result (function(success, payload)).
@@ -334,7 +334,7 @@ function WebAudioAPI.InstanceSetAcousticSpace(instanceId, name, callback)
 	return send("DoInstanceSetAcousticSpace", { instanceId, name }, callback)
 end
 
---- Sets the reverb level for a sound instance.<br>
+--- Sets the reverb level for a sound instance.
 ---@param instanceId string ID of the sound instance.
 ---@param value number Reverb mix level (0.0 = no reverb).
 ---@param callback function Callback function to receive the result (function(success, payload)).

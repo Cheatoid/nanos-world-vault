@@ -16,7 +16,8 @@
 		"/benchmarks/",
 		"\\.tests?\\.lua$",
 		"examples?\\.lua$", // example.lua / examples.lua files
-		"luavm\\.lua$",
+		"/require_finder/find_requires\\.lua$",
+		"/vm/luavm\\.lua$",
 	],
 	// Same as above, but for --compile mode, which additionally drops example scripts
 	// (they are documentation, not package code).
@@ -33,6 +34,7 @@
 		"/benchmarks/",
 		"\\.tests?\\.lua$",
 		"examples?\\.lua$", // example.lua / examples.lua files
-		"luavm\\.lua$",
+		"/require_finder/find_requires\\.lua$",
+		"/vm/luavm\\.lua$",
 	],
 }
