@@ -7,7 +7,9 @@
 		"${workspaceFolder}/library/Shared/@cheatoid/standard",
 	],
 	"Lua.diagnostics.globals": [],
-	"Lua.diagnostics.disable": ["different-requires"],
+	"Lua.diagnostics.disable": [
+		"different-requires"
+	],
 	"Lua.runtime.version": "Lua 5.4",
 	"Lua.format.enable": true,
 	"Lua.format.defaultConfig": {
@@ -16,6 +18,7 @@
 	},
 	"[lua]": {
 		"editor.defaultFormatter": "sumneko.lua",
+		"editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",<>/?"
 	},
 	"Lua.hint.setType": true,
 	"Lua.hint.enable": true,
@@ -64,4 +67,6 @@
 		"luajit": true,
 		"publish/**": true,
 	},
+	"editor.fontFamily": "'Cascadia Mono','Fira Mono','JetBrains Mono','MonoLisa','Neo Sans Pro','Open Sans','Roboto Mono','Source Sans Pro','Ubuntu Mono',Consolas,'Courier New',monospace",
+	"editor.linkedEditing": true,
 }

@@ -298,13 +298,14 @@ License: MIT
 		}
 	}
 	const UI = {
-		version: '1.1.0',
+		version: '1.2.0',
 		showDemo: true, // set false from Lua to hide the built-in demo windows
 		status() {
 			return {
 				domReady: Bridge.domReady, imguiReady: Bridge.imguiReady,
 				demo: UI.showDemo !== false, frame: frameIndex,
-				views: listViews(), viewErrors: viewErrors(), queuedEvents: eventQueue.length
+				views: listViews(), viewErrors: viewErrors(), queuedEvents: eventQueue.length,
+				uiVersion: UI.version
 			};
 		},
 		registerView(id, source) { return registerView(id, source); },
@@ -347,6 +348,11 @@ License: MIT
 		},
 		pollEvents() { const out = eventQueue.slice(); eventQueue.length = 0; return out; },
 		peekEvents() { return eventQueue.slice(); },
+		setTheme(name, overrides) { return ImGui.SetTheme(name, overrides); },
+		setStyleColor(idxOrName, color) { ImGui.SetStyleColor(idxOrName, color); return { color: idxOrName }; },
+		setStyleFloat(field, value) { ImGui.SetStyleFloat(field, value); return { field: field, value: value }; },
+		setStyleVec2(field, x, y) { ImGui.SetStyleVec2(field, x, y); return { field: field, value: [x, y] }; },
+		getStyleColorCount() { return ImGui.GetStyleColorCount(); },
 		evalJs(code, context) { const r = evalCode(code, context || {}); return (typeof r === 'undefined') ? null : r; },
 		call(method, args) {
 			try {
@@ -459,6 +465,30 @@ License: MIT
 		const _PushStyleVar = cwrap('imgui_PushStyleVar', 'void', ['number', 'number']);
 		const _PushStyleVarVec2Float = cwrap('imgui_PushStyleVarVec2Float', 'void', ['number', 'number', 'number']);
 		const _PopStyleVar = cwrap('imgui_PopStyleVar', 'void', ['number']);
+		const _StyleColorsDark = cwrap('imgui_StyleColorsDark', 'void', []);
+		const _StyleColorsLight = cwrap('imgui_StyleColorsLight', 'void', []);
+		const _StyleColorsClassic = cwrap('imgui_StyleColorsClassic', 'void', []);
+		const _GetStyleColorCount = cwrap('imgui_GetStyleColorCount', 'number', []);
+		const _SetStyleColor = cwrap('imgui_SetStyleColor', 'void', ['number', 'number', 'number', 'number', 'number']);
+		const _SetStyleAlpha = cwrap('imgui_SetStyleAlpha', 'void', ['number']);
+		const _SetStyleDisabledAlpha = cwrap('imgui_SetStyleDisabledAlpha', 'void', ['number']);
+		const _SetStyleWindowRounding = cwrap('imgui_SetStyleWindowRounding', 'void', ['number']);
+		const _SetStyleWindowBorderSize = cwrap('imgui_SetStyleWindowBorderSize', 'void', ['number']);
+		const _SetStyleChildRounding = cwrap('imgui_SetStyleChildRounding', 'void', ['number']);
+		const _SetStyleChildBorderSize = cwrap('imgui_SetStyleChildBorderSize', 'void', ['number']);
+		const _SetStylePopupRounding = cwrap('imgui_SetStylePopupRounding', 'void', ['number']);
+		const _SetStylePopupBorderSize = cwrap('imgui_SetStylePopupBorderSize', 'void', ['number']);
+		const _SetStyleFrameRounding = cwrap('imgui_SetStyleFrameRounding', 'void', ['number']);
+		const _SetStyleFrameBorderSize = cwrap('imgui_SetStyleFrameBorderSize', 'void', ['number']);
+		const _SetStyleIndentSpacing = cwrap('imgui_SetStyleIndentSpacing', 'void', ['number']);
+		const _SetStyleScrollbarSize = cwrap('imgui_SetStyleScrollbarSize', 'void', ['number']);
+		const _SetStyleScrollbarRounding = cwrap('imgui_SetStyleScrollbarRounding', 'void', ['number']);
+		const _SetStyleGrabMinSize = cwrap('imgui_SetStyleGrabMinSize', 'void', ['number']);
+		const _SetStyleGrabRounding = cwrap('imgui_SetStyleGrabRounding', 'void', ['number']);
+		const _SetStyleTabRounding = cwrap('imgui_SetStyleTabRounding', 'void', ['number']);
+		const _SetStyleWindowPadding = cwrap('imgui_SetStyleWindowPadding', 'void', ['number', 'number']);
+		const _SetStyleFramePadding = cwrap('imgui_SetStyleFramePadding', 'void', ['number', 'number']);
+		const _SetStyleItemSpacing = cwrap('imgui_SetStyleItemSpacing', 'void', ['number', 'number']);
 		const _PushID = cwrap('imgui_PushID', 'void', ['string']);
 		const _PopID = cwrap('imgui_PopID', 'void', []);
 		const _BeginDisabled = cwrap('imgui_BeginDisabled', 'void', ['number']);
@@ -657,6 +687,42 @@ License: MIT
 			Resizable: _TableFlags_Resizable(),
 			ScrollY: _TableFlags_ScrollY()
 		};
+		// ImGuiCol indices - MUST match imgui.h enum ImGuiCol_ order (Text=0 ...).
+		const ColNames = ["Text", "TextDisabled", "WindowBg", "ChildBg", "PopupBg",
+			"Border", "BorderShadow", "FrameBg", "FrameBgHovered", "FrameBgActive",
+			"TitleBg", "TitleBgActive", "TitleBgCollapsed", "MenuBarBg", "ScrollbarBg",
+			"ScrollbarGrab", "ScrollbarGrabHovered", "ScrollbarGrabActive", "CheckMark",
+			"CheckboxSelectedBg", "SliderGrab", "SliderGrabActive", "Button", "ButtonHovered",
+			"ButtonActive", "Header", "HeaderHovered", "HeaderActive", "Separator",
+			"SeparatorHovered", "SeparatorActive", "ResizeGrip", "ResizeGripHovered",
+			"ResizeGripActive", "InputTextCursor", "TabHovered", "Tab", "TabSelected",
+			"TabSelectedOverline", "TabDimmed", "TabDimmedSelected", "TabDimmedSelectedOverline",
+			"DockingPreview", "DockingEmptyBg", "PlotLines", "PlotLinesHovered",
+			"PlotHistogram", "PlotHistogramHovered", "TableHeaderBg", "TableBorderStrong",
+			"TableBorderLight", "TableRowBg", "TableRowBgAlt", "TextLink", "TextSelectedBg",
+			"TreeLines", "DragDropTarget", "DragDropTargetBg", "UnsavedMarker", "NavCursor",
+			"NavWindowingHighlight", "NavWindowingDimBg", "ModalWindowDimBg"];
+		const Col = {};
+		for (let i = 0; i < ColNames.length; i++) Col[ColNames[i]] = i;
+		function colIndex(idxOrName) {
+			if (typeof idxOrName === 'string') {
+				if (!(idxOrName in Col)) throw new Error('unknown ImGuiCol: ' + idxOrName);
+				return Col[idxOrName];
+			}
+			const idx = idxOrName | 0;
+			if (idx < 0 || idx >= ColNames.length) throw new Error('ImGuiCol out of range: ' + idxOrName);
+			return idx;
+		}
+		function rgbaArray(c) {
+			if (!Array.isArray(c) || (c.length !== 3 && c.length !== 4)) throw new Error('color must be [r,g,b] or [r,g,b,a]');
+			return [c[0], c[1], c[2], c.length > 3 ? c[3] : 1.0];
+		}
+		// Curated persistent float style fields (mirror of the C++ setters).
+		const StyleFloatFields = ["alpha", "disabledAlpha", "windowRounding", "windowBorderSize",
+			"childRounding", "childBorderSize", "popupRounding", "popupBorderSize",
+			"frameRounding", "frameBorderSize", "indentSpacing", "scrollbarSize",
+			"scrollbarRounding", "grabMinSize", "grabRounding", "tabRounding"];
+		const StyleVec2Fields = ["windowPadding", "framePadding", "itemSpacing"];
 
 		// getBool/getFloat/getInt/getFloatArray/getIntArray come from SECTION 1.
 
@@ -674,6 +740,60 @@ License: MIT
 		ImGui.InputTextFlags = InputTextFlags;
 		ImGui.ColorEditFlags = ColorEditFlags;
 		ImGui.TableFlags = TableFlags;
+		ImGui.Col = Col;
+		ImGui.ColNames = ColNames;
+		ImGui.StyleColorsDark = function () { _StyleColorsDark(); };
+		ImGui.StyleColorsLight = function () { _StyleColorsLight(); };
+		ImGui.StyleColorsClassic = function () { _StyleColorsClassic(); };
+		ImGui.GetStyleColorCount = function () { return _GetStyleColorCount(); };
+		ImGui.SetStyleColor = function (idxOrName, color) {
+			const c = rgbaArray(color);
+			_SetStyleColor(colIndex(idxOrName), c[0], c[1], c[2], c[3]);
+		};
+		ImGui.SetStyleAlpha = _SetStyleAlpha;
+		ImGui.SetStyleDisabledAlpha = _SetStyleDisabledAlpha;
+		ImGui.SetStyleWindowRounding = _SetStyleWindowRounding;
+		ImGui.SetStyleWindowBorderSize = _SetStyleWindowBorderSize;
+		ImGui.SetStyleChildRounding = _SetStyleChildRounding;
+		ImGui.SetStyleChildBorderSize = _SetStyleChildBorderSize;
+		ImGui.SetStylePopupRounding = _SetStylePopupRounding;
+		ImGui.SetStylePopupBorderSize = _SetStylePopupBorderSize;
+		ImGui.SetStyleFrameRounding = _SetStyleFrameRounding;
+		ImGui.SetStyleFrameBorderSize = _SetStyleFrameBorderSize;
+		ImGui.SetStyleIndentSpacing = _SetStyleIndentSpacing;
+		ImGui.SetStyleScrollbarSize = _SetStyleScrollbarSize;
+		ImGui.SetStyleScrollbarRounding = _SetStyleScrollbarRounding;
+		ImGui.SetStyleGrabMinSize = _SetStyleGrabMinSize;
+		ImGui.SetStyleGrabRounding = _SetStyleGrabRounding;
+		ImGui.SetStyleTabRounding = _SetStyleTabRounding;
+		ImGui.SetStyleWindowPadding = function (x, y) { _SetStyleWindowPadding(x, y); };
+		ImGui.SetStyleFramePadding = function (x, y) { _SetStyleFramePadding(x, y); };
+		ImGui.SetStyleItemSpacing = function (x, y) { _SetStyleItemSpacing(x, y); };
+		ImGui.SetStyleFloat = function (field, value) {
+			if (StyleFloatFields.indexOf(field) < 0) throw new Error('unknown style float field: ' + field);
+			ImGui["SetStyle" + field[0].toUpperCase() + field.slice(1)](value);
+		};
+		ImGui.SetStyleVec2 = function (field, x, y) {
+			if (StyleVec2Fields.indexOf(field) < 0) throw new Error('unknown style vec2 field: ' + field);
+			ImGui["SetStyle" + field[0].toUpperCase() + field.slice(1)](x, y);
+		};
+		// One-shot global theme: preset ("dark"/"light"/"classic") + optional
+		// overrides { colors: {NameOrIdx: [r,g,b,a]}, floats: {field: v}, vec2s: {field: [x,y]} }.
+		ImGui.SetTheme = function (name, overrides) {
+			const n = (name === undefined || name === null || name === "") ? "dark" : String(name);
+			if (n === "dark") _StyleColorsDark();
+			else if (n === "light") _StyleColorsLight();
+			else if (n === "classic") _StyleColorsClassic();
+			else throw new Error('unknown theme: ' + n + ' (dark/light/classic)');
+			overrides = overrides || {};
+			const colors = overrides.colors || {};
+			for (const k in colors) ImGui.SetStyleColor(isNaN(Number(k)) ? k : Number(k), colors[k]);
+			const floats = overrides.floats || {};
+			for (const k in floats) ImGui.SetStyleFloat(k, floats[k]);
+			const vec2s = overrides.vec2s || {};
+			for (const k in vec2s) ImGui.SetStyleVec2(k, vec2s[k][0], vec2s[k][1]);
+			return { theme: n };
+		};
 
 		ImGui.init = initMemory;
 

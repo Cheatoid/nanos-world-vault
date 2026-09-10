@@ -1403,6 +1403,60 @@ extern "C" void EMSCRIPTEN_KEEPALIVE imgui_PushStyleVarVec2Float(int idx, float 
 	ImGui::PushStyleVar(idx, ImVec2(x, y));
 }
 
+// Global theme - persistent across frames (unlike Push/Pop pairs, which must
+// be balanced every frame). Callable from Lua via the JS bridge (UI.setTheme
+// / ImGui.SetTheme) without authoring per-frame JS.
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_StyleColorsDark()
+{
+	ImGui::StyleColorsDark();
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_StyleColorsLight()
+{
+	ImGui::StyleColorsLight();
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_StyleColorsClassic()
+{
+	ImGui::StyleColorsClassic();
+}
+
+extern "C" int EMSCRIPTEN_KEEPALIVE imgui_GetStyleColorCount()
+{
+	return ImGuiCol_COUNT;
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleColor(int idx, float r, float g, float b, float a)
+{
+	if (idx < 0 || idx >= ImGuiCol_COUNT)
+		return;
+	ImGui::GetStyle().Colors[idx] = ImVec4(r, g, b, a);
+}
+
+// Curated persistent style vars (float). For per-frame overrides use the
+// Push/Pop bindings instead.
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleAlpha(float v) { ImGui::GetStyle().Alpha = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleDisabledAlpha(float v) { ImGui::GetStyle().DisabledAlpha = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleWindowRounding(float v) { ImGui::GetStyle().WindowRounding = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleWindowBorderSize(float v) { ImGui::GetStyle().WindowBorderSize = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleChildRounding(float v) { ImGui::GetStyle().ChildRounding = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleChildBorderSize(float v) { ImGui::GetStyle().ChildBorderSize = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStylePopupRounding(float v) { ImGui::GetStyle().PopupRounding = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStylePopupBorderSize(float v) { ImGui::GetStyle().PopupBorderSize = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleFrameRounding(float v) { ImGui::GetStyle().FrameRounding = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleFrameBorderSize(float v) { ImGui::GetStyle().FrameBorderSize = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleIndentSpacing(float v) { ImGui::GetStyle().IndentSpacing = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleScrollbarSize(float v) { ImGui::GetStyle().ScrollbarSize = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleScrollbarRounding(float v) { ImGui::GetStyle().ScrollbarRounding = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleGrabMinSize(float v) { ImGui::GetStyle().GrabMinSize = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleGrabRounding(float v) { ImGui::GetStyle().GrabRounding = v; }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleTabRounding(float v) { ImGui::GetStyle().TabRounding = v; }
+
+// Curated persistent style vars (ImVec2).
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleWindowPadding(float x, float y) { ImGui::GetStyle().WindowPadding = ImVec2(x, y); }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleFramePadding(float x, float y) { ImGui::GetStyle().FramePadding = ImVec2(x, y); }
+extern "C" void EMSCRIPTEN_KEEPALIVE imgui_SetStyleItemSpacing(float x, float y) { ImGui::GetStyle().ItemSpacing = ImVec2(x, y); }
+
 extern "C" void EMSCRIPTEN_KEEPALIVE imgui_TextColoredV(float r, float g, float b, float a, const char* text)
 {
 	ImGui::TextColored(ImVec4(r, g, b, a), "%s", text ? text : "");
