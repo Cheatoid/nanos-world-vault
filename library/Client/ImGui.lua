@@ -16,14 +16,31 @@ local send
 local is_ready
 local is_imgui_ready
 local when_ready
+local initialized = false
 local ImGuiWebUI ---@type WebUI?
 local example_visible = false
 local example_views = {} ---@type table<string, boolean>
 
+--- Fails with a actionable message when the bridge was never initialized.
+--- Without this every Eval/Call crashes with cryptic
+--- `attempt to call a nil value (upvalue 'send')` at Call().
+local function assert_initialized(what)
+	if not send then
+		error(string.format(
+			"ImGui.%s failed: ImGui not initialized. Run `lua imgui.Initialize()` first (creates the file://UI/ImGui.html overlay). Do NOT use the WebBrowser tab for this.",
+			tostring(what or "Call")), 3)
+	end
+end
+
 --- Creates the transparent overlay WebUI and wires the eval bridge.
 --- Accepts an optional options table to override the defaults.
+--- Do NOT open the demo via WebBrowser (New Tab -> ImGui link): that tab has
+--- no Lua bridge. This overlay (file://UI/ImGui.html + postMessage relay to
+--- the embedded imgui_web_demo iframe) is the only path Example* can drive.
 ---@param options? table Optional overrides: { name = string, url = string, visibility = WidgetVisibility }.
 function ImGui.Initialize(options)
+	if initialized then return end
+	initialized = true
 	options = options or {}
 	local ImGuiUI = WebUI(
 		options.name or (Package.GetName() .. ":imgui.api"),
@@ -127,13 +144,17 @@ function ImGui.Initialize(options)
 		ready_cbs[#ready_cbs + 1] = callback
 		return false
 	end
-
-	ImGui.Initialize = function() end
 end
 
 ----------------------------------------------------------------------
 -- Public API
 ----------------------------------------------------------------------
+
+--- Reports whether Initialize has created the overlay WebUI.
+---@return boolean initialized True after Initialize ran.
+function ImGui.IsInitialized()
+	return initialized
+end
 
 --- Returns the underlying WebUI instance (nil before Initialize).
 ---@return WebUI? webui The underlying WebUI instance (nil before Initialize).
@@ -184,6 +205,7 @@ end
 --- end)
 --- ```
 function ImGui.Eval(code, callback)
+	assert_initialized("Eval")
 	return send("DoEval", { code }, callback)
 end
 
@@ -202,6 +224,7 @@ end
 --- end)
 --- ```
 function ImGui.EvalWithContext(code, context, callback)
+	assert_initialized("EvalWithContext")
 	return send("DoEvalWithContext", { code, context }, callback)
 end
 
@@ -220,6 +243,7 @@ end
 --- end)
 --- ```
 function ImGui.Call(method, args, callback)
+	assert_initialized("Call")
 	return send("DoEvalWithContext", { "UI.call(method, args)", { method = method, args = args or {} } }, callback)
 end
 
@@ -237,6 +261,7 @@ end
 --- end)
 --- ```
 function ImGui.Batch(calls, callback)
+	assert_initialized("Batch")
 	return send("DoEvalWithContext", { "UI.batch(calls)", { calls = calls } }, callback)
 end
 
@@ -1706,6 +1731,8 @@ end
 --- ```
 function ImGui.HideExamples()
 	local had_binding = example_views["lua_binding"]
+	local had_labels = example_views["lua_labels"]
+	local had_theme = example_views["lua_theme"]
 	for id, _ in next, example_views do
 		ImGui.UnregisterView(id)
 	end
@@ -1719,8 +1746,6 @@ function ImGui.HideExamples()
 		button_routes["Enable from Lua"] = nil
 		button_routes["Disable from Lua"] = nil
 	end
-	local had_labels = example_views["lua_labels"]
-	local had_theme = example_views["lua_theme"]
 	if had_labels then
 		bindings["bind_title"] = nil
 		bindings["bind_score"] = nil
@@ -1771,6 +1796,45 @@ end
 ---@return integer req_id The request ID for tracking.
 function ImGui.BindTick()
 	return ImGui.ExampleTick()
+end
+
+_G.imgui = ImGui
+_G.ImGui = ImGui -- alias: console is case-sensitive, accept both `imgui.*` and `ImGui.*`
+
+do
+	-- Console ergonomics: `imgui_init`, `imgui_demo`, `imgui_hide`, `imgui_status`.
+	-- Guarded: ImGui.lua must stay loadable even when Bind/Console are unavailable.
+	local Bind = require "Bind"
+	local function must_init()
+		if not initialized then ImGui.Initialize() end
+	end
+	Bind.RegisterCommand("imgui_init", function()
+		must_init()
+		print("[ImGui] initialized:", ImGui.IsInitialized(), "ready:", ImGui.IsReady())
+	end, "Create ImGui overlay WebUI")
+	Bind.RegisterCommand("imgui_demo", function()
+		must_init()
+		ImGui.ExampleAll()
+	end, "Open full ImGui Lua gallery")
+	Bind.RegisterCommand("imgui_hide", function()
+		if initialized then ImGui.HideExamples() end
+	end, "Close all ImGui Lua examples")
+	Bind.RegisterCommand("imgui_status", function()
+		if not initialized then
+			print("[ImGui] not initialized")
+			return
+		end
+		ImGui.Status(function(success, res)
+			if success and res and res.ok then
+				print(string.format("[ImGui] dom=%s wasm=%s demo=%s views=%d ui=%s",
+					tostring(ImGui.IsReady()), tostring(ImGui.IsImGuiReady()),
+					tostring(res.result.demo), #(res.result.views or {}),
+					tostring(res.result.uiVersion)))
+			else
+				print("[ImGui] status failed")
+			end
+		end)
+	end, "Print ImGui bridge status")
 end
 
 -- Export the API to be accessed by other packages

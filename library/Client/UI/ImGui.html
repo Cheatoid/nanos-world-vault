@@ -52,61 +52,173 @@ License: MIT
 		scrolling="no" allowtransparency="true" allow="webgpu">
 		<p>Your browser does not support HTML iframes!</p>
 	</iframe>
-	<script type="module">
-		// -----------------------------
-		// SETTINGS
-		// -----------------------------
-		const settings = {
-			frameId: "imgui",
-			forceTransparentBackgrounds: true,
-		};
+	<script>
+		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
+		// Using 'const' or 'let' would cause a redeclaration error.
+		// noinspection ES6ConvertVarToLetConst
+		/** @type {{Call: function(string, ...any): void, Subscribe: function(string, function(...any)): void}} */
+		var Events = window.Events;
 
-		// -----------------------------
-		// HOST API
-		// -----------------------------
-		const ImGuiHost = {
-			/**
-			 * Returns the embedded ImGui frame element.
-			 * @returns {HTMLIFrameElement|null} Frame element, or null when missing.
-			 */
-			getFrame() {
-				return document.getElementById(settings.frameId);
-			},
+		// =====================================================================
+		// Top-level relay: Lua (ImGui.lua) <-> embedded demo iframe.
+		// The iframe is cross-origin (GitHub Pages) so it has no window.Events.
+		// Protocol (must match shell_minimal.html SECTION 0):
+		//   parent -> child: { __imgui_bridge: 1, type: "eval", id, code, context }
+		//   child -> parent: { __imgui_bridge: 1, type: "result", id, ok, payload }
+		//   child -> parent: { __imgui_bridge: 1, type: "ready", kind: "dom"|"wasm", info }
+		// Lua protocol (must match ImGui.lua):
+		//   Lua -> JS : Events.Subscribe("DoEval") / ("DoEvalWithContext")
+		//   JS -> Lua : Events.Call("EvalResult", id, success, payload)
+		//   JS -> Lua : Events.Call("EvalReady") once channel is up,
+		//               Events.Call("ImGuiReady", info) on dom + wasm ready.
+		// =====================================================================
 
-			/**
-			 * Forces transparent backgrounds so only ImGui windows stay visible.
-			 * @returns {void}
-			 */
-			forceTransparency() {
-				if (!settings.forceTransparentBackgrounds) return;
-				try {
-					if (document.documentElement) document.documentElement.style.background = "transparent";
-					if (document.body) document.body.style.background = "transparent";
-					const frame = ImGuiHost.getFrame();
-					if (frame) frame.style.background = "transparent";
-				} catch (error) {
-					console.warn("ImGuiHost: failed to force transparency:", error);
-				}
-			},
-		};
+		var FRAME_ID = "imgui";
+		var channelReady = false; // true once iframe posted its first ready
+		var evalReadyEmitted = false;
+		var queued = []; // [{ id, code, context }] received before channelReady
 
-		// Expose host API to window for external access
-		window.ImGuiHost = ImGuiHost;
-
-		// -----------------------------
-		// EVENT HANDLERS
-		// -----------------------------
-		const frame = ImGuiHost.getFrame();
-		if (frame) {
-			frame.addEventListener("load", () => {
-				console.log("ImGui frame loaded.");
-			});
-		} else {
-			console.warn(`ImGuiHost: no frame found with id "${settings.frameId}".`);
+		function getFrame() {
+			return document.getElementById(FRAME_ID);
 		}
 
-		// DOM should be ready because we are in ES module
-		ImGuiHost.forceTransparency();
+		function forceTransparency() {
+			try {
+				if (document.documentElement) document.documentElement.style.background = "transparent";
+				if (document.body) document.body.style.background = "transparent";
+				var frame = getFrame();
+				if (frame) frame.style.background = "transparent";
+			} catch (error) {
+				console.warn("ImGuiHost: failed to force transparency:", error);
+			}
+		}
+
+		function postToFrame(id, code, context) {
+			var frame = getFrame();
+			if (!frame || !frame.contentWindow) return false;
+			try {
+				frame.contentWindow.postMessage({
+					__imgui_bridge: 1,
+					type: "eval",
+					id: id,
+					code: code,
+					context: context || {}
+				}, "*");
+				return true;
+			} catch (e) {
+				console.error("ImGuiHost: postMessage to frame failed:", e);
+				return false;
+			}
+		}
+
+		function flushQueue() {
+			if (!channelReady) return;
+			var pending = queued;
+			queued = [];
+			for (var i = 0; i < pending.length; i++) {
+				var q = pending[i];
+				if (!postToFrame(q.id, q.code, q.context)) {
+					queued.push(q);
+					break;
+				}
+			}
+		}
+
+		function emitEvalReadyOnce() {
+			if (evalReadyEmitted) return;
+			evalReadyEmitted = true;
+			try {
+				if (Events && Events.Call) Events.Call("EvalReady");
+			} catch (e) {
+				console.error("ImGuiHost: EvalReady emit failed:", e);
+			}
+		}
+
+		function emitImGuiReady(info) {
+			try {
+				if (Events && Events.Call) Events.Call("ImGuiReady", info || {});
+			} catch (e) {
+				console.error("ImGuiHost: ImGuiReady emit failed:", e);
+			}
+		}
+
+		function onDoEval(id, code) {
+			if (!channelReady) {
+				queued.push({ id: id, code: code, context: {} });
+				return;
+			}
+			if (!postToFrame(id, code, {})) {
+				queued.push({ id: id, code: code, context: {} });
+			}
+		}
+
+		function onDoEvalWithContext(id, code, context) {
+			if (!channelReady) {
+				queued.push({ id: id, code: code, context: context || {} });
+				return;
+			}
+			if (!postToFrame(id, code, context || {})) {
+				queued.push({ id: id, code: code, context: context || {} });
+			}
+		}
+
+		// Subscribe to Lua requests (tolerate plain browsers without engine Events).
+		try {
+			if (Events && Events.Subscribe) {
+				Events.Subscribe("DoEval", onDoEval);
+				Events.Subscribe("DoEvalWithContext", onDoEvalWithContext);
+			} else {
+				console.warn("ImGuiHost: window.Events missing (plain browser?), Lua bridge disabled.");
+			}
+		} catch (e) {
+			console.error("ImGuiHost: Events.Subscribe failed:", e);
+		}
+
+		// Receive replies + readiness from the iframe.
+		window.addEventListener("message", function (e) {
+			var d = e && e.data;
+			if (!d || !d.__imgui_bridge) return;
+			if (d.type === "result") {
+				try {
+					if (Events && Events.Call) Events.Call("EvalResult", d.id, !!d.ok, d.payload === undefined ? null : d.payload);
+				} catch (err) {
+					console.error("ImGuiHost: EvalResult forward failed:", err);
+				}
+				return;
+			}
+			if (d.type === "ready") {
+				if (!channelReady) {
+					channelReady = true;
+					flushQueue();
+					emitEvalReadyOnce();
+				}
+				emitImGuiReady(d.info);
+				return;
+			}
+		});
+
+		var frame = getFrame();
+		if (frame) {
+			frame.addEventListener("load", function () {
+				console.log("ImGui frame loaded (waiting for bridge ready via postMessage).");
+			});
+		} else {
+			console.warn('ImGuiHost: no frame found with id "' + FRAME_ID + '".');
+		}
+
+		forceTransparency();
+
+		// Debug aid: lua can poll window.__imgui_top via Eval? No Eval yet, but DevTools can.
+		window.__imgui_top = function () {
+			return { channelReady: channelReady, queued: queued.length, evalReadyEmitted: evalReadyEmitted };
+		};
+
+		// Warn if the embedded demo predates the postMessage relay (old GitHub Pages deploy).
+		setTimeout(function () {
+			if (!channelReady) {
+				console.error("ImGuiHost: no bridge ready from iframe after 10s. The hosted imgui_web_demo/index.html likely predates the postMessage relay - rebuild it (build.cmd) and redeploy GitHub Pages.");
+			}
+		}, 10000);
 	</script>
 </body>
 

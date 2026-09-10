@@ -19,6 +19,7 @@ local ImGui = require "ImGui"
 Bind.Initialize()
 ConsoleEngine.Initialize()
 Bind.Initialize() -- NOTE: This will initialize scripting key bindings
+--ImGui.Initialize()
 
 --include "WebSocketTest.lua" -- call using original 'require'
 

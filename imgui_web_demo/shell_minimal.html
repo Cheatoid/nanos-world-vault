@@ -161,12 +161,27 @@ License: MIT
 	//   JS  -> Lua: Events.Call("EvalReady") on DOM ready,
 	//               Events.Call("ImGuiReady", info) on DOM ready + WASM init.
 	// Tolerates plain browsers where window.Events is undefined.
+	// ALSO supports embedding inside library/Client/UI/ImGui.html via
+	// postMessage relay (required: cross-origin iframe has no window.Events):
+	//   parent -> child: { __imgui_bridge: 1, type: "eval", id, code, context }
+	//   child -> parent: { __imgui_bridge: 1, type: "result", id, ok, payload }
+	//   child -> parent: { __imgui_bridge: 1, type: "ready", kind: "dom"|"wasm", info }
 	// =====================================================================
 	var EngineEvents = null;
 	try { EngineEvents = window.Events || null; } catch (e) { EngineEvents = null; }
 	function engineEvents() {
 		if (!EngineEvents) { try { EngineEvents = window.Events || null; } catch (e) { /* no engine */ } }
 		return EngineEvents;
+	}
+	function isInIframe() {
+		try { return window.self !== window.top; } catch (e) { return true; }
+	}
+	function postToParent(msg) {
+		try {
+			if (window.parent && window.parent !== window.self) {
+				window.parent.postMessage(Object.assign({ __imgui_bridge: 1 }, msg), "*");
+			}
+		} catch (e) { /* cross-origin parent unreachable */ }
 	}
 	const Bridge = { domReady: false, imguiReady: false };
 	let bridgeSubscribed = false;
@@ -196,26 +211,50 @@ License: MIT
 		bridgeSubscribed = true;
 	}
 	function bridgeInfo() {
+		var uiVersion = "unknown";
+		var views = [];
+		try { if (typeof UI !== "undefined" && UI && UI.version) uiVersion = UI.version; } catch (e) { }
+		try { if (typeof listViews === "function") views = listViews(); } catch (e) { }
 		return {
-			page: 'imgui_web_demo', uiVersion: UI.version,
-			domReady: Bridge.domReady, imguiReady: Bridge.imguiReady, views: listViews()
+			page: 'imgui_web_demo', uiVersion: uiVersion,
+			domReady: Bridge.domReady, imguiReady: Bridge.imguiReady, views: views
 		};
 	}
 	function bridgeReady() {
 		bridgeSubscribe();
 		if (Bridge.domReady) return;
 		Bridge.domReady = true;
+		var info = null;
+		try { info = bridgeInfo(); } catch (e) { info = { page: 'imgui_web_demo', domReady: true, imguiReady: false }; }
 		const ev = engineEvents();
 		if (ev && ev.Call) {
 			try { ev.Call("EvalReady"); } catch (e) { }
-			try { ev.Call("ImGuiReady", bridgeInfo()); } catch (e) { }
+			try { ev.Call("ImGuiReady", info); } catch (e) { }
 		}
+		// Notify embedding host (UI/ImGui.html) via postMessage; harmless standalone.
+		try { postToParent({ type: "ready", kind: "dom", info: info }); } catch (e) { }
 	}
 	function markImGuiReady() {
 		Bridge.imguiReady = true;
+		var info = null;
+		try { info = bridgeInfo(); } catch (e) { info = { page: 'imgui_web_demo', domReady: Bridge.domReady, imguiReady: true }; }
 		const ev = engineEvents();
-		if (ev && ev.Call) { try { ev.Call("ImGuiReady", bridgeInfo()); } catch (e) { } }
+		if (ev && ev.Call) { try { ev.Call("ImGuiReady", info); } catch (e) { } }
+		try { postToParent({ type: "ready", kind: "wasm", info: info }); } catch (e) { }
 	}
+	// postMessage relay: parent (UI/ImGui.html) forwards Lua DoEval here.
+	// Reply via postMessage (NOT via Events: iframe has no engine Events).
+	try {
+		window.addEventListener("message", function (e) {
+			var d = e && e.data;
+			if (!d || !d.__imgui_bridge || d.type !== "eval") return;
+			var id = d.id, code = d.code, context = d.context || {};
+			var ok = true, out = null;
+			try { out = evalCode(code, context); if (typeof out === 'undefined') out = null; }
+			catch (err) { ok = false; out = String((err && err.stack) || err); }
+			postToParent({ type: "result", id: id, ok: ok, payload: out });
+		});
+	} catch (e) { /* postMessage unavailable */ }
 	bridgeSubscribe();
 	if (typeof document !== 'undefined' && document.addEventListener) {
 		document.addEventListener("DOMContentLoaded", bridgeReady);
