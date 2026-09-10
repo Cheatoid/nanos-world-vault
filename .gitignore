@@ -598,3 +598,9 @@ luavm.lua
 
 # imgui wasm demo output
 imgui_web_demo/build/
+imgui_web_demo/build-debug/
+# Unminified local nanos overlay demo (per-machine build artifact, ~MBs).
+# Build it with imgui_web_demo/build.cmd debug; the UI/ImGui.html bootstrap
+# falls back to the remote Pages demo when it is absent. Commit it only if
+# you need offline players covered (then remove this line).
+#library/Client/UI/ImGuiDemo.html

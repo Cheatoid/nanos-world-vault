@@ -83,10 +83,10 @@
 			},
 		},
 		{
-			"label": "Download+Generate+Build Lua 5.4.8 binaries (CMake)",
+			"label": "Download+Generate+Build Lua 5.4.9 binaries (CMake)",
 			"type": "shell",
 			"command": "cmd",
-			"args": ["/c", "${workspaceFolder}/.lua/make.cmd", "5.4.8", "--download"],
+			"args": ["/c", "${workspaceFolder}/.lua/make.cmd", "5.4.9", "--download"],
 			"problemMatcher": [],
 			"group": "build",
 			"presentation": {
@@ -97,10 +97,10 @@
 			},
 		},
 		{
-			"label": "Download+Generate+Build Lua 5.4.8 binaries (Premake5)",
+			"label": "Download+Generate+Build Lua 5.4.9 binaries (Premake5)",
 			"type": "shell",
 			"command": "cmd",
-			"args": ["/c", "${workspaceFolder}/.lua/make.cmd", "5.4.8", "--download", "--premake"],
+			"args": ["/c", "${workspaceFolder}/.lua/make.cmd", "5.4.9", "--download", "--premake"],
 			"problemMatcher": [],
 			"group": "build",
 			"presentation": {

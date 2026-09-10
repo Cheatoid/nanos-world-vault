@@ -533,7 +533,7 @@ foreach (var dir in dirs)
 		// Compile Lua files if compile mode is enabled
 		if (isCompileMode)
 		{
-			var luacPath = Path.Combine(gitRoot, ".lua", "lua-5.4.8", "luac.exe");
+			var luacPath = Path.Combine(gitRoot, ".lua", "lua-5.4.9", "luac.exe");
 			if (!File.Exists(luacPath))
 			{
 				luacPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory,

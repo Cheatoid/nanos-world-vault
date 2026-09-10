@@ -8,7 +8,7 @@ using System.IO.Compression;
 using System.Net;
 
 // Constants
-const string DefaultVersion = "5.4.8";
+const string DefaultVersion = "5.4.9";
 const string LuaBaseUrl = "https://www.lua.org/ftp/";
 
 // Parse command-line arguments manually

@@ -181,22 +181,43 @@ else() # Emscripten settings
 	target_compile_definitions(${IMGUI_EXECUTABLE} PUBLIC "IMGUI_IMPL_WEBGPU_BACKEND_DAWN")
 	message(STATUS "Using ${IMGUI_EMSCRIPTEN_WEBGPU_FLAG} WebGPU implementation")
 
+	# Unminified local demo: configure with -DCMAKE_BUILD_TYPE=Debug.
+	# Debug keeps the SAME shell (shell_minimal.html: bridge + window.UI) and
+	# SAME SINGLE_FILE layout (required for file:// WebUI: no extra .js/.wasm
+	# fetches), but disables minification/optimization for readable output:
+	# -O0 -g3, full assertions, no closure. Use imgui_web_demo/build.cmd debug,
+	# which copies the result to library/Client/UI/ImGuiDemo.html.
+	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		set(IMGUI_OPT_FLAGS "-O0" "-g3")
+		# NOTE: -sDEMANGLE_SUPPORT was removed in recent Emscripten
+		# (emcc 6.x errors with "invalid command line setting
+		# `-sDEMANGLE_SUPPORT=1`: No longer supported"). Demangled stack
+		# traces are now included via -sASSERTIONS=2 alone, so no
+		# replacement flag is needed.
+		set(IMGUI_ASSERT_FLAGS "-sASSERTIONS=2")
+		set(IMGUI_OUTPUT_NAME "index.debug")
+	else()
+		set(IMGUI_OPT_FLAGS "-O3")
+		set(IMGUI_ASSERT_FLAGS "-sASSERTIONS=1")
+		set(IMGUI_OUTPUT_NAME "index")
+	endif()
+
 	target_link_options(${IMGUI_EXECUTABLE} PRIVATE
-			"${IMGUI_EMSCRIPTEN_WEBGPU_FLAG}"
-			"${IMGUI_EMSCRIPTEN_GLFW3}"
-			"-lembind"
-			"-sWASM=1"
-			"-sASYNCIFY=1"
-			"-sALLOW_MEMORY_GROWTH=1"
-			"-sNO_EXIT_RUNTIME=0"
-			"-sASSERTIONS=1"
-			"-sDISABLE_EXCEPTION_CATCHING=1"
-			"-sNO_FILESYSTEM=1"
-			"-sSINGLE_FILE"
-			"-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','getValue','setValue','UTF8ToString','stringToUTF8']"
-			"-sEXPORTED_FUNCTIONS=['_malloc','_free','_main']"
-			"-O3"
-			"--shell-file=${CMAKE_CURRENT_LIST_DIR}/shell_minimal.html"
+		"${IMGUI_EMSCRIPTEN_WEBGPU_FLAG}"
+		"${IMGUI_EMSCRIPTEN_GLFW3}"
+		"-lembind"
+		"-sWASM=1"
+		"-sASYNCIFY=1"
+		"-sALLOW_MEMORY_GROWTH=1"
+		"-sNO_EXIT_RUNTIME=0"
+		${IMGUI_ASSERT_FLAGS}
+		"-sDISABLE_EXCEPTION_CATCHING=1"
+		"-sNO_FILESYSTEM=1"
+		"-sSINGLE_FILE"
+		"-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','getValue','setValue','UTF8ToString','stringToUTF8']"
+		"-sEXPORTED_FUNCTIONS=['_malloc','_free','_main']"
+		${IMGUI_OPT_FLAGS}
+		"--shell-file=${CMAKE_CURRENT_LIST_DIR}/shell_minimal.html"
 	)
-	set_target_properties(${IMGUI_EXECUTABLE} PROPERTIES OUTPUT_NAME "index")
+	set_target_properties(${IMGUI_EXECUTABLE} PROPERTIES OUTPUT_NAME "${IMGUI_OUTPUT_NAME}")
 endif()

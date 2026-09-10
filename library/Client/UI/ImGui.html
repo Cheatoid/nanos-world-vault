@@ -42,16 +42,70 @@ License: MIT
 			-webkit-touch-callout: none;
 			touch-action: none;
 		}
+
+		/* Friendly fallback overlay: replaces the bare CEF dead-page with
+			an actionable message (local demo missing, remote unreachable). */
+		#fallback-overlay {
+			display: none;
+			position: fixed;
+			inset: 0;
+			z-index: 9999;
+			justify-content: center;
+			align-items: center;
+			background: rgba(10, 0, 0, 0.85);
+			color: #ffd7d7;
+			font-family: Consolas, monospace;
+			font-size: 14px;
+			line-height: 1.6;
+			text-align: center;
+			padding: 40px;
+		}
+
+		#fallback-overlay.visible {
+			display: flex;
+		}
+
+		#fallback-overlay .box {
+			max-width: 620px;
+		}
+
+		#fallback-overlay button {
+			margin: 8px 6px 0;
+			padding: 8px 18px;
+			font: inherit;
+			cursor: pointer;
+			color: #fff;
+			background: #a02040;
+			border: 1px solid #ff6080;
+			border-radius: 8px;
+		}
+
+		#fallback-overlay button.ghost {
+			background: transparent;
+		}
 	</style>
 </head>
 
 <body>
-	<!-- NOTE: allow="webgpu" delegates WebGPU to the cross-origin frame;
-		without it the embedded demo cannot initialize its renderer. -->
-	<iframe id="imgui" src="https://cheatoid.github.io/nanos-world-vault/imgui_web_demo/index.html" frameborder="0"
-		scrolling="no" allowtransparency="true" allow="webgpu">
+	<!-- LOCAL-FIRST demo bootstrap (never a dead page: this file always loads).
+		The iframe prefers the UNMINIFIED local build
+		(library/Client/UI/ImGuiDemo.html, via `imgui_web_demo/build.cmd debug`:
+		same shell_minimal.html shell + Lua bridge, -O0 -g3 SINGLE_FILE so
+		file:// needs no extra fetches). No network, no delegation warning.
+		If the local file was never built, the bootstrap falls back to the
+		remote Pages demo and says so instead of showing a dead page.
+		Zero-iframe alternative (direct Events bridge, no relay needed):
+		lua imgui.Initialize({url="file://UI/ImGuiDemo.html"}) -->
+	<iframe id="imgui" src="./ImGuiDemo.html" frameborder="0" scrolling="no" allowtransparency="true">
 		<p>Your browser does not support HTML iframes!</p>
 	</iframe>
+	<div id="fallback-overlay">
+		<div class="box">
+			<p id="fallback-message"></p>
+			<button id="fallback-remote" type="button">Use remote demo</button>
+			<button id="fallback-retry" class="ghost" type="button">Retry local</button>
+		</div>
+	</div>
 	<script>
 		// NOTE: Must use 'var' because nanos world engine defines window.Events before this script runs.
 		// Using 'const' or 'let' would cause a redeclaration error.
@@ -61,7 +115,8 @@ License: MIT
 
 		// =====================================================================
 		// Top-level relay: Lua (ImGui.lua) <-> embedded demo iframe.
-		// The iframe is cross-origin (GitHub Pages) so it has no window.Events.
+		// Same-origin local file (./ImGuiDemo.html) or cross-origin remote
+		// fallback both talk postMessage; the relay is origin-agnostic.
 		// Protocol (must match shell_minimal.html SECTION 0):
 		//   parent -> child: { __imgui_bridge: 1, type: "eval", id, code, context }
 		//   child -> parent: { __imgui_bridge: 1, type: "result", id, ok, payload }
@@ -74,12 +129,48 @@ License: MIT
 		// =====================================================================
 
 		var FRAME_ID = "imgui";
+		var LOCAL_SRC = "./ImGuiDemo.html";
+		var REMOTE_SRC = "https://cheatoid.github.io/nanos-world-vault/imgui_web_demo/index.html";
 		var channelReady = false; // true once iframe posted its first ready
+		var frameLoaded = false; // true once the iframe fired load (file exists)
+		var usingRemote = false;
 		var evalReadyEmitted = false;
 		var queued = []; // [{ id, code, context }] received before channelReady
 
 		function getFrame() {
 			return document.getElementById(FRAME_ID);
+		}
+
+		function getOverlay() {
+			return document.getElementById("fallback-overlay");
+		}
+
+		function showFallback(text) {
+			try {
+				document.getElementById("fallback-message").textContent = text;
+				getOverlay().classList.add("visible");
+			} catch (e) { /* overlay missing: console only */ }
+		}
+
+		function hideFallback() {
+			try { getOverlay().classList.remove("visible"); } catch (e) { /* noop */ }
+		}
+
+		function setFrameSrc(src) {
+			var frame = getFrame();
+			if (!frame) return;
+			frameLoaded = false;
+			try { frame.src = src; } catch (e) {
+				console.error("ImGuiHost: failed to set frame src:", e);
+			}
+		}
+
+		function useRemote(reason) {
+			if (usingRemote) return;
+			usingRemote = true;
+			console.error("ImGuiHost: " + reason + " Falling back to remote demo.");
+			showFallback(reason + " Falling back to remote demo. Build the local file with imgui_web_demo/build.cmd debug.");
+			setFrameSrc(REMOTE_SRC);
 		}
 
 		function forceTransparency() {
@@ -189,6 +280,7 @@ License: MIT
 			if (d.type === "ready") {
 				if (!channelReady) {
 					channelReady = true;
+					hideFallback();
 					flushQueue();
 					emitEvalReadyOnce();
 				}
@@ -200,25 +292,53 @@ License: MIT
 		var frame = getFrame();
 		if (frame) {
 			frame.addEventListener("load", function () {
+				frameLoaded = true;
+				hideFallback();
 				console.log("ImGui frame loaded (waiting for bridge ready via postMessage).");
 			});
 		} else {
 			console.warn('ImGuiHost: no frame found with id "' + FRAME_ID + '".');
 		}
 
+		try {
+			document.getElementById("fallback-remote").addEventListener("click", function () {
+				useRemote("Manual switch requested.");
+			});
+			document.getElementById("fallback-retry").addEventListener("click", function () {
+				usingRemote = false;
+				hideFallback();
+				setFrameSrc(LOCAL_SRC);
+			});
+		} catch (e) { /* buttons missing */ }
+
 		forceTransparency();
 
-		// Debug aid: lua can poll window.__imgui_top via Eval? No Eval yet, but DevTools can.
+		// Debug aid: DevTools can poll window.__imgui_top().
 		window.__imgui_top = function () {
-			return { channelReady: channelReady, queued: queued.length, evalReadyEmitted: evalReadyEmitted };
+			var f = getFrame();
+			return {
+				channelReady: channelReady, frameLoaded: frameLoaded,
+				usingRemote: usingRemote, queued: queued.length,
+				evalReadyEmitted: evalReadyEmitted, src: f && f.src
+			};
 		};
 
-		// Warn if the embedded demo predates the postMessage relay (old GitHub Pages deploy).
+		// Local file missing -> neither load nor ready fires: fall back to remote.
+		// File exists but slow (first WASM compile) -> load fires, keep waiting.
+		setTimeout(function () {
+			if (!channelReady && !frameLoaded && !usingRemote) {
+				useRemote("Local demo not ready (./ImGuiDemo.html missing or blocked).");
+			} else if (!channelReady && frameLoaded) {
+				showFallback("Local demo loading (first WASM compile can take a while)...");
+			}
+		}, 8000);
+
+		// Still nothing after 25s: show hint instead of a dead page.
 		setTimeout(function () {
 			if (!channelReady) {
-				console.error("ImGuiHost: no bridge ready from iframe after 10s. The hosted imgui_web_demo/index.html likely predates the postMessage relay - rebuild it (build.cmd) and redeploy GitHub Pages.");
+				showFallback("ImGui demo still not ready. Local: run imgui_web_demo/build.cmd debug. Remote needs network + WebGPU.");
 			}
-		}, 10000);
+		}, 25000);
 	</script>
 </body>
 

@@ -18,33 +18,63 @@ local is_imgui_ready
 local when_ready
 local initialized = false
 local ImGuiWebUI ---@type WebUI?
+local active_url ---@type string?
 local example_visible = false
 local example_views = {} ---@type table<string, boolean>
 
---- Fails with a actionable message when the bridge was never initialized.
---- Without this every Eval/Call crashes with cryptic
---- `attempt to call a nil value (upvalue 'send')` at Call().
+--- Direct zero-iframe overlay: unminified local demo built via
+--- `imgui_web_demo/build.cmd debug` (same shell + bridge, SINGLE_FILE).
+ImGui.LOCAL_URL = "file://UI/ImGuiDemo.html"
+--- Bootstrap overlay: small local page embedding ./ImGuiDemo.html first,
+--- falling back to the remote Pages demo (postMessage relay either way).
+ImGui.BOOTSTRAP_URL = "file://UI/ImGui.html"
+
+--- True when the local demo build exists in this package.<br>
+--- Anything uncertain (no File API, probe error) counts as missing so callers fall back to the bootstrap instead of risking a dead page.<br>
+--- Explicit `url` options bypass the probe and are honored verbatim.
+local function local_demo_present()
+	local ok, file = pcall(require, "FileWrapper")
+	if not ok or type(file) ~= "table" or type(file.is_file) ~= "function" then
+		return false
+	end
+	local ok2, present = pcall(file.is_file, "Client/UI/ImGuiDemo.html")
+	if not ok2 then return false end
+	return present == true
+end
+
+--- Fails with a actionable message when the bridge was never initialized.<br>
+--- Without this every Eval/Call crashes with cryptic `attempt to call a nil value (upvalue 'send')` at Call().
 local function assert_initialized(what)
 	if not send then
 		error(string.format(
-			"ImGui.%s failed: ImGui not initialized. Run `lua imgui.Initialize()` first (creates the file://UI/ImGui.html overlay). Do NOT use the WebBrowser tab for this.",
+			"ImGui.%s failed: ImGui not initialized. Run `imgui_init` (direct file://UI/ImGuiDemo.html overlay) or `lua imgui.Initialize()` first. Do NOT use the WebBrowser tab for this.",
 			tostring(what or "Call")), 3)
 	end
 end
 
---- Creates the transparent overlay WebUI and wires the eval bridge.
---- Accepts an optional options table to override the defaults.
---- Do NOT open the demo via WebBrowser (New Tab -> ImGui link): that tab has
---- no Lua bridge. This overlay (file://UI/ImGui.html + postMessage relay to
---- the embedded imgui_web_demo iframe) is the only path Example* can drive.
+--- Creates the transparent overlay WebUI and wires the eval bridge.<br>
+--- Accepts an optional options table to override the defaults.<br>
+--- Do NOT open the demo via WebBrowser (New Tab -> ImGui link): that tab has no Lua bridge.<br>
+--- Default is the direct local demo (zero-iframe, direct Events bridge); when it was never built the bootstrap overlay is used instead so you get the remote fallback rather than a dead page.<br>
+--- An explicit `options.url` is always honored verbatim (no probe).
 ---@param options? table Optional overrides: { name = string, url = string, visibility = WidgetVisibility }.
 function ImGui.Initialize(options)
 	if initialized then return end
 	initialized = true
 	options = options or {}
+	if not options.url then
+		if local_demo_present() then
+			options.url = ImGui.LOCAL_URL
+		else
+			options.url = ImGui.BOOTSTRAP_URL
+			print(
+				"[ImGui] local demo missing (run imgui_web_demo/build.cmd debug); using bootstrap with remote fallback")
+		end
+	end
+	active_url = options.url
 	local ImGuiUI = WebUI(
 		options.name or (Package.GetName() .. ":imgui.api"),
-		options.url or "file://UI/ImGui.html",
+		options.url,
 		options.visibility or WidgetVisibility.Visible, true, false, 0, 0
 	)
 	ImGuiWebUI = ImGuiUI
@@ -146,6 +176,20 @@ function ImGui.Initialize(options)
 	end
 end
 
+--- Destroys the overlay WebUI and creates it again (e.g. to switch URLs).<br>
+--- In-flight requests from before the call never reply; shown example views must be re-registered (the view registry lives in the page).<br>
+--- Tick stays subscribed exactly once.
+---@param options? table Same overrides as Initialize.
+function ImGui.Reinitialize(options)
+	if ImGuiWebUI and ImGuiWebUI.Destroy then
+		pcall(function() ImGuiWebUI:Destroy() end)
+	end
+	ImGuiWebUI = nil
+	active_url = nil
+	initialized = false
+	ImGui.Initialize(options)
+end
+
 ----------------------------------------------------------------------
 -- Public API
 ----------------------------------------------------------------------
@@ -160,6 +204,12 @@ end
 ---@return WebUI? webui The underlying WebUI instance (nil before Initialize).
 function ImGui.GetWebUI()
 	return ImGuiWebUI
+end
+
+--- Returns the URL the overlay WebUI was created with (nil before Initialize).
+---@return string? url e.g. "file://UI/ImGuiDemo.html".
+function ImGui.GetURL()
+	return active_url
 end
 
 --- Reports whether the page DOM is ready (queued evals have been flushed).
@@ -404,9 +454,8 @@ function ImGui.PollEvents(callback)
 end
 
 --- Peeks widget interaction events WITHOUT draining the queue.<br>
---- Same payload as PollEvents; the events remain queued, so the next
---- PollEvents still returns them. Useful for inspecting without consuming
---- (the shared Tick poller, bindings and button routes all consume via PollEvents).
+--- Same payload as PollEvents; the events remain queued, so the next PollEvents still returns them.<br>
+--- Useful for inspecting without consuming (the shared Tick poller, bindings and button routes all consume via PollEvents).
 ---@param callback? function Callback function to receive the event array (function(success, res)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>
@@ -420,9 +469,8 @@ function ImGui.PeekEvents(callback)
 end
 
 --- Reports bridge and runtime status.<br>
---- Result fields: { domReady, imguiReady, demo, frame, views, viewErrors,
---- queuedEvents, uiVersion }. uiVersion "1.2.0"+ means SetTheme and friends
---- are available (older pages answer those calls with { ok = false }).
+--- Result fields: { domReady, imguiReady, demo, frame, views, viewErrors, queuedEvents, uiVersion }.<br>
+--- uiVersion "1.2.0"+ means SetTheme and friends are available (older pages answer those calls with { ok = false }).
 ---@param callback? function Callback function to receive the status (function(success, res)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>
@@ -438,10 +486,10 @@ end
 ----------------------------------------------------------------------
 -- Theme & style (global, persistent across frames)
 ----------------------------------------------------------------------
---- Requires the demo page v1.2.0+ (see Status uiVersion): rebuild
---- imgui_web_demo (build.cmd) and redeploy the hosted page. Calls against an
---- older page fail gracefully with { ok = false } and change nothing.<br>
---- For per-frame styling that works on ANY page version, see ThemeSnippet.
+
+-- Requires the demo page v1.2.0+ (see Status uiVersion): rebuild imgui_web_demo (build.cmd) and redeploy the hosted page.
+-- Calls against an older page fail gracefully with { ok = false } and change nothing.
+-- For per-frame styling that works on ANY page version, see ThemeSnippet.
 
 --- ImGuiCol indices. Mirrors imgui.h enum ImGuiCol_ order (Text = 0).
 ImGui.Col = {
@@ -538,8 +586,8 @@ ImGui.StyleFloatFields = { "alpha", "disabledAlpha", "windowRounding", "windowBo
 ImGui.StyleVec2Fields = { "windowPadding", "framePadding", "itemSpacing" }
 
 --- Applies a global theme preset plus optional overrides (one-shot, persistent).<br>
---- Overrides: { colors = { Button = { r, g, b, a } }, floats = { windowRounding = 6 },
---- vec2s = { windowPadding = { 10, 10 } } }. Color keys accept Col names or indices.
+--- Overrides: `{ colors = { Button = { r, g, b, a } }, floats = { windowRounding = 6 }, vec2s = { windowPadding = { 10, 10 } } }`.<br>
+--- Color keys accept Col names or indices.
 ---@param name string Preset: "dark", "light" or "classic".
 ---@param overrides? table Optional { colors = {}, floats = {}, vec2s = {} } tweaks.
 ---@param callback? function Callback function to receive { theme } (function(success, res)).
@@ -580,7 +628,7 @@ end
 
 --- Overrides one global style color (one-shot, persistent).<br>
 --- Accepts a Col name ("Button") or index plus an { r, g, b[, a] } array.
----@param idxOrName string|integer Col name or index (see ImGui.Col).
+---@param idxOrName string|integer Col name or index (see `ImGui.Col`).
 ---@param rgba table { r, g, b[, a] } floats in 0..1.
 ---@param callback? function Callback function to receive the result (function(success, res)).
 ---@return integer req_id The request ID for tracking.
@@ -594,7 +642,7 @@ function ImGui.SetStyleColor(idxOrName, rgba, callback)
 end
 
 --- Overrides one global float style var (one-shot, persistent).<br>
---- Field must be one of ImGui.StyleFloatFields.
+--- Field must be one of `ImGui.StyleFloatFields`.
 ---@param field string e.g. "windowRounding", "alpha", "frameRounding".
 ---@param value number New value.
 ---@param callback? function Callback function to receive the result (function(success, res)).
@@ -608,7 +656,7 @@ function ImGui.SetStyleFloat(field, value, callback)
 end
 
 --- Overrides one global ImVec2 style var (one-shot, persistent).<br>
---- Field must be one of ImGui.StyleVec2Fields.
+--- Field must be one of `ImGui.StyleVec2Fields`.
 ---@param field string e.g. "windowPadding", "framePadding", "itemSpacing".
 ---@param x number New x component.
 ---@param y number New y component.
@@ -718,7 +766,7 @@ local function bindings_copy(v)
 	return out
 end
 
---- Ticks between GetMany polls for silent widgets (sliders/drags/inputs/colors).
+--- Ticks between GetMany polls for silent widgets (sliders/drags/inputs/colors).<br>
 --- Events stay immediate (every Tick); silent widgets lag at most this many Ticks.
 local POLL_EVERY = 10
 local tick_frame = 0
@@ -754,8 +802,7 @@ local function untrack_example(id)
 end
 
 --- Applies one drained PollEvents envelope to the binding mirrors.<br>
---- Calls each binding's on_change(new_value, old_value) on real changes,
---- then runs any button_routes[id] handlers for button/menu events.
+--- Calls each binding's on_change(new_value, old_value) on real changes, then runs any button_routes[id] handlers for button/menu events.
 ---@param res table UI.call envelope payload ({ ok, result }).
 local function sync_bindings(res)
 	if not (res and res.ok) then return end
@@ -789,8 +836,7 @@ local function sync_bindings(res)
 end
 
 --- Collects every JS storage key backing the bindings.<br>
---- Normal bindings contribute their own key; color bindings contribute
---- their key_r/_g/_b(/_a) sub-keys.
+--- Normal bindings contribute their own key; color bindings contribute their key_r/_g/_b(/_a) sub-keys.
 ---@return string[] keys
 local function collect_poll_keys()
 	local keys = {}
@@ -844,8 +890,7 @@ local function sync_polled(map)
 end
 
 --- Routes a UI press to a Lua handler via the shared Tick poller.<br>
---- Covers Button, SmallButton, ArrowButton, InvisibleButton and ColorButton
---- ({ type = "button", id }) as well as MenuItem ({ type = "menu", id }).<br>
+--- Covers Button, SmallButton, ArrowButton, InvisibleButton and ColorButton ({ type = "button", id }) as well as MenuItem ({ type = "menu", id }).<br>
 --- Buttons are momentary (no value to mirror), so this replaces Bind for them.
 ---@param button_id string Exact widget label (the emitted event id).
 ---@param handler function Called as handler(event) on each press.
@@ -968,7 +1013,7 @@ end
 ---@param key string Base key passed to BindColor.
 ---@param rgb table { r, g, b } or { r, g, b, a } floats in 0..1.
 ---@param callback? function Optional SetMany callback (function(success, res)).
----@return integer req_id The request ID for tracking.
+---@return integer? req_id The request ID for tracking.
 function ImGui.SetBoundColor(key, rgb, callback)
 	local b = bindings[key]
 	if b and b.subkeys then
@@ -1040,7 +1085,7 @@ function ImGui.BindState(initial, on_change)
 			value = v,
 			on_change = on_change and function(new_value, old_value)
 				on_change(k, new_value, old_value)
-			end or nil,
+			end,
 		}
 		ImGui.Set(k, v)
 	end
@@ -1100,8 +1145,7 @@ function ImGui.HideExample()
 end
 
 --- Shows buttons, checkboxes, radios, flags, selectables, trees.<br>
---- Covers Button/SmallButton/ArrowButton, Checkbox/CheckboxFlags,
---- RadioButtonInt, SelectableState, TreeNode, CollapsingHeader, Bullets.
+--- Covers Button/SmallButton/ArrowButton, Checkbox/CheckboxFlags, RadioButtonInt, SelectableState, TreeNode, CollapsingHeader, Bullets.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleBasic() -- "Lua Basic" window with buttons, radios, selectables
@@ -1163,8 +1207,7 @@ function ImGui.HideExampleBasic()
 end
 
 --- Shows sliders, drags, vertical slider and progress bar.<br>
---- Covers SliderFloat/Int, SliderFloat2/3/4, SliderInt2, SliderAngle,
---- VSliderFloat, DragFloat/Int, DragFloat2/3/4, DragInt2, DragFloatRange2.
+--- Covers SliderFloat/Int, SliderFloat2/3/4, SliderInt2, SliderAngle, VSliderFloat, DragFloat/Int, DragFloat2/3/4, DragInt2, DragFloatRange2.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleSliders() -- "Lua Sliders/Drags" window
@@ -1241,8 +1284,7 @@ function ImGui.HideExampleColors()
 end
 
 --- Shows combos, list boxes and a bordered table.<br>
---- Covers Combo, ListBox, BeginTable/TableSetupColumn/TableHeadersRow/
---- TableNextRow/TableSetColumnIndex/Text/EndTable.
+--- Covers Combo, ListBox, BeginTable/TableSetupColumn/TableHeadersRow/TableNextRow/TableSetColumnIndex/Text/EndTable.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleLists() -- pick a fruit, the LabelText mirrors the polled index
@@ -1285,8 +1327,7 @@ function ImGui.HideExampleLists()
 end
 
 --- Shows text/number inputs, progress bars and plots.<br>
---- Covers InputText/WithHint/Multiline, InputFloat/Int (+N variants),
---- InputDouble, ProgressBar, PlotLines, PlotHistogram.
+--- Covers InputText/WithHint/Multiline, InputFloat/Int (+N variants), InputDouble, ProgressBar, PlotLines, PlotHistogram.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleInputs() -- type a name, watch it via Snapshot("in_name")
@@ -1326,9 +1367,7 @@ function ImGui.HideExampleInputs()
 end
 
 --- Shows layout helpers: tooltips, disabled state, child, popup, columns.<br>
---- Covers BeginDisabled/EndDisabled, IsItemHovered, SetTooltip/SetItemTooltip,
---- BeginChild/EndChild, OpenPopup/BeginPopup/EndPopup, Dummy, SameLine,
---- SetNextItemWidth, GetContentRegionAvailWidth, Columns/NextColumn.
+--- Covers BeginDisabled/EndDisabled, IsItemHovered, SetTooltip/SetItemTooltip, BeginChild/EndChild, OpenPopup/BeginPopup/EndPopup, Dummy, SameLine, SetNextItemWidth, GetContentRegionAvailWidth, Columns/NextColumn.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleLayout() -- hover the buttons to see tooltips, open the popup
@@ -1384,8 +1423,7 @@ function ImGui.HideExampleLayout()
 end
 
 --- Shows a menu bar plus a reorderable tab bar.<br>
---- Covers Begin (with MenuBar flag), BeginMenuBar/BeginMenu/MenuItem/EndMenu/
---- EndMenuBar, BeginTabBar/BeginTabItem/EndTabItem/EndTabBar.
+--- Covers Begin (with MenuBar flag), BeginMenuBar/BeginMenu/MenuItem/EndMenu/EndMenuBar, BeginTabBar/BeginTabItem/EndTabItem/EndTabBar.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleTabs() -- File/Edit menus log to console, Tab 2 owns a checkbox
@@ -1434,8 +1472,7 @@ function ImGui.HideExampleTabs()
 end
 
 --- Shows a minimal always-on-top style HUD with FPS and progress.<br>
---- Demonstrates SetNextWindowPos/SetNextWindowSize with Cond.FirstUseEver,
---- Text, Separator, ProgressBar and LabelText without extra state keys.
+--- Demonstrates SetNextWindowPos/SetNextWindowSize with Cond.FirstUseEver, Text, Separator, ProgressBar and LabelText without extra state keys.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleHUD() -- small "Lua HUD" window, no Tick spam beyond PollEvents
@@ -1464,10 +1501,8 @@ function ImGui.HideExampleHUD()
 end
 
 --- Shows two-way bindings across every stateful widget family.<br>
---- Immediate path (PollEvents, same Tick): checkboxes, SelectableState, combo,
---- listbox, RadioButtonInt, CheckboxFlags.<br>
---- Polled path (GetMany every POLL_EVERY Ticks): sliders, drags, text/number
---- inputs, color editors/pickers, which never emit events.<br>
+--- Immediate path (PollEvents, same Tick): checkboxes, SelectableState, combo, listbox, RadioButtonInt, CheckboxFlags.<br>
+--- Polled path (GetMany every POLL_EVERY Ticks): sliders, drags, text/number inputs, color editors/pickers, which never emit events.<br>
 --- The Lua-side buttons prove the Lua -> UI direction without touching the widgets.
 ---@usage <br>
 --- ```
@@ -1597,9 +1632,8 @@ function ImGui.HideExampleBinding()
 end
 
 --- Shows dynamic labels and tooltips driven by string bindings.<br>
---- LabelText/Text/SetTooltip take static strings, so the view reads the live
---- storage (UI.get(key).value) while Lua pushes via Bind/SetBound on the same
---- keys. Typing in the inputs updates the labels and tooltips next frame.
+--- LabelText/Text/SetTooltip take static strings, so the view reads the live storage (UI.get(key).value) while Lua pushes via Bind/SetBound on the same keys.<br>
+--- Typing in the inputs updates the labels and tooltips next frame.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleLabels() -- type a name: LabelText + tooltip follow it
@@ -1647,9 +1681,8 @@ function ImGui.HideExampleLabels()
 end
 
 --- Shows global theming plus a per-frame styled section.<br>
---- Preset buttons call SetTheme (one-shot, needs demo v1.2.0+; the uiVersion
---- is printed for diagnosis). The rounding slider drives SetStyleFloat live,
---- and the "Styled!" button is wrapped in ThemeSnippet (works everywhere).
+--- Preset buttons call SetTheme (one-shot, needs demo v1.2.0+; the uiVersion is printed for diagnosis).<br>
+--- The rounding slider drives SetStyleFloat live, and the "Styled!" button is wrapped in ThemeSnippet (works everywhere).
 ---@usage <br>
 --- ```
 --- ImGui.ExampleTheme()
@@ -1699,8 +1732,8 @@ function ImGui.HideExampleTheme()
 end
 
 --- Shows every Lua example window at once (hides the built-in demo).<br>
---- Convenience wrapper around Example/Basic/Sliders/Colors/Lists/Inputs/
---- Layout/Tabs/HUD/Binding/Labels/Theme. Pair with HideExamples when done.
+--- Convenience wrapper around Example/Basic/Sliders/Colors/Lists/Inputs/Layout/Tabs/HUD/Binding/Labels/Theme.<br>
+--- Pair with HideExamples when done.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleAll()  -- opens the full Lua gallery
@@ -1722,9 +1755,7 @@ function ImGui.ExampleAll()
 end
 
 --- Hides every Lua example window and restores the built-in demo.<br>
---- Unregisters all tracked "lua_*" views, drops their bindings and button
---- routes, restores the demo, and stops Tick polling unless foreign (non-example)
---- bindings or routes still exist.
+--- Unregisters all tracked "lua_*" views, drops their bindings and button routes, restores the demo, and stops Tick polling unless foreign (non-example) bindings or routes still exist.
 ---@usage <br>
 --- ```
 --- ImGui.HideExamples() -- clean slate, demo windows return
@@ -1763,8 +1794,7 @@ end
 
 --- Shared Tick poller: drains PollEvents once, syncs bindings, then prints.<br>
 --- Subscribed by examples and bindings (unsubscribed when none remain).<br>
---- UI -> Lua flows through sync_bindings (immediate events) plus a throttled
---- GetMany poll (sliders/drags/inputs/colors, which never emit events).<br>
+--- UI -> Lua flows through sync_bindings (immediate events) plus a throttled GetMany poll (sliders/drags/inputs/colors, which never emit events).<br>
 --- Lua -> UI flows through Set/SetBound/SetBoundColor.
 ---@return integer req_id The request ID for tracking.
 function ImGui.ExampleTick()
@@ -1809,9 +1839,15 @@ do
 		if not initialized then ImGui.Initialize() end
 	end
 	Bind.RegisterCommand("imgui_init", function()
-		must_init()
-		print("[ImGui] initialized:", ImGui.IsInitialized(), "ready:", ImGui.IsReady())
-	end, "Create ImGui overlay WebUI")
+		if not initialized then
+			-- Direct zero-iframe overlay, bypassing the bootstrap + probe.
+			ImGui.Initialize({ url = ImGui.LOCAL_URL })
+		elseif ImGui.GetURL() ~= ImGui.LOCAL_URL then
+			print("[ImGui] switching overlay to direct local demo")
+			ImGui.Reinitialize({ url = ImGui.LOCAL_URL })
+		end
+		print("[ImGui] initialized:", ImGui.IsInitialized(), "url:", ImGui.GetURL(), "ready:", ImGui.IsReady())
+	end, "Create ImGui overlay WebUI (direct file://UI/ImGuiDemo.html)")
 	Bind.RegisterCommand("imgui_demo", function()
 		must_init()
 		ImGui.ExampleAll()
@@ -1826,7 +1862,8 @@ do
 		end
 		ImGui.Status(function(success, res)
 			if success and res and res.ok then
-				print(string.format("[ImGui] dom=%s wasm=%s demo=%s views=%d ui=%s",
+				print(string.format("[ImGui] url=%s dom=%s wasm=%s demo=%s views=%d ui=%s",
+					tostring(ImGui.GetURL()),
 					tostring(ImGui.IsReady()), tostring(ImGui.IsImGuiReady()),
 					tostring(res.result.demo), #(res.result.views or {}),
 					tostring(res.result.uiVersion)))

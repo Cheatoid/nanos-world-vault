@@ -5,7 +5,7 @@ newoption {
 }
 
 if not _OPTIONS["lua"] then
-	return error("You must pass --lua=foldername (e.g., --lua=lua-5.4.8)")
+	return error("You must pass --lua=foldername (e.g., --lua=lua-5.4.9)")
 end
 
 local LUA_DIR = _OPTIONS["lua"]
