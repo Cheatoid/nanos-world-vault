@@ -233,7 +233,8 @@ local function createTabWebUI(tabId)
 	local resizeCallback = Viewport.Subscribe("Resize", function(new_size)
 		-- new_size.X, new_size.Y
 		local new_toolbar_height = 93 * (new_size.Y / 1080)
-		tabWebUI:SetLayout(Vector2D(0, new_toolbar_height), Vector2D(0, 0), Vector2D(0, 0), Vector2D(1, 1), Vector2D(0.5, 0))
+		tabWebUI:SetLayout(Vector2D(0, new_toolbar_height), Vector2D(0, 0), Vector2D(0, 0), Vector2D(1, 1),
+		Vector2D(0.5, 0))
 	end)
 	tabWebUI:Subscribe("Destroy", function()
 		Viewport.Unsubscribe("Resize", resizeCallback)

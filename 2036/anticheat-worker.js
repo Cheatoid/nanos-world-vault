@@ -16,7 +16,7 @@ const checkDebugger = () => {
 	const elapsed = performance.now() - start;
 	if (elapsed > 100) {
 		devtoolsOpen = true;
-		postMessage({type: 'TRIGGER', cause: 'Debugger timing attack (elapsed: ' + elapsed.toFixed(2) + 'ms)'});
+		postMessage({ type: 'TRIGGER', cause: 'Debugger timing attack (elapsed: ' + elapsed.toFixed(2) + 'ms)' });
 	}
 	// Random interval between 500ms and 2000ms
 	const randomDelay = Math.floor(Math.random() * 1500) + 500;
@@ -33,7 +33,7 @@ const monitorExecution = () => {
 	}
 	const elapsed = performance.now() - start;
 	if (elapsed > 10) {
-		postMessage({type: 'TRIGGER', cause: 'Execution monitoring detected slowdown (' + elapsed.toFixed(2) + 'ms)'});
+		postMessage({ type: 'TRIGGER', cause: 'Execution monitoring detected slowdown (' + elapsed.toFixed(2) + 'ms)' });
 	}
 	// Random interval for next check
 	setTimeout(monitorExecution, Math.floor(Math.random() * 3000) + 2000);
@@ -43,7 +43,7 @@ const monitorExecution = () => {
 const element = new Image();
 Object.defineProperty(element, 'id', {
 	get: function () {
-		postMessage({type: 'TRIGGER', cause: 'Element inspection detection'});
+		postMessage({ type: 'TRIGGER', cause: 'Element inspection detection' });
 	}
 });
 
@@ -53,7 +53,7 @@ console.log('%c', t0);
 console.log('%c', Date.now());
 const t1 = Date.now();
 if (t1 - t0 > 100) {
-	postMessage({type: 'TRIGGER', cause: 'Console timing attack (elapsed: ' + (t1 - t0) + 'ms)'});
+	postMessage({ type: 'TRIGGER', cause: 'Console timing attack (elapsed: ' + (t1 - t0) + 'ms)' });
 }
 
 // Start detection with random delays

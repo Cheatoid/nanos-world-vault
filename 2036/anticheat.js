@@ -184,14 +184,14 @@
 				request.onupgradeneeded = (e) => {
 					const db = e.target.result;
 					if (!db.objectStoreNames.contains('bans')) {
-						db.createObjectStore('bans', {keyPath: 'hash'});
+						db.createObjectStore('bans', { keyPath: 'hash' });
 					}
 				};
 				request.onsuccess = (e) => {
 					const db = e.target.result;
 					const transaction = db.transaction(['bans'], 'readwrite');
 					const store = transaction.objectStore('bans');
-					store.put({hash: userHash, timestamp: Date.now()});
+					store.put({ hash: userHash, timestamp: Date.now() });
 				};
 			} catch (e) {
 			}
@@ -465,7 +465,7 @@
 
 	// Signal successful load with secure token (not exposed to global scope)
 	const secureToken = btoa(internalState.secret + ':' + internalState.validationKey);
-	window.dispatchEvent(new CustomEvent('anticheat-loaded', {detail: {secureToken: secureToken}}));
+	window.dispatchEvent(new CustomEvent('anticheat-loaded', { detail: { secureToken: secureToken } }));
 
 	// Heartbeat validation - verify anticheat is loaded from correct page
 	let expectedPage = window.location.pathname;
@@ -482,7 +482,7 @@
 			}
 			// Send heartbeat response
 			window.dispatchEvent(new CustomEvent('anticheat-heartbeat-response', {
-				detail: {valid: true, timestamp: Date.now()}
+				detail: { valid: true, timestamp: Date.now() }
 			}));
 		}
 	});
@@ -677,7 +677,7 @@
 			setTimeout(monitorExecution, Math.floor(Math.random() * 2000));
 			setTimeout(sendHeartbeat, Math.floor(Math.random() * 500));
 		`;
-		const workerBlob = new Blob([workerCode], {type: 'text/javascript'});
+		const workerBlob = new Blob([workerCode], { type: 'text/javascript' });
 		const workerUrl = URL.createObjectURL(workerBlob);
 		const antiCheatWorker = new Worker(workerUrl);
 

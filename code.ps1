@@ -5,28 +5,28 @@
 
 <#
 .SYNOPSIS
-		Launch VS Code or VS Code Insiders with an isolated profile and no extensions (cross-platform).
+	Launch VS Code or VS Code Insiders with an isolated profile and no extensions (cross-platform).
 
 .PARAMETER TempBase
-		Optional path to use as the base folder for temp user-data and extensions directories.
-		If provided, two subfolders will be created: <TempBase>/user-data and <TempBase>/extensions.
+	Optional path to use as the base folder for temp user-data and extensions directories.
+	If provided, two subfolders will be created: <TempBase>/user-data and <TempBase>/extensions.
 
 .PARAMETER KeepTemp
-		Keep the temporary directories after the editor exits. Mutually exclusive with -TempBase.
+	Keep the temporary directories after the editor exits. Mutually exclusive with -TempBase.
 
 .PARAMETER Insiders
-		Force using VS Code Insiders. If Insiders is not available the script will error.
+	Force using VS Code Insiders. If Insiders is not available the script will error.
 
 .PARAMETER NoInsiders
-		Force using stable VS Code (do not use Insiders even if present).
+	Force using stable VS Code (do not use Insiders even if present).
 
 .EXAMPLE
-		.\code.ps1 -Insiders
-		Force open VS Code Insiders with a clean profile.
+	.\code.ps1 -Insiders
+	Force open VS Code Insiders with a clean profile.
 
 .EXAMPLE
-		.\code.ps1 -NoInsiders -TempBase C:\tmp\vscode-clean
-		Force open stable VS Code and use the provided TempBase for user-data and extensions.
+	.\code.ps1 -NoInsiders -TempBase C:\tmp\vscode-clean
+	Force open stable VS Code and use the provided TempBase for user-data and extensions.
 #>
 
 param(
