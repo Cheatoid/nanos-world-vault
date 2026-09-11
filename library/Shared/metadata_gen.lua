@@ -19,11 +19,11 @@
 ---@type library.metadata_gen
 return {
 	package_version = "0.0.50",
-	timestamp = "2026-09-11 19:40:23",
+	timestamp = "2026-09-11 19:43:43",
 	commit_count = 332,
 	tag_count = 47,
 	branch_name = "main",
-	prev_hash = "552725ac8962860cdc2245b46a9a2c2b253bfd07",
+	prev_hash = "9ca34949e9835d569f5f44ab66e2eef8b07f0ead",
 	is_preview = false,
 	tag = "v0.0.51",
 	owner = "Cheatoid",
