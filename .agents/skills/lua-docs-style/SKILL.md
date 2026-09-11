@@ -35,7 +35,12 @@ Every annotation line starts with exactly three dashes followed by @tag. Use the
 - @return type name description - return value. Type first, then a return value name, then a short description. One line per return value.
 - @class Name - class declaration (the first @class line carries the description above it).
 - @field name type description - class field, either a named field (for example "major integer The major version number.") or an array slot using the [index] form (for example "[1] table Container table storing the deque items.").
-- @usage followed by a fenced code block - usage example.
+- @usage followed by a fenced code block - usage example. Use exactly one `@usage` line per doc block (`---@usage <br>`), then a plain `---` fenced code block. Do NOT repeat `@usage` on fence or code lines:
+---@usage <br>
+--- ```
+--- local deque = Deque.new()
+--- deque:pushBack(1)
+--- ```
 - @overload fun(...) - overload signature.
 
 ### Type notation
@@ -53,6 +58,7 @@ Every annotation line starts with exactly three dashes followed by @tag. Use the
 - Keep descriptions short (3-8 words); put details in preceding plain lines.
 - Indent with tabs inside function bodies; doc comments align with the function.
 - Doc block sits directly above the function or class, no blank line between.
+- `@usage` appears at most once per doc block. Fence and code lines use plain `---`, never `---@usage`.
 - Do not translate the existing comment lines inside the body; leave code unchanged.
 
 ### Documenting options-table arguments
@@ -103,5 +109,5 @@ Naming rule: ReceiverTypeName.Options (for example string.TruncateOptions, not T
 1. Read the target Lua file fully.
 2. Read one matching reference file from the list above.
 3. Add doc blocks above every function (and class, if present) following the exact style.
-4. Verify: no code lines changed, all tags are lowercase, nullable uses the question mark suffix, no pipe-nil remains.
+4. Verify: no code lines changed, all tags are lowercase, nullable uses the question mark suffix, no pipe-nil remains, only one `@usage` per block with plain `---` fences.
 5. Report what was documented and which reference file was used.

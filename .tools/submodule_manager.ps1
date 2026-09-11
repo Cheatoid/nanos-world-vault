@@ -1,16 +1,44 @@
 #!/usr/bin/env pwsh
+#Requires -Version 7.0
 
 # Author: Cheatoid ~ https://github.com/Cheatoid
 # License: MIT
 
 <#
-	submodule_manager.ps1
-	Unified Git Submodule Manager
+.SYNOPSIS
+	Unified Git Submodule Manager (submodule_manager.ps1).
+
+.DESCRIPTION
+	Manages Git submodules. When no command is given, offers an interactive
+	TUI picker (arrow keys to move, Enter to select, Esc to exit).
 	Commands:
 	  add     – Add submodules
 	  remove  – Remove submodules (with TUI picker)
 	  list    – List submodules
 	  help    – Show help
+
+.PARAMETER Command
+	Command to run: add, remove, list, or help (default: interactive picker).
+
+.PARAMETER Urls
+	Repository URLs for the add command.
+
+.PARAMETER Paths
+	Submodule paths for the add and remove commands.
+
+.PARAMETER Branches
+	Branches to track for the add command.
+
+.PARAMETER DryRun
+	Show what would change without modifying anything.
+
+.EXAMPLE
+	.\submodule_manager.ps1 list
+	Lists the configured submodules.
+
+.EXAMPLE
+	.\submodule_manager.ps1 add -Urls "https://github.com/org/repo.git" -Paths "libs/repo"
+	Adds a submodule (use -DryRun first to preview).
 #>
 
 param(
@@ -23,6 +51,10 @@ param(
 
 	[switch]$DryRun
 )
+
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+	throw 'submodule_manager.ps1 requires PowerShell 7 or newer. Install PowerShell 7+ and run with pwsh.'
+}
 
 ### ------------------------------------------------------------
 ### Logging Helpers
@@ -37,7 +69,7 @@ function Verb($msg) { if ($VerbosePreference -eq 'Continue') { Write-Host "[VERB
 ### URL Normalization + Validation
 ### ------------------------------------------------------------
 
-function Normalize-Url($Url) {
+function ConvertTo-NormalizedUrl($Url) {
 	if ($Url -match '^git@' -or $Url -match '^https?://') { return $Url }
 
 	if ($Url -match '^[\w\.\-]+/[\w\.\-]+(\.git)?$') {
@@ -48,7 +80,7 @@ function Normalize-Url($Url) {
 	return $Url
 }
 
-function Validate-Url($Url) {
+function Test-Url($Url) {
 	if ($Url -match '^git@[\w\.\-]+:[\w\.\-]+/[\w\.\-]+(\.git)?$') { return $true }
 	if ($Url -match '^https?://[\w\.\-]+/[\w\.\-]+/[\w\.\-]+(\.git)?$') { return $true }
 	return $false
@@ -208,8 +240,8 @@ function Do-Add {
 
 	# Normalize + validate
 	for ($i = 0; $i -lt $Urls.Count; $i++) {
-		$Urls[$i] = Normalize-Url $Urls[$i]
-		if (-not (Validate-Url $Urls[$i])) {
+		$Urls[$i] = ConvertTo-NormalizedUrl $Urls[$i]
+		if (-not (Test-Url $Urls[$i])) {
 			Err "Invalid URL: $($Urls[$i])"
 			exit 1
 		}

@@ -1,40 +1,47 @@
 #!/usr/bin/env pwsh
+#Requires -Version 7.0
 
 # Author: Cheatoid ~ https://github.com/Cheatoid
 # License: MIT
 
 <#
 .SYNOPSIS
-		Removes UTF-8 BOM headers from all Lua files in the repository.
+	Removes UTF-8 BOM headers from all Lua files under the search path.
 
 .DESCRIPTION
-		This script recursively finds all .lua files in the current directory and its subdirectories,
-		checks if they have a UTF-8 BOM (Byte Order Mark) header, and removes it if present.
-		The BOM consists of the three bytes: 0xEF, 0xBB, 0xBF.
+	This script recursively finds all .lua files under the search path,
+	checks if they have a UTF-8 BOM (Byte Order Mark) header, and removes it if present.
+	The BOM consists of the three bytes: 0xEF, 0xBB, 0xBF.
+	Reports how many files were checked and how many had a BOM removed.
 
 .PARAMETER Path
-		The path to search for Lua files. Defaults to current directory.
+	The path to search for Lua files (default: parent directory, i.e. the
+	@cheatoid root when run from .tools).
 
 .PARAMETER DryRun
-		If specified, shows what files would be modified without making changes.
+	If specified, shows what files would be modified without making changes.
 
 .EXAMPLE
-		.\remove_utf8_bom.ps1
-		Removes BOM from all Lua files in current directory and subdirectories.
+	.\remove_utf8_bom.ps1
+	Removes BOM from all Lua files in the parent directory and subdirectories.
 
 .EXAMPLE
-		.\remove_utf8_bom.ps1 -DryRun
-		Shows which files have BOM without modifying them.
+	.\remove_utf8_bom.ps1 -DryRun
+	Shows which files have BOM without modifying them.
 
 .EXAMPLE
-		.\remove_utf8_bom.ps1 -Path "Y:\Lua.Scripts"
-		Removes BOM from all Lua files in the specified path.
+	.\remove_utf8_bom.ps1 -Path "C:\Lua.Scripts"
+	Removes BOM from all Lua files in the specified path.
 #>
 
 param(
 	[string]$Path = "..",
 	[switch]$DryRun
 )
+
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+	throw 'remove_utf8_bom.ps1 requires PowerShell 7 or newer. Install PowerShell 7+ and run with pwsh.'
+}
 
 # UTF-8 BOM bytes
 $BOM = [byte[]](0xEF, 0xBB, 0xBF)
