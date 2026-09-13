@@ -1,0 +1,2 @@
+# Prevent GitHub Pages from running Jekyll (which ignores `_next/` since it
+# starts with an underscore). This file is copied to `out/.nojekyll` on build.
