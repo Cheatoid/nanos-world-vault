@@ -1,0 +1,2008 @@
+<!--
+Author: Cheatoid ~ https://github.com/Cheatoid
+License: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport"
+		content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover" />
+	<title>Stream Overlay</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap"
+		rel="stylesheet" />
+	<style>
+		:root {
+			/* -- MASTER EFFECTS SWITCH --
+			0 = kill ALL flashy effects at once.
+			Individual toggles below are ignored when this is 0. */
+			--enable-fx: 1;
+
+			/* -- INDIVIDUAL EFFECT TOGGLES (0 or 1) -- */
+			--enable-scanlines: 1;
+			--enable-scan-beam: 1;
+			--enable-particles: 1;
+			--enable-glitch-title: 1;
+			--enable-rotating-border: 0;
+			--enable-equalizer: 1;
+			--enable-signal: 1;
+			--enable-corner-brackets: 1;
+			--enable-hype-pulse: 1;
+			--enable-combo-counter: 1;
+			--enable-achievements: 1;
+			--enable-streak-line: 1;
+			--enable-typing-cursor: 1;
+			--enable-entry-glow: 1;
+
+			/* -- CHAT FADE EDGES --
+			0 = hard edge (no fade), 1 = soft fade */
+			--enable-top-fade: 1;
+			/* 0 = latest messages fully visible */
+			--enable-bottom-fade: 0;
+
+			/* -- GLOW INTENSITY (0 = flat/no glow, 1 = full neon) -- */
+			--glow-intensity: 1;
+
+			/* -- COLORS -- */
+			--color-cyan: #00f0ff;
+			--color-pink: #ff0066;
+			--color-lime: #39ff14;
+			--color-yellow: #ffe600;
+			--color-orange: #ff6600;
+			--color-purple: #bf00ff;
+			--color-text: #e0e8ff;
+			--color-text-muted: rgba(180, 195, 230, 0.55);
+			--color-border: rgba(0, 240, 255, 0.15);
+
+			/* -- CHAT WINDOW SIZE & POSITION --
+			Drag header to move. Drag edges/corners to resize.
+			Double-click header to reset position.                */
+			--chat-width: 430px;
+			--chat-height: 560px;
+			--chat-init-bottom: 28px;
+			--chat-init-left: 28px;
+			--chat-border-radius: 4px;
+			--chat-min-width: 260px;
+			--chat-min-height: 200px;
+
+			/* -- TYPOGRAPHY -- */
+			--font-size-message: 14px;
+			--font-size-username: 11px;
+			--font-size-timestamp: 10px;
+			--font-size-header: 12px;
+			--font-size-system: 10px;
+			--font-size-badge: 8px;
+			--font-size-combo: 28px;
+			--font-size-hype-label: 8px;
+			--font-size-footer: 8px;
+
+			/* -- SLIDE-IN ANIMATION -- */
+			--slide-distance: 55px;
+			--slide-duration: 0.5s;
+			--slide-blur: 4px;
+			--slide-overshoot: 5px;
+
+			/* -- MESSAGE SPACING -- */
+			--msg-padding-x: 16px;
+			--msg-padding-y: 4px;
+			--msg-line-height: 1.55;
+
+			/* -- BEHAVIOR (read by JavaScript) -- */
+			--typing-speed-ms: 18;
+			--msg-lifespan-ms: 35000;
+			--max-messages: 50;
+			--demo-interval-ms: 2000;
+
+			/* -- ROTATING BORDER (driven by JS) -- */
+			--border-angle: 0deg;
+		}
+
+		/* -- COMPUTED TOGGLES (auto-derived - do not edit) -- */
+		:root {
+			--fx-scanlines: calc(var(--enable-fx) * var(--enable-scanlines));
+			--fx-scan-beam: calc(var(--enable-fx) * var(--enable-scan-beam));
+			--fx-particles: calc(var(--enable-fx) * var(--enable-particles));
+			--fx-glitch: calc(var(--enable-fx) * var(--enable-glitch-title));
+			--fx-border: calc(var(--enable-fx) * var(--enable-rotating-border));
+			--fx-eq: calc(var(--enable-fx) * var(--enable-equalizer));
+			--fx-signal: calc(var(--enable-fx) * var(--enable-signal));
+			--fx-corners: calc(var(--enable-fx) * var(--enable-corner-brackets));
+			--fx-hype: calc(var(--enable-fx) * var(--enable-hype-pulse));
+			--fx-combo: calc(var(--enable-fx) * var(--enable-combo-counter));
+			--fx-achieve: calc(var(--enable-fx) * var(--enable-achievements));
+			--fx-streak: calc(var(--enable-fx) * var(--enable-streak-line));
+			--fx-cursor: calc(var(--enable-fx) * var(--enable-typing-cursor));
+			--fx-entry-glow: calc(var(--enable-fx) * var(--enable-entry-glow));
+			--slide-distance-live: calc(var(--enable-fx) * var(--slide-distance) + (1 - var(--enable-fx)) * 12px);
+			--slide-blur-live: calc(var(--enable-fx) * var(--slide-blur));
+			--glow: var(--glow-intensity);
+		}
+
+		/* ========== RESET ========== */
+		*,
+		*::before,
+		*::after {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background: transparent;
+			font-family: "Share Tech Mono", monospace;
+			color: var(--color-text);
+		}
+
+		body.preview::before {
+			content: "";
+			position: fixed;
+			inset: 0;
+			z-index: -1;
+			background:
+				radial-gradient(ellipse at 15% 85%, rgba(0, 240, 255, 0.04) 0%, transparent 50%),
+				radial-gradient(ellipse at 85% 15%, rgba(255, 0, 102, 0.04) 0%, transparent 50%),
+				linear-gradient(160deg, #080818 0%, #0c0c28 50%, #080818 100%);
+		}
+
+		/* ========== CHAT OVERLAY ========== */
+		.chat-overlay {
+			position: fixed;
+			display: flex;
+			flex-direction: column;
+			z-index: 10;
+			animation: bootUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+			opacity: 0;
+			/* overflow: visible so achievement popups & resize handles work */
+		}
+
+		.chat-overlay.is-dragging {
+			opacity: 0.88;
+		}
+
+		.chat-overlay.is-resizing {
+			outline: 1px dashed rgba(0, 240, 255, 0.25);
+			outline-offset: 3px;
+		}
+
+		@keyframes bootUp {
+			0% {
+				opacity: 0;
+				transform: translateY(16px) scaleY(0.97);
+				filter: brightness(3) blur(2px);
+			}
+
+			40% {
+				opacity: 1;
+				filter: brightness(1.8) blur(0);
+			}
+
+			100% {
+				opacity: 1;
+				transform: translateY(0) scaleY(1);
+				filter: brightness(1) blur(0);
+			}
+		}
+
+		/* ========== RESIZE HANDLES ========== */
+		.resize-handle {
+			position: absolute;
+			z-index: 100;
+		}
+
+		.resize-handle[data-dir="n"] {
+			top: -6px;
+			left: 14px;
+			right: 14px;
+			height: 8px;
+			cursor: ns-resize;
+		}
+
+		.resize-handle[data-dir="s"] {
+			bottom: -6px;
+			left: 14px;
+			right: 14px;
+			height: 8px;
+			cursor: ns-resize;
+		}
+
+		.resize-handle[data-dir="w"] {
+			left: -6px;
+			top: 14px;
+			bottom: 14px;
+			width: 8px;
+			cursor: ew-resize;
+		}
+
+		.resize-handle[data-dir="e"] {
+			right: -6px;
+			top: 14px;
+			bottom: 14px;
+			width: 8px;
+			cursor: ew-resize;
+		}
+
+		.resize-handle[data-dir="nw"] {
+			top: -6px;
+			left: -6px;
+			width: 16px;
+			height: 16px;
+			cursor: nwse-resize;
+		}
+
+		.resize-handle[data-dir="ne"] {
+			top: -6px;
+			right: -6px;
+			width: 16px;
+			height: 16px;
+			cursor: nesw-resize;
+		}
+
+		.resize-handle[data-dir="sw"] {
+			bottom: -6px;
+			left: -6px;
+			width: 16px;
+			height: 16px;
+			cursor: nesw-resize;
+		}
+
+		.resize-handle[data-dir="se"] {
+			bottom: -6px;
+			right: -6px;
+			width: 16px;
+			height: 16px;
+			cursor: nwse-resize;
+		}
+
+		/* ========== HEADER ========== */
+		.chat-header {
+			position: relative;
+			padding: 10px 16px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			border: 1px solid var(--color-border);
+			border-bottom: none;
+			border-radius: var(--chat-border-radius) var(--chat-border-radius) 0 0;
+			cursor: move;
+			flex-shrink: 0;
+			user-select: none;
+		}
+
+		.chat-header::after {
+			content: "";
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			height: 2px;
+			background: linear-gradient(90deg,
+					transparent,
+					var(--color-cyan),
+					var(--color-pink),
+					var(--color-lime),
+					transparent);
+			animation: linePulse calc(var(--enable-fx) * 3s+0.001s) ease-in-out infinite;
+		}
+
+		@keyframes linePulse {
+
+			0%,
+			100% {
+				opacity: 0.4;
+			}
+
+			50% {
+				opacity: 1;
+			}
+		}
+
+		.status-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--color-lime);
+			box-shadow:
+				0 0 calc(6px * var(--glow)) var(--color-lime),
+				0 0 calc(14px * var(--glow)) var(--color-lime);
+			animation: dotPulse calc(var(--enable-fx) * 2s+0.001s) ease-in-out infinite;
+			flex-shrink: 0;
+		}
+
+		@keyframes dotPulse {
+
+			0%,
+			100% {
+				opacity: 1;
+				transform: scale(1);
+			}
+
+			50% {
+				opacity: 0.35;
+				transform: scale(0.8);
+			}
+		}
+
+		.header-title {
+			font-family: "Orbitron", sans-serif;
+			font-size: var(--font-size-header);
+			font-weight: 900;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			color: var(--color-cyan);
+			text-shadow: 0 0 calc(10px * var(--glow)) rgba(0, 240, 255, 0.6);
+			position: relative;
+		}
+
+		.header-title::before,
+		.header-title::after {
+			content: attr(data-text);
+			position: absolute;
+			left: 0;
+			top: 0;
+			pointer-events: none;
+			opacity: 0;
+		}
+
+		.header-title::before {
+			color: var(--color-cyan);
+			animation: glitch1 calc(var(--fx-glitch) * 4s+0.001s) infinite;
+		}
+
+		.header-title::after {
+			color: var(--color-pink);
+			animation: glitch2 calc(var(--fx-glitch) * 4s+0.001s) infinite;
+		}
+
+		@keyframes glitch1 {
+
+			0%,
+			93%,
+			97%,
+			100% {
+				opacity: 0;
+				transform: translate(0);
+			}
+
+			94% {
+				opacity: 0.7;
+				transform: translate(-2px, 1px);
+			}
+
+			96% {
+				opacity: 0.5;
+				transform: translate(2px, -1px);
+			}
+		}
+
+		@keyframes glitch2 {
+
+			0%,
+			94%,
+			98%,
+			100% {
+				opacity: 0;
+				transform: translate(0);
+			}
+
+			95% {
+				opacity: 0.6;
+				transform: translate(2px, -1px);
+			}
+
+			97% {
+				opacity: 0.4;
+				transform: translate(-2px, 1px);
+			}
+		}
+
+		.signal-bars {
+			display: flex;
+			align-items: flex-end;
+			gap: 2px;
+			height: 12px;
+			flex-shrink: 0;
+			margin-left: auto;
+			opacity: var(--fx-signal);
+		}
+
+		.signal-bar {
+			width: 3px;
+			border-radius: 1px;
+			background: var(--color-cyan);
+			box-shadow: 0 0 calc(4px * var(--glow)) rgba(0, 240, 255, 0.5);
+		}
+
+		.signal-bar:nth-child(1) {
+			height: 3px;
+			animation: sigPulse calc(var(--fx-signal) * 1.4s+0.001s) 0s ease-in-out infinite;
+		}
+
+		.signal-bar:nth-child(2) {
+			height: 5px;
+			animation: sigPulse calc(var(--fx-signal) * 1.4s+0.001s) 0.15s ease-in-out infinite;
+		}
+
+		.signal-bar:nth-child(3) {
+			height: 8px;
+			animation: sigPulse calc(var(--fx-signal) * 1.4s+0.001s) 0.3s ease-in-out infinite;
+		}
+
+		.signal-bar:nth-child(4) {
+			height: 11px;
+			animation: sigPulse calc(var(--fx-signal) * 1.4s+0.001s) 0.45s ease-in-out infinite;
+		}
+
+		@keyframes sigPulse {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0.3;
+			}
+		}
+
+		.equalizer {
+			display: flex;
+			align-items: flex-end;
+			gap: 2px;
+			height: 14px;
+			flex-shrink: 0;
+			opacity: var(--fx-eq);
+		}
+
+		.eq-bar {
+			width: 3px;
+			border-radius: 1px;
+			background: var(--color-pink);
+			box-shadow: 0 0 calc(4px * var(--glow)) rgba(255, 0, 102, 0.4);
+			animation: eqBounce calc(var(--fx-eq) * 0.6s+0.001s) ease-in-out infinite alternate;
+		}
+
+		.eq-bar:nth-child(1) {
+			animation-delay: 0s;
+		}
+
+		.eq-bar:nth-child(2) {
+			animation-delay: 0.12s;
+		}
+
+		.eq-bar:nth-child(3) {
+			animation-delay: 0.24s;
+		}
+
+		.eq-bar:nth-child(4) {
+			animation-delay: 0.08s;
+		}
+
+		.eq-bar:nth-child(5) {
+			animation-delay: 0.2s;
+		}
+
+		@keyframes eqBounce {
+			from {
+				height: 3px;
+			}
+
+			to {
+				height: 14px;
+			}
+		}
+
+		/* ========== HYPE METER ========== */
+		.hype-section {
+			position: relative;
+			border-left: 1px solid var(--color-border);
+			border-right: 1px solid var(--color-border);
+			padding: 4px 16px 6px;
+			flex-shrink: 0;
+		}
+
+		.hype-label {
+			font-family: "Orbitron", sans-serif;
+			font-size: var(--font-size-hype-label);
+			letter-spacing: 3px;
+			color: var(--color-text-muted);
+			text-transform: uppercase;
+			margin-bottom: 3px;
+		}
+
+		.hype-track {
+			width: 100%;
+			height: 5px;
+			border-radius: 3px;
+			overflow: hidden;
+			border: 1px solid rgba(255, 255, 255, 0.06);
+		}
+
+		.hype-fill {
+			height: 100%;
+			width: 0%;
+			border-radius: 3px;
+			background: var(--color-cyan);
+			box-shadow: 0 0 calc(8px * var(--glow)) var(--color-cyan);
+			transition:
+				width 0.4s ease,
+				background 0.4s ease,
+				box-shadow 0.4s ease;
+		}
+
+		.hype-fill.level-1 {
+			background: var(--color-lime);
+			box-shadow: 0 0 calc(10px * var(--glow)) var(--color-lime);
+		}
+
+		.hype-fill.level-2 {
+			background: var(--color-orange);
+			box-shadow: 0 0 calc(12px * var(--glow)) var(--color-orange);
+			animation: hypePulse calc(var(--fx-hype) * 0.4s+0.001s) ease-in-out infinite;
+		}
+
+		.hype-fill.level-3 {
+			background: var(--color-pink);
+			box-shadow:
+				0 0 calc(16px * var(--glow)) var(--color-pink),
+				0 0 calc(30px * var(--glow)) rgba(255, 0, 102, 0.3);
+			animation: hypePulse calc(var(--fx-hype) * 0.25s+0.001s) ease-in-out infinite;
+		}
+
+		@keyframes hypePulse {
+
+			0%,
+			100% {
+				filter: brightness(1);
+			}
+
+			50% {
+				filter: brightness(1.6);
+			}
+		}
+
+		/* ========== CHAT MESSAGES WRAPPER ========== */
+		.chat-messages-wrapper {
+			position: relative;
+			flex: 1;
+			min-height: 0;
+			overflow: visible;
+			/* Allow achievement popups above the wrapper */
+
+			/* Rotating conic border - animated by JS updating --border-angle */
+			border: calc(2px * var(--fx-border)) solid transparent;
+			background:
+				linear-gradient(transparent, transparent) padding-box,
+				conic-gradient(from var(--border-angle),
+					transparent 15%,
+					var(--color-cyan) 25%,
+					transparent 35%,
+					transparent 50%,
+					var(--color-pink) 60%,
+					transparent 70%) border-box;
+		}
+
+		/* Fallback for browsers without conic-gradient */
+		@supports not (background: conic-gradient(from 0deg, red, blue)) {
+			.chat-messages-wrapper {
+				border: 1px solid var(--color-border);
+				background: transparent;
+			}
+		}
+
+		.scanlines {
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+			z-index: 3;
+			opacity: var(--fx-scanlines);
+			background: repeating-linear-gradient(0deg,
+					transparent,
+					transparent 2px,
+					rgba(0, 0, 0, 0.06) 2px,
+					rgba(0, 0, 0, 0.06) 4px);
+		}
+
+		.scanlines::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			width: 100%;
+			height: 5px;
+			background: linear-gradient(180deg,
+					transparent,
+					rgba(0, 240, 255, 0.06),
+					rgba(0, 240, 255, 0.1),
+					rgba(0, 240, 255, 0.06),
+					transparent);
+			animation: scanBeam calc(var(--fx-scan-beam) * 5s+0.001s) linear infinite;
+		}
+
+		@keyframes scanBeam {
+			0% {
+				top: -5px;
+			}
+
+			100% {
+				top: 100%;
+			}
+		}
+
+		.corner-bracket {
+			position: absolute;
+			width: 18px;
+			height: 18px;
+			z-index: 4;
+			pointer-events: none;
+			opacity: var(--fx-corners);
+		}
+
+		.corner-bracket.tl {
+			top: -1px;
+			left: -1px;
+			border-top: 2px solid var(--color-cyan);
+			border-left: 2px solid var(--color-cyan);
+			box-shadow: calc(-3px * var(--glow)) calc(-3px * var(--glow)) calc(8px * var(--glow)) rgba(0, 240, 255, 0.2);
+			animation: bracketPulse calc(var(--fx-corners) * 2.5s+0.001s) ease-in-out infinite;
+		}
+
+		.corner-bracket.tr {
+			top: -1px;
+			right: -1px;
+			border-top: 2px solid var(--color-cyan);
+			border-right: 2px solid var(--color-cyan);
+			box-shadow: calc(3px * var(--glow)) calc(-3px * var(--glow)) calc(8px * var(--glow)) rgba(0, 240, 255, 0.2);
+			animation: bracketPulse calc(var(--fx-corners) * 2.5s+0.001s) 0.6s ease-in-out infinite;
+		}
+
+		.corner-bracket.bl {
+			bottom: -1px;
+			left: -1px;
+			border-bottom: 2px solid var(--color-pink);
+			border-left: 2px solid var(--color-pink);
+			box-shadow: calc(-3px * var(--glow)) calc(3px * var(--glow)) calc(8px * var(--glow)) rgba(255, 0, 102, 0.2);
+			animation: bracketPulse calc(var(--fx-corners) * 2.5s+0.001s) 1.2s ease-in-out infinite;
+		}
+
+		.corner-bracket.br {
+			bottom: -1px;
+			right: -1px;
+			border-bottom: 2px solid var(--color-pink);
+			border-right: 2px solid var(--color-pink);
+			box-shadow: calc(3px * var(--glow)) calc(3px * var(--glow)) calc(8px * var(--glow)) rgba(255, 0, 102, 0.2);
+			animation: bracketPulse calc(var(--fx-corners) * 2.5s+0.001s) 1.8s ease-in-out infinite;
+		}
+
+		@keyframes bracketPulse {
+
+			0%,
+			100% {
+				opacity: 0.5;
+			}
+
+			50% {
+				opacity: 1;
+			}
+		}
+
+		.chat-messages {
+			position: relative;
+			z-index: 1;
+			height: 100%;
+			overflow-y: auto;
+			overflow-x: hidden;
+			padding: 8px 0;
+			/* Top/bottom fade controlled by toggles.
+			--enable-top-fade: 1 → transparent at 0% (faded)
+			--enable-top-fade: 0 → black at 0% (hard edge, fully visible)
+			Same logic for bottom. */
+			mask-image: linear-gradient(to bottom,
+					rgba(0, 0, 0, calc(1 - var(--enable-top-fade))) 0%,
+					black 5%,
+					black 92%,
+					rgba(0, 0, 0, calc(1 - var(--enable-bottom-fade))) 100%);
+			-webkit-mask-image: linear-gradient(to bottom,
+					rgba(0, 0, 0, calc(1 - var(--enable-top-fade))) 0%,
+					black 5%,
+					black 92%,
+					rgba(0, 0, 0, calc(1 - var(--enable-bottom-fade))) 100%);
+			scrollbar-width: none;
+			-ms-overflow-style: none;
+		}
+
+		.chat-messages::-webkit-scrollbar {
+			display: none;
+		}
+
+		/* ========== MESSAGE SLIDE-IN ========== */
+		.chat-msg {
+			position: relative;
+			padding: var(--msg-padding-y) var(--msg-padding-x);
+			line-height: var(--msg-line-height);
+			font-size: var(--font-size-message);
+			opacity: 0;
+			transform: translateX(calc(-1 * var(--slide-distance-live)));
+			filter: blur(var(--slide-blur-live));
+			animation: msgSlideIn var(--slide-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+			transition: opacity 0.8s ease;
+		}
+
+		.chat-msg.fade-out {
+			opacity: 0 !important;
+		}
+
+		.chat-msg:hover {
+			background: rgba(0, 240, 255, 0.03);
+		}
+
+		@keyframes msgSlideIn {
+			0% {
+				opacity: 0;
+				transform: translateX(calc(-1 * var(--slide-distance-live)));
+				filter: blur(var(--slide-blur-live));
+				box-shadow: calc(-25px * var(--fx-entry-glow)) 0 calc(18px * var(--fx-entry-glow)) calc(-6px * var(--fx-entry-glow)) rgba(0, 240, 255, 0.25);
+			}
+
+			35% {
+				opacity: 1;
+				filter: blur(0);
+				box-shadow: calc(-10px * var(--fx-entry-glow)) 0 calc(10px * var(--fx-entry-glow)) calc(-4px * var(--fx-entry-glow)) rgba(0, 240, 255, 0.15);
+			}
+
+			75% {
+				transform: translateX(var(--slide-overshoot));
+				box-shadow: calc(3px * var(--fx-entry-glow)) 0 calc(6px * var(--fx-entry-glow)) calc(-2px * var(--fx-entry-glow)) rgba(0, 240, 255, 0.06);
+			}
+
+			100% {
+				opacity: 1;
+				transform: translateX(0);
+				filter: blur(0);
+				box-shadow: none;
+			}
+		}
+
+		.chat-msg::after {
+			content: "";
+			position: absolute;
+			top: 50%;
+			left: 0;
+			height: 1px;
+			width: 100%;
+			background: linear-gradient(90deg, var(--color-cyan), transparent 60%);
+			box-shadow: 0 0 calc(6px * var(--glow)) var(--color-cyan);
+			pointer-events: none;
+			opacity: 0;
+			transform: translateX(-100%) scaleX(0);
+			transform-origin: left center;
+			animation: streakLine calc(var(--fx-streak) * 0.5s+0.001s) 0.05s ease-out forwards;
+		}
+
+		@keyframes streakLine {
+			0% {
+				opacity: 0.8;
+				transform: translateX(-30%) scaleX(0.3);
+			}
+
+			40% {
+				opacity: 0.5;
+				transform: translateX(0%) scaleX(0.8);
+			}
+
+			100% {
+				opacity: 0;
+				transform: translateX(20%) scaleX(1);
+			}
+		}
+
+		.msg-timestamp {
+			font-size: var(--font-size-timestamp);
+			color: var(--color-text-muted);
+			margin-right: 5px;
+			letter-spacing: 1px;
+			text-shadow:
+				0 0 4px rgba(0, 0, 0, 1),
+				1px 1px 2px rgba(0, 0, 0, 0.9);
+		}
+
+		.msg-username {
+			font-family: "Orbitron", sans-serif;
+			font-size: var(--font-size-username);
+			font-weight: 700;
+			letter-spacing: 1px;
+			margin-right: 7px;
+			text-shadow:
+				0 0 calc(8px * var(--glow)) currentColor,
+				0 0 4px rgba(0, 0, 0, 1),
+				1px 1px 2px rgba(0, 0, 0, 0.9),
+				-1px -1px 2px rgba(0, 0, 0, 0.9);
+		}
+
+		.msg-text {
+			word-break: break-word;
+			text-shadow:
+				0 0 5px rgba(0, 0, 0, 1),
+				0 0 10px rgba(0, 0, 0, 0.7),
+				1px 1px 2px rgba(0, 0, 0, 1),
+				-1px -1px 2px rgba(0, 0, 0, 1),
+				1px -1px 2px rgba(0, 0, 0, 1),
+				-1px 1px 2px rgba(0, 0, 0, 1);
+		}
+
+		.typing-cursor {
+			display: inline;
+			color: var(--color-cyan);
+			font-weight: bold;
+			animation: cursorBlink calc(var(--fx-cursor) * 0.55s+0.001s) step-end infinite;
+			text-shadow: 0 0 calc(8px * var(--glow)) var(--color-cyan);
+		}
+
+		@keyframes cursorBlink {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0;
+			}
+		}
+
+		.msg-badges {
+			margin-right: 4px;
+			display: inline-flex;
+			gap: 3px;
+			vertical-align: middle;
+		}
+
+		.badge {
+			display: inline-block;
+			width: 14px;
+			height: 14px;
+			border-radius: 3px;
+			font-size: var(--font-size-badge);
+			line-height: 14px;
+			text-align: center;
+			font-family: "Orbitron", sans-serif;
+			font-weight: 900;
+		}
+
+		.badge-mod {
+			background: var(--color-lime);
+			color: #000;
+			box-shadow: 0 0 calc(5px * var(--glow)) var(--color-lime);
+		}
+
+		.badge-vip {
+			background: var(--color-pink);
+			color: #fff;
+			box-shadow: 0 0 calc(5px * var(--glow)) var(--color-pink);
+		}
+
+		.badge-sub {
+			background: var(--color-cyan);
+			color: #000;
+			box-shadow: 0 0 calc(5px * var(--glow)) var(--color-cyan);
+		}
+
+		.chat-msg.highlight {
+			background: linear-gradient(90deg, rgba(255, 0, 102, 0.1), transparent 70%);
+			border-left: 3px solid var(--color-pink);
+			padding-left: 13px;
+		}
+
+		.chat-msg.highlight::after {
+			background: linear-gradient(90deg, var(--color-pink), transparent 60%);
+			box-shadow: 0 0 calc(6px * var(--glow)) var(--color-pink);
+		}
+
+		.chat-msg.highlight .msg-text {
+			color: #fff;
+		}
+
+		.chat-msg.first-msg {
+			background: linear-gradient(90deg, rgba(57, 255, 20, 0.08), transparent 60%);
+			border-left: 3px solid var(--color-lime);
+			padding-left: 13px;
+		}
+
+		.chat-msg.first-msg::after {
+			background: linear-gradient(90deg, var(--color-lime), transparent 60%);
+			box-shadow: 0 0 calc(6px * var(--glow)) var(--color-lime);
+		}
+
+		.chat-msg.system {
+			text-align: center;
+			padding: 6px 16px;
+			font-size: var(--font-size-system);
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: var(--color-yellow);
+			text-shadow:
+				0 0 calc(6px * var(--glow)) rgba(255, 230, 0, 0.4),
+				0 0 4px rgba(0, 0, 0, 1);
+			animation: none;
+			opacity: 1;
+			transform: none;
+			filter: none;
+		}
+
+		.chat-msg.system::after {
+			display: none;
+		}
+
+		.chat-messages-wrapper.impact-flash {
+			box-shadow: inset 0 0 30px rgba(0, 240, 255, 0.08);
+		}
+
+		.chat-messages-wrapper.critical-flash {
+			box-shadow: inset 0 0 40px rgba(255, 0, 102, 0.15);
+		}
+
+		/* ========== COMBO COUNTER ========== */
+		.combo-display {
+			position: absolute;
+			top: 10px;
+			right: 12px;
+			z-index: 5;
+			pointer-events: none;
+			text-align: right;
+			opacity: 0;
+			transform: scale(0.8);
+			transition:
+				opacity 0.3s ease,
+				transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+		}
+
+		.combo-display.visible {
+			opacity: var(--fx-combo);
+			transform: scale(1);
+		}
+
+		.combo-label {
+			font-family: "Orbitron", sans-serif;
+			font-size: var(--font-size-hype-label);
+			letter-spacing: 3px;
+			color: var(--color-orange);
+			text-shadow: 0 0 calc(6px * var(--glow)) rgba(255, 102, 0, 0.5);
+		}
+
+		.combo-count {
+			font-family: "Orbitron", sans-serif;
+			font-size: var(--font-size-combo);
+			font-weight: 900;
+			color: var(--color-orange);
+			line-height: 1;
+			text-shadow:
+				0 0 calc(12px * var(--glow)) rgba(255, 102, 0, 0.6),
+				0 0 calc(30px * var(--glow)) rgba(255, 102, 0, 0.3),
+				0 0 4px rgba(0, 0, 0, 1);
+		}
+
+		.combo-display.level-2 .combo-count {
+			color: var(--color-pink);
+			text-shadow:
+				0 0 calc(12px * var(--glow)) rgba(255, 0, 102, 0.6),
+				0 0 calc(30px * var(--glow)) rgba(255, 0, 102, 0.3),
+				0 0 4px rgba(0, 0, 0, 1);
+		}
+
+		.combo-display.level-2 .combo-label {
+			color: var(--color-pink);
+		}
+
+		.combo-bump {
+			animation: comboBump 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+		}
+
+		@keyframes comboBump {
+			0% {
+				transform: scale(1.4);
+			}
+
+			100% {
+				transform: scale(1);
+			}
+		}
+
+		/* ========== ACHIEVEMENT POPUPS - SLIDE DOWN / SLIDE UP ========== */
+		.achievement-popup {
+			position: absolute;
+			top: -10px;
+			left: 50%;
+			z-index: 50;
+			pointer-events: none;
+			padding: 10px 24px;
+			border-radius: var(--chat-border-radius);
+			text-align: center;
+			white-space: nowrap;
+			background: rgba(5, 5, 15, 0.94);
+			backdrop-filter: blur(4px);
+			/* Start above, slide down into view, hold, then slide back up */
+			animation: achieveSlide calc(var(--fx-achieve) * 3.5s + 0.001s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+		}
+
+		@keyframes achieveSlide {
+			0% {
+				opacity: 0;
+				transform: translateX(-50%) translateY(-70px);
+			}
+
+			15% {
+				opacity: 1;
+				transform: translateX(-50%) translateY(0px);
+			}
+
+			25% {
+				transform: translateX(-50%) translateY(-3px);
+			}
+
+			/* slight settle bounce */
+			30% {
+				transform: translateX(-50%) translateY(0px);
+			}
+
+			75% {
+				opacity: 1;
+				transform: translateX(-50%) translateY(0px);
+			}
+
+			100% {
+				opacity: 0;
+				transform: translateX(-50%) translateY(-70px);
+			}
+		}
+
+		.achieve-icon {
+			font-family: "Orbitron", sans-serif;
+			font-size: 9px;
+			font-weight: 900;
+			letter-spacing: 2px;
+		}
+
+		.achieve-text {
+			font-family: "Orbitron", sans-serif;
+			font-size: var(--font-size-system);
+			font-weight: 700;
+			letter-spacing: 1px;
+			color: var(--color-text);
+			text-shadow: 0 0 4px rgba(0, 0, 0, 1);
+			margin-top: 3px;
+		}
+
+		/* Type-specific colors */
+		.achieve-sub {
+			border: 1px solid var(--color-cyan);
+			box-shadow:
+				0 0 calc(20px * var(--glow)) rgba(0, 240, 255, 0.2),
+				inset 0 0 calc(15px * var(--glow)) rgba(0, 240, 255, 0.05);
+		}
+
+		.achieve-sub .achieve-icon {
+			color: var(--color-cyan);
+			text-shadow: 0 0 calc(8px * var(--glow)) rgba(0, 240, 255, 0.5);
+		}
+
+		.achieve-donation {
+			border: 1px solid var(--color-lime);
+			box-shadow:
+				0 0 calc(20px * var(--glow)) rgba(57, 255, 20, 0.2),
+				inset 0 0 calc(15px * var(--glow)) rgba(57, 255, 20, 0.05);
+		}
+
+		.achieve-donation .achieve-icon {
+			color: var(--color-lime);
+			text-shadow: 0 0 calc(8px * var(--glow)) rgba(57, 255, 20, 0.5);
+		}
+
+		.achieve-gift {
+			border: 1px solid var(--color-purple);
+			box-shadow:
+				0 0 calc(20px * var(--glow)) rgba(191, 0, 255, 0.2),
+				inset 0 0 calc(15px * var(--glow)) rgba(191, 0, 255, 0.05);
+		}
+
+		.achieve-gift .achieve-icon {
+			color: var(--color-purple);
+			text-shadow: 0 0 calc(8px * var(--glow)) rgba(191, 0, 255, 0.5);
+		}
+
+		.achieve-superchat {
+			border: 1px solid var(--color-yellow);
+			box-shadow:
+				0 0 calc(20px * var(--glow)) rgba(255, 230, 0, 0.2),
+				inset 0 0 calc(15px * var(--glow)) rgba(255, 230, 0, 0.05);
+		}
+
+		.achieve-superchat .achieve-icon {
+			color: var(--color-yellow);
+			text-shadow: 0 0 calc(8px * var(--glow)) rgba(255, 230, 0, 0.5);
+		}
+
+		.achieve-raid {
+			border: 1px solid var(--color-orange);
+			box-shadow:
+				0 0 calc(20px * var(--glow)) rgba(255, 102, 0, 0.25),
+				inset 0 0 calc(15px * var(--glow)) rgba(255, 102, 0, 0.06);
+		}
+
+		.achieve-raid .achieve-icon {
+			color: var(--color-orange);
+			text-shadow: 0 0 calc(8px * var(--glow)) rgba(255, 102, 0, 0.5);
+		}
+
+		.achieve-follow {
+			border: 1px solid var(--color-lime);
+			box-shadow:
+				0 0 calc(20px * var(--glow)) rgba(57, 255, 20, 0.2),
+				inset 0 0 calc(15px * var(--glow)) rgba(57, 255, 20, 0.05);
+		}
+
+		.achieve-follow .achieve-icon {
+			color: var(--color-lime);
+			text-shadow: 0 0 calc(8px * var(--glow)) rgba(57, 255, 20, 0.5);
+		}
+
+		/* ========== FOOTER ========== */
+		.chat-footer {
+			position: relative;
+			padding: 7px 16px;
+			border: 1px solid var(--color-border);
+			border-top: none;
+			border-radius: 0 0 var(--chat-border-radius) var(--chat-border-radius);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			flex-shrink: 0;
+		}
+
+		.chat-footer::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 1px;
+			background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.2), transparent);
+		}
+
+		.footer-seg {
+			flex: 1;
+			height: 1px;
+			background: linear-gradient(90deg, rgba(0, 240, 255, 0.12), transparent);
+		}
+
+		.footer-stat {
+			font-family: "Orbitron", sans-serif;
+			font-size: var(--font-size-footer);
+			letter-spacing: 2px;
+			color: var(--color-text-muted);
+			text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+			white-space: nowrap;
+		}
+
+		.footer-stat .val {
+			color: var(--color-cyan);
+			text-shadow: 0 0 calc(6px * var(--glow)) rgba(0, 240, 255, 0.4);
+		}
+
+		/* ========== AMBIENT PARTICLES ========== */
+		.ambient-particle {
+			position: fixed;
+			border-radius: 50%;
+			pointer-events: none;
+			z-index: 1;
+			opacity: var(--fx-particles);
+			animation: floatUp linear infinite;
+		}
+
+		@keyframes floatUp {
+			0% {
+				transform: translateY(0) translateX(0);
+				opacity: 0;
+			}
+
+			8% {
+				opacity: var(--fx-particles);
+			}
+
+			88% {
+				opacity: var(--fx-particles);
+			}
+
+			100% {
+				transform: translateY(-100vh) translateX(25px);
+				opacity: 0;
+			}
+		}
+
+		.screen-corner {
+			position: fixed;
+			pointer-events: none;
+			z-index: 5;
+			opacity: var(--enable-fx);
+		}
+
+		.screen-corner.tr {
+			top: 18px;
+			right: 18px;
+			width: 70px;
+			height: 70px;
+			border-top: 2px solid rgba(0, 240, 255, 0.25);
+			border-right: 2px solid rgba(0, 240, 255, 0.25);
+			box-shadow: 3px -3px calc(12px * var(--glow)) rgba(0, 240, 255, 0.08);
+		}
+
+		.screen-corner.br {
+			bottom: 18px;
+			right: 18px;
+			width: 50px;
+			height: 50px;
+			border-bottom: 2px solid rgba(255, 0, 102, 0.2);
+			border-right: 2px solid rgba(255, 0, 102, 0.2);
+			box-shadow: 3px 3px calc(12px * var(--glow)) rgba(255, 0, 102, 0.06);
+		}
+
+		@media (max-width: 768px) {
+			:root {
+				--chat-width: 310px;
+				--chat-height: 420px;
+				--font-size-message: 12px;
+				--font-size-username: 10px;
+				--font-size-header: 10px;
+				--font-size-combo: 22px;
+				--slide-distance: 40px;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			*,
+			*::before,
+			*::after {
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
+			}
+		}
+	</style>
+</head>
+
+<body class="preview">
+	<div class="screen-corner tr" aria-hidden="true"></div>
+	<div class="screen-corner br" aria-hidden="true"></div>
+	<div id="particleContainer" aria-hidden="true"></div>
+
+	<!-- ========== MAIN CHAT OVERLAY ========== -->
+	<main class="chat-overlay" id="chatOverlay" role="log" aria-label="Stream Chat Overlay" aria-live="polite">
+		<!-- Resize handles - all 8 directions -->
+		<div class="resize-handle" data-dir="n" aria-hidden="true"></div>
+		<div class="resize-handle" data-dir="s" aria-hidden="true"></div>
+		<div class="resize-handle" data-dir="w" aria-hidden="true"></div>
+		<div class="resize-handle" data-dir="e" aria-hidden="true"></div>
+		<div class="resize-handle" data-dir="nw" aria-hidden="true"></div>
+		<div class="resize-handle" data-dir="ne" aria-hidden="true"></div>
+		<div class="resize-handle" data-dir="sw" aria-hidden="true"></div>
+		<div class="resize-handle" data-dir="se" aria-hidden="true"></div>
+
+		<header class="chat-header" id="chatHeader">
+			<div class="status-dot" aria-hidden="true"></div>
+			<span class="header-title" data-text="LIVE CHAT">LIVE CHAT</span>
+			<div class="equalizer" aria-hidden="true">
+				<div class="eq-bar"></div>
+				<div class="eq-bar"></div>
+				<div class="eq-bar"></div>
+				<div class="eq-bar"></div>
+				<div class="eq-bar"></div>
+			</div>
+			<div class="signal-bars" aria-hidden="true">
+				<div class="signal-bar"></div>
+				<div class="signal-bar"></div>
+				<div class="signal-bar"></div>
+				<div class="signal-bar"></div>
+			</div>
+		</header>
+
+		<div class="hype-section">
+			<div class="hype-label">Hype Level</div>
+			<div class="hype-track">
+				<div class="hype-fill" id="hypeFill"></div>
+			</div>
+		</div>
+
+		<div class="chat-messages-wrapper" id="chatWrapper">
+			<div class="corner-bracket tl" aria-hidden="true"></div>
+			<div class="corner-bracket tr" aria-hidden="true"></div>
+			<div class="corner-bracket bl" aria-hidden="true"></div>
+			<div class="corner-bracket br" aria-hidden="true"></div>
+			<div class="scanlines" aria-hidden="true"></div>
+			<div class="combo-display" id="comboDisplay">
+				<div class="combo-label">COMBO</div>
+				<div class="combo-count" id="comboCount">0</div>
+			</div>
+			<div class="chat-messages" id="chatMessages"></div>
+		</div>
+
+		<footer class="chat-footer">
+			<div class="footer-seg"></div>
+			<span class="footer-stat">VIEWERS <span class="val" id="viewerCount">0</span></span>
+			<div class="footer-seg"></div>
+			<span class="footer-stat">MSG/s <span class="val" id="msgRate">0.0</span></span>
+			<div class="footer-seg"></div>
+		</footer>
+	</main>
+
+	<script>
+		function readCSSVar(name, fallback) {
+			return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+		}
+
+		// DOM --
+		var overlay = document.getElementById("chatOverlay");
+		var header = document.getElementById("chatHeader");
+		var chatWrapper = document.getElementById("chatWrapper");
+		var chatContainer = document.getElementById("chatMessages");
+		var hypeFill = document.getElementById("hypeFill");
+		var comboDisplay = document.getElementById("comboDisplay");
+		var comboCountEl = document.getElementById("comboCount");
+		var viewerCountEl = document.getElementById("viewerCount");
+		var msgRateEl = document.getElementById("msgRate");
+
+		// ============================================================
+		//  ROTATING BORDER - driven by JS requestAnimationFrame
+		//  (CSS @property doesn't work in OBS's Chromium, so JS
+		//   directly updates --border-angle every frame instead)
+		// ============================================================
+		var borderAngle = 0;
+
+		function animateBorderAngle() {
+			var enabled =
+				parseInt(readCSSVar("--enable-rotating-border", "1")) && parseInt(readCSSVar("--enable-fx", "1"));
+
+			if (enabled) {
+				borderAngle = (borderAngle + 0.6) % 360;
+			}
+
+			// Set on the wrapper element directly for scoping
+			chatWrapper.style.setProperty("--border-angle", borderAngle + "deg");
+			requestAnimationFrame(animateBorderAngle);
+		}
+
+		// ============================================================
+		//  ACHIEVEMENT QUEUE - events display one at a time
+		// ============================================================
+		var achievementQueue = [];
+		var isAchievementBusy = false;
+
+		var ACHIEVE_LABELS = {
+			sub: "NEW SUBSCRIBER",
+			donation: "DONATION RECEIVED",
+			gift: "SUB GIFT BOMB",
+			superchat: "SUPER CHAT",
+			raid: "RAID INCOMING",
+			follow: "NEW FOLLOWER",
+		};
+
+		function queueAchievement(type, text) {
+			achievementQueue.push({ type: type, text: text });
+			if (!isAchievementBusy) processAchievementQueue();
+		}
+
+		function processAchievementQueue() {
+			if (achievementQueue.length === 0) {
+				isAchievementBusy = false;
+				return;
+			}
+
+			var enabled =
+				parseInt(readCSSVar("--enable-achievements", "1")) && parseInt(readCSSVar("--enable-fx", "1"));
+
+			if (!enabled) {
+				achievementQueue.shift();
+				isAchievementBusy = false;
+				return;
+			}
+
+			isAchievementBusy = true;
+			var ach = achievementQueue.shift();
+
+			var popup = document.createElement("div");
+			popup.className = "achievement-popup achieve-" + ach.type;
+			popup.innerHTML =
+				'<div class="achieve-icon">' +
+				(ACHIEVE_LABELS[ach.type] || "EVENT") +
+				"</div>" +
+				'<div class="achieve-text">' +
+				ach.text +
+				"</div>";
+
+			chatWrapper.appendChild(popup);
+
+			// Fallback timeout if animationend never fires
+			var fallback = setTimeout(function () {
+				if (popup.parentNode) popup.remove();
+				setTimeout(processAchievementQueue, 350);
+			}, 6000);
+
+			popup.addEventListener("animationend", function handler() {
+				popup.removeEventListener("animationend", handler);
+				clearTimeout(fallback);
+				if (popup.parentNode) popup.remove();
+				// Gap before the next queued achievement
+				setTimeout(processAchievementQueue, 350);
+			});
+		}
+
+		// ============================================================
+		//  DRAG & RESIZE
+		// ============================================================
+		var dragState = { active: false, startX: 0, startY: 0, startLeft: 0, startTop: 0 };
+		var resizeState = {
+			active: false,
+			dir: "",
+			startX: 0,
+			startY: 0,
+			startLeft: 0,
+			startTop: 0,
+			startW: 0,
+			startH: 0,
+		};
+		var MIN_W, MIN_H;
+
+		function readMinSize() {
+			MIN_W = parseInt(readCSSVar("--chat-min-width", "260")) || 260;
+			MIN_H = parseInt(readCSSVar("--chat-min-height", "200")) || 200;
+		}
+
+		function initOverlayPosition() {
+			readMinSize();
+			var rect = overlay.getBoundingClientRect();
+			overlay.style.top = rect.top + "px";
+			overlay.style.left = rect.left + "px";
+			overlay.style.bottom = "auto";
+			overlay.style.right = "auto";
+			overlay.style.width = rect.width + "px";
+			overlay.style.height = rect.height + "px";
+		}
+
+		function onDragStart(cx, cy, e) {
+			if (e && e.target && (e.target.closest(".equalizer") || e.target.closest(".signal-bars"))) return;
+			dragState.active = true;
+			dragState.startX = cx;
+			dragState.startY = cy;
+			var r = overlay.getBoundingClientRect();
+			dragState.startLeft = r.left;
+			dragState.startTop = r.top;
+			document.body.style.userSelect = "none";
+			overlay.classList.add("is-dragging");
+		}
+		function onDragMove(cx, cy) {
+			var nl = dragState.startLeft + (cx - dragState.startX);
+			var nt = dragState.startTop + (cy - dragState.startY);
+			nl = Math.max(-overlay.offsetWidth + 60, Math.min(window.innerWidth - 60, nl));
+			nt = Math.max(0, Math.min(window.innerHeight - 40, nt));
+			overlay.style.left = nl + "px";
+			overlay.style.top = nt + "px";
+		}
+
+		function onResizeStart(dir, cx, cy) {
+			readMinSize();
+			resizeState.active = true;
+			resizeState.dir = dir;
+			resizeState.startX = cx;
+			resizeState.startY = cy;
+			var r = overlay.getBoundingClientRect();
+			resizeState.startLeft = r.left;
+			resizeState.startTop = r.top;
+			resizeState.startW = r.width;
+			resizeState.startH = r.height;
+			document.body.style.userSelect = "none";
+			overlay.classList.add("is-resizing");
+		}
+		function onResizeMove(cx, cy) {
+			var dx = cx - resizeState.startX;
+			var dy = cy - resizeState.startY;
+			var dir = resizeState.dir;
+			var nl = resizeState.startLeft;
+			var nt = resizeState.startTop;
+			var nw = resizeState.startW;
+			var nh = resizeState.startH;
+
+			if (dir.includes("e")) {
+				nw = Math.max(MIN_W, resizeState.startW + dx);
+			}
+			if (dir.includes("w")) {
+				var pw = resizeState.startW - dx;
+				if (pw >= MIN_W) {
+					nw = pw;
+					nl = resizeState.startLeft + dx;
+				} else {
+					nw = MIN_W;
+					nl = resizeState.startLeft + resizeState.startW - MIN_W;
+				}
+			}
+			if (dir.includes("s")) {
+				nh = Math.max(MIN_H, resizeState.startH + dy);
+			}
+			if (dir.includes("n")) {
+				var ph = resizeState.startH - dy;
+				if (ph >= MIN_H) {
+					nh = ph;
+					nt = resizeState.startTop + dy;
+				} else {
+					nh = MIN_H;
+					nt = resizeState.startTop + resizeState.startH - MIN_H;
+				}
+			}
+
+			overlay.style.left = nl + "px";
+			overlay.style.top = nt + "px";
+			overlay.style.width = nw + "px";
+			overlay.style.height = nh + "px";
+		}
+
+		function endInteraction() {
+			dragState.active = false;
+			resizeState.active = false;
+			document.body.style.userSelect = "";
+			overlay.classList.remove("is-dragging", "is-resizing");
+		}
+
+		// Mouse
+		header.addEventListener("mousedown", function (e) {
+			onDragStart(e.clientX, e.clientY, e);
+			e.preventDefault();
+		});
+		overlay.querySelectorAll(".resize-handle").forEach(function (h) {
+			h.addEventListener("mousedown", function (e) {
+				onResizeStart(h.dataset.dir, e.clientX, e.clientY);
+				e.preventDefault();
+				e.stopPropagation();
+			});
+		});
+		document.addEventListener("mousemove", function (e) {
+			if (dragState.active) onDragMove(e.clientX, e.clientY);
+			if (resizeState.active) onResizeMove(e.clientX, e.clientY);
+		});
+		document.addEventListener("mouseup", endInteraction);
+
+		// Touch
+		header.addEventListener(
+			"touchstart",
+			function (e) {
+				var t = e.touches[0];
+				onDragStart(t.clientX, t.clientY, e);
+				e.preventDefault();
+			},
+			{ passive: false },
+		);
+		overlay.querySelectorAll(".resize-handle").forEach(function (h) {
+			h.addEventListener(
+				"touchstart",
+				function (e) {
+					var t = e.touches[0];
+					onResizeStart(h.dataset.dir, t.clientX, t.clientY);
+					e.preventDefault();
+					e.stopPropagation();
+				},
+				{ passive: false },
+			);
+		});
+		document.addEventListener(
+			"touchmove",
+			function (e) {
+				if (!dragState.active && !resizeState.active) return;
+				var t = e.touches[0];
+				if (dragState.active) onDragMove(t.clientX, t.clientY);
+				if (resizeState.active) onResizeMove(t.clientX, t.clientY);
+				e.preventDefault();
+			},
+			{ passive: false },
+		);
+		document.addEventListener("touchend", endInteraction);
+
+		// Double-click header to reset
+		header.addEventListener("dblclick", function () {
+			overlay.style.top = "";
+			overlay.style.left = "";
+			overlay.style.width = "";
+			overlay.style.height = "";
+			initOverlayPosition();
+		});
+
+		// ============================================================
+		//  CHAT ENGINE
+		// ============================================================
+
+		var DEMO_USERS = [
+			{ name: "NeonRaider", color: "#00f0ff", badges: ["sub"] },
+			{ name: "CyberVox", color: "#ff0066", badges: ["mod"] },
+			{ name: "GL1TCH", color: "#39ff14", badges: [] },
+			{ name: "PixelWitch", color: "#bf00ff", badges: ["vip"] },
+			{ name: "ZeroDay", color: "#ffe600", badges: ["sub"] },
+			{ name: "SynthSiren", color: "#ff3399", badges: [] },
+			{ name: "NetRunner", color: "#00ff88", badges: ["sub"] },
+			{ name: "ChromaFlux", color: "#4dc9f6", badges: [] },
+			{ name: "VoidWalker", color: "#ff6600", badges: ["vip"] },
+			{ name: "DataDruid", color: "#66ffcc", badges: [] },
+			{ name: "NullExcep", color: "#f67019", badges: ["sub"] },
+			{ name: "HexHunter", color: "#ff5577", badges: [] },
+			{ name: "CircuitBreak", color: "#00ddff", badges: [] },
+			{ name: "PhantomByte", color: "#dd44ff", badges: ["sub"] },
+		];
+
+		var DEMO_MESSAGES = [
+			"Let's gooo! This run is insane",
+			"That combo was absolutely cracked",
+			"How do you even react that fast",
+			"First time watching, this is sick",
+			"Can we get some hype in the chat",
+			"This game looks absolutely stunning",
+			"The neon effects are crazy in this section",
+			"GG that boss fight was so clean",
+			"Anyone else lagging or just me",
+			"The soundtrack here goes so hard",
+			"Wait how did you skip that",
+			"This strategy is actually genius",
+			"Love the stream energy tonight",
+			"That glitch was hilarious",
+			"This is peak streaming right here",
+			"Never seen that skip before nice find",
+			"Chat speedrunning the hype",
+			"Ok that was genuinely impressive",
+			"The way you dodged that attack though",
+			"This build is actually broken lol",
+			"Can you show the skill tree again",
+			"Speed run any% when?",
+			"The dev team cooked with this one",
+			"This section always gives me chills",
+			"Your movement is so crisp",
+			"Hype hype hype let's go",
+			"That was way too close",
+			"W key gameplay right there",
+			"The cyberpunk vibes are immaculate",
+			"Only real ones know this strat",
+		];
+
+		var HIGHLIGHT_EVENTS = [
+			{ user: 0, text: "Just subscribed for 12 months! Neon squad forever!", type: "sub" },
+			{ user: 3, text: "Donated 50 credits! You're the best on the platform", type: "donation" },
+			{ user: 1, text: "Gifted 5 subs to the community! Spread the neon!", type: "gift" },
+			{ user: 5, text: "Super Chat: This stream makes my night every time!", type: "superchat" },
+			{ user: 8, text: "Raided with 420 viewers! The void walks among us!", type: "raid" },
+			{ user: 11, text: "Just followed! Welcome to the neon grid!", type: "follow" },
+		];
+
+		var EMOTES = ["\u2B21", "\u25C6", "\u26A1", "\u2726", "\u2B22", "\u25C8", "\u2295", "\u23E3"];
+
+		// Hype meter --
+		var hypeValue = 0;
+		var messageTimestamps = [];
+
+		function updateHype() {
+			var now = Date.now();
+			messageTimestamps = messageTimestamps.filter(function (t) {
+				return now - t < 5000;
+			});
+			var rate = messageTimestamps.length / 5;
+			if (rate >= 2.5) hypeValue = Math.min(100, hypeValue + 8);
+			else if (rate >= 1) hypeValue = Math.min(100, hypeValue + 3);
+			else hypeValue = Math.max(0, hypeValue - 1.5);
+			hypeFill.style.width = hypeValue + "%";
+			hypeFill.classList.remove("level-1", "level-2", "level-3");
+			if (hypeValue > 80) hypeFill.classList.add("level-3");
+			else if (hypeValue > 50) hypeFill.classList.add("level-2");
+			else if (hypeValue > 25) hypeFill.classList.add("level-1");
+		}
+		setInterval(updateHype, 400);
+
+		// Combo counter --
+		var comboCount = 0,
+			comboTimer = null;
+		function incrementCombo() {
+			comboCount++;
+			if (comboCount >= 3) {
+				comboDisplay.classList.add("visible");
+				comboCountEl.textContent = comboCount + "x";
+				comboDisplay.classList.remove("level-2");
+				if (comboCount >= 8) comboDisplay.classList.add("level-2");
+				comboCountEl.classList.remove("combo-bump");
+				void comboCountEl.offsetWidth;
+				comboCountEl.classList.add("combo-bump");
+			}
+			clearTimeout(comboTimer);
+			comboTimer = setTimeout(function () {
+				comboCount = 0;
+				comboDisplay.classList.remove("visible");
+			}, 2800);
+		}
+
+		// Message rate --
+		function updateMsgRate() {
+			var now = Date.now();
+			var recent = messageTimestamps.filter(function (t) {
+				return now - t < 5000;
+			});
+			msgRateEl.textContent = (recent.length / 5).toFixed(1);
+		}
+		setInterval(updateMsgRate, 800);
+
+		// Impact flash --
+		function flashImpact(critical) {
+			var cls = critical ? "critical-flash" : "impact-flash";
+			chatWrapper.classList.add(cls);
+			setTimeout(function () {
+				chatWrapper.classList.remove(cls);
+			}, 200);
+		}
+
+		// Typing speed --
+		function getTypingSpeed() {
+			var base = parseInt(readCSSVar("--typing-speed-ms", "18")) || 18;
+			var now = Date.now();
+			var recent = messageTimestamps.filter(function (t) {
+				return now - t < 3000;
+			});
+			if (recent.length > 6) return Math.max(4, base * 0.35);
+			if (recent.length > 3) return Math.max(4, base * 0.55);
+			return base;
+		}
+
+		// Core message add --
+		function getTimestamp() {
+			return new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" });
+		}
+		function randItem(arr) {
+			return arr[Math.floor(Math.random() * arr.length)];
+		}
+
+		function createBadgeHTML(badge) {
+			var m = {
+				mod: '<span class="badge badge-mod" title="Mod">M</span>',
+				vip: '<span class="badge badge-vip" title="VIP">V</span>',
+				sub: '<span class="badge badge-sub" title="Sub">S</span>',
+			};
+			return m[badge] || "";
+		}
+
+		function addMessage(opts) {
+			var username = opts.username || "Anonymous";
+			var userColor = opts.userColor || "#00f0ff";
+			var badges = opts.badges || [];
+			var text = opts.text || "";
+			var isHighlight = opts.isHighlight || false;
+			var isFirstMsg = opts.isFirstMsg || false;
+			var isSystem = opts.isSystem || false;
+
+			var maxMsg = parseInt(readCSSVar("--max-messages", "50")) || 50;
+			var lifespan = parseInt(readCSSVar("--msg-lifespan-ms", "35000")) || 35000;
+
+			var msgEl = document.createElement("div");
+
+			if (isSystem) {
+				msgEl.className = "chat-msg system";
+				msgEl.textContent = text;
+				chatContainer.appendChild(msgEl);
+				chatContainer.scrollTop = chatContainer.scrollHeight;
+			} else {
+				msgEl.className = "chat-msg" + (isHighlight ? " highlight" : "") + (isFirstMsg ? " first-msg" : "");
+				var badgesHTML = badges.length
+					? '<span class="msg-badges">' + badges.map(createBadgeHTML).join("") + "</span>"
+					: "";
+				msgEl.innerHTML =
+					'<span class="msg-timestamp">' +
+					getTimestamp() +
+					"</span>" +
+					badgesHTML +
+					'<span class="msg-username" style="color:' +
+					userColor +
+					'">' +
+					username +
+					"</span>" +
+					'<span class="msg-text"></span>';
+				chatContainer.appendChild(msgEl);
+
+				var textSpan = msgEl.querySelector(".msg-text");
+				var finalHTML =
+					text + (Math.random() < 0.3 ? ' <span class="emote">' + randItem(EMOTES) + "</span>" : "");
+				typeText(textSpan, text, finalHTML, getTypingSpeed());
+
+				messageTimestamps.push(Date.now());
+				incrementCombo();
+				flashImpact(isHighlight);
+			}
+
+			while (chatContainer.children.length > maxMsg) {
+				var oldest = chatContainer.firstChild;
+				if (oldest._typingTimer) clearTimeout(oldest._typingTimer);
+				chatContainer.removeChild(oldest);
+			}
+
+			if (lifespan > 0 && !isSystem) {
+				setTimeout(function () {
+					msgEl.classList.add("fade-out");
+					setTimeout(function () {
+						if (msgEl.parentNode) msgEl.remove();
+					}, 900);
+				}, lifespan);
+			}
+		}
+
+		// Typing effect --
+		function typeText(el, plain, finalHTML, speed) {
+			var i = 0;
+			var cursor = document.createElement("span");
+			cursor.className = "typing-cursor";
+			cursor.textContent = "\u258C";
+			el.textContent = "";
+			el.appendChild(cursor);
+
+			function tick() {
+				if (i < plain.length) {
+					el.textContent = plain.substring(0, i + 1);
+					el.appendChild(cursor);
+					i++;
+					chatContainer.scrollTop = chatContainer.scrollHeight;
+					var jitter = Math.random() * 6 - 3;
+					el._typingTimer = setTimeout(tick, Math.max(4, speed + jitter));
+				} else {
+					cursor.remove();
+					el.innerHTML = finalHTML;
+				}
+			}
+			el._typingTimer = setTimeout(tick, speed);
+		}
+
+		// Viewer count --
+		var viewers = 1247;
+		function updateViewers() {
+			viewers += Math.floor(Math.random() * 11) - 5;
+			viewers = Math.max(700, Math.min(2500, viewers));
+			viewerCountEl.textContent = viewers.toLocaleString();
+		}
+		setInterval(updateViewers, 6000);
+		updateViewers();
+
+		// ============================================================
+		//  DEMO MODE
+		// ============================================================
+		var demoTimer = null;
+
+		function startDemo() {
+			addMessage({ isSystem: true, text: "System Online \u2014 Neon Interface Active" });
+
+			var msgIdx = 0,
+				hlCounter = 0;
+
+			function post() {
+				var user = randItem(DEMO_USERS);
+				addMessage({
+					username: user.name,
+					userColor: user.color,
+					badges: user.badges,
+					text: DEMO_MESSAGES[msgIdx % DEMO_MESSAGES.length],
+					isFirstMsg: Math.random() < 0.07,
+				});
+				msgIdx++;
+
+				hlCounter++;
+				// Regular highlight every ~7 messages
+				if (hlCounter % 7 === 0) {
+					setTimeout(function () {
+						var hl = randItem(HIGHLIGHT_EVENTS);
+						var u = DEMO_USERS[hl.user];
+						addMessage({
+							username: u.name,
+							userColor: u.color,
+							badges: u.badges,
+							text: hl.text,
+							isHighlight: true,
+						});
+						queueAchievement(hl.type, u.name);
+					}, 500);
+				}
+
+				// Burst every ~18 messages to test the achievement queue
+				if (hlCounter % 18 === 0) {
+					var events = [
+						HIGHLIGHT_EVENTS[0], // sub
+						HIGHLIGHT_EVENTS[4], // raid
+						HIGHLIGHT_EVENTS[5], // follow
+					];
+					events.forEach(function (hl, idx) {
+						setTimeout(function () {
+							var u = DEMO_USERS[hl.user];
+							addMessage({
+								username: u.name,
+								userColor: u.color,
+								badges: u.badges,
+								text: hl.text,
+								isHighlight: true,
+							});
+							queueAchievement(hl.type, u.name);
+						}, idx * 400);
+					});
+				}
+			}
+
+			for (var i = 0; i < 3; i++) setTimeout(post, i * 350);
+			var interval = parseInt(readCSSVar("--demo-interval-ms", "2000")) || 2000;
+			demoTimer = setInterval(post, interval);
+		}
+
+		// Particles --
+		function createParticles() {
+			var c = document.getElementById("particleContainer");
+			var colors = ["#00f0ff", "#ff0066", "#39ff14"];
+			for (var i = 0; i < 12; i++) {
+				var p = document.createElement("div");
+				p.className = "ambient-particle";
+				p.style.left = Math.random() * 100 + "%";
+				p.style.bottom = "-6px";
+				var col = colors[Math.floor(Math.random() * 3)];
+				p.style.background = col;
+				p.style.boxShadow = "0 0 5px " + col;
+				p.style.animationDuration = 9 + Math.random() * 14 + "s";
+				p.style.animationDelay = Math.random() * 12 + "s";
+				var sz = 1 + Math.random() * 2 + "px";
+				p.style.width = sz;
+				p.style.height = sz;
+				c.appendChild(p);
+			}
+		}
+
+		// Keyboard shortcuts --
+		document.addEventListener("keydown", function (e) {
+			if (e.ctrlKey || e.metaKey || e.altKey) return;
+			if (e.key === "c" || e.key === "C") {
+				chatContainer.innerHTML = "";
+				addMessage({ isSystem: true, text: "Chat Cleared" });
+			}
+			if (e.key === "p" || e.key === "P") {
+				if (demoTimer) {
+					clearInterval(demoTimer);
+					demoTimer = null;
+					addMessage({ isSystem: true, text: "Demo Paused" });
+				} else {
+					startDemo();
+					addMessage({ isSystem: true, text: "Demo Resumed" });
+				}
+			}
+		});
+
+		// Public API --
+		window.NeonChat = {
+			addMessage: addMessage,
+			queueAchievement: queueAchievement,
+			clearChat: function () {
+				chatContainer.innerHTML = "";
+			},
+			stopDemo: function () {
+				if (demoTimer) {
+					clearInterval(demoTimer);
+					demoTimer = null;
+				}
+			},
+			startDemo: function () {
+				startDemo();
+			},
+		};
+
+		// Init --
+		createParticles();
+		requestAnimationFrame(function () {
+			initOverlayPosition();
+			animateBorderAngle(); // Start the rotating border animation
+			startDemo();
+		});
+	</script>
+</body>
+
+</html>

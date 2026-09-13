@@ -19,11 +19,11 @@
 ---@type library.metadata_gen
 return {
 	package_version = "0.0.50",
-	timestamp = "2026-09-13 16:28:56",
-	commit_count = 339,
+	timestamp = "2026-09-13 16:59:07",
+	commit_count = 340,
 	tag_count = 47,
 	branch_name = "main",
-	prev_hash = "2badb68b25426fb26fd69ec6916bffe9a16db07b",
+	prev_hash = "ac2c0100b8d2e79d0fb239fdd236a96ee36c2c71",
 	is_preview = false,
 	tag = "v0.0.51",
 	owner = "Cheatoid",
@@ -54,7 +54,7 @@ return {
 		["Client/UI/ImGui.html"] = "07cea0418dcb2d74d26378e1b9a5928cb49c415c03f0eccc20c2a23812173582",
 		["Client/UI/ImGuiDemo.html"] = "f1e9565a044b5d00b8f7ef13f7304eeeef42460473b51316ed52e5629fe62488",
 		["Client/UI/NUI.html"] = "5ebac7c79e16e0d81e907628c469ad7eb2f73fe5772221fdc2d228749514794f",
-		["Client/UI/NewTabPage.html"] = "b136df3883acd425c1df6b48d34d82f40f6374aba3743a70325297a31ff6d9ad",
+		["Client/UI/NewTabPage.html"] = "1577a88a6476a01f65ba92d88ebf080474142a1ff64d8420369828a960c39c90",
 		["Client/UI/RegexAPI.html"] = "e5668cf755adbe80de9c1531b47eddf068350d65f999c5046e36a613f7aec481",
 		["Client/UI/SpawnMenu.html"] = "f02b34891dd025848692d57d2158a0a13ba5bcd611a60fdc7f25fffaacd4c6ab",
 		["Client/UI/Transparent.html"] = "9e9803ff5345bf4ae11deee7de245552c52c62ef58216a86921252a780a4d07a",
