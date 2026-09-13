@@ -355,7 +355,7 @@ M.list_files = list_files
 --- Useful for processing large numbers of files without loading them all into memory.
 ---@param path_filter? string Path filter (default: "").
 ---@param extension_filter? string Extension filter (e.g. ".lua", default: "").
----@return fun() iterator Iterator function that yields file paths.
+---@return fun(): string iterator Iterator function that yields file paths.
 ---@usage <br>
 --- ```
 --- -- Iterate over all .lua files
@@ -401,7 +401,7 @@ M.list_directories = list_directories
 --- Returns an iterator function that yields directory paths one at a time.<br>
 --- Useful for processing large directory structures without loading them all into memory.
 ---@param path_filter? string Path filter (default: "").
----@return fun() iterator Iterator function that yields directory paths.
+---@return fun(): string iterator Iterator function that yields directory paths.
 ---@usage <br>
 --- ```
 --- -- Iterate over all directories

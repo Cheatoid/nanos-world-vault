@@ -589,6 +589,7 @@ Packages/
 .tmp/
 .download/
 .downloads/
+.luals-log/
 
 # Zed
 .zed/
@@ -604,3 +605,6 @@ imgui_web_demo/build-debug/
 # falls back to the remote Pages demo when it is absent. Commit it only if
 # you need offline players covered (then remove this line).
 #library/Client/UI/ImGuiDemo.html
+
+# Do not ignore LuaLS files, as they are used for code linting and validation (GitHub Action).
+!.luals/**

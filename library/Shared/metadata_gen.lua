@@ -19,11 +19,11 @@
 ---@type library.metadata_gen
 return {
 	package_version = "0.0.50",
-	timestamp = "2026-09-13 07:32:50",
-	commit_count = 334,
+	timestamp = "2026-09-13 09:02:19",
+	commit_count = 336,
 	tag_count = 47,
 	branch_name = "main",
-	prev_hash = "992e466b55c9cf67a96dbb73edeb2ccf5cb08347",
+	prev_hash = "538a56689a7e087370ac3a3eba47d02459796302",
 	is_preview = false,
 	tag = "v0.0.51",
 	owner = "Cheatoid",
@@ -71,7 +71,7 @@ return {
 		["Shared/ClientsideLua.lua"] = "9bb605c9849dc0539c08b2550931a382cbbb021fe4caa5860759ea411ef16ec6",
 		["Shared/ConVar.lua"] = "783097746bb421913f91282ecdf59bcdece74335b8327774884050cb6d059c8d",
 		["Shared/Config.lua"] = "06af2a28982251ea2d5b3e3159c2922da5d64311b4630814a21f007af7f2d6d2",
-		["Shared/FileWrapper.lua"] = "c05e9f2fb704bb0fcc0b733193147e5dfd53e681215dbe5240d52a8cbada8540",
+		["Shared/FileWrapper.lua"] = "5bb0c9ba18e297630ab40017b4b1d25004a045c01149cc716fd4ea1ef318787f",
 		["Shared/HttpWrapper.lua"] = "a54104f8689dd5d7d128a92af1f3903a5451e0199154a302cdbf644cc35fca97",
 		["Shared/Index.lua"] = "f908daa7f305b11d3844b3728885259e2b6e0ce0cb738f0cbac8b9d183a5d191",
 		["Shared/NetWrapper.lua"] = "63b20a0877072dc81e3d62abb8ffafc194a02ed025e893af50e597c283662d3f",
