@@ -129,7 +129,7 @@ function WebAudioAPI.SetListenerTransform(px, py, pz, fx, fy, fz, ux, uy, uz, ca
 end
 
 --- Sets the main master gain (volume).
----@param value number Gain value (1.0 = normal volume).
+---@param value number Gain value (1 = normal volume).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.SetMainGain(value, callback)
@@ -137,7 +137,7 @@ function WebAudioAPI.SetMainGain(value, callback)
 end
 
 --- Sets the ambience gain (volume for ambient sounds).
----@param value number Gain value (0.5 = default).
+---@param value? number Gain value (default: 0.5).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.SetAmbienceGain(value, callback)
@@ -154,7 +154,7 @@ function WebAudioAPI.SetLowpassCutoff(freqHz, callback)
 end
 
 --- Sets the maximum number of simultaneous voices (polyphony).
----@param count number Maximum voice count (64 = default).
+---@param count? number Maximum voice count (default: 64).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.SetMaxVoices(count, callback)
@@ -163,7 +163,7 @@ end
 
 --- Sets the virtualization distance.<br>
 --- Sounds beyond this distance are virtualized (not actually played to save resources).
----@param dist number Distance in units (200.0 = default).
+---@param dist? number Distance in units (default: 200).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.SetVirtualizationDistance(dist, callback)
@@ -182,7 +182,7 @@ end
 --- Creates a new sound instance.
 ---@param instanceId string Unique ID for this sound instance.
 ---@param url string URL of the sound file.
----@param options table|nil Options table (position, loop, pitch, gain, distanceModel, refDistance, maxDistance, rolloffFactor, spatialBlend).
+---@param options? table Options table (position, loop, pitch, gain, distanceModel, refDistance, maxDistance, rolloffFactor, spatialBlend).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>
@@ -270,7 +270,7 @@ end
 
 --- Sets the gain (volume) of a sound instance.
 ---@param instanceId string ID of the sound instance.
----@param value number Gain value (1.0 = normal volume).
+---@param value number Gain value (1 = normal volume).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.InstanceSetGain(instanceId, value, callback)
@@ -279,7 +279,7 @@ end
 
 --- Sets the pitch of a sound instance.
 ---@param instanceId string ID of the sound instance.
----@param value number Pitch multiplier (1.0 = normal pitch).
+---@param value number Pitch multiplier (1 = normal pitch).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.InstanceSetPitch(instanceId, value, callback)
@@ -297,9 +297,9 @@ end
 
 --- Sets the rolloff parameters for distance attenuation.
 ---@param instanceId string ID of the sound instance.
----@param refDistance number|nil Reference distance where attenuation begins (default: 1.0).
----@param maxDistance number|nil Maximum distance where sound is audible (default: 100.0).
----@param rolloffFactor number|nil Rolloff factor (default: 1.0).
+---@param refDistance? number Reference distance where attenuation begins (default: 1).
+---@param maxDistance? number Maximum distance where sound is audible (default: 100).
+---@param rolloffFactor? number Rolloff factor (default: 1).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.InstanceSetRolloff(instanceId, refDistance, maxDistance, rolloffFactor, callback)
@@ -308,7 +308,7 @@ end
 
 --- Sets the spatial blend between 2D and 3D audio.
 ---@param instanceId string ID of the sound instance.
----@param value number Blend value (0.0 = fully 2D, 1.0 = fully 3D).
+---@param value number Blend value (0 = fully 2D, 1 = fully 3D).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.InstanceSetSpatialBlend(instanceId, value, callback)
@@ -318,7 +318,7 @@ end
 --- Sets echo/delay effect parameters.
 ---@param instanceId string ID of the sound instance.
 ---@param delaySeconds number Delay time in seconds.
----@param feedbackGain number Feedback gain (0.0 = no echo).
+---@param feedbackGain number Feedback gain (0 = no echo).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.InstanceSetEcho(instanceId, delaySeconds, feedbackGain, callback)
@@ -336,7 +336,7 @@ end
 
 --- Sets the reverb level for a sound instance.
 ---@param instanceId string ID of the sound instance.
----@param value number Reverb mix level (0.0 = no reverb).
+---@param value number Reverb mix level (0 = no reverb).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.InstanceSetReverbLevel(instanceId, value, callback)
@@ -346,7 +346,7 @@ end
 --- Sets the occlusion level for a sound instance.<br>
 --- Occlusion muffles the sound (like passing through a wall).
 ---@param instanceId string ID of the sound instance.
----@param occlusion number Occlusion level (0.0 = no occlusion, 1.0 = fully occluded).
+---@param occlusion number Occlusion level (0 = no occlusion, 1 = fully occluded).
 ---@param callback function Callback function to receive the result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 function WebAudioAPI.InstanceSetOcclusion(instanceId, occlusion, callback)

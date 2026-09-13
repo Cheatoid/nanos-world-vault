@@ -19,6 +19,12 @@ local console = console_lib.Console.new()
 -- Create IntelliSense instance for the console
 local intellisense = console_lib.IntelliSense.new(console)
 
+--- Default context check allowing all commands.<br>
+--- Behaves identically to omitting the check.
+---@param _ table Unused execution context.
+---@return boolean allowed Always true.
+local function allow_all_commands(_) return true end
+
 -- Realm management
 local currentRealm = "client" -- Default to client realm
 
@@ -29,6 +35,7 @@ local themes = { "amber", "arctic", "aurora", "bloodmoon", "cyberpunk", "matrix"
 console:register({
 	name = "theme",
 	desc = "Switch console theme",
+	context_check = allow_all_commands,
 	args = {
 		{ name = "name", type = "enum", optional = true, choices = themes, desc = "Theme name" }
 	},
@@ -48,6 +55,7 @@ console:register({
 console:register({
 	name = "help",
 	desc = "Show available commands or get help for a specific command",
+	context_check = allow_all_commands,
 	args = {
 		{
 			name = "command",
@@ -82,6 +90,7 @@ console:register({
 console:register({
 	name = "time",
 	desc = "Show current time",
+	context_check = allow_all_commands,
 	handler = function(ctx, args)
 		local currentTime = os.date("%H:%M:%S")
 		M.Info("Current time: " .. currentTime)
@@ -92,6 +101,7 @@ console:register({
 console:register({
 	name = "date",
 	desc = "Show current date",
+	context_check = allow_all_commands,
 	handler = function(ctx, args)
 		local currentDate = os.date("%Y-%m-%d")
 		M.Info("Current date: " .. currentDate)
@@ -102,6 +112,7 @@ console:register({
 console:register({
 	name = "version",
 	desc = "Show version info",
+	context_check = allow_all_commands,
 	handler = function(ctx, args)
 		M.Info("Console Engine v0.2")
 	end
@@ -111,6 +122,7 @@ console:register({
 console:register({
 	name = "stats",
 	desc = "Show message statistics",
+	context_check = allow_all_commands,
 	handler = function(ctx, args)
 		-- Get stats from JavaScript side
 		if M.IsReady() then
@@ -125,6 +137,7 @@ console:register({
 console:register({
 	name = "about",
 	desc = "About this console",
+	context_check = allow_all_commands,
 	handler = function(ctx, args)
 		M.Info("Console Engine v0.2")
 		M.Info("Press Tab for autocomplete, Up/Down arrow for history.")
@@ -135,6 +148,7 @@ console:register({
 console:register({
 	name = "echo",
 	desc = "Print text to console",
+	context_check = allow_all_commands,
 	args = {
 		{ name = "text", type = "string", optional = true, desc = "Text to echo" }
 	},
@@ -152,6 +166,7 @@ console:register({
 console:register({
 	name = "realm",
 	desc = "Switch between CLIENT and SERVER output realms",
+	context_check = allow_all_commands,
 	aliases = { "client", "server" },
 	args = {
 		{ name = "name", type = "enum", optional = true, choices = { "client", "server" }, desc = "Realm name (client or server)" }
@@ -196,6 +211,7 @@ console:register({
 console:register({
 	name = "clear",
 	desc = "Clear console output",
+	context_check = allow_all_commands,
 	aliases = { "cls" },
 	handler = function(ctx, args)
 		M.Clear()
@@ -206,6 +222,7 @@ console:register({
 console:register({
 	name = "testcmd",
 	desc = "Test command for autocompletion",
+	context_check = allow_all_commands,
 	args = {
 		{ name = "arg1", type = "string", optional = true, desc = "Test argument" }
 	},
@@ -218,10 +235,15 @@ console:register({
 -- Set callback for caret position updates
 local caretPositionCallback
 
+--- Check whether the console WebUI is ready.<br>
+--- Returns false when the WebUI instance is missing.
+---@return boolean ready True when the WebUI is ready.
 function M.IsReady()
 	return ConsoleWebUI and ConsoleWebUI:IsReady() or false
 end
 
+--- Initialize the console engine and WebUI.<br>
+--- Creates the WebUI instance and subscribes to engine events. Self-disables after first run.
 function M.Initialize()
 	Bind.Initialize()
 
@@ -257,7 +279,7 @@ function M.Initialize()
 	ConsoleWebUI:Subscribe("Ready", function()
 		-- M.Info("DEBUG: Ready event fired!")
 		-- Initialize with default theme
-		M.SetTheme("amber")
+		M.SetTheme(themes[1])
 
 		-- Subscribe to game console logs
 		Console.Subscribe("LogEntry", function(text, type)
@@ -343,8 +365,26 @@ function M.Initialize()
 
 		-- Handle autocomplete requests from JS
 		ConsoleWebUI:Subscribe("GetAutocomplete", function(line, caret)
+			if type(line) ~= "string" then line = "" end
+			caret = tonumber(caret) or (#line + 1)
+			if caret < 1 then
+				caret = 1
+			elseif caret > (#line + 1) then
+				caret = #line + 1
+			end
+
 			-- Use IntelliSense with proper caret position awareness
 			local suggestions = intellisense:suggest_at(line, caret)
+
+			-- suggest_at() items only carry { key, label, score, meta }
+			-- (see Console.IntelliSense.Suggestion in console.lua), so derive
+			-- the replacement range from the current context instead.
+			local start_pos, end_pos = caret, caret
+			local ok, ctx = pcall(function() return intellisense:context_at(line, caret) end)
+			if ok and type(ctx) == "table" and ctx.token then
+				start_pos = ctx.token.start or caret
+				end_pos = (ctx.token.finish or (caret - 1)) + 1
+			end
 
 			-- Convert IntelliSense suggestions to the format expected by JavaScript
 			local formatted_suggestions = {}
@@ -354,14 +394,17 @@ function M.Initialize()
 						table.insert(formatted_suggestions, {
 							name = suggestion.key,
 							desc = suggestion.meta and suggestion.meta.desc or "",
-							start_pos = suggestion.start_pos,
-							end_pos = suggestion.end_pos,
-							replace = suggestion.replace
+							start_pos = start_pos,
+							end_pos = end_pos,
+							replace = suggestion.key
 						})
 					elseif type(suggestion) == "string" then
 						table.insert(formatted_suggestions, {
 							name = suggestion,
-							desc = ""
+							desc = "",
+							start_pos = start_pos,
+							end_pos = end_pos,
+							replace = suggestion
 						})
 					end
 				end
@@ -410,99 +453,160 @@ function M.Initialize()
 	M.Initialize = function() end
 end
 
+----------------------------------------------------------------------
 -- Logging functions
+----------------------------------------------------------------------
+
+--- Log a message to the console output.<br>
+--- Forwards the entry to the WebUI with realm routing.
+---@param type string type The message type.
+---@param text string text The message text.
+---@param realm? string realm The target realm (defaults to current realm).
 function M.Log(type, text, realm)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("log", type, text, realm or currentRealm)
 	end
 end
 
+--- Log an info message to the console output.
+---@param text string text The message text.
+---@param realm? string realm The target realm (defaults to current realm).
 function M.Info(text, realm)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("info", text, realm or currentRealm)
 	end
 end
 
+--- Log a warning message to the console output.
+---@param text string text The message text.
+---@param realm? string realm The target realm (defaults to current realm).
 function M.Warn(text, realm)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("warn", text, realm or currentRealm)
 	end
 end
 
+--- Log an error message to the console output.
+---@param text string text The message text.
+---@param realm? string realm The target realm (defaults to current realm).
 function M.Error(text, realm)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("error", text, realm or currentRealm)
 	end
 end
 
+--- Log a debug message to the console output.
+---@param text string text The message text.
+---@param realm? string realm The target realm (defaults to current realm).
 function M.Debug(text, realm)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("debug", text, realm or currentRealm)
 	end
 end
 
+--- Log a success message to the console output.
+---@param text string text The message text.
+---@param realm? string realm The target realm (defaults to current realm).
 function M.Success(text, realm)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("success", text, realm or currentRealm)
 	end
 end
 
+----------------------------------------------------------------------
 -- Realm-specific logging functions
+----------------------------------------------------------------------
+
+--- Log a message to the client realm.<br>
+--- Shortcut for M.Log with realm "client".
+---@param type string type The message type.
+---@param text string text The message text.
 function M.ClientLog(type, text)
 	M.Log(type, text, "client")
 end
 
+--- Log an info message to the client realm.
+---@param text string text The message text.
 function M.ClientInfo(text)
 	M.Info(text, "client")
 end
 
+--- Log a warning message to the client realm.
+---@param text string text The message text.
 function M.ClientWarn(text)
 	M.Warn(text, "client")
 end
 
+--- Log an error message to the client realm.
+---@param text string text The message text.
 function M.ClientError(text)
 	M.Error(text, "client")
 end
 
+--- Log a debug message to the client realm.
+---@param text string text The message text.
 function M.ClientDebug(text)
 	M.Debug(text, "client")
 end
 
+--- Log a success message to the client realm.
+---@param text string text The message text.
 function M.ClientSuccess(text)
 	M.Success(text, "client")
 end
 
+--- Log a message to the server realm.<br>
+--- Shortcut for M.Log with realm "server".
+---@param type string type The message type.
+---@param text string text The message text.
 function M.ServerLog(type, text)
 	M.Log(type, text, "server")
 end
 
+--- Log an info message to the server realm.
+---@param text string text The message text.
 function M.ServerInfo(text)
 	M.Info(text, "server")
 end
 
+--- Log a warning message to the server realm.
+---@param text string text The message text.
 function M.ServerWarn(text)
 	M.Warn(text, "server")
 end
 
+--- Log an error message to the server realm.
+---@param text string text The message text.
 function M.ServerError(text)
 	M.Error(text, "server")
 end
 
+--- Log a debug message to the server realm.
+---@param text string text The message text.
 function M.ServerDebug(text)
 	M.Debug(text, "server")
 end
 
+--- Log a success message to the server realm.
+---@param text string text The message text.
 function M.ServerSuccess(text)
 	M.Success(text, "server")
 end
 
+----------------------------------------------------------------------
 -- Console control
+----------------------------------------------------------------------
+
+--- Clear the console output.
 function M.Clear()
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("Clear")
 	end
 end
 
+--- Toggle console visibility.<br>
+--- Shows or hides the WebUI and notifies JavaScript.
+---@param show? boolean show Force visibility (defaults to toggling current state).
 function M.Toggle(show)
 	if ConsoleWebUI then
 		if show == nil then
@@ -519,45 +623,83 @@ function M.Toggle(show)
 	end
 end
 
+--- Apply a console theme.<br>
+--- Forwards the theme name to the WebUI.
+---@param theme string theme The theme name.
 function M.SetTheme(theme)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("SetTheme", theme)
 	end
 end
 
-function M.RegisterCommand(name, desc, handler, args)
-	console:register({ name = name, desc = desc, handler = handler, args = args })
+--- Register a console command.<br>
+--- Registers with the console engine and notifies the WebUI.
+---@param name string name The command name.
+---@param desc string description The command description.
+---@param handler function handler The command handler.
+---@param args? table args The argument specifications.
+---@param context_check? fun(ctx: table): (boolean, string?) Permission check (defaults to allow-all).
+function M.RegisterCommand(name, desc, handler, args, context_check)
+	console:register({
+		name = name,
+		desc = desc,
+		handler = handler,
+		args = args,
+		context_check = context_check or
+			allow_all_commands
+	})
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("RegisterCommand", name, desc, args)
 	end
 end
 
+----------------------------------------------------------------------
 -- Autocomplete provider functions
+----------------------------------------------------------------------
+
+--- Register an autocomplete item.<br>
+--- Forwards the item to the WebUI provider.
+---@param name string name The item name.
+---@param desc string description The item description.
+---@param type? string type The item type (default: "command").
+---@param category? string category The item category.
 function M.RegisterAutocomplete(name, desc, type, category)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("RegisterAutocomplete", name, desc, type or "command", category)
 	end
 end
 
+--- Unregister an autocomplete item.<br>
+--- Removes the item from the WebUI provider.
+---@param name string name The item name.
 function M.UnregisterAutocomplete(name)
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("UnregisterAutocomplete", name)
 	end
 end
 
+--- Clear all autocomplete items from the WebUI provider.
 function M.ClearAutocomplete()
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("ClearAutocomplete")
 	end
 end
 
+----------------------------------------------------------------------
 -- Caret position functions
+----------------------------------------------------------------------
+
+--- Request the caret position from the WebUI.<br>
+--- The result arrives via the caret position callback.
 function M.GetCaretPosition()
 	if ConsoleWebUI then
 		ConsoleWebUI:CallEvent("GetCaretPosition")
 	end
 end
 
+--- Set the caret position callback.<br>
+--- Invoked when the WebUI reports caret updates.
+---@param callback function callback The callback function.
 function M.SetCaretPositionCallback(callback)
 	caretPositionCallback = callback
 end

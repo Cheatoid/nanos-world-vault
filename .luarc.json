@@ -10,6 +10,7 @@
 		"ignoreDir": [
 			".git",
 			".lua",
+			".luals",
 			".nvim-data",
 			".nvim-win64",
 			"node_modules",
@@ -27,6 +28,42 @@
 	"diagnostics.disable": [
 		"different-requires"
 	],
+	"diagnostics": {
+		"severity": {
+			"undefined-global": "Error",
+			"undefined-field": "Error",
+			//"undefined-index": "Error",
+			"undefined-doc-class": "Error",
+			"undefined-doc-name": "Error",
+			"undefined-doc-param": "Error",
+			"undefined-env-child": "Error",
+			"lowercase-global": "Error",
+			"assign-type-mismatch": "Error",
+			"param-type-mismatch": "Error",
+			"return-type-mismatch": "Warning", // due to returning error()
+			"cast-type-mismatch": "Error",
+			"need-check-nil": "Error",
+			//"need-check-nil-parameter": "Error",
+			"duplicate-set-field": "Error",
+			"duplicate-index": "Error",
+			"duplicate-doc-alias": "Error",
+			"duplicate-doc-field": "Error",
+			"duplicate-doc-param": "Error",
+			"redundant-return": "Error",
+			"redundant-parameter": "Error",
+			"redundant-return-value": "Error",
+			"redundant-value": "Error",
+			"missing-return": "Error",
+			"unbalanced-assignments": "Error",
+			"missing-fields": "Error",
+			"missing-parameter": "Error",
+			"incomplete-signature-doc": "Error",
+			"trailing-space": "Error",
+			"missing-global-doc": "Error",
+			"missing-local-export-doc": "Error",
+			"missing-return-value": "Error"
+		}
+	},
 	"runtime.path": [
 		"?.lua",
 		"Shared/?.lua",
@@ -37,7 +74,7 @@
 	"format.enable": true,
 	"format.defaultConfig": {
 		"indent_style": "tab",
-		"indent_size": "2"
+		"indent_size": "4"
 	},
 	"hint.setType": false,
 	"hint.enable": false,

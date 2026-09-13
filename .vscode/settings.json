@@ -14,7 +14,7 @@
 	"Lua.format.enable": true,
 	"Lua.format.defaultConfig": {
 		"indent_style": "tab",
-		"indent_size": "2",
+		"indent_size": "4",
 	},
 	"[lua]": {
 		"editor.defaultFormatter": "sumneko.lua",
@@ -26,6 +26,7 @@
 	"vscord.enable": true,
 	"editor.largeFileOptimizations": true,
 	"files.exclude": {
+		".luals/**": true,
 		".nvim-data/**": true,
 		".nvim-win64/**": true,
 		"**/.git/**": true,
@@ -39,6 +40,7 @@
 	},
 	"files.watcherExclude": {
 		".lua/**": true,
+		".luals/**": true,
 		".nvim-data/**": true,
 		".nvim-win64/**": true,
 		"**/.git/**": true,
@@ -50,11 +52,11 @@
 		"coc": true,
 		"emsdk": true,
 		"imgui": true,
-		"luajit": true,
 		"publish/**": true
 	},
 	"search.exclude": {
 		".lua/lua-5.4.9/**": true,
+		".luals/**": true,
 		"**/.git/**": true,
 		"**/.idea/**": true,
 		"**/.vs/**": true,
@@ -63,7 +65,6 @@
 		"**/obj/**": true,
 		"emsdk": true,
 		"imgui": true,
-		"luajit": true,
 		"publish/**": true
 	},
 	"editor.fontFamily": "'Cascadia Mono','Fira Mono','JetBrains Mono','MonoLisa','Neo Sans Pro','Open Sans','Roboto Mono','Source Sans Pro','Ubuntu Mono',Consolas,'Courier New',monospace",

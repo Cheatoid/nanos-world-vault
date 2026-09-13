@@ -1,0 +1,81 @@
+name: LuaLS
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    name: LuaLS
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Run LuaLS
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $lua_ls = Join-Path $env:GITHUB_WORKSPACE '.luals\bin\lua-language-server.exe'
+          $log_path = Join-Path $env:GITHUB_WORKSPACE '.luals-log'
+
+          if (-not (Test-Path $lua_ls)) {
+              throw "LuaLS executable not found: $lua_ls"
+          }
+
+          if (Test-Path $log_path) {
+              Remove-Item $log_path -Recurse -Force
+          }
+
+          New-Item -ItemType Directory -Path $log_path | Out-Null
+
+          $files = @(
+              Get-ChildItem `
+                  -Path (Join-Path $env:GITHUB_WORKSPACE 'library') `
+                  -Recurse `
+                  -Filter '*.lua' `
+                  -File
+          )
+
+          if ($files.Count -eq 0) {
+              throw 'No Lua files found under library/'
+          }
+
+          Write-Host "Checking $($files.Count) Lua files..."
+
+          & $lua_ls `
+              --check=(Join-Path $env:GITHUB_WORKSPACE 'library') `
+              --checklevel=Error `
+              --logpath=$log_path `
+              --configpath=(Join-Path $env:GITHUB_WORKSPACE '.luarc.json')
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "LuaLS exited with code $LASTEXITCODE"
+          }
+
+          $report = Join-Path $log_path 'check.json'
+
+          if (-not (Test-Path $report)) {
+              throw "LuaLS did not produce a diagnosis report: $report"
+          }
+
+          $diagnostics = Get-Content $report -Raw | ConvertFrom-Json
+
+          $count = @($diagnostics).Count
+
+          if ($count -gt 0) {
+              Write-Host "::error::LuaLS reported $count error(s)."
+              Get-Content $report
+              exit 1
+          }
+
+          Write-Host 'LuaLS: no errors found.'

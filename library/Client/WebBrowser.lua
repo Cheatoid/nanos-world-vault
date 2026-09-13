@@ -753,7 +753,7 @@ function WebBrowser.Close()
 end
 
 --- Creates a new tab
----@param url string|nil Optional URL to load (if not provided, shows new tab page)
+---@param url? string Optional URL to load (if not provided, shows new tab page)
 ---@return integer tabId
 function WebBrowser.CreateTab(url)
 	print("[WebBrowser DEBUG] WebBrowser.CreateTab called, url:", url)

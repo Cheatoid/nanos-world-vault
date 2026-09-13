@@ -90,7 +90,7 @@ end
 --- Creates a WebSocket connection to the specified URL.<br>
 --- Establishes a WebSocket connection that can be used for real-time communication.
 ---@param url string The WebSocket server URL (e.g. "ws://localhost:8080").
----@param protocols string|nil Optional WebSocket protocols array or single protocol string.
+---@param protocols? string Optional WebSocket protocols array or single protocol string.
 ---@param callback function Callback function to receive the connection result (function(success, payload)).
 ---@return integer req_id The request ID for tracking.
 ---@usage <br>

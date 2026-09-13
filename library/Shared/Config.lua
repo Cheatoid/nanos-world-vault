@@ -118,7 +118,7 @@ end
 
 --- Validates a value against a field schema
 ---@param key string
----@param value any
+---@param value? any
 ---@param schema cheatoidlib.config.field
 ---@return boolean valid
 ---@return string? error

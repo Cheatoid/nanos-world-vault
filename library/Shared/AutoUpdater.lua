@@ -6,7 +6,6 @@
 -- Localized global functions for better performance
 local pcall = pcall
 local setmetatable = setmetatable
-local string_find = string.find
 local string_format = string.format
 local string_match = string.match
 local string_sub = string.sub
@@ -23,7 +22,7 @@ local tsl = require "@cheatoid/standalone/to_string_literal"
 ---@field repo? string GitHub repository name (default: from metadata_gen)
 ---@field branch? string Branch to check for updates (default: from metadata_gen or "main")
 ---@field package_path? string Path in repo to metadata_gen.lua (default: from metadata_gen)
----@field package_name? string Package name for zip download (default: Package.GetName())
+---@field package_name? string Package name for zip download (default: `Package.GetName()`)
 ---@field check_asset_store? boolean Whether to check nanos-world asset store API (default: true)
 ---@field auto_download? boolean Whether to automatically download updates (default: false)
 ---@field debug? boolean Enable debug logging (default: false)
@@ -35,8 +34,7 @@ local tsl = require "@cheatoid/standalone/to_string_literal"
 ---@field on_check_complete? fun() Callback when update check completes
 
 --- Auto-update engine for GitHub-based packages using metadata_gen.lua.<br>
---- This module provides a clean API for checking for updates, downloading release zips,<br>
---- and handling version comparisons without callback hell.
+--- This module provides a clean API for checking for updates, downloading release zips, and handling version comparisons without callback hell.
 ---@class AutoUpdater
 ---@field config AutoUpdaterConfig Configuration options for the updater
 ---@field current_metadata table Local metadata_gen.lua data
@@ -64,7 +62,7 @@ AutoUpdater.__index = AutoUpdater
 ---@param config? AutoUpdaterConfig Configuration options (uses defaults if nil)
 ---@return AutoUpdater updater The configured AutoUpdater instance
 function AutoUpdater.new(config)
-	local metadata = require "metadata_gen" ---@type library.metadata_gen
+	local metadata = require "metadata_gen" ---@cast metadata library.metadata_gen
 	return setmetatable({
 		config = {
 			owner = config and config.owner or metadata.owner,

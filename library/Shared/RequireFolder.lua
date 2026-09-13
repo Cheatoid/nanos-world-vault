@@ -33,7 +33,7 @@ end
 
 --- Recursively collects all Lua files from the specified path.
 ---@param path string The directory path to collect files from.
----@param out table Array to append collected file paths to (modified in-place).
+---@param out? table Array to append collected file paths to (modified in-place).
 ---@param recursive? boolean If true, recursively collects files from subfolders.
 ---@param vfs? table Optional VFS interface with `list_files`, `list_directories`, `is_directory` methods.
 local function collect_files(path, out, recursive, vfs)

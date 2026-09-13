@@ -13,7 +13,6 @@ local string_upper = string.upper
 local printf = require "@cheatoid/standalone/printf"
 local table = require "@cheatoid/standard/table"
 local table_concat = table.concat
-local table_keys = table.keys
 local table_remove = table.remove
 local table_sort = table.sort
 local table_unpack = table.unpack
@@ -70,6 +69,7 @@ M.Register = M.RegisterAction
 ---@param callback function The function to execute when the command is run
 ---@param description? string The command description to display in the console (default: "")
 ---@param parameters? string[] The list of supported parameters to display in the console (default: {})
+---@return any result Return value of Console.RegisterCommand
 function M.RegisterCommand(name, callback, description, parameters)
 	M.RegisterAction(name, callback)
 	return Console.RegisterCommand(name, callback, description, parameters)
@@ -96,7 +96,7 @@ function M.ListActions()
 	local actionNames = {}
 
 	-- Collect action names using pairs, filtering out metamethods
-	for k, v in pairs(actions) do
+	for k in next, actions do
 		if k ~= "__index" and k ~= "__newindex" then
 			actionNames[#actionNames + 1] = k
 		end
@@ -123,7 +123,7 @@ function M.ListBindings()
 	local bindingKeys = {}
 
 	-- Collect keys using pairs, filtering out metamethods
-	for k, v in pairs(keyBindings) do
+	for k in next, keyBindings do
 		if k ~= "__index" and k ~= "__newindex" then
 			bindingKeys[#bindingKeys + 1] = k
 		end
@@ -147,6 +147,7 @@ end
 ---@param description? string The action description to display in the tooltip
 ---@param force? boolean Whether to force the binding even if the action doesn't exist (default: false)
 ---@return boolean success Whether the binding was successful
+---@return string? error_message Error message if binding was unsuccessful
 ---@usage <br>
 --- ```
 --- Bind.BindKey("F9", "browser")
@@ -183,6 +184,7 @@ M.Bind = M.BindKey
 --- Unbind a key from its action.
 ---@param key string The key to unbind
 ---@return boolean success Whether the unbinding was successful
+---@return string? error_message Error message if binding was unsuccessful
 ---@usage <br>
 --- ```
 --- Bind.UnbindKey("F9")
@@ -201,14 +203,14 @@ function M.UnbindKey(key)
 	if not callback then
 		return false, "Key \"" .. key .. "\" is not bound to any action"
 	end
-	printf("DEBUG: Unbinding key \"" .. key .. "\" from action \"" .. binding .. "\"")
+	printf("DEBUG: Unbinding key %q from action %q", key, binding)
 	print("callback: " .. tostring(callback))
 
 	Input.Unbind(BIND_PREFIX .. binding, InputEvent.Pressed, callback)
-	Input.Unregister(BIND_PREFIX .. binding, key)
+	Input.Unregister(BIND_PREFIX .. binding)
 
 	-- Find the actual key in the table (case-insensitive) and remove it
-	for k, v in pairs(keyBindings) do
+	for k in next, keyBindings do
 		if k ~= "__index" and k ~= "__newindex" and string_upper(k) == string_upper(key) then
 			keyBindings[k] = nil
 			return true, binding
@@ -223,6 +225,7 @@ M.Unbind = M.UnbindKey
 --- Unregister a keybinding.
 ---@param key string The key to unregister
 ---@return boolean success Whether the unregistration was successful
+---@return string? error_message Error message if binding was unsuccessful
 ---@usage <br>
 --- ```
 --- Bind.Unregister("F9")
@@ -237,10 +240,10 @@ function M.Unregister(key)
 		return false, "Key \"" .. key .. "\" is not bound to any action"
 	end
 
-	Input.Unregister(BIND_PREFIX .. binding, key)
+	Input.Unregister(BIND_PREFIX .. binding)
 
 	-- Find the actual key in the table (case-insensitive) and remove it
-	for k, v in pairs(keyBindings) do
+	for k in next, keyBindings do
 		if k ~= "__index" and k ~= "__newindex" and string_upper(k) == string_upper(key) then
 			keyBindings[k] = nil
 			return true, binding
@@ -250,6 +253,10 @@ function M.Unregister(key)
 	return false
 end
 
+--- Remove empty strings from argument list.<br>
+--- Returns the remaining arguments for unpacking.
+---@param ... string Raw argument strings.
+---@return ... Non-empty argument strings.
 local function PreProcessArgs(...)
 	local args = { ... }
 	for i = #args, 1, -1 do
@@ -263,6 +270,8 @@ local function PreProcessArgs(...)
 	return table_unpack(args)
 end
 
+--- Run arguments as a console command string.
+---@param ... string Command words to join and run.
 local function RunCommand(...)
 	local cmd = table_concat({ ... }, " ")
 	Console.RunCommand(cmd)
@@ -270,11 +279,15 @@ local function RunCommand(...)
 end
 
 -- I had run into a case where input was glitched and prevented me from playing... This command rescued me.
+--- Restore game input and hide the mouse cursor.
 local function FixInput()
 	Input.SetInputEnabled(true)
 	Input.SetMouseEnabled(false)
 end
 
+--- Initialize the bind system.<br>
+--- Registers builtin commands and actions, then restores persisted key bindings.<br>
+--- Self-disables after first run.
 function M.Initialize()
 	-- Register builtin commands and actions
 	Console.RegisterCommand("action", function(name, ...)
@@ -288,7 +301,7 @@ function M.Initialize()
 		if command == "" then
 			if actions[name] then
 				-- Find the actual key in the case-insensitive table and remove it
-				for k, v in pairs(actions) do
+				for k in next, actions do
 					if k ~= "__index" and k ~= "__newindex" and string_upper(k) == string_upper(name) then
 						actions[k] = nil
 						printf("Removed action %q", name)
@@ -380,7 +393,11 @@ function M.Initialize()
 	M.RegisterCommand("fixinput", FixInput, "Fixes the input (i.e. when you can't move or look around)")
 	M.RegisterCommand("disconnect", Client.Disconnect, "Disconnects from the server")
 
-	-- NOTE: This must be on the bottom!
+	----------------------------------------------------------------------
+	-- NOTE: M.Initialize override must be on the bottom!
+	----------------------------------------------------------------------
+
+	-- Restore persisted key bindings from the engine.
 	M.Initialize = function()
 		for bind, t in next, Input.GetScriptingKeyBindings() do
 			local actionName = string.match(bind, "^" .. BIND_PREFIX .. "(.+)$")

@@ -25,6 +25,7 @@ local Events_BroadcastRemote = Events.BroadcastRemote
 local to_string_literal = require("@cheatoid/standalone/to_string_literal").to_string_literal
 
 -- TODO: Release command-line/chat-commands parser library; https://github.com/Cheatoid/nanos-world-vault/issues/13
+-- TODO: Make this more reusable (unify across GMod/Nanos into Lua lib, must switch bitops to bit lib)
 
 -- Use Patcher to monkey-patch Console.RegisterCommand globally (make it case-insensitive)
 do
@@ -133,13 +134,13 @@ local function FlagsToString(flags) -- TODO: Move to Lua lib
 end
 
 --- Validates that a value is a proper bitflag (non-negative integer or valid flag enum value).
----@param val any The value to validate.
+---@param val? any The value to validate.
 ---@param flag_enum table The flag enum table to validate against (result from MakeBitEnum()).
 ---@param param_name string The name of the parameter being validated (for error messages).
 ---@param param_pos integer The parameter position (for error messages).
 ---@return integer integer The validated flag value.
 local function ValidateBitFlag(val, flag_enum, param_name, param_pos) -- TODO: Move to Lua lib
-	-- Allow nil, default to 0
+	-- Allow nil, default to 0 (NONE)
 	if val == nil then return 0 end
 
 	if type(val) ~= "number" then
@@ -265,9 +266,9 @@ end
 
 --- Creates a new ConVar or retrieves an existing one.
 ---@param name string The name of the console variable.
----@param default? boolean|number|integer|string The default value.
----@param help? string Description of the ConVar.
----@param flags? integer Bitwise flags (ConVar.FLAG).
+---@param default? boolean|number|integer|string The default value (default: "").
+---@param help? string Description of the ConVar (default: "").
+---@param flags? integer Bitwise flags (see `FLAG` enum, default: `FLAG.NONE`).
 ---@param min_val? number|integer Minimum value (numeric only).
 ---@param max_val? number|integer Maximum value (numeric only).
 ---@param params? string[] The list of supported parameters to display in the console (strings only).
@@ -564,11 +565,11 @@ local function ConVar_Get(name)
 end
 ConVar.Get = ConVar_Get
 
---- Gets an existing ConVar or creates a new one if it doesn't exist.
+--- Gets an existing ConVar, or creates a new one if it doesn't exist.
 ---@param name string The name of the console variable.
----@param default? boolean|number|integer|string The default value.
----@param help? string Description of the ConVar.
----@param flags? integer Bitwise flags (ConVar.FLAG).
+---@param default? boolean|number|integer|string The default value (default: "").
+---@param help? string Description of the ConVar (default: "").
+---@param flags? integer Bitwise flags (see `FLAG` enum, default: `FLAG.NONE`).
 ---@param min_val? number|integer Minimum value (numeric only).
 ---@param max_val? number|integer Maximum value (numeric only).
 ---@param params? string[] The list of supported parameters to display in the console (strings only).

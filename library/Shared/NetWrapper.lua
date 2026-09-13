@@ -43,6 +43,7 @@ local bit_lshift = bits.lshift
 local bit_rshift = bits.rshift
 
 -- TODO: Optimize. Optimize. Optimize. (also use SlotMap)
+-- TODO: Make use of bitstream library (trim duplicate code).
 
 -- Buffer system for binary I/O
 local read_buffer = ""
@@ -508,7 +509,7 @@ end
 --- Write a 3D vector to the buffer as three floats.<br>
 --- The vector is written as x, y, z float values in sequence.<br>
 --- Missing components default to 0.
----@param vec table The vector table with indices 1, 2, 3 for x, y, z.
+---@param vec {[1]?:number, [2]?:number, [3]?:number} The vector table with indices 1, 2, 3 for x, y, z.
 ---@usage <br>
 --- ```
 --- net.writeVector({100, 200, 300})
@@ -519,7 +520,7 @@ end
 
 --- Read a 3D vector from the buffer as three floats.<br>
 --- Reads x, y, z float values in sequence and returns them as a table.
----@return table vec The vector table with indices 1, 2, 3 for x, y, z.
+---@return {[1]?:number, [2]?:number, [3]?:number} vec The vector table with indices 1, 2, 3 for x, y, z.
 ---@usage <br>
 --- ```
 --- local vec = net.readVector()
@@ -643,10 +644,10 @@ local M = {
 ---@usage <br>
 --- ```
 --- local player_scheme = net.scheme {
----     name = "string",
----     health = "int",
----     position = "Vector",
----     is_admin = "boolean"
+---   name = "string",
+---   health = "int",
+---   position = "Vector",
+---   is_admin = "boolean"
 --- }
 ---
 --- -- Write using scheme

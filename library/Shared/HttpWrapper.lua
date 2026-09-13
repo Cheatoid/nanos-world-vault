@@ -23,8 +23,8 @@ local string_split_url = string.split_url
 
 local HTTP_RequestAsync = assert(HTTP.RequestAsync, "HTTP.RequestAsync function is missing")
 
----@alias HttpSuccessCallback fun(data: string, status: integer, url: string): unknown
----@alias HttpFailCallback fun(data: string, status: integer, url: string): unknown
+---@alias HttpSuccessCallback fun(data: string, status: integer, url: string)
+---@alias HttpFailCallback fun(data: string, status: integer, url: string)
 ---@alias HttpOptions table<string, any>
 
 local function is_internal_error(code)
@@ -128,8 +128,8 @@ M.MediaTypes = M.CONTENT_TYPES
 --- Generic HTTP method wrapper
 ---@param method integer Specify HTTPMethod
 local function HttpWrapper(method)
-	---@overload fun(url: string, on_success: HttpSuccessCallback, on_fail: HttpFailCallback?, headers: HttpOptions?): unknown
-	---@overload fun(url: string, options: HttpOptions): unknown
+	---@overload fun(url: string, on_success: HttpSuccessCallback, on_fail?: HttpFailCallback, headers?: HttpOptions)
+	---@overload fun(url: string, options: HttpOptions)
 	return function(url, on_success, on_fail, headers)
 		check_string(1)
 		local callback
@@ -142,13 +142,11 @@ local function HttpWrapper(method)
 		if check_arg(2, "function|table") == "table" then
 			-- *Options-table overload*
 
-			---@type table
-			local options = on_success
+			local options = on_success ---@cast options HttpOptions
+			options = table_upper(options) -- uppercase lookup is faster
 
 			-- Use provided endpoint if available, otherwise use extracted endpoint
-			local endpoint = options.ENDPOINT or url_endpoint
-
-			options = table_upper(options or {}) -- uppercase lookup is faster
+			local endpoint = options.ENDPOINT or url_endpoint ---@cast endpoint string
 			if options.ONSUCCESS or options.SUCCESS or options.ONFAIL or options.FAIL then
 				callback = function(status, data)
 					safe_call(

@@ -735,8 +735,8 @@ end
 --- them from storage in the view (see ExampleLabels). Buttons/menus use OnButton.
 --- Colors are split-key storage (key_r/_g/_b/_a): use BindColor, not Bind.
 --- DragFloatRange2 is dual-key (keyMin + keyMax): Bind each key separately.
---- Mirrors: key -> { value = any, on_change: function?, subkeys: string[]? }.
-local bindings = {} ---@type table<string, { value: any, on_change: function?, subkeys: string[]? }>
+--- Mirrors: key -> { value = any, on_change?: function, subkeys?: string[] }.
+local bindings = {} ---@type table<string, { value: any, on_change?: function, subkeys?: string[] }>
 
 --- Button id -> Lua handler, run from the shared Tick poller.<br>
 --- Lets a UI button drive Lua logic (which can then SetBound back to the UI).
