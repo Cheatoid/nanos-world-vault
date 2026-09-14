@@ -30,7 +30,15 @@ Read one of these before starting, depending on target shape:
 
 Every annotation line starts with exactly three dashes followed by @tag. Use these tags in this codebase (do not invent new ones):
 
-- Plain description line - a line starting with three dashes and no @tag, placed before the param and return lines. Use the HTML break tag br for hard line breaks in multi-sentence descriptions.
+- Plain description line - a line starting with three dashes, a space, then text (`--- Text`, never `---Text`), placed before the param and return lines. Use the HTML break tag br for hard line breaks in multi-sentence descriptions. `<br>` goes ONLY at sentence boundaries: every `--- ...<br>` line must end with `.`, `?`, or `!` before the `<br>`. A single sentence wrapped over several `---` lines continues as plain `---` wraps with NO `<br>`. Never leave a bare `---` separator line inside a doc block; merge it into the chaining instead. Correct:
+--- Set the read buffer with received data before reading.<br>
+--- Resets the read position and bit accumulator to prepare for reading.<br>
+--- Call this before any read operations with data received from network.
+--- Single construction point for every Some instance: it keeps the field
+--- layout identical everywhere and guarantees the sentinel key is present.
+Wrong (mid-sentence break):
+--- Single construction point for every Some instance: it keeps the field<br>
+--- layout identical everywhere and guarantees the sentinel key is present.
 - @param name type description - parameter. Local variable name first, then the type, then a short description that usually begins with a noun matching the name (for example source, position, message).
 - @return type name description - return value. Type first, then a return value name, then a short description. One line per return value.
 - @class Name - class declaration (the first @class line carries the description above it).
@@ -58,6 +66,7 @@ Every annotation line starts with exactly three dashes followed by @tag. Use the
 - Keep descriptions short (3-8 words); put details in preceding plain lines.
 - Indent with tabs inside function bodies; doc comments align with the function.
 - Doc block sits directly above the function or class, no blank line between.
+- A plain `--` comment glued directly (no blank line) to `---@` annotations or to a function being documented is part of the doc block: promote it to `---` and chain it with the block (`<br>` only between sentences). Plain `--` notes above raw code (section banners, internal implementation notes, metatable setup notes) stay `--`.
 - `@usage` appears at most once per doc block. Fence and code lines use plain `---`, never `---@usage`.
 - Do not translate the existing comment lines inside the body; leave code unchanged.
 
@@ -109,5 +118,5 @@ Naming rule: ReceiverTypeName.Options (for example string.TruncateOptions, not T
 1. Read the target Lua file fully.
 2. Read one matching reference file from the list above.
 3. Add doc blocks above every function (and class, if present) following the exact style.
-4. Verify: no code lines changed, all tags are lowercase, nullable uses the question mark suffix, no pipe-nil remains, only one `@usage` per block with plain `---` fences.
+4. Verify: no code lines changed, all tags are lowercase, nullable uses the question mark suffix, no pipe-nil remains, only one `@usage` per block with plain `---` fences, no bare `---` lines, no `---Text` missing-space lines, every `--- ...<br>` line ends with `.`/`?`/`!` (no mid-sentence breaks), and no plain `--` comment remains glued directly to `---@` annotations.
 5. Report what was documented and which reference file was used.

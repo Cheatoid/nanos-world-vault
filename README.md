@@ -18,58 +18,41 @@ The main development library is located in the [`library/`](library/) folder.
 
 For complete documentation on:
 
-- **Powerful OOP/AOP Framework**: classes, inheritance, interfaces, mixins, enums, properties, events, hooking,
-  promises via coroutines, integrated profiler, builtin collections such as
-  BiMap/CircularBuffer/Deque/LinkedList/PriorityQueue/Set/SlotMap/Stack/ArrayPool, and many utilities such as reference
-  wrapper, try-catch-finally, switch-case, readonly, and more
+- **Powerful OOP/AOP Framework**: classes, inheritance, interfaces, mixins, enums, properties, events, hooking, promises via coroutines, integrated profiler, builtin collections such as:
+  BiMap/CircularBuffer/Deque/GridMap/LinkedList/PriorityQueue/Set/SlotMap/Stack/ArrayPool, and many utilities such as reference wrapper, try-catch-finally, switch-case, readonly, and more
 - **Bunch of new functions as part of standard Lua libs** (fully documented for LuaLS): math, string, table
 - **Simple Plugin Framework & Custom Script Loader (GAIMERS)**
 - **Monkey-Patcher**: easily hook Lua functions (with fluent API; before/after/around/once/replace)
 - **Permission library**: clean API for managing permissions with bit-packed storage for efficiency
-- **RemoteCommand library**: permission-based remote command system with console command integration, argument
-  parsing, and built-in help system
-- **Chat Commander**: command parser and dispatcher for chat commands with autocompletion support, type coercion,
-  flexible validation, permissions, and fluent API
-- **Virtual File System library**: allows in-memory file operations by using a table (as a tree), loading from disk,
-  and flushing to disk
-- **Simple Rate-Limiter library** with builtin strategies (Fixed Window, Sliding Window Log, Token Bucket, and Leaky
-  Bucket)
-- **Net wrapper**: binary serialization library for network communication with support for various data types
-  (bits, boolean, byte, integers, floats, double, string) and structured schema-based serialization
-- **Better Console**: WebUI-based modern feature-rich console interface using smart IntelliSense autocompletion
-  engine, also offers filtering, regex search, and themes (open it by entering `console` or `bind Tilde console` and
-  then press <kbd>~</kbd> key)
-- **Chrome Web Browser (client-side): play Neo Wars, check out various demos such as NeoUI and Console, chat with your
-  favorite AI, or simply browse the internet (use `browser` console command)**
-- **WebAudio API (client-side)**: audio playback and spatial audio with listener transform, gain control, and filter
-  effects (bridged via WebUI)
+- **RemoteCommand library**: permission-based remote command system with console command integration, argument parsing, and built-in help system
+- **Chat Commander**: command parser and dispatcher for chat commands with autocompletion support, type coercion, flexible validation, permissions, and fluent API
+- **Virtual File System library**: allows in-memory file operations by using a table (as a tree), loading from disk, and flushing to disk
+- **Simple Rate-Limiter library** with builtin strategies (Fixed Window, Sliding Window Log, Token Bucket, and Leaky Bucket)
+- **Net wrapper**: binary serialization library for network communication with support for various data types (bits, boolean, byte, integers, floats, double, string) and structured schema-based serialization
+- **Better Console**: WebUI-based modern feature-rich console interface using smart IntelliSense autocompletion engine, also offers filtering, regex search, and themes (open it by entering `console` or `bind Tilde console` and then press <kbd>~</kbd> key)
+- **Chrome Web Browser (client-side): play Neo Wars, check out various demos such as NeoUI and Console, chat with your favorite AI, or simply browse the internet (use `browser` console command)**
+- **WebAudio API (client-side)**: audio playback and spatial audio with listener transform, gain control, and filter effects (bridged via WebUI)
 - **WebSocket API (client-side)**: connect, send/receive socket messages (bridged via WebUI)
 - **Regex API (client-side)**: true regular expression engine (bridged via WebUI)
 - **Hash API (client-side)**: common hashing functions CRC32/MD5/SHA* (bridged via WebUI)
 - **Bind library (client-side)**: Source-engine inspired bind system for console commands (e.g. `bind F9 browser`)
 - **LINQ library**
-- **Benchmark library**: diagnose performance bottlenecks, measure code performance with statistical analysis,
-  comparison tools, and multiple timing modes
+- **Benchmark library**: diagnose performance bottlenecks, measure code performance with statistical analysis, comparison tools, and multiple timing modes
 - **number-type and string-type extensions**: these extend Lua syntax and give you super convenient syntax such as:
-  5.days+3.h for working with size/time numbers as first-class citizen, and "hello"+"world"<<3 for concatenating and
-  rotating strings...
+  `5.days+3.h` for working with size/time numbers as first-class citizen, and `"hello"+"world"<<3` for concatenating and rotating strings...
 - **BigInteger**: arbitrary-precision integer and expression evaluator
 - **Zip reader/writer library** with file and in-memory support
 - **XML parser and serializer library**
 - **Custom key-value CFG/config parser library** (interpreter is coming soon)
-- **StackVM (small Lua-C-API-like stack-based VM) & custom Turing-complete virtual machine execution engine**
-  (for low-level enthusiasts)
+- **StackVM (small Lua-C-API-like stack-based VM) & custom Turing-complete virtual machine execution engine** (for low-level enthusiasts)
 - **Convenient HTTP wrapper**: "on success/fail" callback & options-table overloads
 - **ConVar**: Source-engine inspired console variables (includes cvarlist console command)
-- **BroadcastLua/SendLua + ClientsideLua**: allowcslua convar & lua console command (run Lua code directly from
-  console, also supports running script files, just specify package name and .lua file extension)
+- **BroadcastLua/SendLua + ClientsideLua**: allowcslua convar & lua console command (run Lua code directly from console, also supports running script files, just specify package name and .lua file extension)
 - **PackageHelper (server-side)**: reload/unload/load console commands (with pattern matching support)
 - **Simple Lua Lexer**: configurable Lua source code tokenizer (supports LuaJIT/5.1-5.4 syntax)
-- **RequireFinder**: utilizes Lua Lexer to find require() calls
-- **RequireFolder**: convenient utility for loading entire folder of scripts, with priority-list and ignore-list
-  support
-- **Debugger & DebugHelper**: allows debugging scripts (with breakpoints), and various debugging-related utility
-  functions for inspecting stack frame, upvalues, locals, parameters, varargs...
+- **RequireFinder**: utilizes Lua Lexer to find `require()` calls
+- **RequireFolder**: convenient utility for loading entire folder of scripts, with priority-list and ignore-list support
+- **Debugger & DebugHelper**: allows debugging scripts (with breakpoints), and various debugging-related utility functions for inspecting stack frame, upvalues, locals, parameters, varargs...
 - **TypeCheck**: the greatest type-checking library ever made
 
 ... and more coming soon™
@@ -96,13 +79,11 @@ Contributions are welcome. Open an issue or submit a PR.
 <table style="border-collapse: collapse;">
   <tr>
     <td align="center" style="border: none;">
-    <a href="https://github.com/Cheatoid">
+      <a href="https://github.com/Cheatoid">
         <img src="https://avatars.githubusercontent.com/Cheatoid" width="80" style="border-radius:50%;" />
         <br />
-        <sub><b><a href="https://github.com/Cheatoid">
-  <img src="https://img.shields.io/badge/-Cheatoid-blue?style=flat-square&logo=github&logoColor=white" /> 💻👨‍💻
-</a></b></sub>
-    </a>
+        <sub><b><a href="https://github.com/Cheatoid"><img src="https://img.shields.io/badge/-Cheatoid-blue?style=flat-square&logo=github&logoColor=white" /> 💻👨‍💻</a></b></sub>
+      </a>
     </td>
   </tr>
 </table>

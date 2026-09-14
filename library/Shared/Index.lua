@@ -34,7 +34,7 @@ local SERVER = type(Server) == "table"
 local CLIENT = type(Client) == "table"
 --print("SERVER:" .. tostring(SERVER), "CLIENT:" .. tostring(CLIENT))
 
-local package_metadata = require "metadata_gen"
+local package_metadata = require "metadata_gen" ---@cast package_metadata library.metadata_gen
 local package_path = package_metadata.path
 local is_preview = package_metadata.is_preview
 local function debug_print(...)
@@ -106,6 +106,7 @@ requiref "Shared/@cheatoid" {
 --dbg.debugger.disable()
 
 -- @formatter:off
+--require "Globals"
 local dbg           = require "@cheatoid/standalone/debug_helper"
 local tc            = require "@cheatoid/standalone/type_check"
 local istype        = require "@cheatoid/standalone/istype"

@@ -9,11 +9,14 @@ local type = type
 local string_find = string.find
 --local string_match = string.match
 local string_sub = string.sub
-local Server_GetPackages = Server.GetPackages
+local File_Exists = File.Exists
+local Client_GetPackages = Client and Client.GetPackages
+local Server_GetPackages = Server and Server.GetPackages
 
 --- Package management utility library for Nanos World.<br>
 --- Provides console commands & functions for loading, unloading, and reloading packages with pattern matching support.
 ---@class PackageHelper
+---@field PatternPrefix string
 local self = {
 	--- Prefix for pattern matching mode
 	---@type string
@@ -29,18 +32,42 @@ end
 
 self.HasValidName = IsPackageNameValid
 
+---@alias PackageInfoTable { title: string, name: string, type: PackageType, version: string, author: string }
+
 --- Retrieves all available packages as a lookup table.
----@return table table A table with package names as keys and package objects as values.
-local function GetAllPackages()
-	local array = Server_GetPackages(false)
+---@param onlyLoaded? boolean (Server only) Whether to only consider loaded packages (default: true).
+---@return table<string, PackageInfoTable> packages A table with package names as keys and package objects as values.
+local function GetAllPackages(onlyLoaded)
 	local lookup = {}
-	for _, p in next, array do
-		lookup[p.name] = p
+	if Server_GetPackages then
+		for _, p in next, Server_GetPackages(onlyLoaded ~= false) do
+			lookup[p.name] = p
+		end
+	elseif Client_GetPackages then
+		for _, p in next, Client_GetPackages() do
+			lookup[p.name] = p
+		end
 	end
 	return lookup
 end
 
 self.GetAll = GetAllPackages
+
+--- Retrieves all packages' names (from filesystem).
+---@return string[] names
+local function GetPackageNames()
+	local names = {}
+	for _, path in next, File.GetDirectories("Packages", 0) do
+		local name = string.basename(path)
+		local packagePath = Server and (path .. "Package.toml") or ("../" .. name .. "/Package.toml")
+		if File_Exists(packagePath) then
+			names[#names + 1] = name
+		end
+	end
+	return names
+end
+
+self.GetPackageNames = GetPackageNames
 
 --- Checks if a package with the given name exists.
 ---@param name string The package name to check.
@@ -52,18 +79,18 @@ end
 self.Exists = PackageExists
 
 --- Finds packages matching a name or pattern.<br>
---- Supports exact name matching and pattern matching (when name starts with PatternPrefix).
+--- Supports exact name matching and pattern matching (when name starts with `PatternPrefix`).
 ---@param name string The package name or pattern to match.
----@return table table A table of matching package names.
+---@return string[] names A table of matching package names.
 local function GetMatchingPackages(name)
 	local matches = {}
 	if type(name) == "string" then
 		-- Check if we should use pattern matching mode
 		if string_sub(name, 1, 1) == (self.PatternPrefix or ":") then
 			local searchPattern = string_sub(name, 2) -- Remove the pattern prefix char
-			for _, p in next, Server_GetPackages(false) do
-				if string_find(p.name, searchPattern, nil, true) then
-					matches[#matches + 1] = p.name
+			for packageName in next, GetAllPackages(false) do
+				if string_find(packageName, searchPattern, nil, true) then
+					matches[#matches + 1] = packageName
 				end
 			end
 			return matches
@@ -82,9 +109,8 @@ self.Match = GetMatchingPackages
 ---@param onlyLoaded? boolean Whether to only reload loaded packages (default: true).
 ---@param typeFilter? integer Package type filter (default: -1 for all types).
 local function ReloadAllPackages(onlyLoaded, typeFilter)
-	if onlyLoaded == nil then onlyLoaded = true end
 	--if typeFilter == nil then typeFilter = -1 end -- PackageType.* or -1 for all
-	for _, p in next, Server.GetPackages(onlyLoaded, typeFilter) do
+	for _, p in next, Server.GetPackages(onlyLoaded ~= false, typeFilter) do
 		--Console.RunCommand("package reload " .. p.name)
 		pcall(Server.ReloadPackage, p.name)
 	end

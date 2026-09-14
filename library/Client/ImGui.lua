@@ -964,7 +964,10 @@ function ImGui.SetBound(key, value, callback)
 	local b = bindings[key]
 	if b then
 		if b.subkeys then
-			return ImGui.SetBoundColor(key, value, callback)
+			---@cast value table
+			local req_id = ImGui.SetBoundColor(key, value, callback)
+			---@cast req_id integer
+			return req_id
 		end
 		b.value = bindings_copy(value)
 	end

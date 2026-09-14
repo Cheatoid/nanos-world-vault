@@ -13,15 +13,251 @@ local table = require "@cheatoid/standard/table"
 --local curry = require "@cheatoid/standalone/curry"
 local tc = require "@cheatoid/standalone/type_check"
 local util = require "@cheatoid/standalone/util"
+local patcher = require "@cheatoid/standalone/patcher"
 
 -- Localized global functions for better performance
+local error = error
+local next = next
+local pcall = pcall
+local rawget = rawget
+local rawset = rawset
+local type = type
+local debug_getinfo = debug and debug.getinfo
+local debug_getregistry = debug and debug.getregistry
 local inrange = math.inrange
 local table_upper = table.uppercase
 local check_arg, check_string = tc.check_arg, tc.check_string
 local either, safe_call = util.either, util.safe_call
+local string_find = string.find
 local string_split_url = string.split_url
 
-local HTTP_RequestAsync = assert(HTTP.RequestAsync, "HTTP.RequestAsync function is missing")
+local DISABLED_MESSAGE = "HTTP requests are disabled"
+
+local function noop()
+end
+
+local function disabled()
+	return error(DISABLED_MESSAGE, 2)
+end
+
+-- Stash originals + disabled state somewhere that survives ingame hotreload.
+-- Fresh locals reset on reload, but the registry / engine globals (HTTP) persist.
+-- Without this, a reload while disabled would capture our own detour as "original".
+-- Prefer debug.getregistry() (per-VM, no _G pollution); fall back to _G only
+-- when the registry is unavailable, and keep an HTTP mirror so either
+-- surviving realm can recover it.
+local _STASH_KEY = "__Http__"
+local registry
+if type(debug_getregistry) == "function" then
+	local ok, reg = pcall(debug_getregistry)
+	if ok and type(reg) == "table" then
+		registry = reg
+	end
+end
+local stash
+if registry then
+	local ok, v = pcall(rawget, registry, _STASH_KEY)
+	if ok and type(v) == "table" then
+		stash = v
+	end
+end
+if type(stash) ~= "table" and type(HTTP) == "table" then
+	local ok, v = pcall(rawget, HTTP, _STASH_KEY)
+	if ok and type(v) == "table" then
+		stash = v
+	end
+end
+if type(stash) ~= "table" then
+	-- Legacy fallback for stashes written before the registry migration.
+	local ok, v = pcall(rawget, _G, _STASH_KEY)
+	if ok and type(v) == "table" then
+		stash = v
+	end
+end
+if type(stash) ~= "table" then
+	stash = {}
+end
+-- Mirror stash so either surviving realm can recover it.
+if type(HTTP) == "table" then
+	pcall(rawset, HTTP, _STASH_KEY, stash)
+end
+if registry then
+	pcall(rawset, registry, _STASH_KEY, stash)
+	-- Drop legacy _G entry once the registry owns the stash.
+	pcall(rawset, _G, _STASH_KEY, nil)
+else
+	pcall(rawset, _G, _STASH_KEY, stash)
+end
+
+local function is_c_function(fn)
+	if type(fn) ~= "function" then
+		return false
+	end
+	if not debug_getinfo then
+		return false
+	end
+	local ok, info = pcall(debug_getinfo, fn, "S")
+	return ok and type(info) == "table" and info.what == "C"
+end
+
+local function is_httpwrapper_detour(fn)
+	if type(fn) ~= "function" then
+		return false
+	end
+	-- Same-generation fast path (fails after hotreload, new identities).
+	if fn == noop or fn == disabled then
+		return true
+	end
+	if not debug_getinfo then
+		return false
+	end
+	local ok, info = pcall(debug_getinfo, fn, "S")
+	if not ok or type(info) ~= "table" then
+		return false
+	end
+	if info.what == "C" then
+		return false
+	end
+	local src = info.source or info.short_src or ""
+	return string_find(src, "HttpWrapper", 1, true) ~= nil
+end
+
+-- Self-heal stash poisoned by a previous generation without detour checks.
+for _, _key in next, { "Request", "RequestAsync" } do
+	if is_httpwrapper_detour(stash[_key]) then
+		stash[_key] = nil
+	end
+end
+
+local function resolve_original(key, current)
+	local stashed = stash[key]
+	-- Without debug info we cannot tell detour apart by source,
+	-- so never overwrite a known stash entry (first-seen wins).
+	if not debug_getinfo then
+		if type(stashed) == "function" then
+			return stashed
+		end
+		if type(current) == "function" then
+			stash[key] = current
+			return current
+		end
+		return stashed
+	end
+	if is_httpwrapper_detour(current) then
+		-- Hotreload while disabled: current is previous generation's detour, never capture it.
+		return stashed
+	end
+	if type(current) == "function" then
+		if is_c_function(current) then
+			stash[key] = current
+			return current
+		end
+		-- External Lua patch: keep known-good C original if we already have one.
+		if type(stashed) == "function" and is_c_function(stashed) then
+			return stashed
+		end
+		stash[key] = current
+		return current
+	end
+	-- Current missing (e.g. HTTP.Request absent on client): fall back to stash.
+	return stashed
+end
+
+local _original_Request = resolve_original("Request", either(HTTP, HTTP.Request))
+local _original_RequestAsync = resolve_original("RequestAsync", either(HTTP, HTTP.RequestAsync))
+
+-- Wrapper fast path always targets the true original, never a detour.
+local HTTP_Request = _original_Request
+local HTTP_RequestAsync = _original_RequestAsync
+
+local _disabled = stash.disabled == true
+local _throw_on_disabled = stash.throw_on_disabled == true
+-- Stash poisoned (originals lost): don't stay "disabled" with nil targets.
+if _disabled and _original_Request == nil and _original_RequestAsync == nil then
+	_disabled = false
+	_throw_on_disabled = false
+	stash.disabled = false
+	stash.throw_on_disabled = false
+end
+-- Re-install current generation's detour over any stale previous-generation one.
+if _disabled then
+	local detour = _throw_on_disabled and disabled or noop
+	if HTTP then
+		if _original_Request then
+			HTTP.Request = detour
+		end
+		if _original_RequestAsync then
+			HTTP.RequestAsync = detour
+		end
+	end
+end
+
+--- Disables global HTTP requests.<br>
+--- Silent no-op by default, throws when true, re-enabled when false.
+---@param flag? boolean Throw on request instead of no-op (default: nil).
+---@usage <br>
+--- ```
+--- http.disable()
+--- http.disable(true)
+--- ```
+local function disable(flag)
+	if flag == false then
+		return M.enable()
+	end
+	_disabled = true
+	_throw_on_disabled = flag == true
+	stash.disabled = true
+	stash.throw_on_disabled = _throw_on_disabled
+	if HTTP then
+		if _original_Request then
+			HTTP.Request = _throw_on_disabled and disabled or noop
+		end
+		if _original_RequestAsync then
+			HTTP.RequestAsync = _throw_on_disabled and disabled or noop
+		end
+	end
+end
+
+M.disable = disable
+M.Disable = disable
+
+--- Enables global HTTP requests.<br>
+--- Restores original `HTTP.Request` and `HTTP.RequestAsync`.
+---@usage <br>
+--- ```
+--- http.enable()
+--- ```
+local function enable()
+	_disabled = false
+	_throw_on_disabled = false
+	stash.disabled = false
+	stash.throw_on_disabled = false
+	if HTTP then
+		if _original_Request then
+			HTTP.Request = _original_Request
+		end
+		if _original_RequestAsync then
+			HTTP.RequestAsync = _original_RequestAsync
+		end
+	end
+end
+
+M.enable = enable
+M.Enable = enable
+
+--- Checks if HTTP requests are disabled.<br>
+--- Returns true while `disable` is active.
+---@return boolean disabled True while HTTP requests are disabled.
+---@usage <br>
+--- ```
+--- if http.is_disabled() then print("offline") end
+--- ```
+local function is_disabled()
+	return _disabled
+end
+
+M.is_disabled = is_disabled
+M.IsDisabled = is_disabled
 
 ---@alias HttpSuccessCallback fun(data: string, status: integer, url: string)
 ---@alias HttpFailCallback fun(data: string, status: integer, url: string)
@@ -33,6 +269,7 @@ local function is_internal_error(code)
 end
 
 M.is_internal_error = is_internal_error
+M.IsInternalError = is_internal_error
 
 local function is_informational_status(code)
 	-- 1xx = informational
@@ -40,6 +277,7 @@ local function is_informational_status(code)
 end
 
 M.is_informational_status = is_informational_status
+M.IsInformationalStatus = is_informational_status
 
 local function is_success_status(code)
 	-- 2xx = success
@@ -47,6 +285,7 @@ local function is_success_status(code)
 end
 
 M.is_success_status = is_success_status
+M.IsSuccessStatus = is_success_status
 
 local function is_redirect_status(code)
 	-- 3xx = redirection
@@ -54,6 +293,7 @@ local function is_redirect_status(code)
 end
 
 M.is_redirect_status = is_redirect_status
+M.IsRedirectStatus = is_redirect_status
 
 local function is_client_error_status(code)
 	-- 4xx = client error
@@ -61,7 +301,7 @@ local function is_client_error_status(code)
 end
 
 M.is_client_error_status = is_client_error_status
-M.is_error_status = is_client_error_status
+M.IsClientErrorStatus = is_client_error_status
 
 local function is_server_error_status(code)
 	-- 5xx = server error
@@ -69,6 +309,7 @@ local function is_server_error_status(code)
 end
 
 M.is_server_error_status = is_server_error_status
+M.IsServerErrorStatus = is_server_error_status
 
 --- Common MIME types / Content-Type values for convenience
 ---@class ContentTypes
@@ -131,6 +372,13 @@ local function HttpWrapper(method)
 	---@overload fun(url: string, on_success: HttpSuccessCallback, on_fail?: HttpFailCallback, headers?: HttpOptions)
 	---@overload fun(url: string, options: HttpOptions)
 	return function(url, on_success, on_fail, headers)
+		if _disabled then
+			if _throw_on_disabled then
+				return error(DISABLED_MESSAGE, 2)
+			end
+			return
+		end
+
 		check_string(1)
 		local callback
 
@@ -229,6 +477,8 @@ end
 --- )
 --- ```
 M.get = HttpWrapper(HTTPMethod.GET)
+M.Get = M.get
+M.GET = M.get
 
 --- Perform an HTTP POST request.<br>
 --- The POST method submits an entity to the specified resource, often causing a change in state or side effects on the server.
@@ -246,6 +496,8 @@ M.get = HttpWrapper(HTTPMethod.GET)
 --- )
 --- ```
 M.post = HttpWrapper(HTTPMethod.POST)
+M.Post = M.post
+M.POST = M.post
 
 --- Perform an HTTP PUT request.<br>
 --- The PUT method replaces all current representations of the target resource with the request payload.
@@ -263,6 +515,8 @@ M.post = HttpWrapper(HTTPMethod.POST)
 --- )
 --- ```
 M.put = HttpWrapper(HTTPMethod.PUT)
+M.Put = M.put
+M.PUT = M.put
 
 --- Perform an HTTP DELETE request.<br>
 --- The DELETE method deletes the specified resource.
@@ -280,6 +534,8 @@ M.put = HttpWrapper(HTTPMethod.PUT)
 --- )
 --- ```
 M.delete = HttpWrapper(HTTPMethod.DELETE)
+M.Delete = M.delete
+M.DELETE = M.delete
 
 --- Perform an HTTP HEAD request.<br>
 --- The HEAD method asks for a response identical to a GET request, but without the response body.
@@ -297,6 +553,8 @@ M.delete = HttpWrapper(HTTPMethod.DELETE)
 --- )
 --- ```
 M.head = HttpWrapper(HTTPMethod.HEAD)
+M.Head = M.head
+M.HEAD = M.head
 
 --- Perform an HTTP PATCH request.<br>
 --- The PATCH method applies partial modifications to a resource.
@@ -314,6 +572,8 @@ M.head = HttpWrapper(HTTPMethod.HEAD)
 --- )
 --- ```
 M.patch = HttpWrapper(HTTPMethod.PATCH)
+M.Patch = M.patch
+M.PATCH = M.patch
 
 --- Perform an HTTP OPTIONS request.<br>
 --- The OPTIONS method describes the communication options for the target resource.
@@ -331,6 +591,8 @@ M.patch = HttpWrapper(HTTPMethod.PATCH)
 --- )
 --- ```
 M.options = HttpWrapper(HTTPMethod.OPTIONS)
+M.Options = M.options
+M.OPTIONS = M.options
 
 -- Export the API to be accessed by other packages
 return M
