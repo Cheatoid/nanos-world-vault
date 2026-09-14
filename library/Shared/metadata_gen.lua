@@ -19,11 +19,11 @@
 ---@type library.metadata_gen
 return {
 	package_version = "0.0.50",
-	timestamp = "2026-09-14 15:38:34",
+	timestamp = "2026-09-14 16:11:45",
 	commit_count = 344,
 	tag_count = 47,
 	branch_name = "main",
-	prev_hash = "870f7dea27357d64880fa37dba2c95848c49184a",
+	prev_hash = "5a7f4ee2658130ea904bae10f161ae8c560ca714",
 	is_preview = false,
 	tag = "v0.0.51",
 	owner = "Cheatoid",
@@ -37,7 +37,7 @@ return {
 		["Client/ConsoleEngine.lua"] = "e7a334afd2afab76edf4ded5c3b9f86a422c39b59209eb03b3adf6dd9d95e338",
 		["Client/EvalAPI.lua"] = "935f456701c414a3b74fc39bc09e2ea934674c5e866cef9bb10dc40bfb782b20",
 		["Client/HashAPI.lua"] = "a4a41b2b2ee6a5d7c36389f1c9fd095719f0c7c46fab89311a601db1f485e796",
-		["Client/ImGui.lua"] = "1c0ccf167601927dc293b949a4e502d5f268a0bda4a6081d5536229d0838cdb9",
+		["Client/ImGui.lua"] = "6d90469976482ae2497db399822d7e80660b999c7c519839b65e0cf4dde93b86",
 		["Client/Index.lua"] = "54423b898528ae151c379da0339946e43af0ad492c202ce81d75df77a91d4669",
 		["Client/RegexAPI.lua"] = "d6a5b0b6e6f815528ecd29d5ad48e8ea8f3f71089de31fcbc34c29d2683f36d2",
 		["Client/WebAudioAPI.lua"] = "c73bf0336a50d876a0a6047e3f27e2be6d6a34cb864ca9ad734d4778cc681b2d",

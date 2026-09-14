@@ -212,6 +212,33 @@ function ImGui.GetURL()
 	return active_url
 end
 
+--- Shows the overlay WebUI widget (safe before Initialize).<br>
+--- Example views show the overlay automatically, so this is only needed after Hide.
+---@return boolean shown True when the overlay is now visible.
+function ImGui.Show()
+	if not ImGuiWebUI then return false end
+	ImGuiWebUI:SetVisibility(WidgetVisibility.Visible)
+	return true
+end
+
+--- Hides the overlay WebUI widget without destroying it (safe before Initialize).<br>
+--- Bridge state is kept; call Show to reveal it again.<br>
+--- Pair with HideExamples to close the Lua gallery and clear the screen.
+---@return boolean hidden True when the overlay is now hidden.
+function ImGui.Hide()
+	if not ImGuiWebUI then return false end
+	ImGuiWebUI:SetVisibility(WidgetVisibility.Hidden)
+	return true
+end
+
+--- Reports whether the overlay WebUI widget is currently visible.<br>
+--- False before Initialize or after Hide.
+---@return boolean visible True when the overlay widget is visible.
+function ImGui.IsVisible()
+	if not ImGuiWebUI or not ImGuiWebUI.GetVisibility then return false end
+	return ImGuiWebUI:GetVisibility() == WidgetVisibility.Visible
+end
+
 --- Reports whether the page DOM is ready (queued evals have been flushed).
 ---@return boolean ready True when the bridge accepts requests immediately.
 function ImGui.IsReady()
@@ -787,10 +814,12 @@ local function maybe_stop_tick()
 	end
 end
 
---- Tracks a visible example view and ensures Tick polling.
+--- Tracks a visible example view and ensures Tick polling.<br>
+--- Also re-shows the overlay widget, so opening any example after Hide just works.
 ---@param id string View id registered via RegisterView.
 local function track_example(id)
 	example_views[id] = true
+	ImGui.Show()
 	ensure_tick()
 end
 
@@ -1113,7 +1142,9 @@ end
 
 --- Shows the Lua example window, proving Lua-to-JS interop.<br>
 --- Hides the built-in demo, registers the "lua_example" view, seeds a
---- value, and starts polling interaction events every tick (see ExampleTick).
+--- value, and starts polling interaction events every tick (see ExampleTick).<br>
+--- Uses SetNextWindowPos/SetNextWindowSize (Cond.FirstUseEver) so the
+--- gallery tiles instead of stacking; the user can still move/resize afterwards.
 ---@usage <br>
 --- ```
 --- ImGui.Example() -- a "Lua Example" window appears; click its button and watch the console
@@ -1121,6 +1152,8 @@ end
 function ImGui.Example()
 	ImGui.SetShowDemo(false)
 	ImGui.RegisterView("lua_example", [==[
+		ImGui.SetNextWindowPos(410, 20, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 300, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Example");
 		ImGui.Text("Built entirely from Lua via ImGui.RegisterView");
 		ImGui.LabelText("FPS", fps.toFixed(1));
@@ -1148,7 +1181,8 @@ function ImGui.HideExample()
 end
 
 --- Shows buttons, checkboxes, radios, flags, selectables, trees.<br>
---- Covers Button/SmallButton/ArrowButton, Checkbox/CheckboxFlags, RadioButtonInt, SelectableState, TreeNode, CollapsingHeader, Bullets.
+--- Covers Button/SmallButton/ArrowButton, Checkbox/CheckboxFlags, RadioButtonInt, SelectableState, TreeNode, CollapsingHeader, Bullets.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleBasic() -- "Lua Basic" window with buttons, radios, selectables
@@ -1156,6 +1190,8 @@ end
 function ImGui.ExampleBasic()
 	ImGui.SetShowDemo(false)
 	ImGui.RegisterView("lua_basic", [==[
+		ImGui.SetNextWindowPos(800, 20, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 300, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Basic");
 		ImGui.Text("Buttons, checkboxes, radios, selectables");
 		ImGui.Separator();
@@ -1210,7 +1246,8 @@ function ImGui.HideExampleBasic()
 end
 
 --- Shows sliders, drags, vertical slider and progress bar.<br>
---- Covers SliderFloat/Int, SliderFloat2/3/4, SliderInt2, SliderAngle, VSliderFloat, DragFloat/Int, DragFloat2/3/4, DragInt2, DragFloatRange2.
+--- Covers SliderFloat/Int, SliderFloat2/3/4, SliderInt2, SliderAngle, VSliderFloat, DragFloat/Int, DragFloat2/3/4, DragInt2, DragFloatRange2.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles (content scrolls inside the fixed size).
 ---@usage <br>
 --- ```
 --- ImGui.ExampleSliders() -- "Lua Sliders/Drags" window
@@ -1219,6 +1256,8 @@ end
 function ImGui.ExampleSliders()
 	ImGui.SetShowDemo(false)
 	ImGui.RegisterView("lua_sliders", [==[
+		ImGui.SetNextWindowPos(1190, 20, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 300, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Sliders/Drags");
 		ImGui.SeparatorText("Sliders");
 		ImGui.SliderFloat("Speed", "sl_speed", 0.0, 10.0, "%.2f", 0, 3.5);
@@ -1252,7 +1291,8 @@ function ImGui.HideExampleSliders()
 end
 
 --- Shows color editors, pickers and swatch buttons.<br>
---- Covers ColorEdit3/4, ColorPicker3/4 and ColorButton.
+--- Covers ColorEdit3/4, ColorPicker3/4 and ColorButton.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleColors() -- "Lua Colors" window with editors, pickers, swatches
@@ -1260,6 +1300,8 @@ end
 function ImGui.ExampleColors()
 	ImGui.SetShowDemo(false)
 	ImGui.RegisterView("lua_colors", [==[
+		ImGui.SetNextWindowPos(20, 340, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 300, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Colors");
 		ImGui.SeparatorText("Editors");
 		ImGui.ColorEdit3("Base", "co_base", 0, [0.45, 0.55, 0.60]);
@@ -1287,7 +1329,8 @@ function ImGui.HideExampleColors()
 end
 
 --- Shows combos, list boxes and a bordered table.<br>
---- Covers Combo, ListBox, BeginTable/TableSetupColumn/TableHeadersRow/TableNextRow/TableSetColumnIndex/Text/EndTable.
+--- Covers Combo, ListBox, BeginTable/TableSetupColumn/TableHeadersRow/TableNextRow/TableSetColumnIndex/Text/EndTable.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleLists() -- pick a fruit, the LabelText mirrors the polled index
@@ -1296,6 +1339,8 @@ end
 function ImGui.ExampleLists()
 	ImGui.SetShowDemo(false)
 	ImGui.RegisterView("lua_lists", [==[
+		ImGui.SetNextWindowPos(410, 340, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 300, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Lists/Tables");
 		const fruits = ["Apple", "Banana", "Cherry", "Orange", "Mango", "Papaya"];
 		ImGui.SeparatorText("Combo");
@@ -1330,7 +1375,8 @@ function ImGui.HideExampleLists()
 end
 
 --- Shows text/number inputs, progress bars and plots.<br>
---- Covers InputText/WithHint/Multiline, InputFloat/Int (+N variants), InputDouble, ProgressBar, PlotLines, PlotHistogram.
+--- Covers InputText/WithHint/Multiline, InputFloat/Int (+N variants), InputDouble, ProgressBar, PlotLines, PlotHistogram.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleInputs() -- type a name, watch it via Snapshot("in_name")
@@ -1339,6 +1385,8 @@ end
 function ImGui.ExampleInputs()
 	ImGui.SetShowDemo(false)
 	ImGui.RegisterView("lua_inputs", [==[
+		ImGui.SetNextWindowPos(800, 340, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 300, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Inputs/Plots");
 		ImGui.SeparatorText("Text");
 		ImGui.InputText("Name", "in_name", 0, "Ada");
@@ -1370,7 +1418,8 @@ function ImGui.HideExampleInputs()
 end
 
 --- Shows layout helpers: tooltips, disabled state, child, popup, columns.<br>
---- Covers BeginDisabled/EndDisabled, IsItemHovered, SetTooltip/SetItemTooltip, BeginChild/EndChild, OpenPopup/BeginPopup/EndPopup, Dummy, SameLine, SetNextItemWidth, GetContentRegionAvailWidth, Columns/NextColumn.
+--- Covers BeginDisabled/EndDisabled, IsItemHovered, SetTooltip/SetItemTooltip, BeginChild/EndChild, OpenPopup/BeginPopup/EndPopup, Dummy, SameLine, SetNextItemWidth, GetContentRegionAvailWidth, Columns/NextColumn.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleLayout() -- hover the buttons to see tooltips, open the popup
@@ -1378,6 +1427,8 @@ end
 function ImGui.ExampleLayout()
 	ImGui.SetShowDemo(false)
 	ImGui.RegisterView("lua_layout", [==[
+		ImGui.SetNextWindowPos(1190, 340, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 300, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Panels");
 		ImGui.SeparatorText("Disabled + tooltip");
 		ImGui.BeginDisabled(true);
@@ -1426,7 +1477,8 @@ function ImGui.HideExampleLayout()
 end
 
 --- Shows a menu bar plus a reorderable tab bar.<br>
---- Covers Begin (with MenuBar flag), BeginMenuBar/BeginMenu/MenuItem/EndMenu/EndMenuBar, BeginTabBar/BeginTabItem/EndTabItem/EndTabBar.
+--- Covers Begin (with MenuBar flag), BeginMenuBar/BeginMenu/MenuItem/EndMenu/EndMenuBar, BeginTabBar/BeginTabItem/EndTabItem/EndTabBar.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleTabs() -- File/Edit menus log to console, Tab 2 owns a checkbox
@@ -1434,6 +1486,8 @@ end
 function ImGui.ExampleTabs()
 	ImGui.SetShowDemo(false)
 	ImGui.RegisterView("lua_tabs", [==[
+		ImGui.SetNextWindowPos(20, 660, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 320, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Tabs/Menu", null, ImGui.WindowFlags.MenuBar);
 		if (ImGui.BeginMenuBar()) {
 			if (ImGui.BeginMenu("File")) {
@@ -1506,7 +1560,8 @@ end
 --- Shows two-way bindings across every stateful widget family.<br>
 --- Immediate path (PollEvents, same Tick): checkboxes, SelectableState, combo, listbox, RadioButtonInt, CheckboxFlags.<br>
 --- Polled path (GetMany every POLL_EVERY Ticks): sliders, drags, text/number inputs, color editors/pickers, which never emit events.<br>
---- The Lua-side buttons prove the Lua -> UI direction without touching the widgets.
+--- The Lua-side buttons prove the Lua -> UI direction without touching the widgets.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleBinding()
@@ -1575,6 +1630,8 @@ function ImGui.ExampleBinding()
 		print("[Bind] forced OFF from Lua (button round-trip)")
 	end)
 	ImGui.RegisterView("lua_binding", [==[
+		ImGui.SetNextWindowPos(410, 660, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 320, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Binding");
 		ImGui.Text("Two-way: Lua <-> every stateful widget");
 		ImGui.SeparatorText("Checks (event)");
@@ -1636,7 +1693,8 @@ end
 
 --- Shows dynamic labels and tooltips driven by string bindings.<br>
 --- LabelText/Text/SetTooltip take static strings, so the view reads the live storage (UI.get(key).value) while Lua pushes via Bind/SetBound on the same keys.<br>
---- Typing in the inputs updates the labels and tooltips next frame.
+--- Typing in the inputs updates the labels and tooltips next frame.<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleLabels() -- type a name: LabelText + tooltip follow it
@@ -1653,6 +1711,8 @@ function ImGui.ExampleLabels()
 	bs("bind_score", "1250 pts")
 	bs("bind_tip", "Follow me anywhere!")
 	ImGui.RegisterView("lua_labels", [==[
+		ImGui.SetNextWindowPos(800, 660, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 320, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Labels/Tooltips");
 		ImGui.Text("Static text vs storage-backed labels");
 		ImGui.SeparatorText("Labels mirror Lua strings");
@@ -1685,7 +1745,8 @@ end
 
 --- Shows global theming plus a per-frame styled section.<br>
 --- Preset buttons call SetTheme (one-shot, needs demo v1.2.0+; the uiVersion is printed for diagnosis).<br>
---- The rounding slider drives SetStyleFloat live, and the "Styled!" button is wrapped in ThemeSnippet (works everywhere).
+--- The rounding slider drives SetStyleFloat live, and the "Styled!" button is wrapped in ThemeSnippet (works everywhere).<br>
+--- Positioned via SetNextWindowPos/SetNextWindowSize so ExampleAll tiles.
 ---@usage <br>
 --- ```
 --- ImGui.ExampleTheme()
@@ -1708,6 +1769,8 @@ function ImGui.ExampleTheme()
 		if (ImGui.Button("Styled!")) console.log("theme: styled button pressed");
 	]==])
 	ImGui.RegisterView("lua_theme", [==[
+		ImGui.SetNextWindowPos(1190, 660, ImGui.Cond.FirstUseEver);
+		ImGui.SetNextWindowSize(370, 320, ImGui.Cond.FirstUseEver);
 		ImGui.Begin("Lua Theme");
 		ImGui.Text("Global presets (one-shot, v1.2.0+)");
 		ImGui.Button("Theme: Dark");
@@ -1736,6 +1799,7 @@ end
 
 --- Shows every Lua example window at once (hides the built-in demo).<br>
 --- Convenience wrapper around Example/Basic/Sliders/Colors/Lists/Inputs/Layout/Tabs/HUD/Binding/Labels/Theme.<br>
+--- Each view sets its own SetNextWindowPos/SetNextWindowSize (Cond.FirstUseEver) so the gallery opens tiled, not stacked.<br>
 --- Pair with HideExamples when done.
 ---@usage <br>
 --- ```
@@ -1758,7 +1822,8 @@ function ImGui.ExampleAll()
 end
 
 --- Hides every Lua example window and restores the built-in demo.<br>
---- Unregisters all tracked "lua_*" views, drops their bindings and button routes, restores the demo, and stops Tick polling unless foreign (non-example) bindings or routes still exist.
+--- Unregisters all tracked "lua_*" views, drops their bindings and button routes, restores the demo, and stops Tick polling unless foreign (non-example) bindings or routes still exist.<br>
+--- The overlay widget itself stays visible; use Hide to clear the screen entirely.
 ---@usage <br>
 --- ```
 --- ImGui.HideExamples() -- clean slate, demo windows return
@@ -1853,11 +1918,19 @@ do
 	end, "Create ImGui overlay WebUI (direct file://UI/ImGuiDemo.html)")
 	Bind.RegisterCommand("imgui_demo", function()
 		must_init()
+		ImGui.Show()
 		ImGui.ExampleAll()
 	end, "Open full ImGui Lua gallery")
 	Bind.RegisterCommand("imgui_hide", function()
-		if initialized then ImGui.HideExamples() end
-	end, "Close all ImGui Lua examples")
+		if initialized then
+			ImGui.HideExamples()
+			ImGui.Hide()
+		end
+	end, "Close gallery and hide ImGui overlay")
+	Bind.RegisterCommand("imgui_show", function()
+		must_init()
+		ImGui.Show()
+	end, "Show ImGui overlay")
 	Bind.RegisterCommand("imgui_status", function()
 		if not initialized then
 			print("[ImGui] not initialized")
