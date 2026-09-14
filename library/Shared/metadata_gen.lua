@@ -18,12 +18,12 @@
 
 ---@type library.metadata_gen
 return {
-	package_version = "0.0.50",
-	timestamp = "2026-09-14 17:17:10",
-	commit_count = 347,
+	package_version = "0.0.51",
+	timestamp = "2026-09-14 17:17:38",
+	commit_count = 348,
 	tag_count = 47,
 	branch_name = "main",
-	prev_hash = "9b953cd5cbce22d9282dd9628fa717c78661d526",
+	prev_hash = "0bd0101882098085ec6932d445265a4a1213ef0e",
 	is_preview = false,
 	tag = "v0.0.51",
 	owner = "Cheatoid",
@@ -32,7 +32,7 @@ return {
 	filenames_hash = "f3f42ab02ca2c7054d9012378c7297ac1f30a8f6f992e3c748894817a97a3d00",
 	files_hash = {
 		["LICENSE"] = "8230c8670fe0e964c2451d8071d7f2db4fe33b53d699ea0f94a9e3bdc4b421ed",
-		["Package.toml"] = "8391f89869225b0db9ffef1e84db9624d0e3d6dcd888d8ee4861318863562ed9",
+		["Package.toml"] = "bb79ec34ef1f3d1698062e273d218cb2859bdbc54fde6ad57969520c0fc5b1cb",
 		["Client/Bind.lua"] = "d0a862aa19cd75501ae39372a8d2f9a789101a0d3263287ff3f99d9002d5af1e",
 		["Client/ConsoleEngine.lua"] = "e7a334afd2afab76edf4ded5c3b9f86a422c39b59209eb03b3adf6dd9d95e338",
 		["Client/EvalAPI.lua"] = "935f456701c414a3b74fc39bc09e2ea934674c5e866cef9bb10dc40bfb782b20",
