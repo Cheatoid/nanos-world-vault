@@ -15,9 +15,9 @@
 			".nvim-win64",
 			"node_modules",
 			"bin",
+			"obj",
 			"emsdk",
 			"imgui",
-			"luajit",
 			"publish"
 		],
 		"useGitIgnore": true,
@@ -28,6 +28,8 @@
 	"diagnostics.disable": [
 		"different-requires"
 	],
+	"diagnostics.workspaceEvent": "None",
+	"diagnostics.workspaceDelay": -1,
 	"diagnostics": {
 		"severity": {
 			"undefined-global": "Error",
