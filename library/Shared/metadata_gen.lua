@@ -19,11 +19,11 @@
 ---@type library.metadata_gen
 return {
 	package_version = "0.0.51",
-	timestamp = "2026-09-16 20:24:35",
-	commit_count = 350,
+	timestamp = "2026-09-17 10:41:34",
+	commit_count = 353,
 	tag_count = 48,
 	branch_name = "main",
-	prev_hash = "ba2ed0ba0fa0955335472322ab3e783ca28e6ad7",
+	prev_hash = "adaed23c635170727f4e0206158bc7f8e0aa7716",
 	is_preview = false,
 	tag = "v0.0.52",
 	owner = "Cheatoid",
@@ -143,7 +143,7 @@ return {
 		["Shared/@cheatoid/math/aabb.lua"] = "2e33af16cfc2fb3c6810e59cd070dcc873b4fddc173faaaf516f5b50b1228e18",
 		["Shared/@cheatoid/math/angle.lua"] = "ec0401fc5f1c1a8273a5911a74741a176f5b03ee912a94da536073815e867d9b",
 		["Shared/@cheatoid/math/camera.lua"] = "201f97ed36d08ae539555746ab39e6e225f51d21ac024f33941ddb5f98af25da",
-		["Shared/@cheatoid/math/collision.lua"] = "ed82e749d4c4787def529dcc844d024cf6efc3879c007bd565a3a9181fba56f6",
+		["Shared/@cheatoid/math/collision.lua"] = "173feff20ae00a03a356032d5fc62b4b3995993d793982fed2e219f8f42c04e9",
 		["Shared/@cheatoid/math/culling.lua"] = "b685d4e7df0c7c601a8d556ab180478ab7dcd9d1f27a3b5ec52eb155c0f3fad4",
 		["Shared/@cheatoid/math/euler.lua"] = "cb7c70b1d4730c62be840d6bf81c1496e34380da3541639a1ecc34ff82aa3f5c",
 		["Shared/@cheatoid/math/eval.lua"] = "98286edb350bd008eb44d3ef669998a7d52a33c0d7637efe15b6ceea9f4e6512",
